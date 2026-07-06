@@ -2,9 +2,12 @@
 
 import { ArrowLeft, Mail } from "lucide-react";
 import Link from "next/link";
-import { useId } from "react";
+import { useRouter } from "next/navigation";
+import { useId, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
+import { storageService } from "@/services/storage.service";
+import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Card } from "@/shared/components/ui/card";
@@ -13,14 +16,42 @@ import { AuthDivider } from "./auth-divider";
 import { AuthPasswordField } from "./auth-password-field";
 import { AuthTextField } from "./auth-text-field";
 import { SocialAuthButtons } from "./social-auth-buttons";
+import { loginUser } from "../services/auth.service";
 
 export function LoginForm() {
   const rememberId = useId();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const canSubmit = email.trim() !== "" && password !== "";
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!canSubmit || isSubmitting) return;
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const session = await loginUser({ email, password });
+      storageService.setAccessToken(session.tokens.accessToken);
+      storageService.setRefreshToken(session.tokens.refreshToken);
+      router.push(ROUTES.home);
+    } catch (error) {
+      setSubmitError(
+        getApiErrorMessage(error, "تعذر تسجيل الدخول، تحقق من بياناتك وحاول مرة أخرى."),
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <>
       <Card>
-        <form className="flex w-full flex-col gap-6">
+        <form className="flex w-full flex-col gap-6" onSubmit={handleSubmit}>
           <SocialAuthButtons />
           <AuthDivider label="أو عبر البريد" />
 
@@ -30,10 +61,15 @@ export function LoginForm() {
             icon={Mail}
             placeholder="name@company.com"
             autoComplete="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <AuthPasswordField
             label="كلمة المرور"
             autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <div className="flex w-full items-center justify-between pt-2">
@@ -54,9 +90,19 @@ export function LoginForm() {
             </Link>
           </div>
 
-          <Button type="submit" className="w-full">
+          {submitError && (
+            <p className="w-full text-right text-sm text-destructive">
+              {submitError}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!canSubmit || isSubmitting}
+          >
             <ArrowLeft className="size-4" />
-            <span>تسجيل دخول</span>
+            <span>{isSubmitting ? "جارٍ تسجيل الدخول..." : "تسجيل دخول"}</span>
           </Button>
         </form>
       </Card>

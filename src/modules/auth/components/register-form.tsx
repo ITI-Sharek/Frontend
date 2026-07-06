@@ -74,7 +74,7 @@ export function RegisterForm() {
       });
       storageService.setAccessToken(session.tokens.accessToken);
       storageService.setRefreshToken(session.tokens.refreshToken);
-      router.push(ROUTES.login);
+      router.push(ROUTES.home);
     } catch (error) {
       setSubmitError(
         getApiErrorMessage(error, "تعذر إنشاء الحساب، حاول مرة أخرى."),

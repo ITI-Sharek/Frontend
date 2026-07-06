@@ -34,3 +34,8 @@ export interface RegisterPayload {
   role: Extract<UserRole, "owner" | "contributor">;
   preferredLanguage: "en" | "ar";
 }
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
