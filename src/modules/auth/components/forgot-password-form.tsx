@@ -1,7 +1,5 @@
-"use client";
-
 import { ArrowLeft, Mail } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -31,7 +29,7 @@ export function ForgotPasswordForm() {
 
       <p className="w-full text-center text-base">
         <span className="text-muted-foreground">العودة الي </span>
-        <Link href={ROUTES.login} className="font-bold text-primary">
+        <Link to={ROUTES.login} className="font-bold text-primary">
           تسجيل الدخول
         </Link>
       </p>

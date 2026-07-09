@@ -1,8 +1,5 @@
-"use client";
-
 import { ArrowLeft, Mail } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useId, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -20,7 +17,7 @@ import { loginUser } from "../services/auth.service";
 
 export function LoginForm() {
   const rememberId = useId();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +35,7 @@ export function LoginForm() {
       const session = await loginUser({ email, password });
       storageService.setAccessToken(session.tokens.accessToken);
       storageService.setRefreshToken(session.tokens.refreshToken);
-      router.push(ROUTES.home);
+      navigate({ to: ROUTES.home });
     } catch (error) {
       setSubmitError(
         getApiErrorMessage(error, "تعذر تسجيل الدخول، تحقق من بياناتك وحاول مرة أخرى."),
@@ -83,7 +80,7 @@ export function LoginForm() {
               </label>
             </div>
             <Link
-              href={ROUTES.forgotPassword}
+              to={ROUTES.forgotPassword}
               className="text-sm font-semibold text-primary"
             >
               نسيت كلمة المرور؟
@@ -109,7 +106,7 @@ export function LoginForm() {
 
       <p className="w-full text-center text-base">
         <span className="text-muted-foreground">ليس لديك حساب؟ </span>
-        <Link href={ROUTES.register} className="font-bold text-primary">
+        <Link to={ROUTES.register} className="font-bold text-primary">
           إنشاء حساب جديد
         </Link>
       </p>

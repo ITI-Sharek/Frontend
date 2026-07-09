@@ -10,6 +10,8 @@
   --footer-bg: #f8fafc;
   --primary: #2dd4bf;
   --primary-foreground: #0e1513;
+  --brand-indigo: #2e3192;
+  --brand-indigo-foreground: #ffffff;
   --radius-card: 12px;
   --radius-input: 8px;
   --radius-social: 4px;
@@ -27,6 +29,8 @@
   --footer-bg: #09100e;
   --primary: #57f1db;
   --primary-foreground: #003731;
+  --brand-indigo: #9aa3f0;
+  --brand-indigo-foreground: #10132b;
   --radius-card: 8px;
   --radius-input: 4px;
   --radius-social: 2px;

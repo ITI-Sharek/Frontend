@@ -1,5 +1,3 @@
-"use client";
-
 import { Building2, Github, Globe, Wrench } from "lucide-react";
 import { useId } from "react";
 
@@ -16,9 +14,9 @@ import { ChipSelect } from "../chip-select";
 
 interface DetailsStepProps {
   data: SignupFormData;
-  onFieldChange: <K extends keyof SignupFormData>(
-    field: K,
-    value: SignupFormData[K],
+  onFieldChange: <TKey extends keyof SignupFormData>(
+    field: TKey,
+    value: SignupFormData[TKey],
   ) => void;
 }
 

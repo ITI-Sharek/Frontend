@@ -1,5 +1,3 @@
-"use client";
-
 import { Globe, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -9,7 +7,6 @@ export function AuthHeader() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- next-themes mount guard to avoid SSR/client theme mismatch
     setMounted(true);
   }, []);
 

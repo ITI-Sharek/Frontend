@@ -1,8 +1,5 @@
-"use client";
-
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -14,10 +11,8 @@ import { StepIndicator } from "@/shared/components/navigation/step-indicator";
 
 import { SIGNUP_STEPS } from "../constants/signup.constants";
 import { registerUser } from "../services/auth.service";
-import {
-  INITIAL_SIGNUP_FORM_DATA,
-  type SignupFormData,
-} from "../types/signup.types";
+import { INITIAL_SIGNUP_FORM_DATA } from "../types/signup.types";
+import type { SignupFormData } from "../types/signup.types";
 import { AccountStep } from "./register-steps/account-step";
 import { DetailsStep } from "./register-steps/details-step";
 import { RoleStep } from "./register-steps/role-step";
@@ -25,7 +20,7 @@ import { RoleStep } from "./register-steps/role-step";
 const TOTAL_STEPS = SIGNUP_STEPS.length;
 
 export function RegisterForm() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<SignupFormData>(
     INITIAL_SIGNUP_FORM_DATA,
@@ -33,9 +28,9 @@ export function RegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  function setField<K extends keyof SignupFormData>(
-    field: K,
-    value: SignupFormData[K],
+  function setField<TKey extends keyof SignupFormData>(
+    field: TKey,
+    value: SignupFormData[TKey],
   ) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
@@ -74,7 +69,7 @@ export function RegisterForm() {
       });
       storageService.setAccessToken(session.tokens.accessToken);
       storageService.setRefreshToken(session.tokens.refreshToken);
-      router.push(ROUTES.home);
+      navigate({ to: ROUTES.home });
     } catch (error) {
       setSubmitError(
         getApiErrorMessage(error, "تعذر إنشاء الحساب، حاول مرة أخرى."),
@@ -159,7 +154,7 @@ export function RegisterForm() {
 
       <p className="w-full text-center text-base">
         <span className="text-muted-foreground">لديك حساب بالفعل؟ </span>
-        <Link href={ROUTES.login} className="font-bold text-primary">
+        <Link to={ROUTES.login} className="font-bold text-primary">
           تسجيل الدخول
         </Link>
       </p>

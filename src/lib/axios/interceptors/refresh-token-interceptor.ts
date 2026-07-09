@@ -1,8 +1,5 @@
-import axios, {
-  type AxiosError,
-  type AxiosInstance,
-  type InternalAxiosRequestConfig,
-} from "axios";
+import axios from "axios";
+import type {AxiosError, AxiosInstance, InternalAxiosRequestConfig} from "axios";
 
 import { ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
@@ -43,15 +40,16 @@ export function setupRefreshTokenInterceptor(instance: AxiosInstance) {
   instance.interceptors.response.use(undefined, async (error: AxiosError) => {
     const config = error.config as RetriableRequestConfig | undefined;
 
-    const canRefresh =
-      typeof window !== "undefined" &&
-      error.response?.status === 401 &&
-      config !== undefined &&
-      !config._retry &&
-      !NO_REFRESH_URLS.some((url) => config.url?.includes(url)) &&
-      storageService.getRefreshToken() !== null;
-
-    if (!canRefresh || !config) throw error;
+    if (
+      typeof window === "undefined" ||
+      error.response?.status !== 401 ||
+      config === undefined ||
+      config._retry ||
+      NO_REFRESH_URLS.some((url) => config.url?.includes(url)) ||
+      storageService.getRefreshToken() === null
+    ) {
+      throw error;
+    }
 
     config._retry = true;
     try {
