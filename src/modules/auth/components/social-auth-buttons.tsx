@@ -1,4 +1,5 @@
 import { Github } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -26,16 +27,46 @@ function GoogleIcon() {
 }
 
 export function SocialAuthButtons() {
+  const [message, setMessage] = useState<string | null>(null);
+
+  function showUnavailableMessage(provider: "GitHub" | "Google") {
+    setMessage(
+      provider === "GitHub"
+        ? "تسجيل الدخول عبر GitHub غير متاح من هذه الصفحة حاليًا. سجّل بالبريد الإلكتروني أولًا، ثم اربط GitHub من حسابك."
+        : "تسجيل الدخول عبر Google غير مفعّل في الخادم حاليًا. استخدم البريد الإلكتروني الآن.",
+    );
+  }
+
   return (
-    <div className="flex w-full gap-4" dir="ltr">
-      <Button type="button" variant="outline" size="sm" className="flex-1">
-        <span>GitHub</span>
-        <Github className="size-4" />
-      </Button>
-      <Button type="button" variant="outline" size="sm" className="flex-1">
-        <span>google</span>
-        <GoogleIcon />
-      </Button>
+    <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full gap-4" dir="ltr">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex-1"
+          onClick={() => showUnavailableMessage("GitHub")}
+        >
+          <span>GitHub</span>
+          <Github className="size-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex-1"
+          onClick={() => showUnavailableMessage("Google")}
+        >
+          <span>Google</span>
+          <GoogleIcon />
+        </Button>
+      </div>
+
+      {message && (
+        <p className="text-right text-xs leading-5 text-muted-foreground" role="status">
+          {message}
+        </p>
+      )}
     </div>
   );
 }

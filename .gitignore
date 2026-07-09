@@ -13,9 +13,17 @@
 # testing
 /coverage
 
-# next.js
+# tanstack start / vite
+/.output/
+/.vinxi/
+/.nitro/
+/.tanstack/
+/dist/
+/dist-ssr/
+/src/routeTree.gen.ts
+
+# next.js (leftover cache from pre-migration dev server)
 /.next/
-/out/
 
 # production
 /build
@@ -38,5 +46,4 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 conversations/

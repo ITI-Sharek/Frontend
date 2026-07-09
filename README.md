@@ -1,33 +1,33 @@
 # ShareK Frontend
 
-A modern, responsive frontend application built with Next.js, TypeScript, and Tailwind CSS for the ShareK platform.
+A modern, responsive frontend application built with TanStack Start, TypeScript, and Tailwind CSS for the ShareK platform.
 
 ## Overview
 
-ShareK Frontend is a Next.js application that provides a user interface for the ShareK platform. The project is structured with a modular architecture, featuring authentication flows, reusable UI components, and a clean separation of concerns.
+ShareK Frontend is a TanStack Start (React, file-based routing, SSR via Vite/Nitro) application that provides a user interface for the ShareK platform. The project is structured with a modular architecture, featuring authentication flows, reusable UI components, and a clean separation of concerns.
 
 ## Features
 
-- **Modern Tech Stack**: Built with Next.js 16, React 19, and TypeScript
+- **Modern Tech Stack**: Built with TanStack Start, TanStack Router, React 19, and TypeScript
 - **Responsive Design**: Fully responsive UI built with Tailwind CSS
 - **Authentication Pages**: Complete login, registration, and password recovery flows
 - **Component Library**: Pre-built UI components (buttons, inputs, cards, checkboxes, labels)
-- **Theme Support**: Dark mode support with `next-themes`
+- **Theme Support**: Dark mode support through the shared theme provider
 - **Icons**: Icon library via `lucide-react`
 - **Type Safety**: Full TypeScript support for better development experience
 - **ESLint Configuration**: Code quality and consistency checks
 
 ## Tech Stack
 
-- **Framework**: [Next.js 16.2.10](https://nextjs.org/)
+- **Framework**: [TanStack Start](https://tanstack.com/start) (Vite + [TanStack Router](https://tanstack.com/router))
 - **UI Library**: [React 19.2.4](https://react.dev/)
-- **Language**: [TypeScript 5](https://www.typescriptlang.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **UI Components**: 
   - [shadcn/ui](https://ui.shadcn.com/) components (Button, Input, Card, etc.)
   - [Radix UI](https://www.radix-ui.com/) for accessible component primitives
   - [Lucide React](https://lucide.dev/) for icons
-- **Theme Management**: [next-themes](https://github.com/pacocoursey/next-themes)
+- **Theme Management**: Shared React theme provider
 - **Utilities**: clsx, class-variance-authority, tailwind-merge
 - **Package Manager**: [pnpm](https://pnpm.io/)
 
@@ -35,26 +35,29 @@ ShareK Frontend is a Next.js application that provides a user interface for the 
 
 ```
 src/
-├── app/                    # Next.js app directory & routes
-│   ├── (auth)/            # Authentication routes group
-│   │   ├── login/
-│   │   ├── register/
-│   │   └── forgot-password/
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── modules/               # Feature modules
-│   └── auth/              # Authentication module
-│       ├── components/    # Auth-specific components
-│       └── index.ts       # Module exports
-├── shared/                # Shared components & utilities
+├── routes/                # TanStack Router file-based routes
+│   ├── __root.tsx         # Root document (html shell, providers, global head)
+│   ├── index.tsx          # Home page ("/")
+│   ├── _authLayout.tsx    # Pathless layout for auth pages (header/footer)
+│   └── _authLayout/       # Auth routes sharing the layout above
+│       ├── login.tsx
+│       ├── register.tsx
+│       └── forgot-password.tsx
+├── router.tsx              # Router instance factory
+├── modules/                # Feature modules
+│   └── auth/                # Authentication module
+│       ├── components/       # Auth-specific components
+│       └── index.ts          # Module exports
+├── shared/                 # Shared components & utilities
 │   └── components/
-│       ├── layout/        # Layout components (header, footer)
-│       └── ui/            # Reusable UI components
-├── config/                # Configuration files
-│   └── routes.config.ts   # Route configuration
-├── lib/                   # Utility functions
-├── providers/             # App providers (theme, etc.)
-├── styles/                # Global styles
+│       ├── layout/           # Layout components (header, footer)
+│       └── ui/                # Reusable UI components
+├── config/                 # Configuration files
+│   └── routes.config.ts     # Route configuration
+├── lib/                    # Utility functions
+├── providers/              # App providers (theme, etc.)
+├── styles.css              # Global styles entry (imports styles/tokens.css)
+├── styles/                 # Design tokens
 └── ...
 ```
 
@@ -94,7 +97,8 @@ The app will auto-update as you edit files.
 
 - **`pnpm dev`** - Start the development server
 - **`pnpm build`** - Build the application for production
-- **`pnpm start`** - Start the production server
+- **`pnpm start`** - Preview the production build
+- **`pnpm generate-routes`** - Regenerate `src/routeTree.gen.ts` from the files in `src/routes/`
 - **`pnpm lint`** - Run ESLint to check code quality
 
 ## Pages
@@ -134,7 +138,7 @@ Route configuration is managed in `src/config/routes.config.ts` for centralized 
 
 ### Theme Configuration
 
-Theme settings are configured using `next-themes` and can be customized in the theme provider.
+Theme settings are configured in `src/providers/theme-provider.tsx` and mounted through `src/providers/app-providers.tsx`.
 
 ### TypeScript
 
@@ -179,15 +183,16 @@ pnpm start
 
 ## Deployment
 
-The application can be deployed to various platforms:
+TanStack Start builds to a standard Nitro server output (`pnpm build`), deployable to:
 
-- **Vercel** (Recommended) - Deploy Next.js apps directly
+- **Node hosting** - Run the built server output directly
 - **Docker** - Containerize using Dockerfile
-- **Traditional Hosting** - Use `next build` and `next start`
+- **Nitro-supported platforms** - Cloudflare, Netlify, Vercel, etc. via the appropriate Nitro preset
 
 ## Learn More
 
-- [Next.js Documentation](https://nextjs.org/docs)
+- [TanStack Start Documentation](https://tanstack.com/start)
+- [TanStack Router Documentation](https://tanstack.com/router)
 - [React Documentation](https://react.dev/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)

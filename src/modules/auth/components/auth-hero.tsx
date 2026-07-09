@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 interface AuthHeroProps {
   heading: string;
   subtext: string;
@@ -8,12 +6,11 @@ interface AuthHeroProps {
 export function AuthHero({ heading, subtext }: AuthHeroProps) {
   return (
     <div className="flex w-full flex-col items-center gap-6">
-      <Image
+      <img
         src="/logo-1.png"
         alt="Sharek"
         width={100}
         height={100}
-        priority
         className="size-20 object-cover"
       />
       <div className="flex w-full flex-col items-center gap-2">
