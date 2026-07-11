@@ -1,5 +1,5 @@
 import { ArrowLeft, Mail } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useId, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -14,10 +14,14 @@ import { AuthPasswordField } from "./auth-password-field";
 import { AuthTextField } from "./auth-text-field";
 import { SocialAuthButtons } from "./social-auth-buttons";
 import { loginUser } from "../services/auth.service";
+import type { AuthSessionDto } from "../types/auth.types";
 
-export function LoginForm() {
+interface LoginFormProps {
+  onLoginSuccess?: (session: AuthSessionDto) => void | Promise<void>;
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const rememberId = useId();
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +39,7 @@ export function LoginForm() {
       const session = await loginUser({ email, password });
       storageService.setAccessToken(session.tokens.accessToken);
       storageService.setRefreshToken(session.tokens.refreshToken);
-      navigate({ to: ROUTES.home });
+      await onLoginSuccess?.(session);
     } catch (error) {
       setSubmitError(
         getApiErrorMessage(error, "تعذر تسجيل الدخول، تحقق من بياناتك وحاول مرة أخرى."),
