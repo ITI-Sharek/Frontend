@@ -1,3 +1,4 @@
 {
-  "target": "react"
+  "target": "react",
+  "routeFileIgnorePattern": ".*(\\.test|\\.helpers|profile-route-state)\\.(ts|tsx)$"
 }
