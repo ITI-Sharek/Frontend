@@ -3,9 +3,23 @@
 ## Prerequisites
 
 - Frontend dependencies installed with `pnpm install`.
-- Backend API available at the configured `VITE_API_URL`.
+- Backend API available at `http://localhost:3000`, or at the configured
+  `VITE_API_URL`.
 - At least one contributor account with a unique username.
 - At least one non-contributor account for role-based redirect validation.
+
+The frontend dev server runs on `http://localhost:3001` by default so the backend
+can keep the API handoff default of `http://localhost:3000`:
+
+```bash
+pnpm dev
+```
+
+If your backend runs on a different port, point the frontend to it explicitly:
+
+```bash
+VITE_API_URL=http://localhost:<backend-port> pnpm dev
+```
 
 ## Static Validation
 
@@ -80,9 +94,10 @@ Expected outcome: The user is required to authenticate before the profile is sho
 
 ## Validation Evidence
 
-- 2026-07-10: `pnpm lint` passed.
-- 2026-07-10: `pnpm test` passed with 5 test files and 13 tests covering route helper behavior, contributor profile section visibility, privacy prompts, retryable errors, and profile route states.
-- 2026-07-10: `pnpm generate-routes` passed without route scanning warnings.
-- 2026-07-10: `pnpm build` passed for client and SSR bundles.
-- 2026-07-10: Boundary check found no lateral `@/modules/*` imports from `src/modules` or `src/shared`.
-- Live manual login/profile scenarios still require a running backend API and test accounts at `VITE_API_URL`.
+- 2026-07-11: `pnpm lint` passed.
+- 2026-07-11: `pnpm exec tsc --noEmit` passed after generating TanStack routes.
+- 2026-07-11: `pnpm test` passed with 5 test files and 18 tests covering route helper behavior, route-level unauthenticated redirect wiring, contributor profile section visibility, privacy prompts, retryable errors, and profile route states.
+- 2026-07-11: `pnpm generate-routes` passed.
+- 2026-07-11: `pnpm build` passed for client and SSR bundles.
+- Live manual login/profile scenarios are pending because they require a running backend API and test accounts at `VITE_API_URL`.
+- Login-to-meaningful-profile timing against the 5-second target is pending until the backend profile endpoints are available.

@@ -63,7 +63,7 @@
 - [X] T018 [US1] Compose contributor profile query and route params in `src/routes/_appLayout/profile.$username.tsx`
 - [X] T019 [US1] Add contributor post-login orchestration that ensures the contributor profile then navigates by username in `src/routes/_authLayout/login.tsx`
 - [X] T020 [US1] Add already-authenticated contributor redirect behavior that also ensures a profile exists before profile navigation in `src/routes/_authLayout/login.tsx`
-- [X] T021 [US1] Run User Story 1 quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md`
+- [ ] T021 [US1] Run User Story 1 live quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md` once a backend API and contributor/non-contributor test accounts are available
 
 **Checkpoint**: User Story 1 is independently functional as the MVP.
 
@@ -88,7 +88,7 @@
 - [X] T027 [US2] Add owner completion prompts to contributor profile view in `src/modules/contributors/components/contributor-profile-view.tsx`
 - [X] T028 [US2] Add authenticated non-owner private-field hiding to contributor profile view in `src/modules/contributors/components/contributor-profile-view.tsx`
 - [X] T029 [US2] Wire profile view component into route composition in `src/routes/_appLayout/profile.$username.tsx`
-- [X] T030 [US2] Run User Story 2 quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md`
+- [ ] T030 [US2] Run User Story 2 live quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md` once a backend API and authenticated viewer test accounts are available
 
 **Checkpoint**: Contributor profile display is complete and independently testable.
 
@@ -112,7 +112,7 @@
 - [X] T035 [US3] Add retryable error handling to contributor profile route in `src/routes/_appLayout/profile.$username.tsx`
 - [X] T036 [US3] Add unauthenticated profile access handling to contributor profile route in `src/routes/_appLayout/profile.$username.tsx`
 - [X] T037 [US3] Add unknown username handling to contributor profile route in `src/routes/_appLayout/profile.$username.tsx`
-- [X] T038 [US3] Run User Story 3 quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md`
+- [ ] T038 [US3] Run User Story 3 live quickstart scenarios in `specs/001-contributor-profile-redirect/quickstart.md` once a backend API and authenticated/unauthenticated browser scenarios are available
 
 **Checkpoint**: Failure and recovery states are complete.
 
@@ -124,7 +124,7 @@
 
 - [X] T039 [P] Add final quickstart evidence notes to `specs/001-contributor-profile-redirect/quickstart.md`
 - [X] T040 Verify all changed source files avoid lateral module imports and deep internal module imports in `src/`
-- [X] T041 Measure login-to-meaningful-profile timing against the 5-second target in `specs/001-contributor-profile-redirect/quickstart.md`
+- [ ] T041 Measure login-to-meaningful-profile timing against the 5-second target in `specs/001-contributor-profile-redirect/quickstart.md` once the backend profile endpoints are available
 - [X] T042 Run lint validation defined in `package.json` with `pnpm lint`
 - [X] T043 Run test validation defined in `package.json` with `pnpm test`
 - [X] T044 Run route generation validation defined in `package.json` with `pnpm generate-routes`
