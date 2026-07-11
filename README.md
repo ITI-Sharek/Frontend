@@ -89,9 +89,32 @@ Run the development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+Open [http://localhost:3001](http://localhost:3001) in your browser to see the application.
 
 The app will auto-update as you edit files.
+
+### Backend API
+
+The contributor profile API handoff uses `http://localhost:3000` as the default
+backend. The frontend axios client uses that same URL when `VITE_API_URL` is not
+set.
+
+```bash
+pnpm dev
+```
+
+If your backend runs on a different port, point the frontend to it explicitly:
+
+```bash
+VITE_API_URL=http://localhost:<backend-port> pnpm dev
+```
+
+Contributor profile redirect requires these backend endpoints:
+
+- `POST /auth/login`
+- `GET /auth/me`
+- `POST /contributors/profiles/me/ensure`
+- `GET /contributors/profiles/:username`
 
 ## Available Scripts
 
