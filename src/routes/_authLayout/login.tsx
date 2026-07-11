@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authLayout/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [retryUser, setRetryUser] = useState<AuthUserDto | null>(null);
 
   async function navigateAfterAuth(user: AuthUserDto) {
     if (shouldEnsureContributorProfile(user)) {
@@ -37,7 +38,19 @@ function LoginPage() {
   }
 
   async function handleLoginSuccess(session: AuthSessionDto) {
+    setRetryUser(session.user);
     await navigateAfterAuth(session.user);
+  }
+
+  async function retryContributorProfileNavigation() {
+    if (!retryUser) return;
+
+    try {
+      setSessionError(null);
+      await navigateAfterAuth(retryUser);
+    } catch {
+      setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
+    }
   }
 
   useEffect(() => {
@@ -46,8 +59,15 @@ function LoginPage() {
     let isActive = true;
 
     getCurrentUser()
-      .then((user) => {
-        if (isActive) void navigateAfterAuth(user);
+      .then(async (user) => {
+        if (!isActive) return;
+
+        setRetryUser(user);
+        try {
+          await navigateAfterAuth(user);
+        } catch {
+          setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
+        }
       })
       .catch(() => {
         storageService.clearTokens();
@@ -64,9 +84,7 @@ function LoginPage() {
       {sessionError && (
         <ContributorProfileErrorView
           message={sessionError}
-          onRetry={() => {
-            setSessionError(null);
-          }}
+          onRetry={retryContributorProfileNavigation}
         />
       )}
       <LoginForm
@@ -75,6 +93,7 @@ function LoginPage() {
             setSessionError(null);
             await handleLoginSuccess(session);
           } catch {
+            setRetryUser(session.user);
             setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
           }
         }}
