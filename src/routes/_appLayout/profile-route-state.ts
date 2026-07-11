@@ -1,6 +1,11 @@
 import { ContributorProfileError } from "@/modules/contributors";
 
-export type ProfileRouteState = "loading" | "ready" | "not-found" | "error";
+export type ProfileRouteState =
+  | "loading"
+  | "ready"
+  | "not-found"
+  | "unauthenticated"
+  | "error";
 
 export function getProfileRouteState({
   isPending,
@@ -17,6 +22,12 @@ export function getProfileRouteState({
     error.code === "not-found"
   ) {
     return "not-found";
+  }
+  if (
+    error instanceof ContributorProfileError &&
+    error.code === "unauthenticated"
+  ) {
+    return "unauthenticated";
   }
   if (error) return "error";
   if (hasData) return "ready";

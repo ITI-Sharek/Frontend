@@ -23,14 +23,14 @@ describe("profile route state", () => {
     ).toBe("not-found");
   });
 
-  it("returns error for unauthenticated access", () => {
+  it("returns unauthenticated for expired or invalid profile sessions", () => {
     expect(
       getProfileRouteState({
         isPending: false,
         hasData: false,
         error: new ContributorProfileError("Login required", "unauthenticated"),
       }),
-    ).toBe("error");
+    ).toBe("unauthenticated");
   });
 });
 

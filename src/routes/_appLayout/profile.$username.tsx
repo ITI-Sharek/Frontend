@@ -50,6 +50,14 @@ function ContributorProfilePage() {
       );
     }
 
+    if (routeState === "unauthenticated") {
+      return (
+        <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4">
+          <ContributorProfileErrorView message="انتهت الجلسة. سجل دخولك مجدداً لعرض ملف المساهم." />
+        </div>
+      );
+    }
+
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4">
         <ContributorProfileErrorView
