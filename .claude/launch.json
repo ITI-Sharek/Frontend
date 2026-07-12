@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sharek-frontend-preview",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "pnpm exec vite dev --port \"$PORT\""],
+      "autoPort": true
+    }
+  ]
+}
