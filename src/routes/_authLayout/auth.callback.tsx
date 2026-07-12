@@ -1,0 +1,265 @@
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { getPostLoginPath, ROUTES } from "@/config/routes.config";
+import { AuthHero, getCurrentUser } from "@/modules/auth";
+import type { AuthTokensDto, AuthUserDto } from "@/modules/auth";
+import {
+  buildDemoSocialAuthSelectedUrl,
+  clearPendingSocialAuth,
+  completeSocialAuthCallback,
+  getSocialAuthProviderLabel,
+  readPendingSocialAuth,
+  readSocialAuthCallbackResult,
+} from "@/modules/auth/services/social-auth.service";
+import type {
+  SocialAuthIntent,
+  SocialAuthProvider,
+} from "@/modules/auth/services/social-auth.service";
+import { ensureCurrentContributorProfile } from "@/modules/contributors";
+import {
+  clearPendingGitHubConnect,
+  completeGitHubOAuth,
+  readPendingGitHubConnect,
+} from "@/modules/github";
+import { storageService } from "@/services/storage.service";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+
+import { shouldEnsureContributorProfile } from "./login.helpers";
+
+export const Route = createFileRoute("/_authLayout/auth/callback")({
+  head: () => ({
+    meta: [{ title: "تسجيل الدخول | Sharek" }],
+  }),
+  component: AuthCallbackPage,
+});
+
+function persistTokens(tokens: AuthTokensDto) {
+  storageService.setAccessToken(tokens.accessToken);
+  storageService.setRefreshToken(tokens.refreshToken);
+}
+
+function AuthCallbackPage() {
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [demoSelection, setDemoSelection] = useState<{
+    provider: SocialAuthProvider;
+    intent: SocialAuthIntent;
+  } | null>(null);
+
+  async function navigateAfterSocialAuth(
+    user: AuthUserDto,
+    options: { ensureContributorProfile: boolean },
+  ) {
+    if (
+      options.ensureContributorProfile &&
+      shouldEnsureContributorProfile(user)
+    ) {
+      const profile = await ensureCurrentContributorProfile();
+      navigate({ to: ROUTES.contributorProfile(profile.username) });
+      return;
+    }
+
+    navigate({ to: getPostLoginPath(user) });
+  }
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function completeSocialAuth() {
+      const result = readSocialAuthCallbackResult(window.location.search);
+
+      try {
+        if (result.status === "error") {
+          setErrorMessage(result.message);
+          return;
+        }
+
+        if (result.status === "missing") {
+          setErrorMessage("لم تصل بيانات تسجيل الدخول من مزود الحساب.");
+          return;
+        }
+
+        if (result.status === "demo-select") {
+          if (isActive) {
+            setDemoSelection({
+              provider: result.provider,
+              intent: result.intent,
+            });
+          }
+          return;
+        }
+
+        if (result.status === "demo" || result.status === "session") {
+          persistTokens(result.session.tokens);
+          await navigateAfterSocialAuth(result.session.user, {
+            ensureContributorProfile: result.status !== "demo",
+          });
+          return;
+        }
+
+        if (result.status === "code") {
+          // Real provider redirect. Two flows can land here — GitHub account
+          // *connection* (started from the profile/settings while logged in)
+          // and social *sign-in* — distinguished by their pending records.
+          const pendingConnect = readPendingGitHubConnect();
+          if (pendingConnect) {
+            await completeGitHubOAuth({
+              code: result.code,
+              state: result.state,
+            });
+            clearPendingGitHubConnect();
+            if (!isActive) return;
+            navigate({ to: pendingConnect.returnTo });
+            return;
+          }
+
+          const pending = readPendingSocialAuth();
+          if (!pending) {
+            setErrorMessage(
+              "انتهت جلسة تسجيل الدخول عبر مزود الحساب. ابدأ من جديد.",
+            );
+            return;
+          }
+
+          const session = await completeSocialAuthCallback(
+            pending.provider,
+            result.code,
+            result.state,
+          );
+          clearPendingSocialAuth();
+          if (!isActive) return;
+
+          persistTokens(session.tokens);
+          await navigateAfterSocialAuth(session.user, {
+            ensureContributorProfile: true,
+          });
+          return;
+        }
+
+        persistTokens(result.tokens);
+        const user = await getCurrentUser();
+        if (!isActive) return;
+
+        await navigateAfterSocialAuth(user, { ensureContributorProfile: true });
+      } catch {
+        clearPendingSocialAuth();
+        clearPendingGitHubConnect();
+        storageService.clearTokens();
+        if (isActive) {
+          setErrorMessage("تعذر إكمال تسجيل الدخول عبر مزود الحساب.");
+        }
+      }
+    }
+
+    completeSocialAuth();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  return (
+    <>
+      <AuthHero
+        heading={
+          demoSelection
+            ? `اختر حساب ${getSocialAuthProviderLabel(demoSelection.provider)}`
+            : "إكمال تسجيل الدخول"
+        }
+        subtext={
+          demoSelection ? "محاكاة تجريبية لاختيار الحساب" : "نعالج رد مزود الحساب"
+        }
+      />
+      <Card className="items-center text-center">
+        {demoSelection ? (
+          <DemoAccountSelection
+            provider={demoSelection.provider}
+            intent={demoSelection.intent}
+          />
+        ) : errorMessage ? (
+          <div className="flex w-full flex-col items-center gap-4">
+            <p className="text-sm text-destructive">{errorMessage}</p>
+            <Button asChild variant="outline">
+              <Link to={ROUTES.login}>العودة لتسجيل الدخول</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="flex w-full items-center justify-center gap-3 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" />
+            <span>جارٍ إكمال تسجيل الدخول...</span>
+          </div>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function DemoAccountSelection({
+  provider,
+  intent,
+}: {
+  provider: SocialAuthProvider;
+  intent: SocialAuthIntent;
+}) {
+  const providerLabel = getSocialAuthProviderLabel(provider);
+  const accounts = [
+    {
+      id: "primary",
+      name: `${providerLabel} Demo`,
+      email: `${provider}.primary.demo@example.com`,
+    },
+    {
+      id: "team",
+      name: `${providerLabel} Team Demo`,
+      email: `${provider}.team.demo@example.com`,
+    },
+  ];
+
+  return (
+    <div className="flex w-full flex-col gap-4 text-right">
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-semibold text-foreground">
+          اختر الحساب الذي تريد المتابعة به
+        </p>
+        <p className="text-xs leading-5 text-muted-foreground">
+          هذه شاشة demo محلية بدل نافذة {providerLabel} الحقيقية.
+        </p>
+      </div>
+
+      <div className="flex w-full flex-col gap-3" dir="ltr">
+        {accounts.map((account) => (
+          <Button
+            key={account.id}
+            type="button"
+            variant="outline"
+            className="w-full justify-between px-4 py-3 text-left"
+            onClick={() => {
+              window.location.assign(
+                buildDemoSocialAuthSelectedUrl({
+                  provider,
+                  intent,
+                  account: account.id,
+                }),
+              );
+            }}
+          >
+            <span className="flex min-w-0 flex-col items-start">
+              <span className="truncate text-sm font-semibold">
+                {account.name}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {account.email}
+              </span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {providerLabel}
+            </span>
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}

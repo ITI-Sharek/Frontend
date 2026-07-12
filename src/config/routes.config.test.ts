@@ -7,6 +7,10 @@ describe("route config", () => {
     expect(ROUTES.contributorProfile("sara ahmed")).toBe("/profile/sara%20ahmed");
   });
 
+  it("exposes the social auth callback route", () => {
+    expect(ROUTES.authCallback).toBe("/auth/callback");
+  });
+
   it("routes contributor users to their username profile", () => {
     expect(getPostLoginPath({ role: "contributor", username: "mona" })).toBe(
       "/profile/mona",
