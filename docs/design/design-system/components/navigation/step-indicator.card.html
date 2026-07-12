@@ -1,0 +1,21 @@
+<!-- @dsCard group="Components" viewport="700x140" name="Step Indicator" -->
+<html><head><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;font-family:var(--font-sans);background:var(--background)}</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { StepIndicator } = window.ShareKDesignSystem_b6d289;
+function Demo() {
+  return (
+    <div style={{padding:24}}>
+      <StepIndicator steps={["الدور","بيانات الحساب","التفاصيل"]} currentStep={1} />
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script>
+</body></html>

@@ -2,7 +2,9 @@
 #
 # How to use:
 # 1. Install the VS Code extension: REST Client.
-# 2. Run the backend locally. Default URL is http://localhost:3000.
+# 2. Run the backend locally. Default URL is http://localhost:4000 (approved
+#    local ports per DEC-023: frontend 3001, backend 4000, Postgres 5432,
+#    Redis 6379). Routes are unprefixed — no /api base path (DEC-024).
 # 3. Open this file and click "Send Request" above any request.
 # 4. Start with Health, then Register/Login, then protected requests.
 # 5. Do not run every request blindly. Some requests are optional, like
@@ -27,7 +29,7 @@
 # - Refresh creates a new access token for the same session. After refresh,
 #   the old login access token is no longer the active token.
 
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:4000
 @ownerEmail = owner@example.com
 @contributorEmail = contributor@example.com
 @adminEmail = admin@example.com

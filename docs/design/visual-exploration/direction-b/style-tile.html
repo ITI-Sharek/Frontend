@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share-k · Direction B — Workbench · Style Tile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ————— Direction B · WORKBENCH (الورشة) — token set ————— */
+  :root{
+    --bg:#0F141A; --panel:#161D26; --panel-2:#1C2530; --seam:#232C38; --seam-2:#2E3A49;
+    --text:#C9D1D9; --text-2:#8B98A5; --head:#F0F4F8;
+    --cyan:#4CC2E8; --cyan-deep:#1FA8D4;   /* primary action */
+    --yellow:#E8C547;                       /* attention */
+    --green:#57C77B;                        /* success/verified */
+    --red:#E5776B;                          /* errors */
+    --violet:#A78BFA;                       /* AI moments only */
+    --r:8px;
+    --sans:'Geist','IBM Plex Sans Arabic',sans-serif;
+    --mono:'Geist Mono',monospace;
+    --ar:'IBM Plex Sans Arabic',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.55 var(--sans);padding:56px 40px}
+  .sheet{max-width:1180px;margin:0 auto}
+  h1{font-size:34px;font-weight:600;color:var(--head);letter-spacing:-.01em}
+  .kicker{font:12px/1 var(--mono);letter-spacing:.1em;color:var(--text-2);margin-bottom:10px}
+  .kicker::before{content:'// ';color:var(--cyan)}
+  .lede{color:var(--text-2);max-width:64ch;margin-top:10px}
+  section{border-top:1px solid var(--seam);margin-top:52px;padding-top:34px}
+  h2{font:600 13px var(--mono);letter-spacing:.06em;color:var(--head);margin-bottom:4px}
+  h2::before{content:'// ';color:var(--cyan)}
+  .sub{color:var(--text-2);font-size:14px;margin-bottom:24px;max-width:70ch}
+  .grid{display:grid;gap:18px}
+  .c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .cell{border:1px solid var(--seam);border-radius:var(--r);background:var(--panel);padding:20px}
+  .lbl{font:11px/1 var(--mono);letter-spacing:.08em;color:var(--text-2);margin-bottom:12px}
+  /* brand */
+  .brandrow{display:flex;gap:18px}
+  .logoplate{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:44px 20px;border:1px solid var(--seam);border-radius:var(--r);background:var(--panel);position:relative;overflow:hidden}
+  .logoplate .dots{position:absolute;inset:0;background-image:radial-gradient(#26313E 1px,transparent 1px);background-size:18px 18px;opacity:.55}
+  .logoplate img{width:120px;position:relative;background:#fff;border-radius:12px;padding:10px}
+  .wordmark{display:flex;align-items:baseline;gap:12px;margin-top:18px;position:relative}
+  .wordmark b{font:600 24px var(--mono);color:var(--head);letter-spacing:-.02em}
+  .wordmark span{font-family:var(--ar);font-size:20px;color:var(--text-2)}
+  /* swatches */
+  .sw{border-radius:var(--r);border:1px solid var(--seam);overflow:hidden}
+  .sw .chip{height:64px}
+  .sw .meta{padding:8px 10px;font:11px/1.5 var(--mono);color:var(--text-2);background:var(--panel)}
+  /* type */
+  .type-display{font-size:42px;font-weight:600;color:var(--head);letter-spacing:-.02em;line-height:1.12}
+  .type-display em{font-style:normal;color:var(--cyan)}
+  .type-body{font-size:15px;color:var(--text);max-width:56ch}
+  .type-mono{font:13px/1.7 var(--mono);background:var(--bg);border:1px solid var(--seam);border-radius:var(--r);padding:12px 14px;display:block;color:var(--text)}
+  .type-mono .c{color:var(--text-2)} .type-mono .g{color:var(--green)} .type-mono .y{color:var(--yellow)} .type-mono .cy{color:var(--cyan)}
+  .type-ar{font-family:var(--ar);direction:rtl;font-size:21px;font-weight:700;color:var(--head)}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--sans);border-radius:var(--r);padding:11px 18px;border:1px solid transparent;cursor:pointer;transition:all .12s}
+  .btn-primary{background:var(--cyan);color:#08121A}
+  .btn-primary:hover{background:#6FD0EE}
+  .btn-secondary{background:var(--panel-2);border-color:var(--seam-2);color:var(--head)}
+  .btn-secondary:hover{border-color:var(--cyan)}
+  .btn-ghost{background:transparent;color:var(--text-2)}
+  .btn-ghost:hover{color:var(--head);background:var(--panel-2)}
+  /* inputs */
+  .input{display:flex;align-items:center;gap:10px;border:1px solid var(--seam-2);background:var(--bg);border-radius:var(--r);padding:11px 14px;color:var(--text-2);font-size:14px}
+  .input kbd{margin-left:auto;font:11px var(--mono);border:1px solid var(--seam-2);border-radius:5px;padding:3px 6px;color:var(--text-2)}
+  .select{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--seam-2);background:var(--panel-2);border-radius:var(--r);padding:10px 14px;font:13px var(--mono);color:var(--head)}
+  .select small{color:var(--text-2)}
+  /* chips + badges */
+  .tag{display:inline-flex;align-items:center;gap:6px;font:12px/1 var(--mono);border:1px solid var(--seam-2);border-radius:6px;padding:5px 9px;background:var(--panel-2);color:var(--text)}
+  .tag.verified{border-color:rgba(87,199,123,.5);color:var(--green);background:rgba(87,199,123,.08)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font:600 11px/1 var(--mono);letter-spacing:.05em;border-radius:6px;padding:5px 8px}
+  .b-beg{background:rgba(139,152,165,.12);color:var(--text);border:1px solid var(--seam-2)}
+  .b-int{background:rgba(76,194,232,.1);color:var(--cyan);border:1px solid rgba(76,194,232,.4)}
+  .b-adv{background:rgba(232,197,71,.1);color:var(--yellow);border:1px solid rgba(232,197,71,.4)}
+  .vbadge{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--mono);color:var(--green);background:rgba(87,199,123,.08);border:1px solid rgba(87,199,123,.5);border-radius:6px;padding:5px 9px}
+  /* match */
+  .match{border:1px solid var(--seam);border-inline-start:3px solid var(--green);border-radius:var(--r);background:var(--panel);padding:14px 16px;max-width:430px;font-family:var(--mono)}
+  .match .verdict{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .match .verdict b{font-size:13.5px;color:var(--green)}
+  .match .conf{font-size:11px;color:var(--text-2)}
+  .match ul{list-style:none;font-size:12.5px;color:var(--text)}
+  .match li{padding:3px 0;display:flex;gap:8px}
+  .match li .m{width:16px}
+  .m-plus{color:var(--green)} .m-tilde{color:var(--yellow)} .m-minus{color:var(--red)}
+  .match .foot{margin-top:10px;padding-top:8px;border-top:1px solid var(--seam);font:12px var(--sans);color:var(--text-2)}
+  /* banner */
+  .banner{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(232,197,71,.4);background:rgba(232,197,71,.07);border-radius:var(--r);padding:13px 16px;font-size:14px;max-width:640px}
+  .banner b{color:var(--yellow)}
+  /* cards */
+  .pcard{border:1px solid var(--seam);border-radius:var(--r);background:var(--panel);padding:18px;transition:border-color .12s,box-shadow .12s}
+  .pcard:hover{border-color:rgba(76,194,232,.55);box-shadow:0 0 0 1px rgba(76,194,232,.25)}
+  .pcard h4{font:600 15px var(--mono);color:var(--head);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .pcard .desc{font-size:13.5px;color:var(--text-2);margin:8px 0 12px}
+  .blockbar{font:13px var(--mono);letter-spacing:1px;margin:6px 0}
+  .blockbar .f{color:var(--cyan)} .blockbar .e{color:var(--seam-2)}
+  .meta-row{font:11.5px var(--mono);color:var(--text-2);display:flex;gap:14px;flex-wrap:wrap}
+  .pcard.featured{border-color:rgba(76,194,232,.5);background:linear-gradient(180deg,rgba(76,194,232,.05),transparent 40%),var(--panel)}
+  .pcard.featured .flag{font:600 11px var(--mono);letter-spacing:.08em;color:var(--cyan);margin-bottom:8px}
+  .pcard.featured .flag::before{content:'★ '}
+  /* empty */
+  .empty{border:1px dashed var(--seam-2);border-radius:var(--r);padding:30px;text-align:center;color:var(--text-2)}
+  .empty b{display:block;color:var(--head);font-size:15px;margin-bottom:6px}
+  .empty .prompt{font:13px var(--mono);color:var(--text-2)}
+  .empty .prompt::before{content:'$ ';color:var(--cyan)}
+  /* nav */
+  .navdemo{display:flex;border:1px solid var(--seam);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+  .navdemo aside{width:216px;border-inline-end:1px solid var(--seam);padding:14px 0;background:var(--bg)}
+  .navdemo a{display:flex;align-items:center;gap:10px;padding:8px 16px;color:var(--text-2);text-decoration:none;font:13px var(--sans);margin:0 8px;border-radius:6px}
+  .navdemo a i{font:12px var(--mono);font-style:normal;width:16px;text-align:center;color:var(--text-2)}
+  .navdemo a.active{color:var(--head);background:var(--panel-2);font-weight:600}
+  .navdemo a.active i{color:var(--cyan)}
+  .navdemo .body{flex:1;padding:16px;color:var(--text-2);font-size:13px}
+  .planchip{margin:12px 16px 0;border-top:1px solid var(--seam);padding-top:12px;font:11.5px var(--mono);color:var(--text-2)}
+  kbd.k{font:11px var(--mono);border:1px solid var(--seam-2);border-bottom-width:2px;border-radius:5px;padding:2px 6px;color:var(--text)}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font:600 11px var(--mono);letter-spacing:.08em;color:var(--text-2);text-align:start;padding:8px 10px;border-bottom:1px solid var(--seam-2)}
+  td{padding:9px 10px;border-bottom:1px solid var(--seam);vertical-align:top;color:var(--text-2)}
+  td:first-child{color:var(--head);font-weight:600}
+  .rtl-demo{direction:rtl;font-family:var(--ar)}
+  .note{font-size:12.5px;color:var(--text-2);margin-top:14px}
+  .cursor::after{content:'▍';color:var(--cyan);animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.cursor::after{content:''}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="kicker">share-k / phase-2 / visual-direction-validation — concept, sample data, not production UI</div>
+  <h1>Direction B — Workbench <span style="font-family:var(--ar);font-weight:500;color:var(--text-2)">· الورشة</span></h1>
+  <p class="lede">Share-k as <strong style="color:var(--head)">excellent developer tooling</strong>. Dark slate panels, syntax-highlighting accents, monospace labels, keyboard-first affordances. Feels closer to Linear/VS Code than to a marketing site — the AI's evidence and traces look native here.</p>
+
+  <!-- BRAND -->
+  <section>
+    <h2>brand</h2>
+    <p class="sub">The logo keeps its original colors on a white plate (never recolored for dark mode — the mark is the one full-color object). Wordmark sets in Geist Mono, reading like a package name.</p>
+    <div class="brandrow">
+      <div class="logoplate">
+        <div class="dots"></div>
+        <img src="../../../../public/logo-1.png" alt="Share-k logo">
+        <div class="wordmark"><b>share-k</b><span>شارك</span></div>
+      </div>
+      <div class="cell" style="flex:1.4">
+        <div class="lbl">// primary brand expression</div>
+        <p class="type-body" style="margin-bottom:12px">The product as hero: floating workbench panels showing real UI, git-graph motifs as section dividers, a decrypt-in headline. One static dot-grid texture maximum — no continuous background effects.</p>
+        <div class="lbl">// background treatment</div>
+        <p class="type-body">Deep slate <span style="font-family:var(--mono)">#0F141A</span> (never pure black), panels one step lighter, visible 1px seams. Light theme: cool workshop gray with the same accents deepened.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDATIONS -->
+  <section>
+    <h2>foundations</h2>
+    <p class="sub">Syntax-inspired accent set mapped onto the shared status grammar: cyan = action/in-progress · yellow = needs you · green = verified/positive · red = negative · violet reserved exclusively for AI moments.</p>
+    <div class="grid c4">
+      <div class="sw"><div class="chip" style="background:#0F141A;border-bottom:1px solid var(--seam)"></div><div class="meta">bg · #0F141A<br>deep slate field</div></div>
+      <div class="sw"><div class="chip" style="background:#161D26"></div><div class="meta">panel · #161D26<br>elevated surface</div></div>
+      <div class="sw"><div class="chip" style="background:#C9D1D9"></div><div class="meta">text · #C9D1D9<br>body (AA on bg)</div></div>
+      <div class="sw"><div class="chip" style="background:#4CC2E8"></div><div class="meta">cyan · #4CC2E8<br>primary action</div></div>
+      <div class="sw"><div class="chip" style="background:#E8C547"></div><div class="meta">yellow · #E8C547<br>needs your action</div></div>
+      <div class="sw"><div class="chip" style="background:#57C77B"></div><div class="meta">green · #57C77B<br>verified / success</div></div>
+      <div class="sw"><div class="chip" style="background:#E5776B"></div><div class="meta">red · #E5776B<br>negative terminal</div></div>
+      <div class="sw"><div class="chip" style="background:#A78BFA"></div><div class="meta">violet · #A78BFA<br>AI processing only</div></div>
+    </div>
+
+    <div class="grid c2" style="margin-top:18px">
+      <div class="cell">
+        <div class="lbl">// display · Geist 600 — headings-as-labels in mono</div>
+        <div class="type-display">Ship proof,<br>not <em>claims</em>.</div>
+        <div class="type-ar" style="margin-top:14px">أدلة تُشحن، لا ادعاءات</div>
+        <p class="note">Arabic pairs IBM Plex Sans Arabic to Geist metrics. Arabic has no true monospace — data in Arabic contexts uses tabular Plex Arabic, tokens stay LTR.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">// body · Geist 400 &nbsp;·&nbsp; artifacts · Geist Mono</div>
+        <p class="type-body" style="margin-bottom:12px">Your profile is generated from public GitHub activity, then reviewed by a human before it counts. Mono never sets body copy — tokens, labels, and data only.</p>
+        <span class="type-mono"><span class="c"># skill evidence</span><br>repo: <span class="cy">dashboard-ui</span> · commits: 34<br>confidence: <span class="g">high</span> · review: <span class="y">pending_admin</span></span>
+        <p class="note">Spacing: tighter 4px grid, panel padding 16–20. Radius: 8px. Depth: 1px seams + low-intensity accent border glow on hover — glow never carries meaning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section>
+    <h2>ui-components</h2>
+    <p class="sub">Same component sample set as the other two directions.</p>
+
+    <div class="grid c3">
+      <div class="cell">
+        <div class="lbl">// buttons</div>
+        <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-primary">Apply to task</button>
+          <button class="btn btn-secondary">View project</button>
+          <button class="btn btn-ghost">Save ☆</button>
+        </p>
+        <p class="note">Primary = cyan on dark; ~9:1 contrast for the label. Green stays reserved for verification.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">// search input — ⌘K surfaced</div>
+        <div class="input">🔍 <span>Try “realtime chat in Go”</span><kbd>⌘K</kbd></div>
+        <div class="lbl" style="margin-top:16px">// select / filter control</div>
+        <span class="select"><small>sort:</small> newest ▾</span>
+      </div>
+      <div class="cell">
+        <div class="lbl">// tags &amp; badges</div>
+        <p style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="tag">React</span>
+          <span class="tag verified">TypeScript ✓</span>
+          <span class="vbadge">✓ verified</span>
+        </p>
+        <p style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge b-beg">beginner</span>
+          <span class="badge b-int">intermediate</span>
+          <span class="badge b-adv">advanced</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:18px">
+      <div class="cell">
+        <div class="lbl">// project card</div>
+        <div class="pcard">
+          <h4>sharek-backend <span class="badge b-int">intermediate</span> <span class="tag">web</span></h4>
+          <p class="desc">NestJS API powering Share-k’s collaboration platform — auth, matching, and delivery workflows.</p>
+          <div class="blockbar"><span class="f">▓▓▓▓▓▓▓▓</span><span class="e">░░</span> <span style="color:var(--text-2)">TypeScript 78%</span></div>
+          <div class="meta-row"><span>★ 214</span><span>3 open tasks</span><span>@karim</span></div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">// featured project card — spotlight surface</div>
+        <div class="pcard featured">
+          <div class="flag">featured · active this week</div>
+          <h4>arabic-nlp-toolkit <span class="badge b-adv">advanced</span> <span class="tag">ai/ml</span></h4>
+          <p class="desc">Tokenization, diacritic restoration, and NER for Arabic text.</p>
+          <div class="meta-row"><span>Python 91%</span><span>★ 1.2k</span><span>2 open tasks</span><span>@nour-ml</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:18px">
+      <div class="cell">
+        <div class="lbl">// match indicator — diff-style fit, never a bare score</div>
+        <div class="match">
+          <div class="verdict"><b>strong match</b><span class="conf">confidence: high</span></div>
+          <ul>
+            <li><span class="m m-plus">+</span> strong React evidence — 3 verified repos</li>
+            <li><span class="m m-plus">+</span> TypeScript verified @ intermediate</li>
+            <li><span class="m m-tilde">~</span> previous testing contributions</li>
+            <li><span class="m m-minus">−</span> Docker not yet verified</li>
+          </ul>
+          <div class="foot">Based on your verified skills only — eligibility is checked per task when you apply.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">// status banner &nbsp;·&nbsp; analysis feed &nbsp;·&nbsp; empty state</div>
+        <div class="banner">⏳ <span><b>Profile in review.</b> Most reviews complete within 48 hours — we’ll notify you. Explore meanwhile.</span></div>
+        <p class="type-mono" style="margin:12px 0"><span class="c"># analysis</span><br><span class="g">✓</span> fetched 24 repositories<br><span class="g">✓</span> language breakdown computed<br><span style="color:var(--violet,#A78BFA)">→</span> extracting skills<span class="cursor"></span></p>
+        <div class="empty"><b>Nothing matches these filters</b><span class="prompt">share-k reset --filters react,beginner,ai-ml</span></div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:18px">
+      <div class="cell" style="padding:0;overflow:hidden">
+        <div class="lbl" style="padding:16px 20px 0">// navigation — compact icon+label, keyboard-first</div>
+        <div class="navdemo" style="border:none;border-top:1px solid var(--seam);border-radius:0;margin-top:12px">
+          <aside>
+            <a href="#"><i>▦</i> Dashboard</a>
+            <a href="#" class="active"><i>◎</i> Explore</a>
+            <a href="#"><i>☰</i> Tasks</a>
+            <a href="#"><i>◷</i> Applications</a>
+            <a href="#"><i>⬡</i> Skills</a>
+            <div class="planchip">bronze · apps 1/2 today</div>
+          </aside>
+          <div class="body">Active item = filled panel + cyan icon. <kbd class="k">⌘K</kbd> command palette; <kbd class="k">J</kbd>/<kbd class="k">K</kbd> in admin queues.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">// rtl sample — mirrored panel, tokens stay LTR</div>
+        <div class="rtl-demo">
+          <div class="match" style="border-inline-start:3px solid var(--green);font-family:var(--ar)">
+            <div class="verdict"><b style="color:var(--green)">توافق قوي</b><span class="conf" style="font-family:var(--mono)">high</span></div>
+            <ul style="font-size:13px">
+              <li><span class="m m-plus" style="font-family:var(--mono)">+</span> أدلة قوية على <span style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">React</span> — ٣ مستودعات موثقة</li>
+              <li><span class="m m-minus" style="font-family:var(--mono)">−</span> خبرة <span style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">Docker</span> غير موثقة بعد</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Risk logged honestly: +/− diff grammar and mono-heavy labels need extra Arabic type care; Arabic has no monospace. The // label device does not translate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTION -->
+  <section>
+    <h2>motion-character</h2>
+    <p class="sub">Snappy tool feedback, 120–180 ms. The interface responds like a good editor: immediate, precise, never showy.</p>
+    <table>
+      <tr><th>moment</th><th>behavior</th><th>reduced-motion fallback</th></tr>
+      <tr><td>Entrance</td><td>Panels snap in with 120 ms fade + 2px rise; results “compile in” line by line (60 ms stagger, first load only)</td><td>Instant render</td></tr>
+      <tr><td>Hover</td><td>Accent border + low-intensity glow, 120 ms; cursor-precise, no translate</td><td>Border color only</td></tr>
+      <tr><td>Page transition</td><td>≤120 ms crossfade; panel slides for drawers (260 ms)</td><td>Instant with overlay fade</td></tr>
+      <tr><td>Loading</td><td>Skeleton panels + terminal-style progress lines (“fetching repos…”)</td><td>Static skeleton + text counter</td></tr>
+      <tr><td>AI analysis</td><td>Stage log appends with blinking cursor accent; violet tint while processing; pauses off-tab</td><td>Static list + “stage 7 of 12”</td></tr>
+      <tr><td>Verification</td><td>Row flashes green once (180 ms) then settles — like a passing test</td><td>Static ✓</td></tr>
+    </table>
+  </section>
+
+  <!-- REACT BITS -->
+  <section>
+    <h2>react-bits — max 3, none installed this phase</h2>
+    <table>
+      <tr><th>component</th><th>intended use</th><th>why it fits</th><th>accessibility</th><th>mobile</th><th>reduced motion</th><th>performance risk</th></tr>
+      <tr><td>Decrypted Text</td><td>Marketing hero headline, once per visit</td><td>The one place a text effect is thematically earned — “evidence resolving into a verdict”</td><td>Must render final text to AT immediately (aria-label with full string); effect visual-only</td><td>Shorter string, same effect</td><td>Static headline</td><td>Low — chars only, no canvas</td></tr>
+      <tr><td>Dot Grid</td><td>Hero background texture, single static-ish instance</td><td>Workshop-surface texture without WebGL spectacle</td><td>Pure decoration, aria-hidden; contrast of overlaid text unaffected</td><td>Lower density or static image</td><td>Fully static grid</td><td>Medium — cap pointer-reactivity, pause off-viewport</td></tr>
+      <tr><td>Spotlight Card</td><td>Featured projects on Home only — never the explore grid</td><td>Panel + focused light matches the workbench metaphor</td><td>Effect must not reduce text contrast below AA at any pointer position</td><td>Disabled (touch has no hover) → static featured style</td><td>Static featured border</td><td>Low–medium — CSS vars on pointermove, throttle</td></tr>
+    </table>
+    <p class="note">Animated List also fits (queues/logs) but the three above are the cap; the analysis feed can be custom-built in ~30 lines.</p>
+  </section>
+
+  <p class="note" style="margin-top:40px;border-top:1px solid var(--seam);padding-top:16px">share-k · phase-2 visual exploration · direction B of 3 · all project data on this sheet is illustrative sample content, not real platform statistics.</p>
+</div>
+</body>
+</html>

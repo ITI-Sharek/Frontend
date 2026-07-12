@@ -3,13 +3,14 @@
 ## Prerequisites
 
 - Frontend dependencies installed with `pnpm install`.
-- Backend API available at `http://localhost:3000`, or at the configured
+- Backend API available at `http://localhost:4000` (approved standard port,
+  DEC-019/023 in `docs/governance/decision-log.md`), or at the configured
   `VITE_API_URL`.
 - At least one contributor account with a unique username.
 - At least one non-contributor account for role-based redirect validation.
 
-The frontend dev server runs on `http://localhost:3001` by default so the backend
-can keep the API handoff default of `http://localhost:3000`:
+The frontend dev server runs on `http://localhost:3001` by default (DEC-023) and
+the backend on `http://localhost:4000`:
 
 ```bash
 pnpm dev

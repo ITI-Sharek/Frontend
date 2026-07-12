@@ -1,0 +1,20 @@
+/* Share-k radius + spacing tokens. Radii shrink in dark mode per source (tokens.css). */
+:root {
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --radius-social: 4px;
+
+  --sk-space-1: 4px;
+  --sk-space-2: 8px;
+  --sk-space-3: 12px;
+  --sk-space-4: 16px;
+  --sk-space-5: 24px;
+  --sk-space-6: 32px;
+  --sk-space-card-pad: 33px; /* Card component's exact padding */
+}
+
+.dark {
+  --radius-card: 8px;
+  --radius-input: 4px;
+  --radius-social: 2px;
+}

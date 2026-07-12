@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Share-k · Workbench · Explore Projects — Mobile 390</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F141A; --panel:#161D26; --panel2:#1C2530; --seam:#232C38; --seam2:#2E3A49;
+    --text:#C9D1D9; --text2:#8B98A5; --head:#F0F4F8;
+    --cyan:#4CC2E8; --yellow:#E8C547; --green:#57C77B; --red:#E5776B; --violet:#A78BFA;
+    --r:8px; --sans:'Geist','IBM Plex Sans Arabic',sans-serif; --mono:'Geist Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0A0E13;font:14px/1.5 var(--sans);color:var(--text);padding:36px 20px;display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:10px}
+  .col>label{font:11px var(--mono);letter-spacing:.1em;color:#5A6572}
+  .col>label::before{content:'// ';color:var(--cyan)}
+  .phone{width:390px;background:var(--bg);border:1px solid var(--seam2);border-radius:18px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+  .screen{display:flex;flex-direction:column;min-height:790px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--seam)}
+  .brand{display:flex;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--head)}
+  .brand img{width:24px;background:#fff;border-radius:6px;padding:2px}
+  .r{display:flex;gap:13px;align-items:center}
+  .bell{position:relative;font-size:15px}
+  .bell i{position:absolute;top:-5px;right:-7px;background:var(--yellow);color:#0F141A;border-radius:8px;font:600 9px/1 var(--mono);padding:2px 4px;font-style:normal}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--violet);color:#0F141A;display:flex;align-items:center;justify-content:center;font:600 10px var(--sans)}
+  .head{padding:14px 16px 0}
+  h1{font-size:19px;font-weight:600;color:var(--head)}
+  .lede{font:11.5px var(--mono);color:var(--text2);margin-top:3px}
+  .lede::before{content:'// ';color:var(--cyan)}
+  .search{display:flex;align-items:center;gap:8px;border:1px solid var(--seam2);background:#0C1116;border-radius:var(--r);padding:11px 12px;color:var(--text2);font-size:12.5px;margin-top:11px}
+  .controls{display:flex;gap:8px;margin-top:9px}
+  .fbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font:600 12px var(--mono);border:1px solid var(--seam2);background:var(--panel2);border-radius:var(--r);padding:10px;color:var(--head);min-height:40px}
+  .fbtn b{background:var(--cyan);color:#0F141A;border-radius:6px;font:600 10px var(--mono);padding:2px 6px}
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:9px 16px 0}
+  .fchip{display:inline-flex;align-items:center;gap:5px;font:11px/1 var(--mono);border:1px solid var(--seam2);border-radius:6px;padding:5px 8px;background:var(--panel2);color:var(--text);flex:none}
+  .count{padding:9px 16px 3px;font:12px var(--mono);color:var(--head)}
+  .count::before{content:'→ ';color:var(--cyan)}
+  .list{padding:6px 16px 84px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .card{border:1px solid var(--seam);border-radius:var(--r);background:var(--panel);padding:13px}
+  .toprow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .card h4{font:600 13.5px var(--mono);color:var(--head)}
+  .save{margin-left:auto;color:var(--text2);font-size:16px;min-width:44px;text-align:right}
+  .badge{font:600 9px/1 var(--mono);letter-spacing:.05em;border-radius:5px;padding:4px 6px}
+  .b-int{background:rgba(76,194,232,.1);color:var(--cyan);border:1px solid rgba(76,194,232,.4)}
+  .b-beg{background:rgba(139,152,165,.12);color:var(--text);border:1px solid var(--seam2)}
+  .desc{font-size:12px;color:var(--text2);margin:6px 0 7px}
+  .meta{font:10px var(--mono);color:var(--text2);display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .match{border-top:1px solid var(--seam);padding-top:8px;font-family:var(--mono)}
+  .mlabel{font-size:11.5px;font-weight:600;color:var(--green)}
+  .mlabel.p{color:var(--yellow)}
+  .why{font-size:10.5px;color:var(--text);margin-top:3px;line-height:1.65}
+  .why .p{color:var(--green)} .why .t{color:var(--yellow)} .why .m{color:var(--red)}
+  .cta{display:flex;gap:8px;margin-top:9px}
+  .btn{flex:1;font:600 12px var(--sans);border-radius:var(--r);padding:11px;border:1px solid transparent;text-align:center;min-height:42px}
+  .btn-p{background:var(--cyan);color:#08121A}
+  .btn-s{background:var(--panel2);border-color:var(--seam2);color:var(--head)}
+  .tabs{position:absolute;bottom:0;left:0;right:0;display:flex;border-top:1px solid var(--seam);background:#0C1116}
+  .tabs a{flex:1;text-align:center;padding:9px 0 11px;font:500 9.5px var(--sans);color:var(--text2);text-decoration:none}
+  .tabs a span{display:block;font-size:15px;margin-bottom:2px}
+  .tabs a.on{color:var(--cyan);font-weight:600}
+  /* sheet */
+  .dim{background:rgba(4,7,10,.6);position:absolute;inset:0}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-radius:14px 14px 0 0;border-top:1px solid var(--seam2);padding:10px 18px 18px;max-height:86%}
+  .grab{width:36px;height:4px;border-radius:2px;background:var(--seam2);margin:4px auto 12px}
+  .sheet h3{font:600 14px var(--mono);color:var(--head);display:flex;justify-content:space-between;align-items:center}
+  .sheet h3 span{font:12px var(--mono);font-weight:500;color:var(--cyan)}
+  .fgroup{border-top:1px solid var(--seam);padding:12px 0}
+  .fgroup h5{font:600 10px var(--mono);letter-spacing:.08em;color:var(--text2);margin-bottom:8px}
+  .fgroup h5::before{content:'# ';color:var(--cyan)}
+  .opts{display:flex;flex-wrap:wrap;gap:7px}
+  .opt{font:500 12px var(--mono);border:1px solid var(--seam2);border-radius:var(--r);padding:9px 11px;background:var(--panel2);color:var(--text);min-height:38px}
+  .opt.sel{background:var(--cyan);border-color:var(--cyan);color:#08121A;font-weight:600}
+  .apply{display:flex;gap:10px;margin-top:13px}
+  /* states */
+  .terminal{font:11px/1.9 var(--mono);color:var(--text2);padding:4px 16px}
+  .terminal .g{color:var(--green)} .terminal .c{color:var(--cyan)}
+  .sk{border:1px solid var(--seam);border-radius:var(--r);background:var(--panel);padding:13px;margin:0 16px 10px}
+  .skline{height:8px;border-radius:4px;background:var(--panel2);margin-bottom:7px}
+  .empty{border:1px dashed var(--seam2);border-radius:var(--r);margin:12px 16px;padding:24px 16px;text-align:center;color:var(--text2);font-size:12px}
+  .empty b{display:block;color:var(--head);font-size:13px;margin-bottom:5px}
+  .empty .prompt{font:11px var(--mono);display:block;margin-top:8px}
+  .empty .prompt::before{content:'$ ';color:var(--cyan)}
+  .note{width:100%;text-align:center;font:11px var(--mono);letter-spacing:.1em;color:#5A6572;margin-top:6px}
+  .note::before{content:'// ';color:var(--cyan)}
+</style>
+</head>
+<body>
+
+<!-- Frame 1 -->
+<div class="col">
+  <label>1 · results — single column, motion reduced on touch</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt="">share-k</span>
+      <span class="r"><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <p class="lede">fit hints use verified skills only</p>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+      <div class="controls">
+        <div class="fbtn">filters <b>3</b></div>
+        <div class="fbtn">sort: newest ▾</div>
+      </div>
+    </div>
+    <div class="chiprow">
+      <span class="fchip">react ×</span><span class="fchip">typescript ×</span><span class="fchip">intermediate ×</span>
+    </div>
+    <div class="count">6 projects</div>
+    <div class="list">
+      <div class="card">
+        <div class="toprow"><h4>sharek-backend</h4><span class="badge b-int">intermediate</span><span class="save">☆</span></div>
+        <p class="desc">NestJS API powering Share-k’s collaboration platform.</p>
+        <div class="meta"><span>web</span><span>TS 78%</span><span>★ 214</span><span>3 open tasks</span><span>@karim</span></div>
+        <div class="match">
+          <span class="mlabel">strong match</span>
+          <p class="why"><span class="p">+</span> strong TypeScript evidence · <span class="p">+</span> Node.js verified<br><span class="m">−</span> Docker not yet verified</p>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Save ☆</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toprow"><h4>masar-transit</h4><span class="badge b-int">intermediate</span><span class="save" style="color:var(--yellow)">★</span></div>
+        <p class="desc">Offline-first transit maps for Cairo &amp; Alexandria — React Native.</p>
+        <div class="meta"><span>mobile</span><span>TS 64%</span><span>★ 342</span><span>4 open tasks</span><span>@laila-io</span></div>
+        <div class="match">
+          <span class="mlabel">strong match</span>
+          <p class="why"><span class="p">+</span> strong React evidence · <span class="p">+</span> intermediate TypeScript<br><span class="m">−</span> mobile testing not verified</p>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Saved ★</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toprow"><h4>taqrir-cli</h4><span class="badge b-beg">beginner</span><span class="save">☆</span></div>
+        <p class="desc">Arabic/English Markdown reports from JSON — starter tasks labeled.</p>
+        <div class="meta"><span>tools</span><span>Go 88%</span><span>★ 57</span><span>6 open tasks</span><span>@omar-k</span></div>
+        <div class="match">
+          <span class="mlabel p">partial match</span>
+          <p class="why"><span class="p">+</span> verified CLI &amp; Git history · <span class="t">~</span> Go not yet verified</p>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Save ☆</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <a href="#"><span>▦</span>Dashboard</a>
+      <a href="#" class="on"><span>◎</span>Explore</a>
+      <a href="#"><span>☰</span>Tasks</a>
+      <a href="#"><span>◷</span>Applications</a>
+      <a href="#"><span>◉</span>Profile</a>
+    </div>
+  </div></div>
+</div>
+
+<!-- Frame 2 -->
+<div class="col">
+  <label>2 · filter sheet — chips, one-hand reach</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt="">share-k</span>
+      <span class="r"><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+    </div>
+    <div class="dim"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>// filters <span>reset</span></h3>
+      <div class="fgroup" style="margin-top:8px">
+        <h5>technology</h5>
+        <div class="opts">
+          <span class="opt sel">React</span><span class="opt sel">TypeScript</span><span class="opt">Node.js</span>
+          <span class="opt">Python</span><span class="opt">Go</span><span class="opt">Docker</span><span class="opt">+ 12</span>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h5>category</h5>
+        <div class="opts">
+          <span class="opt sel">All</span><span class="opt">Web</span><span class="opt">Mobile</span><span class="opt">AI/ML</span><span class="opt">DevOps</span><span class="opt">Tools</span>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h5>difficulty</h5>
+        <div class="opts">
+          <span class="opt">Any</span><span class="opt">Beginner</span><span class="opt sel">Intermediate</span><span class="opt">Advanced</span>
+        </div>
+      </div>
+      <div class="apply">
+        <span class="btn btn-p" style="flex:2">Show 6 projects</span>
+        <span class="btn btn-s" style="flex:1">Cancel</span>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Frame 3 -->
+<div class="col">
+  <label>3 · loading &amp; no-results</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt="">share-k</span>
+      <span class="r"><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+      <div class="controls">
+        <div class="fbtn">filters <b>3</b></div>
+        <div class="fbtn">sort: newest ▾</div>
+      </div>
+    </div>
+    <p class="terminal" style="margin-top:6px"><span class="g">✓</span> filters applied (3)<br><span class="c">→</span> fetching projects…</p>
+    <div class="sk"><div class="skline" style="width:48%"></div><div class="skline" style="width:90%"></div><div class="skline" style="width:62%"></div></div>
+    <div class="sk"><div class="skline" style="width:40%"></div><div class="skline" style="width:86%"></div><div class="skline" style="width:70%"></div></div>
+    <div class="empty">
+      <b>Nothing matches these filters</b>
+      Beginner AI/ML projects are rare — try removing one.
+      <span class="prompt">share-k reset --filters</span>
+      <span class="btn btn-s" style="display:inline-block;margin-top:10px;padding:10px 16px">Reset filters</span>
+    </div>
+    <div class="tabs">
+      <a href="#"><span>▦</span>Dashboard</a>
+      <a href="#" class="on"><span>◎</span>Explore</a>
+      <a href="#"><span>☰</span>Tasks</a>
+      <a href="#"><span>◷</span>Applications</a>
+      <a href="#"><span>◉</span>Profile</a>
+    </div>
+  </div></div>
+</div>
+
+<p class="note">direction B · workbench — mobile 390 · glow effects dropped on touch; AMOLED-friendly dark · sample data</p>
+</body>
+</html>

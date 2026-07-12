@@ -1,0 +1,51 @@
+/* Share-k color tokens — verbatim from src/styles/tokens.css (ITI-Sharek/Frontend) */
+:root {
+  /* base neutrals */
+  --sk-white: #ffffff;
+  --sk-ink: #0e1513;
+  --sk-slate-500: #64748b;
+  --sk-slate-200: #e2e8f0;
+  --sk-slate-50: #f8fafc;
+
+  /* dark-mode neutrals */
+  --sk-ink-900: #0e1513;
+  --sk-ink-800: #161d1b;
+  --sk-ink-850: #09100e;
+  --sk-ink-750: #1a211f;
+  --sk-fog-100: #dde4e1;
+  --sk-fog-300: #bacac5;
+  --sk-fog-600: #3c4a46;
+
+  /* brand */
+  --sk-teal-500: #2dd4bf;   /* primary, light theme */
+  --sk-teal-300: #57f1db;   /* primary, dark theme */
+
+  /* semantic — light (default) */
+  --background: var(--sk-white);
+  --foreground: var(--sk-ink);
+  --muted-foreground: var(--sk-slate-500);
+  --border: var(--sk-slate-200);
+  --card: var(--sk-white);
+  --header-bg: var(--sk-white);
+  --input-bg: var(--sk-white);
+  --input-placeholder: #6b7280;
+  --footer-bg: var(--sk-slate-50);
+  --primary: var(--sk-teal-500);
+  --primary-foreground: var(--sk-ink);
+  --destructive: #dc2626;
+}
+
+.dark {
+  --background: var(--sk-ink-900);
+  --foreground: var(--sk-fog-100);
+  --muted-foreground: var(--sk-fog-300);
+  --border: var(--sk-fog-600);
+  --card: var(--sk-ink-750);
+  --header-bg: var(--sk-ink-800);
+  --input-bg: var(--sk-ink-850);
+  --input-placeholder: rgba(186, 202, 197, 0.4);
+  --footer-bg: var(--sk-ink-850);
+  --primary: var(--sk-teal-300);
+  --primary-foreground: #003731;
+  --destructive: #f87171;
+}
