@@ -9,8 +9,11 @@ export type ProfileViewState =
   | "error";
 
 export interface ContributorSkillDto {
-  id: string;
   name: string;
+  proficiencyLevel: "beginner" | "intermediate" | "advanced";
+  confidence: number;
+  status: "pending" | "approved" | "rejected" | "disputed";
+  evidenceSummary: string | null;
 }
 
 export interface ContributorHistoryItemDto {
