@@ -7,6 +7,7 @@ import {
   ContributorProfileView,
   useContributorProfileQuery,
 } from "@/modules/contributors";
+import { startGitHubConnect } from "@/modules/github";
 import { shouldRedirectUnauthenticatedProfile } from "./profile-auth.helpers";
 import { getProfileRouteState } from "./profile-route-state";
 
@@ -69,5 +70,12 @@ function ContributorProfilePage() {
     );
   }
 
-  return <ContributorProfileView profile={profileQuery.data} />;
+  return (
+    <ContributorProfileView
+      profile={profileQuery.data}
+      onConnectGitHub={() =>
+        startGitHubConnect(ROUTES.contributorProfile(username))
+      }
+    />
+  );
 }
