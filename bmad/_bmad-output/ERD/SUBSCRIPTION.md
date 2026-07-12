@@ -1,5 +1,7 @@
 # Entity: SUBSCRIPTION
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §10b (2026-07-12, DEC-026)**: adds `source` (`default | admin | demo | payment_provider`); MVP runs entitlements without any payment processing (admin-assigned/seeded plans). The delta supersedes the attribute table below.
+
 ## Description
 Tracks premium subscription plans for users. Share-k offers separate plan tiers (Bronze, Silver, Gold) for both project owners and contributors, each with distinct limits and benefits. A user can have subscription history, but only one active subscription per role context at any time.
 

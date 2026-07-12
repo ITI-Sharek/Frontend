@@ -1,5 +1,7 @@
 # Entity: CONTRIBUTION_REQUEST
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §3 (2026-07-12, §5 approved states)**: lifecycle extended with `in_progress`, `awaiting_delivery`, `delivery_submitted`, `expired`. The delta supersedes the enum below.
+
 ## Description
 Represents a structured contribution task (order) created by a project owner. Each request specifies required technologies, difficulty, deadline, and optional reward. Published requests appear in the task feed.
 

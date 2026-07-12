@@ -1,5 +1,7 @@
 # Entity: USAGE_TRACKER
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §7 (2026-07-12, DEC-006)**: `application_submitted` action type is replaced by `application_validation_started`; adds idempotency keys and technical-failure refunds. The delta supersedes the rules below.
+
 ## Description
 Tracks daily/monthly action counts for premium limit enforcement. Used to check whether an owner has exceeded their monthly order limit or a contributor has exceeded their daily application limit before allowing the action.
 

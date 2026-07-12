@@ -1,5 +1,7 @@
 # Entity: USER
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §1 (2026-07-12, DEC-001/016)**: adds platform-owned `username` / `username_normalized` / `username_changed_at`; `role` becomes `primary_role` (single active role for MVP, future multi-role compatible). The delta supersedes the attribute table below.
+
 ## Description
 The central identity entity for all platform participants. Every person interacting with Share-k — whether a project owner, contributor, or admin — is represented as a `USER`. This entity holds authentication credentials, profile information, role assignment, and account status.
 
