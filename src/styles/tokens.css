@@ -10,6 +10,7 @@
   --footer-bg: #f8fafc;
   --primary: #2dd4bf;
   --primary-foreground: #0e1513;
+  --destructive: #dc2626;
   --brand-indigo: #2e3192;
   --brand-indigo-foreground: #ffffff;
   --radius-card: 12px;
@@ -29,6 +30,7 @@
   --footer-bg: #09100e;
   --primary: #57f1db;
   --primary-foreground: #003731;
+  --destructive: #f87171;
   --brand-indigo: #9aa3f0;
   --brand-indigo-foreground: #10132b;
   --radius-card: 8px;

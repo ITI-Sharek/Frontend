@@ -21,6 +21,7 @@
   --color-footer-bg: var(--footer-bg);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
   --color-brand-indigo: var(--brand-indigo);
   --color-brand-indigo-foreground: var(--brand-indigo-foreground);
   --animate-scroll: scroll var(--animation-duration, 40s)

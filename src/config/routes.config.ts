@@ -3,6 +3,7 @@ export const ROUTES = {
   login: "/login",
   register: "/register",
   forgotPassword: "/forgot-password",
+  authCallback: "/auth/callback",
   contributorProfile: (username: string) =>
     `/profile/${encodeURIComponent(username)}`,
 } as const;

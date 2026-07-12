@@ -3,6 +3,16 @@ import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 
+import {
+  getSocialAuthProviderLabel,
+  startSocialAuth,
+} from "../services/social-auth.service";
+import type {
+  SocialAuthIntent,
+  SocialAuthProvider,
+  SocialAuthRole,
+} from "../services/social-auth.service";
+
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
@@ -26,15 +36,35 @@ function GoogleIcon() {
   );
 }
 
-export function SocialAuthButtons() {
+interface SocialAuthButtonsProps {
+  intent?: SocialAuthIntent;
+  /**
+   * Used by the backend only when a new Share-k user must be created
+   * (register intent — pass the role the user chose in step 1). Existing
+   * users keep their saved role.
+   */
+  role?: SocialAuthRole;
+}
+
+export function SocialAuthButtons({
+  intent = "login",
+  role = "contributor",
+}: SocialAuthButtonsProps) {
+  const [activeProvider, setActiveProvider] =
+    useState<SocialAuthProvider | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  function showUnavailableMessage(provider: "GitHub" | "Google") {
-    setMessage(
-      provider === "GitHub"
-        ? "تسجيل الدخول عبر GitHub غير متاح من هذه الصفحة حاليًا. سجّل بالبريد الإلكتروني أولًا، ثم اربط GitHub من حسابك."
-        : "تسجيل الدخول عبر Google غير مفعّل في الخادم حاليًا. استخدم البريد الإلكتروني الآن.",
-    );
+  async function handleSocialAuth(provider: SocialAuthProvider) {
+    const providerLabel = getSocialAuthProviderLabel(provider);
+    setActiveProvider(provider);
+    setMessage(`جارٍ فتح تسجيل الدخول عبر ${providerLabel}...`);
+
+    try {
+      await startSocialAuth(provider, intent, role);
+    } catch {
+      setActiveProvider(null);
+      setMessage(`تعذر فتح تسجيل الدخول عبر ${providerLabel}. حاول مرة أخرى.`);
+    }
   }
 
   return (
@@ -45,9 +75,10 @@ export function SocialAuthButtons() {
           variant="outline"
           size="sm"
           className="flex-1"
-          onClick={() => showUnavailableMessage("GitHub")}
+          disabled={activeProvider !== null}
+          onClick={() => handleSocialAuth("github")}
         >
-          <span>GitHub</span>
+          <span>{activeProvider === "github" ? "جارٍ الفتح..." : "GitHub"}</span>
           <Github className="size-4" />
         </Button>
         <Button
@@ -55,9 +86,10 @@ export function SocialAuthButtons() {
           variant="outline"
           size="sm"
           className="flex-1"
-          onClick={() => showUnavailableMessage("Google")}
+          disabled={activeProvider !== null}
+          onClick={() => handleSocialAuth("google")}
         >
-          <span>Google</span>
+          <span>{activeProvider === "google" ? "جارٍ الفتح..." : "Google"}</span>
           <GoogleIcon />
         </Button>
       </div>

@@ -8,6 +8,7 @@ import {
   LoginForm,
 } from "@/modules/auth";
 import type { AuthSessionDto, AuthUserDto } from "@/modules/auth";
+import { isDemoSocialAuthToken } from "@/modules/auth/services/social-auth.service";
 import {
   ContributorProfileErrorView,
   ensureCurrentContributorProfile,
@@ -54,7 +55,13 @@ function LoginPage() {
   }
 
   useEffect(() => {
-    if (storageService.getAccessToken() === null) return;
+    const accessToken = storageService.getAccessToken();
+    if (accessToken === null) return;
+
+    if (isDemoSocialAuthToken(accessToken)) {
+      storageService.clearTokens();
+      return;
+    }
 
     let isActive = true;
 
