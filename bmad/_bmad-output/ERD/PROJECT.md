@@ -1,5 +1,7 @@
 # Entity: PROJECT
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §10a (2026-07-12, DEC-025)**: adds platform-owned `slug` / `slug_normalized` (unique, immutable after publication; public route `/projects/:projectSlug`). The delta supersedes the attribute table below.
+
 ## Description
 Represents an open-source project published on Share-k. Project owners import projects by providing a GitHub repository URL; the system auto-fetches metadata (title, description, languages, tags, statistics) which the owner reviews and edits before publishing. Published projects become discoverable by contributors and can have contribution requests attached.
 

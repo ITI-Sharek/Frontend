@@ -1,5 +1,7 @@
 # Share-k — Entity Relationship Diagram (ERD)
 
+> ⚠ **Amended 2026-07-12**: approved MVP decisions change USER, APPLICATION, CONTRIBUTION_REQUEST, DELIVERY, USAGE_TRACKER and add TASK_INVITATION and PASSWORD_RESET_TOKEN. See **`_MVP-DECISION-DELTA.md`** (binding) and `docs/governance/decision-log.md`. The mermaid diagram below predates the delta.
+
 ## Complete System ERD
 
 ```mermaid

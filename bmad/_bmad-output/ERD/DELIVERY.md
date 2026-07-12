@@ -1,5 +1,7 @@
 # Entity: DELIVERY
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §4 (2026-07-12, §5 approved states)**: status enum is now `not_started | submitted | changes_requested | resubmitted | approved | rejected`. The delta supersedes the enum below.
+
 ## Description
 Records a contributor's submitted work (GitHub PR link) for an accepted contribution request. Once a contributor is accepted, they work on the task and submit a pull request URL as evidence of completion.
 

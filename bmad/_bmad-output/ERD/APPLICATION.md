@@ -1,5 +1,7 @@
 # Entity: APPLICATION
 
+> ⚠ **Amended by `_MVP-DECISION-DELTA.md` §2 (2026-07-12, DEC-004/005/013)**: status enum replaced (`review_needed`, `pending_owner_review`, `blocked_ineligible`, `validation_failed`, `not_selected`, `expired` added); expiry + review-resolution fields added. The delta supersedes the enum and lifecycle below.
+
 ## Description
 Represents a contributor's application to a contribution request. This is the central entity in Share-k's AI-gated application flow. When submitted, it triggers the AI Skill Validation Agent which determines eligibility before the application can reach the project owner.
 
