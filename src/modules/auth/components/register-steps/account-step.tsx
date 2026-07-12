@@ -1,27 +1,44 @@
 import { Mail, User } from "lucide-react";
 
+import type { UsernameAvailabilityReason } from "../../types/auth.types";
+import type { SignupRole } from "../../types/signup.types";
+import { REGISTER_USERNAME_FIELD_ENABLED } from "../../constants/signup.constants";
 import { AuthDivider } from "../auth-divider";
 import { AuthPasswordField } from "../auth-password-field";
 import { AuthTextField } from "../auth-text-field";
 import { SocialAuthButtons } from "../social-auth-buttons";
+import { UsernameField } from "../username-field";
 
 interface AccountStepProps {
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   password: string;
+  role: SignupRole | null;
   onChange: (
-    field: "firstName" | "lastName" | "email" | "password",
+    field: "firstName" | "lastName" | "username" | "email" | "password",
     value: string,
   ) => void;
+  usernameStatus: {
+    formatValid: boolean;
+    isChecking: boolean;
+    checkFailed: boolean;
+    available: boolean | null;
+    reason: UsernameAvailabilityReason | null;
+    suggestion: string | null;
+  };
 }
 
 export function AccountStep({
   firstName,
   lastName,
+  username,
   email,
   password,
+  role,
   onChange,
+  usernameStatus,
 }: AccountStepProps) {
   return (
     <div className="flex w-full flex-col gap-6">
@@ -32,7 +49,7 @@ export function AccountStep({
         </p>
       </div>
 
-      <SocialAuthButtons />
+      <SocialAuthButtons intent="register" role={role ?? "contributor"} />
       <AuthDivider label="أو عبر البريد" />
 
       <div className="grid w-full grid-cols-2 gap-4">
@@ -57,6 +74,20 @@ export function AccountStep({
           onChange={(e) => onChange("lastName", e.target.value)}
         />
       </div>
+      {REGISTER_USERNAME_FIELD_ENABLED && (
+        <UsernameField
+          id="username"
+          value={username}
+          onChange={(value) => onChange("username", value)}
+          formatValid={usernameStatus.formatValid}
+          isChecking={usernameStatus.isChecking}
+          checkFailed={usernameStatus.checkFailed}
+          available={usernameStatus.available}
+          reason={usernameStatus.reason}
+          suggestion={usernameStatus.suggestion}
+          onUseSuggestion={(suggestion) => onChange("username", suggestion)}
+        />
+      )}
       <AuthTextField
         id="email"
         label="البريد الإلكتروني"

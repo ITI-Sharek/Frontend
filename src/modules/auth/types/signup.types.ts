@@ -18,6 +18,7 @@ export interface SignupFormData {
   role: SignupRole | null;
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   password: string;
   agreedToTerms: boolean;
@@ -37,6 +38,7 @@ export const INITIAL_SIGNUP_FORM_DATA: SignupFormData = {
   role: null,
   firstName: "",
   lastName: "",
+  username: "",
   email: "",
   password: "",
   agreedToTerms: false,

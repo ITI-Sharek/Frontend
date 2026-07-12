@@ -1,4 +1,7 @@
-import { ROLE_OPTIONS } from "../../constants/signup.constants";
+import {
+  ROLE_OPTIONS,
+  ROLE_STEP_DISCLAIMER,
+} from "../../constants/signup.constants";
 import type { SignupRole } from "../../types/signup.types";
 import { RoleOptionCard } from "../role-option-card";
 
@@ -30,6 +33,9 @@ export function RoleStep({ role, onSelect }: RoleStepProps) {
           />
         ))}
       </div>
+      <p className="text-right text-xs text-muted-foreground">
+        {ROLE_STEP_DISCLAIMER}
+      </p>
     </div>
   );
 }

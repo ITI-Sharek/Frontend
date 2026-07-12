@@ -4,6 +4,19 @@ import type { ChipOption, RoleOption } from "../types/signup.types";
 
 export const SIGNUP_STEPS = ["الدور", "بيانات الحساب", "التفاصيل"] as const;
 
+// DEC-001 copy (docs/governance/decision-log.md): the role choice must never
+// read as permanent. Arabic translation is a draft pending native-speaker
+// review (see docs/design/arabic-glossary.md).
+export const ROLE_STEP_DISCLAIMER =
+  "اختر طريقة استخدامك لـ Share-k في البداية. قد تتم إضافة أدوار إضافية لاحقًا.";
+
+// POST /auth/register rejects unknown fields and does not accept `username`
+// yet (usernames are backend-generated for now). Flip this on once the
+// backend implements register-time usernames per DEC-016
+// (docs/design/api-contract-additions.md §2) — the field, availability
+// check, and tests are already built and wired.
+export const REGISTER_USERNAME_FIELD_ENABLED = false as boolean;
+
 export const ROLE_OPTIONS: RoleOption[] = [
   {
     value: "contributor",
