@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share-k · Direction A — Registry · Style Tile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ————— Direction A · REGISTRY (السجل) — token set ————— */
+  :root{
+    --paper:#FAF8F4; --paper-raised:#FFFFFF; --paper-sunken:#F2EEE5;
+    --ink:#1C1B18; --ink-2:#57534A; --ink-3:#8A857A;
+    --rule:#E3DED2; --rule-strong:#C9C2B2;
+    --verify:#1E6B4F; --verify-tint:#EAF2EE;      /* earned green — rationed */
+    --attn:#9A5B00;  --attn-tint:#F7EEDD;         /* amber attention */
+    --neg:#A8402F;   --neg-tint:#F6E9E6;          /* muted terracotta */
+    --wait:#2F5A7C;  --wait-tint:#E9EFF4;         /* waiting blue */
+    --ai:#5B4B8A;    --ai-tint:#EEEBF5;           /* violet: AI processing only */
+    --r:5px;
+    --sans:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --ar:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans);padding:56px 40px}
+  .sheet{max-width:1180px;margin:0 auto}
+  h1{font-size:34px;font-weight:600;letter-spacing:-.01em}
+  .kicker{font:12px/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);margin-bottom:10px}
+  .lede{color:var(--ink-2);max-width:64ch;margin-top:10px}
+  section{border-top:1px solid var(--rule-strong);margin-top:52px;padding-top:34px}
+  h2{font-size:21px;font-weight:600;margin-bottom:4px}
+  .sub{color:var(--ink-2);font-size:14px;margin-bottom:24px;max-width:70ch}
+  .grid{display:grid;gap:22px}
+  .c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .cell{border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-raised);padding:20px}
+  .lbl{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);margin-bottom:12px}
+  /* brand */
+  .brandrow{display:flex;gap:22px;align-items:stretch}
+  .logoplate{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:44px 20px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-raised)}
+  .logoplate img{width:120px}
+  .wordmark{display:flex;align-items:baseline;gap:12px;margin-top:18px}
+  .wordmark b{font-size:26px;font-weight:600;letter-spacing:-.01em}
+  .wordmark span{font-family:var(--ar);font-size:22px;color:var(--ink-2)}
+  .brandnote{flex:1.4}
+  /* swatches */
+  .sw{border-radius:var(--r);border:1px solid var(--rule);overflow:hidden}
+  .sw .chip{height:64px}
+  .sw .meta{padding:8px 10px;font:11px/1.5 var(--mono);color:var(--ink-2);background:var(--paper-raised)}
+  /* type */
+  .type-display{font-size:44px;font-weight:600;letter-spacing:-.015em;line-height:1.12}
+  .type-h2{font-size:24px;font-weight:600}
+  .type-body{font-size:15px;color:var(--ink-2);max-width:56ch}
+  .type-mono{font:13px/1.6 var(--mono);background:var(--paper-sunken);border:1px solid var(--rule);border-radius:var(--r);padding:10px 12px;display:inline-block}
+  .type-ar{font-family:var(--ar);direction:rtl;font-size:22px;font-weight:700}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--sans);border-radius:var(--r);padding:11px 18px;border:1px solid transparent;cursor:pointer;transition:background .14s,border-color .14s}
+  .btn-primary{background:var(--ink);color:var(--paper)}
+  .btn-primary:hover{background:#33312B}
+  .btn-secondary{background:var(--paper-raised);border-color:var(--rule-strong);color:var(--ink)}
+  .btn-secondary:hover{border-color:var(--ink-2)}
+  .btn-ghost{background:transparent;color:var(--ink-2)}
+  .btn-ghost:hover{color:var(--ink);background:var(--paper-sunken)}
+  /* inputs */
+  .input{display:flex;align-items:center;gap:10px;border:1px solid var(--rule-strong);background:var(--paper-raised);border-radius:var(--r);padding:11px 14px;color:var(--ink-3);font-size:14px}
+  .input b{color:var(--ink-2);font-weight:400}
+  .select{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule-strong);background:var(--paper-raised);border-radius:var(--r);padding:10px 14px;font-size:14px;color:var(--ink)}
+  .select small{font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)}
+  /* chips + badges */
+  .tag{display:inline-flex;align-items:center;gap:6px;font:500 12.5px/1 var(--sans);border:1px solid var(--rule-strong);border-radius:4px;padding:5px 9px;background:var(--paper-raised);color:var(--ink-2)}
+  .tag.verified{border-color:var(--verify);color:var(--verify);background:var(--verify-tint)}
+  .tag code{font:12px var(--mono)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;border-radius:4px;padding:5px 8px}
+  .b-beg{background:var(--paper-sunken);color:var(--ink-2);border:1px solid var(--rule-strong)}
+  .b-int{background:var(--wait-tint);color:var(--wait);border:1px solid #BFD0DD}
+  .b-adv{background:var(--attn-tint);color:var(--attn);border:1px solid #E2CBA2}
+  .vbadge{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 var(--sans);color:var(--verify);background:var(--verify-tint);border:1px solid var(--verify);border-radius:4px;padding:5px 9px}
+  /* match indicator */
+  .match{border:1px solid var(--rule);border-inline-start:3px solid var(--verify);border-radius:var(--r);background:var(--paper-raised);padding:14px 16px;max-width:430px}
+  .match .verdict{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .match .verdict b{font-size:14.5px;color:var(--verify)}
+  .match .conf{font:11px var(--mono);color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+  .match ul{list-style:none;font-size:13.5px;color:var(--ink-2)}
+  .match li{padding:3px 0;display:flex;gap:8px}
+  .match li .m{width:14px;text-align:center;font-family:var(--mono)}
+  .m-yes{color:var(--verify)} .m-part{color:var(--attn)} .m-no{color:var(--ink-3)}
+  .match .foot{margin-top:10px;padding-top:8px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-3)}
+  /* banner */
+  .banner{display:flex;gap:12px;align-items:flex-start;border:1px solid #E2CBA2;background:var(--attn-tint);border-radius:var(--r);padding:13px 16px;font-size:14px;max-width:640px}
+  .banner b{color:var(--attn)}
+  /* cards */
+  .pcard{border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-raised);padding:18px;transition:border-color .14s, transform .14s}
+  .pcard:hover{border-color:var(--ink-3);transform:translateY(-1px)}
+  .pcard h4{font:600 16px/1.3 var(--sans);display:flex;gap:10px;align-items:baseline}
+  .pcard h4 code{font:14px var(--mono)}
+  .pcard .desc{font-size:13.5px;color:var(--ink-2);margin:8px 0 12px}
+  .langbar{height:6px;border-radius:3px;background:var(--paper-sunken);overflow:hidden;display:flex;margin:10px 0 6px}
+  .langbar i{display:block;height:100%}
+  .meta-row{font:12px var(--mono);color:var(--ink-3);display:flex;gap:14px;flex-wrap:wrap}
+  .pcard.featured{border:1px solid var(--verify);border-inline-start:3px solid var(--verify)}
+  .pcard.featured .flag{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--verify);margin-bottom:8px}
+  /* empty */
+  .empty{border:1px dashed var(--rule-strong);border-radius:var(--r);padding:34px;text-align:center;color:var(--ink-2)}
+  .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+  /* nav sample */
+  .navdemo{display:flex;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;background:var(--paper-raised)}
+  .navdemo aside{width:210px;border-inline-end:1px solid var(--rule);padding:16px 0;background:var(--paper)}
+  .navdemo a{display:flex;align-items:center;gap:10px;padding:9px 18px;color:var(--ink-2);text-decoration:none;font-size:14px;border-inline-start:3px solid transparent}
+  .navdemo a.active{color:var(--ink);font-weight:600;border-inline-start-color:var(--verify)}
+  .navdemo .body{flex:1;padding:18px;color:var(--ink-3);font-size:13px}
+  .planchip{margin:14px 18px 0;border-top:1px solid var(--rule);padding-top:12px;font:12px var(--mono);color:var(--ink-3)}
+  /* motion + bits tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);text-align:start;padding:8px 10px;border-bottom:1px solid var(--rule-strong)}
+  td{padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink-2)}
+  td:first-child{color:var(--ink);font-weight:600}
+  .rtl-demo{direction:rtl;font-family:var(--ar)}
+  .note{font-size:12.5px;color:var(--ink-3);margin-top:14px}
+  .stamp{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--verify);color:#fff;font-weight:700;animation:stamp .35s cubic-bezier(.2,0,0,1.2)}
+  @keyframes stamp{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="kicker">Share-k · Phase 2 · Visual direction validation — concept, sample data, not production UI</div>
+  <h1>Direction A — Registry <span style="font-family:var(--ar);font-weight:500;color:var(--ink-2)">· السجل</span></h1>
+  <p class="lede">Share-k as a <strong>system of record for developer capability</strong>. Warm paper, disciplined type, hairline rules. Color is rationed: the deep verification green appears almost only where something has been <em>earned</em> — so a green check means something.</p>
+
+  <!-- ═══════════ BRAND ═══════════ -->
+  <section>
+    <h2>Brand</h2>
+    <p class="sub">The existing logo is preserved untouched, placed on the paper field on generous whitespace — never recolored, boxed, or redrawn. The wordmark sets in the UI face; the Arabic name accompanies it only at brand moments (DEC-008).</p>
+    <div class="brandrow">
+      <div class="logoplate">
+        <img src="../../../../public/logo-1.png" alt="Share-k logo — two interlocking figures, indigo and teal">
+        <div class="wordmark"><b>Share-k</b><span>شارك</span></div>
+      </div>
+      <div class="cell brandnote">
+        <div class="lbl">Primary brand expression</div>
+        <p class="type-body" style="margin-bottom:12px">Typographic. The hero is a large, quiet headline over paper; the only “rich” object on a page is a real product artifact (a skill ledger, an evidence excerpt). No decorative illustration, no background effects.</p>
+        <div class="lbl">Background treatment</div>
+        <p class="type-body">Flat warm paper <code style="font-family:var(--mono)">#FAF8F4</code>, structured by hairline rules. Section breaks are ruled lines, like a registry book. Dark mode: warm charcoal with the same accent logic.</p>
+        <p class="note">Note: the logo’s indigo + teal sit comfortably on paper; the UI accent green is deliberately distinct from the logo teal so “verified” never reads as decoration.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOUNDATIONS ═══════════ -->
+  <section>
+    <h2>Foundations</h2>
+    <p class="sub">One neutral field, one earned accent, three semantic hues that follow the shared status-chip grammar (state-model §6): amber = needs your action · blue = waiting · green = positive terminal · terracotta = negative terminal · violet = AI processing.</p>
+    <div class="grid c4">
+      <div class="sw"><div class="chip" style="background:#FAF8F4;border-bottom:1px solid var(--rule)"></div><div class="meta">paper · #FAF8F4<br>app field</div></div>
+      <div class="sw"><div class="chip" style="background:#1C1B18"></div><div class="meta">ink · #1C1B18<br>text / primary btn</div></div>
+      <div class="sw"><div class="chip" style="background:#57534A"></div><div class="meta">ink-2 · #57534A<br>secondary text</div></div>
+      <div class="sw"><div class="chip" style="background:#E3DED2"></div><div class="meta">rule · #E3DED2<br>hairlines, borders</div></div>
+      <div class="sw"><div class="chip" style="background:#1E6B4F"></div><div class="meta">verify · #1E6B4F<br>verified / success — rationed</div></div>
+      <div class="sw"><div class="chip" style="background:#9A5B00"></div><div class="meta">attention · #9A5B00<br>needs your action</div></div>
+      <div class="sw"><div class="chip" style="background:#A8402F"></div><div class="meta">negative · #A8402F<br>terminal negative</div></div>
+      <div class="sw"><div class="chip" style="background:#5B4B8A"></div><div class="meta">ai · #5B4B8A<br>AI processing only</div></div>
+    </div>
+
+    <div class="grid c2" style="margin-top:22px">
+      <div class="cell">
+        <div class="lbl">Display · IBM Plex Sans 600</div>
+        <div class="type-display">Verified skills,<br>not claimed ones.</div>
+        <div class="type-ar" style="margin-top:14px">مهارات موثقة، لا مجرد ادعاءات</div>
+        <p class="note">One superfamily (IBM Plex Sans + IBM Plex Sans Arabic) — both scripts share weight, rhythm, and tone. Arabic is set at +1–2px equivalents for parity.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">Body · IBM Plex Sans 400 &nbsp;·&nbsp; Evidence · IBM Plex Mono</div>
+        <p class="type-body">Your profile is generated from public GitHub activity, then reviewed by a human before it counts. Every AI decision carries its reason and its sources.</p>
+        <div class="type-mono" style="margin-top:12px">repo: dashboard-ui · 34 commits · confidence: high</div>
+        <p class="note">Mono is reserved for artifacts — repo names, commits, counts, confidence — never body copy. Spacing: 4px base grid, generous 24/32/48 section steps. Radius: 4–6px. Shadows: none at rest; hover raises via border + 1px translate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ UI COMPONENTS ═══════════ -->
+  <section>
+    <h2>UI components</h2>
+    <p class="sub">The same component sample set is rendered in all three directions for a fair comparison.</p>
+
+    <div class="grid c3">
+      <div class="cell">
+        <div class="lbl">Buttons</div>
+        <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-primary">Apply to task</button>
+          <button class="btn btn-secondary">View project</button>
+          <button class="btn btn-ghost">Save ☆</button>
+        </p>
+        <p class="note">Primary is ink, not green — green is reserved for verification so it can’t be spent on every CTA.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">Search input</div>
+        <div class="input">🔍 <b>Try “realtime chat in Go” — search understands meaning</b></div>
+        <div class="lbl" style="margin-top:16px">Select / filter control</div>
+        <span class="select"><small>Sort</small> Newest first ▾</span>
+      </div>
+      <div class="cell">
+        <div class="lbl">Tags &amp; badges</div>
+        <p style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="tag"><code>React</code></span>
+          <span class="tag verified"><code>TypeScript</code> ✓</span>
+          <span class="vbadge">✓ Verified</span>
+        </p>
+        <p style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge b-beg">Beginner</span>
+          <span class="badge b-int">Intermediate</span>
+          <span class="badge b-adv">Advanced</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:22px">
+      <div class="cell">
+        <div class="lbl">Project card</div>
+        <div class="pcard">
+          <h4><code>sharek-backend</code> <span class="badge b-int">Intermediate</span> <span class="tag">Web</span></h4>
+          <p class="desc">NestJS API powering Share-k’s collaboration platform — auth, matching, and delivery workflows.</p>
+          <div class="langbar"><i style="width:78%;background:#2F5A7C"></i><i style="width:12%;background:#8A857A"></i><i style="width:10%;background:#C9C2B2"></i></div>
+          <div class="meta-row"><span>TypeScript 78%</span><span>★ 214</span><span>3 open tasks</span><span>@karim</span></div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Featured project card — “certified entry” edge</div>
+        <div class="pcard featured">
+          <div class="flag">Featured · Active this week</div>
+          <h4><code>arabic-nlp-toolkit</code> <span class="badge b-adv">Advanced</span> <span class="tag">AI/ML</span></h4>
+          <p class="desc">Tokenization, diacritic restoration, and NER for Arabic text.</p>
+          <div class="meta-row"><span>Python 91%</span><span>★ 1.2k</span><span>2 open tasks</span><span>@nour-ml</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:22px">
+      <div class="cell">
+        <div class="lbl">Match indicator — explains fit, never a bare score (DEC-010)</div>
+        <div class="match">
+          <div class="verdict"><b>Strong match</b><span class="conf">confidence · high</span></div>
+          <ul>
+            <li><span class="m m-yes">✓</span> Strong React evidence — 3 verified repos</li>
+            <li><span class="m m-yes">✓</span> Intermediate TypeScript, verified</li>
+            <li><span class="m m-part">◐</span> Previous testing contributions</li>
+            <li><span class="m m-no">○</span> Docker experience not yet verified</li>
+          </ul>
+          <div class="foot">Based on your verified skills only — eligibility is checked per task when you apply.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Status banner &nbsp;·&nbsp; Verified stamp &nbsp;·&nbsp; Empty state</div>
+        <div class="banner">⏳ <span><b>Your skill profile is in review.</b> Most profile reviews are completed within 48 hours — we’ll notify you. You can explore projects meanwhile.</span></div>
+        <p style="margin:14px 0;display:flex;align-items:center;gap:10px"><span class="stamp">✓</span> <span style="font-size:13.5px;color:var(--ink-2)">“Approved” stamp — scale-settle 320&nbsp;ms, once</span></p>
+        <div class="empty"><b>Nothing matches React + Beginner + AI/ML</b>Try removing a filter — Beginner AI/ML projects are rare. <br><button class="btn btn-secondary" style="margin-top:12px">Reset filters</button></div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:22px">
+      <div class="cell" style="padding:0;overflow:hidden">
+        <div class="lbl" style="padding:16px 20px 0">Navigation sample — quiet sidebar, accent edge active</div>
+        <div class="navdemo" style="border:none;border-top:1px solid var(--rule);border-radius:0;margin-top:12px">
+          <aside>
+            <a href="#">Dashboard</a>
+            <a href="#" class="active">Explore</a>
+            <a href="#">Tasks</a>
+            <a href="#">My applications</a>
+            <a href="#">My skills</a>
+            <div class="planchip">Bronze · 1/2 applications today</div>
+          </aside>
+          <div class="body">Active item = accent edge toward content (left LTR / right RTL) + weighted text. No pill backgrounds.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">RTL sample — same components, mirrored</div>
+        <div class="rtl-demo">
+          <div class="match" style="border-inline-start:3px solid var(--verify)">
+            <div class="verdict"><b style="color:var(--verify)">توافق قوي</b><span class="conf">high · الثقة</span></div>
+            <ul>
+              <li><span class="m m-yes">✓</span> أدلة قوية على <code style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">React</code> — ٣ مستودعات موثقة</li>
+              <li><span class="m m-no">○</span> خبرة <code style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">Docker</code> غير موثقة بعد</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Certified-entry edge flips to the right; technical tokens stay LTR inside RTL text (Principle 6).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MOTION ═══════════ -->
+  <section>
+    <h2>Motion character — restrained &amp; archival</h2>
+    <p class="sub">Nothing loops. Content settles; state changes stamp. One easing family: cubic-bezier(0.2, 0, 0, 1).</p>
+    <table>
+      <tr><th>Moment</th><th>Behavior</th><th>Reduced-motion fallback</th></tr>
+      <tr><td>Entrance</td><td>Content settles: fade + 4–8px rise, 200–240 ms, first entry only</td><td>Instant render</td></tr>
+      <tr><td>Hover</td><td>Border darkens + 1px raise, 140 ms; no glow, no scale</td><td>Border color only</td></tr>
+      <tr><td>Page transition</td><td>≤150 ms content fade; never delays data</td><td>None</td></tr>
+      <tr><td>Loading</td><td>Skeleton rows in paper-sunken tone; steady, no shimmer loops</td><td>Static skeletons</td></tr>
+      <tr><td>AI analysis</td><td>Stage lines appear one by one (typewriter-ish list), 180 ms fade each; violet chip while processing</td><td>Lines appear instantly + “7 of 12” counter</td></tr>
+      <tr><td>Verification</td><td>Checkmark scale-settle “stamp”, 320 ms, once per real change</td><td>Static ✓</td></tr>
+    </table>
+  </section>
+
+  <!-- ═══════════ REACT BITS ═══════════ -->
+  <section>
+    <h2>React Bits suitability — max 3, none installed in this phase</h2>
+    <table>
+      <tr><th>Component</th><th>Intended use</th><th>Why it fits</th><th>Accessibility</th><th>Mobile</th><th>Reduced motion</th><th>Performance risk</th></tr>
+      <tr><td>Count Up</td><td>Reputation numerals on dashboard/profile, once per real change</td><td>Registry treats numbers as records; a single settle makes growth visible (Principle 8) without spectacle</td><td>Announce final value via aria-live; never animate on every scroll</td><td>Same, 600 ms</td><td>Static final value + “▲ +0.2” badge</td><td>Trivial</td></tr>
+      <tr><td>Scroll Reveal</td><td>Home-page sections, first entry only</td><td>“Content settles” is this direction’s entire entrance grammar</td><td>Must not hide content from keyboard/screen readers pre-reveal</td><td>Shorter distance (4px)</td><td>Sections render statically</td><td>Low — IntersectionObserver, disconnect after fire</td></tr>
+      <tr><td>Animated List</td><td>GitHub analysis stage feed; notification list</td><td>The archival “entries being written” metaphor matches ledger aesthetics</td><td>aria-live=polite on stage feed; no focus theft</td><td>Same</td><td>Items appear instantly, textual counter</td><td>Trivial</td></tr>
+    </table>
+    <p class="note">Skipped by design: all background/hero effects — this direction’s hero is typographic.</p>
+  </section>
+
+  <p class="note" style="margin-top:40px;border-top:1px solid var(--rule-strong);padding-top:16px">Share-k · Phase 2 visual exploration · Direction A of 3 · All project data on this sheet is illustrative sample content, not real platform statistics.</p>
+</div>
+</body>
+</html>

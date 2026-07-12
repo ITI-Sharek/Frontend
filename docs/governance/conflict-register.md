@@ -1,0 +1,13 @@
+# Share-k — Conflict Register
+
+> Documented disagreements between sources, their resolution, and residual follow-ups. Rule: conflicts are registered, never silently resolved (source-of-truth.md).
+
+| ID | Conflict | Resolution | Status |
+|---|---|---|---|
+| CR-01 | `docs/ARCHITECTURE.md` plans modules (chat, kanban, discussion, roadmaps, socket client) absent from PRD/ERD | DEC-017: post-MVP; MVP module list locked; label in architecture doc as "Architecture intent only — outside current MVP scope"; future ideas may move to `docs/post-mvp/` | ✅ Resolved — architecture-doc label pending (task FE-DOC-1) |
+| CR-02 | Frontend route `/profile/$username` vs. no `username` column on USER (only GITHUB_ACCOUNT.username) | DEC-016: platform-owned `users.username` is canonical; GitHub username = metadata; migration required | ✅ Resolved — backend migration pending |
+| CR-03 | FR-066 "public reputation profile" vs. implemented auth-gated profile route | DEC-007: approved reputation data publicly readable; private/pending/internal data never exposed; frontend guard change required | ✅ Resolved — frontend task FE-3 |
+| CR-04 | `docs/design/master-brief.md` (Figma-as-truth, immediate hi-fi implementation) vs. current UX phase brief | DEC-018: master-brief marked Superseded with notice; retained for history | ✅ Resolved |
+| CR-05 | Port drift: README/.env.example said backend 4000, docs/API.md said 3000; frontend dev port is 3001 while DEC-019 standard said frontend 3000 | DEC-019: backend 4000 everywhere (docs updated). DEC-023: **frontend stays 3001** (deliberate repo decision, commit 0ec5bbb, supersedes the DEC-019 row). Backend-side alignment (CORS, OAuth callbacks, Docker Compose) tracked as backend work | ✅ Resolved |
+| CR-06 | Jira board + Figma file inaccessible from the working environment; local backlog export used | DEC-020 hierarchy: Jira wins for task state; local export is rank 6. DEC-027: Figma entry formally marked "Pending human confirmation" in source-of-truth.md — no URL invented; local `.fig` filename never treated as active source of truth | ✅ Resolved (URL supplied later per DEC-027 template) |
+| CR-07 | DEC-019 example env `API_BASE_URL=http://localhost:4000/api` includes an `/api` prefix; the implemented backend serves routes unprefixed (`/auth/login`, `/health` per docs/API.md) | DEC-024: **routes stay unprefixed** for MVP; canonical `API_BASE_URL=http://localhost:4000`; a future prefix requires an explicit architecture decision (OpenAPI, frontend config, OAuth callbacks, contract tests, possible dual-route transition) — never silent | ✅ Resolved |

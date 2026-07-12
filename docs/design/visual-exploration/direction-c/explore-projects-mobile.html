@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Share-k · Weave · Explore Projects — Mobile 390</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand:#F7F1E6; --raised:#FDFAF3; --deep:#EFE6D4;
+    --indigo:#2B3A67; --itint:#E3E7F1; --ibord:#C4CCE0;
+    --txt:#2A3350; --txt2:#5C6479; --txt3:#8B8FA0;
+    --saffron:#C77F1A; --stint:#F6E8CF; --teal:#1F8A70; --ttint:#DFF0EA;
+    --violet:#6B5CA5; --r:12px;
+    --sans:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;
+    --disp:'Rubik','IBM Plex Sans Arabic',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --weave:repeating-linear-gradient(90deg,var(--teal) 0 6px,var(--saffron) 6px 12px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#E9E1D0;font:14px/1.5 var(--sans);color:var(--txt);padding:36px 20px;display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:10px}
+  .col>label{font:11px var(--mono);text-transform:uppercase;letter-spacing:.13em;color:#7A7362}
+  .phone{width:390px;background:var(--sand);border:1px solid var(--ibord);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 2px 10px rgba(43,58,103,.12)}
+  .screen{display:flex;flex-direction:column;min-height:790px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--itint)}
+  .brand{display:flex;align-items:center;gap:8px}
+  .brand img{width:26px}
+  .brand .ar{font:700 15px 'IBM Plex Sans Arabic';color:var(--indigo)}
+  .brand .en{font:600 12.5px var(--disp);color:var(--txt2)}
+  .r{display:flex;gap:11px;align-items:center}
+  .langtoggle{display:inline-flex;border:1.5px solid var(--indigo);border-radius:999px;overflow:hidden;font:600 10.5px var(--sans)}
+  .langtoggle span{padding:3px 8px;color:var(--indigo)}
+  .langtoggle span.on{background:var(--indigo);color:var(--sand)}
+  .bell{position:relative;font-size:15px}
+  .bell i{position:absolute;top:-5px;right:-7px;background:var(--saffron);color:#fff;border-radius:8px;font:600 9px/1 var(--mono);padding:2px 4px;font-style:normal}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font:600 10px var(--sans)}
+  .head{padding:14px 16px 0;position:relative}
+  .head::before{content:'';position:absolute;top:0;left:16px;width:52px;height:3.5px;border-radius:0 0 3px 3px;background:var(--weave)}
+  h1{font:600 21px var(--disp);color:var(--indigo);padding-top:10px}
+  .lede{font-size:12.5px;color:var(--txt2);margin-top:3px}
+  .search{display:flex;align-items:center;gap:8px;border:1.5px solid var(--ibord);background:var(--raised);border-radius:999px;padding:11px 16px;color:var(--txt3);font-size:13px;margin-top:12px}
+  .controls{display:flex;gap:8px;margin-top:10px}
+  .fbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font:600 13px var(--sans);border:1.5px solid var(--indigo);background:var(--raised);border-radius:999px;padding:10px;color:var(--indigo);min-height:42px}
+  .fbtn b{background:var(--indigo);color:var(--sand);border-radius:8px;font:600 10px var(--mono);padding:2px 6px}
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 0}
+  .fchip{display:inline-flex;align-items:center;gap:5px;font:500 12px/1 var(--sans);border:1px solid var(--ibord);border-radius:999px;padding:6px 10px;background:var(--itint);color:var(--indigo);flex:none}
+  .count{padding:10px 16px 4px;font:600 13.5px var(--disp);color:var(--indigo)}
+  .list{padding:6px 16px 84px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .card{border:1px solid var(--ibord);border-radius:var(--r);background:var(--raised);padding:15px}
+  .toprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h4{font:600 15px var(--disp);color:var(--indigo)}
+  .save{margin-left:auto;color:var(--txt3);font-size:16px;min-width:44px;text-align:right}
+  .badge{font:600 10px/1 var(--sans);border-radius:999px;padding:4px 8px}
+  .b-int{background:var(--itint);color:var(--indigo)}
+  .b-beg{background:var(--deep);color:var(--txt2)}
+  .desc{font-size:12.5px;color:var(--txt2);margin:7px 0 8px}
+  .meta{font-size:11px;color:var(--txt3);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .match{border-top:1px solid var(--itint);padding-top:9px}
+  .mlabel{font:600 13px var(--disp);color:var(--teal)}
+  .mlabel.p{color:var(--saffron)}
+  .threads{list-style:none;font-size:11.5px;color:var(--txt2);margin-top:4px}
+  .threads li{padding:2.5px 0;display:flex;gap:9px;align-items:center}
+  .thread{width:20px;height:0;border-top:2.5px solid var(--teal);border-radius:2px;flex:none}
+  .thread.loose{border-top-style:dashed;border-top-color:var(--txt3)}
+  .thread.part{border-top-color:var(--saffron)}
+  .cta{display:flex;gap:8px;margin-top:10px}
+  .btn{flex:1;font:600 13px var(--sans);border-radius:999px;padding:11px;border:1.5px solid transparent;text-align:center;min-height:44px}
+  .btn-p{background:var(--indigo);color:var(--sand)}
+  .btn-s{background:var(--raised);border-color:var(--indigo);color:var(--indigo)}
+  .tabs{position:absolute;bottom:0;left:0;right:0;display:flex;border-top:1px solid var(--itint);background:var(--raised)}
+  .tabs a{flex:1;text-align:center;padding:9px 0 11px;font:500 10px var(--sans);color:var(--txt3);text-decoration:none}
+  .tabs a span{display:block;font-size:16px;margin-bottom:2px}
+  .tabs a.on{color:var(--indigo);font-weight:700}
+  .tabs a.on span{color:var(--teal)}
+  /* sheet */
+  .dim{background:rgba(43,58,103,.4);position:absolute;inset:0}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sand);border-radius:18px 18px 0 0;border-top:1px solid var(--ibord);padding:10px 20px 20px;max-height:86%;overflow:hidden}
+  .sheet::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--weave)}
+  .grab{width:36px;height:4px;border-radius:2px;background:var(--ibord);margin:8px auto 12px}
+  .sheet h3{font:600 17px var(--disp);color:var(--indigo);display:flex;justify-content:space-between;align-items:center}
+  .sheet h3 span{font:500 13px var(--sans);color:var(--teal)}
+  .fgroup{border-top:1px solid var(--itint);padding:13px 0}
+  .fgroup:first-of-type{border-top:none}
+  .fgroup h5{font:600 12.5px var(--disp);color:var(--indigo);margin-bottom:9px}
+  .opts{display:flex;flex-wrap:wrap;gap:7px}
+  .opt{font:500 13px var(--sans);border:1px solid var(--ibord);border-radius:999px;padding:9px 14px;background:var(--raised);color:var(--txt2);min-height:38px}
+  .opt.sel{background:var(--indigo);border-color:var(--indigo);color:var(--sand);font-weight:600}
+  .apply{display:flex;gap:10px;margin-top:14px}
+  /* states */
+  .skthread{height:3px;border-radius:2px;background:var(--weave);width:55%;margin:10px 16px 6px;opacity:.7}
+  .sk{border:1px solid var(--itint);border-radius:var(--r);background:var(--raised);padding:14px;margin:0 16px 10px}
+  .skline{height:9px;border-radius:5px;background:var(--deep);margin-bottom:7px}
+  .empty{border:1.5px dashed var(--ibord);border-radius:var(--r);margin:12px 16px;padding:24px 18px;text-align:center;color:var(--txt2);font-size:12.5px}
+  .empty b{display:block;color:var(--indigo);font:600 14.5px var(--disp);margin:8px 0 5px}
+  .note{width:100%;text-align:center;font:11px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:#7A7362;margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- Frame 1 · results -->
+<div class="col">
+  <label>1 · Results — single column, pill actions, language toggle in header</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt=""><span class="ar">شارك</span><span class="en">Share-k</span></span>
+      <span class="r"><span class="langtoggle"><span class="on">ع</span><span>EN</span></span><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <p class="lede">Where your thread joins the fabric — every match explained.</p>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+      <div class="controls">
+        <div class="fbtn">Filters <b>3</b></div>
+        <div class="fbtn">Sort: Newest ▾</div>
+      </div>
+    </div>
+    <div class="chiprow">
+      <span class="fchip">React ×</span><span class="fchip">TypeScript ×</span><span class="fchip">Intermediate ×</span>
+    </div>
+    <div class="count">6 projects match</div>
+    <div class="list">
+      <div class="card">
+        <div class="toprow"><h4>sharek-backend</h4><span class="badge b-int">Intermediate</span><span class="save">☆</span></div>
+        <p class="desc">NestJS API powering Share-k’s collaboration platform.</p>
+        <div class="meta"><span>Web</span><span>TypeScript 78%</span><span>★ 214</span><span>3 open tasks</span><span>@karim</span></div>
+        <div class="match">
+          <span class="mlabel">Strong match</span>
+          <ul class="threads">
+            <li><span class="thread"></span> Strong TypeScript evidence · Node.js verified</li>
+            <li><span class="thread loose"></span> Docker not yet verified</li>
+          </ul>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Save ☆</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toprow"><h4>masar-transit</h4><span class="badge b-int">Intermediate</span><span class="save" style="color:var(--saffron)">★</span></div>
+        <p class="desc">Offline-first transit maps for Cairo &amp; Alexandria — React Native.</p>
+        <div class="meta"><span>Mobile</span><span>TypeScript 64%</span><span>★ 342</span><span>4 open tasks</span><span>@laila-io</span></div>
+        <div class="match">
+          <span class="mlabel">Strong match</span>
+          <ul class="threads">
+            <li><span class="thread"></span> Strong React evidence · Intermediate TypeScript</li>
+            <li><span class="thread loose"></span> Mobile testing not yet verified</li>
+          </ul>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Saved ★</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toprow"><h4>taqrir-cli</h4><span class="badge b-beg">Beginner</span><span class="save">☆</span></div>
+        <p class="desc">Arabic/English Markdown reports from JSON — starter tasks labeled.</p>
+        <div class="meta"><span>Tools</span><span>Go 88%</span><span>★ 57</span><span>6 open tasks</span><span>@omar-k</span></div>
+        <div class="match">
+          <span class="mlabel p">Partial match</span>
+          <ul class="threads">
+            <li><span class="thread"></span> Verified CLI &amp; Git history</li>
+            <li><span class="thread part"></span> Go not yet verified — Beginner accepts adjacent skills</li>
+          </ul>
+          <div class="cta"><span class="btn btn-p">Open project</span><span class="btn btn-s">Save ☆</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <a href="#"><span>▦</span>Dashboard</a>
+      <a href="#" class="on"><span>◎</span>Explore</a>
+      <a href="#"><span>☰</span>Tasks</a>
+      <a href="#"><span>◷</span>Applications</a>
+      <a href="#"><span>◉</span>Profile</a>
+    </div>
+  </div></div>
+</div>
+
+<!-- Frame 2 · filter sheet -->
+<div class="col">
+  <label>2 · Filter sheet — woven band, pill chips, one-hand reach</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt=""><span class="ar">شارك</span><span class="en">Share-k</span></span>
+      <span class="r"><span class="langtoggle"><span class="on">ع</span><span>EN</span></span><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+    </div>
+    <div class="dim"></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>Filters <span>Reset</span></h3>
+      <div class="fgroup" style="margin-top:10px">
+        <h5>Technology</h5>
+        <div class="opts">
+          <span class="opt sel">React</span><span class="opt sel">TypeScript</span><span class="opt">Node.js</span>
+          <span class="opt">Python</span><span class="opt">Go</span><span class="opt">Docker</span><span class="opt">+ 12</span>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h5>Category</h5>
+        <div class="opts">
+          <span class="opt sel">All</span><span class="opt">Web</span><span class="opt">Mobile</span><span class="opt">AI/ML</span><span class="opt">DevOps</span><span class="opt">Tools</span>
+        </div>
+      </div>
+      <div class="fgroup">
+        <h5>Difficulty</h5>
+        <div class="opts">
+          <span class="opt">Any</span><span class="opt">Beginner</span><span class="opt sel">Intermediate</span><span class="opt">Advanced</span>
+        </div>
+      </div>
+      <div class="apply">
+        <span class="btn btn-p" style="flex:2">Show 6 projects</span>
+        <span class="btn btn-s" style="flex:1">Cancel</span>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Frame 3 · states -->
+<div class="col">
+  <label>3 · Loading &amp; no-results — thread metaphor, static on reduced motion</label>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <span class="brand"><img src="../../../../public/logo-1.png" alt=""><span class="ar">شارك</span><span class="en">Share-k</span></span>
+      <span class="r"><span class="langtoggle"><span class="on">ع</span><span>EN</span></span><span class="bell">🔔<i>3</i></span><span class="avatar">KM</span></span>
+    </div>
+    <div class="head">
+      <h1>Explore projects</h1>
+      <div class="search">🔍 Try “realtime chat in Go”</div>
+      <div class="controls">
+        <div class="fbtn">Filters <b>3</b></div>
+        <div class="fbtn">Sort: Newest ▾</div>
+      </div>
+    </div>
+    <div class="skthread"></div>
+    <div class="sk"><div class="skline" style="width:50%"></div><div class="skline" style="width:92%"></div><div class="skline" style="width:64%"></div></div>
+    <div class="sk"><div class="skline" style="width:42%"></div><div class="skline" style="width:88%"></div><div class="skline" style="width:70%"></div></div>
+    <div class="empty">
+      <svg width="80" height="34" viewBox="0 0 88 40" fill="none" aria-hidden="true">
+        <path d="M4 20 C 22 4, 34 36, 52 20 S 78 4, 84 20" stroke="#2B3A67" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M4 28 C 22 12, 34 44, 52 28" stroke="#C77F1A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 6"/>
+      </svg>
+      <b>These threads don’t cross yet</b>
+      Nothing matches React + Beginner + AI/ML — try removing one filter.<br>
+      <span class="btn btn-s" style="display:inline-block;margin-top:10px;padding:10px 18px;flex:none">Reset filters</span>
+    </div>
+    <div class="tabs">
+      <a href="#"><span>▦</span>Dashboard</a>
+      <a href="#" class="on"><span>◎</span>Explore</a>
+      <a href="#"><span>☰</span>Tasks</a>
+      <a href="#"><span>◷</span>Applications</a>
+      <a href="#"><span>◉</span>Profile</a>
+    </div>
+  </div></div>
+</div>
+
+<p class="note">Direction C · Weave — mobile 390 · line-draw animations disabled on mobile; static fallbacks shown · sample data</p>
+</body>
+</html>

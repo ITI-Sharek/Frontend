@@ -1,0 +1,20 @@
+/* Share-k typography.
+   Source app loads IBM Plex Sans Arabic as --font-sans (primary UI face, Arabic-first with
+   Latin support), Geist as --font-wordmark (the "Sharek" logotype only), and Geist Mono as
+   --font-mono (labels, footer, mono-tracked buttons). All three ship on Google Fonts under
+   their original names — no substitution needed. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-sans: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-wordmark: 'Geist', -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+
+  /* type scale actually used in the shipped app (auth flows) */
+  --text-hero: 700 48px/56px var(--font-sans);       /* AuthHero h1 */
+  --text-h2: 700 18px/24px var(--font-sans);          /* step headings */
+  --text-body: 400 16px/24px var(--font-sans);
+  --text-label: 400 13px/16px var(--font-mono);       /* letter-spacing .65px, uppercase-ish mono labels */
+  --text-small: 400 14px/20px var(--font-sans);
+  --text-wordmark: 700 32px var(--font-wordmark);     /* -0.32px tracking */
+}

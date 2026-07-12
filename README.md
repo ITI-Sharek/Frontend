@@ -95,9 +95,9 @@ The app will auto-update as you edit files.
 
 ### Backend API
 
-The contributor profile API handoff uses `http://localhost:3000` as the default
-backend. The frontend axios client uses that same URL when `VITE_API_URL` is not
-set.
+The standard local backend port is `4000` (see `docs/governance/decision-log.md`
+DEC-019). The frontend axios client targets `VITE_API_URL`
+(default `http://localhost:4000`, see `.env.example`).
 
 ```bash
 pnpm dev

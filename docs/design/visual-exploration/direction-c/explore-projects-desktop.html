@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Share-k · Weave · Explore Projects — Desktop 1440</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand:#F7F1E6; --raised:#FDFAF3; --deep:#EFE6D4;
+    --indigo:#2B3A67; --indigo-ink:#232E4E; --itint:#E3E7F1; --ibord:#C4CCE0;
+    --txt:#2A3350; --txt2:#5C6479; --txt3:#8B8FA0;
+    --saffron:#C77F1A; --stint:#F6E8CF;
+    --teal:#1F8A70; --ttint:#DFF0EA;
+    --madder:#B3382C; --violet:#6B5CA5;
+    --r:12px; --rs:10px;
+    --sans:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;
+    --disp:'Rubik','IBM Plex Sans Arabic',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --weave:repeating-linear-gradient(90deg,var(--teal) 0 6px,var(--saffron) 6px 12px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#E9E1D0;font:14px/1.5 var(--sans);color:var(--txt);padding:36px 0}
+  .framelabel{width:1440px;margin:0 auto 10px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:#7A7362}
+  .frame{width:1440px;margin:0 auto 28px;background:var(--sand);border:1px solid var(--ibord);border-radius:6px;overflow:hidden}
+  .shell{display:flex;min-height:960px}
+  /* nav */
+  aside.nav{width:228px;border-right:1px solid var(--itint);padding:18px 12px;display:flex;flex-direction:column;background:var(--sand)}
+  .logo{display:flex;align-items:center;gap:10px;padding:2px 8px 16px;border-bottom:1px solid var(--itint)}
+  .logo img{width:32px}
+  .logo .names{display:flex;align-items:center;gap:8px}
+  .logo .names .ar{font:700 16px 'IBM Plex Sans Arabic';color:var(--indigo)}
+  .logo .names .en{font:600 14px var(--disp);color:var(--txt2)}
+  .nav .group{margin-top:14px}
+  .nav a{display:block;padding:9px 16px;color:var(--txt2);text-decoration:none;font-size:14px;border-radius:999px;margin-bottom:3px}
+  .nav a.on{color:var(--sand);background:var(--indigo);font-weight:600}
+  .plan{margin-top:auto;border-top:1px solid var(--itint);padding:14px 8px 4px;font-size:12px;color:var(--txt3);line-height:1.7}
+  .plan b{color:var(--txt2);font-weight:600}
+  .plan .track{height:6px;border-radius:3px;background:var(--deep);overflow:hidden;margin-top:5px}
+  .plan .track i{display:block;height:100%;width:50%;background:var(--saffron)}
+  main{flex:1;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 32px;border-bottom:1px solid var(--itint)}
+  .crumb{font:600 14px var(--disp);color:var(--indigo)}
+  .right{display:flex;gap:14px;align-items:center}
+  .langtoggle{display:inline-flex;border:1.5px solid var(--indigo);border-radius:999px;overflow:hidden;font:600 12px var(--sans)}
+  .langtoggle span{padding:4px 11px;color:var(--indigo)}
+  .langtoggle span.on{background:var(--indigo);color:var(--sand)}
+  .bell{position:relative;font-size:15px}
+  .bell i{position:absolute;top:-5px;right:-7px;background:var(--saffron);color:#fff;border-radius:8px;font:600 9.5px/1 var(--mono);padding:2px 5px;font-style:normal}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font:600 12px var(--sans)}
+  /* page head */
+  .pagehead{padding:28px 32px 0;position:relative}
+  .pagehead::before{content:'';position:absolute;top:0;left:32px;width:72px;height:4px;border-radius:0 0 3px 3px;background:var(--weave)}
+  h1{font:600 30px var(--disp);color:var(--indigo);letter-spacing:-.01em;padding-top:14px}
+  .lede{color:var(--txt2);margin-top:6px;max-width:66ch}
+  .searchrow{display:flex;gap:12px;margin-top:20px}
+  .search{flex:1;display:flex;align-items:center;gap:10px;border:1.5px solid var(--ibord);background:var(--raised);border-radius:999px;padding:12px 20px;color:var(--txt3)}
+  .sort{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--ibord);background:var(--raised);border-radius:999px;padding:0 18px;font-size:14px;color:var(--indigo)}
+  .sort small{font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--txt3)}
+  /* cols */
+  .cols{display:flex;margin-top:22px;flex:1}
+  .filters{width:232px;border-right:1px solid var(--itint);padding:0 24px 32px 32px}
+  .fgroup{padding:15px 0;border-top:1px solid var(--itint)}
+  .fgroup:first-child{border-top:none;padding-top:0}
+  .fgroup h3{font:600 13px var(--disp);color:var(--indigo);margin-bottom:10px}
+  .fopt{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:13.5px;color:var(--txt2)}
+  .fopt.sel{color:var(--indigo);font-weight:600}
+  .box{width:15px;height:15px;border:1.5px solid var(--ibord);border-radius:5px;background:var(--raised);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+  .box.k{background:var(--indigo);border-color:var(--indigo)}
+  .radio{width:15px;height:15px;border:1.5px solid var(--ibord);border-radius:50%;background:var(--raised);display:inline-flex;align-items:center;justify-content:center}
+  .radio.k::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--indigo)}
+  .more{font-size:12.5px;color:var(--teal);margin-top:6px;font-weight:500}
+  .reset{margin-top:18px;font:600 13px var(--sans);color:var(--indigo);border:1.5px solid var(--indigo);border-radius:999px;background:var(--raised);padding:8px 16px;display:inline-block}
+  /* results */
+  .results{flex:1;padding:0 32px 40px 28px}
+  .activebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .count{font:600 15px var(--disp);color:var(--indigo)}
+  .fchip{display:inline-flex;align-items:center;gap:6px;font:500 12.5px/1 var(--sans);border:1px solid var(--ibord);border-radius:999px;padding:6px 11px;background:var(--itint);color:var(--indigo)}
+  .fchip u{text-decoration:none;color:var(--txt3);cursor:pointer}
+  .clearall{font:500 12.5px var(--sans);color:var(--teal)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  /* card */
+  .card{border:1px solid var(--ibord);border-radius:var(--r);background:var(--raised);padding:20px;display:flex;flex-direction:column;transition:transform .16s,border-color .16s}
+  .card:hover{transform:translateY(-2px);border-color:var(--indigo)}
+  .card .top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .card h4{font:600 16.5px var(--disp);color:var(--indigo)}
+  .badge{font:600 11px/1 var(--sans);border-radius:999px;padding:5px 10px}
+  .b-beg{background:var(--deep);color:var(--txt2)}
+  .b-int{background:var(--itint);color:var(--indigo)}
+  .b-adv{background:var(--stint);color:var(--saffron)}
+  .cat{font:500 12px var(--sans);color:var(--txt2);border:1px solid var(--ibord);border-radius:999px;padding:5px 10px}
+  .save{margin-left:auto;color:var(--txt3);font-size:16px;cursor:pointer}
+  .save.saved{color:var(--saffron)}
+  .desc{font-size:13.5px;color:var(--txt2);margin:9px 0 11px;max-width:60ch}
+  .langbar{height:7px;border-radius:4px;background:var(--deep);overflow:hidden;display:flex;margin-bottom:7px}
+  .langbar i{display:block;height:100%}
+  .meta{font-size:12px;color:var(--txt3);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+  .meta .hot{color:var(--txt2);font-weight:500}
+  .tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+  .tag{font:12px var(--mono);border:1px solid var(--ibord);border-radius:999px;padding:5px 10px;background:var(--raised);color:var(--txt2)}
+  .tag.v{border-color:var(--teal);color:var(--teal);background:var(--ttint)}
+  /* match — threads */
+  .match{border-top:1px solid var(--itint);margin-top:auto;padding-top:12px}
+  .match .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .mlabel{font:600 14px var(--disp)}
+  .m-strong{color:var(--teal)} .m-partial{color:var(--saffron)} .m-low{color:var(--txt3)} .m-un{color:var(--txt3)}
+  .conf{font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--txt3)}
+  .threads{list-style:none;font-size:12.5px;color:var(--txt2)}
+  .threads li{padding:3px 0;display:flex;gap:10px;align-items:center}
+  .thread{width:24px;height:0;border-top:2.5px solid var(--teal);border-radius:2px;flex:none}
+  .thread.loose{border-top-style:dashed;border-top-color:var(--txt3)}
+  .thread.part{border-top-color:var(--saffron)}
+  .actions{display:flex;gap:10px;margin-top:13px}
+  .btn{font:600 13px/1 var(--sans);border-radius:999px;padding:10px 16px;border:1.5px solid transparent;cursor:pointer}
+  .btn-p{background:var(--indigo);color:var(--sand)}
+  .btn-s{background:var(--raised);border-color:var(--indigo);color:var(--indigo)}
+  .btn-g{background:transparent;color:var(--indigo)}
+  .loadmore{display:block;margin:28px auto 0;font:600 13.5px var(--sans);border:1.5px solid var(--indigo);background:var(--raised);border-radius:999px;padding:11px 26px;color:var(--indigo)}
+  .disclaimer{font-size:12px;color:var(--txt3);margin-top:16px;text-align:center}
+  /* states */
+  .states{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--ibord)}
+  .state{padding:26px 28px;border-right:1px solid var(--itint)}
+  .state:last-child{border-right:none}
+  .state h5{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--txt3);margin-bottom:16px}
+  .sk{border:1px solid var(--itint);border-radius:var(--r);background:var(--raised);padding:16px;margin-bottom:10px}
+  .skline{height:10px;border-radius:5px;background:var(--deep);margin-bottom:8px}
+  .skthread{height:3px;border-radius:2px;background:var(--weave);width:60%;margin-bottom:14px;opacity:.7}
+  .empty{border:1.5px dashed var(--ibord);border-radius:var(--r);padding:26px 22px;text-align:center;color:var(--txt2);font-size:13px}
+  .empty b{display:block;color:var(--indigo);font:600 15px var(--disp);margin:8px 0 5px}
+  .empty .chips{display:flex;gap:6px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+  footer{width:1440px;margin:0 auto;font:11px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:#7A7362}
+</style>
+</head>
+<body>
+
+<div class="framelabel">Direction C · Weave — Explore projects · desktop 1440 · authenticated contributor · sample data</div>
+<div class="frame">
+<div class="shell">
+
+  <aside class="nav">
+    <div class="logo">
+      <img src="../../../../public/logo-1.png" alt="Share-k">
+      <span class="names"><span class="ar">شارك</span><span class="en">Share-k</span></span>
+    </div>
+    <div class="group">
+      <a href="#">Dashboard</a>
+      <a href="#" class="on">Explore</a>
+      <a href="#">Tasks</a>
+      <a href="#">My applications</a>
+      <a href="#">My skills</a>
+    </div>
+    <div class="group"><a href="#">Settings</a></div>
+    <div class="plan"><b>Bronze plan</b> · 1 of 2 applications today
+      <div class="track"><i></i></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <span class="crumb">Explore</span>
+      <div class="right">
+        <span class="langtoggle"><span class="on">ع</span><span>EN</span></span>
+        <span class="bell">🔔<i>3</i></span><span class="avatar">KM</span>
+      </div>
+    </div>
+
+    <div class="pagehead">
+      <h1>Explore projects</h1>
+      <p class="lede">Find where your thread joins the fabric — projects that fit your verified skills, every match explained.</p>
+      <div class="searchrow">
+        <div class="search">🔍&nbsp; Try “realtime chat in Go” — search understands meaning</div>
+        <div class="sort"><small>Sort</small>&nbsp;Newest first ▾</div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="filters">
+        <div class="fgroup">
+          <h3>Technology</h3>
+          <div class="fopt sel"><span class="box k">✓</span> React</div>
+          <div class="fopt sel"><span class="box k">✓</span> TypeScript</div>
+          <div class="fopt"><span class="box"></span> Node.js</div>
+          <div class="fopt"><span class="box"></span> Python</div>
+          <div class="fopt"><span class="box"></span> Go</div>
+          <div class="fopt"><span class="box"></span> Docker</div>
+          <div class="more">+ 12 more</div>
+        </div>
+        <div class="fgroup">
+          <h3>Category</h3>
+          <div class="fopt sel"><span class="radio k"></span> All</div>
+          <div class="fopt"><span class="radio"></span> Web</div>
+          <div class="fopt"><span class="radio"></span> Mobile</div>
+          <div class="fopt"><span class="radio"></span> AI/ML</div>
+          <div class="fopt"><span class="radio"></span> DevOps</div>
+          <div class="fopt"><span class="radio"></span> Tools &amp; Utilities</div>
+        </div>
+        <div class="fgroup">
+          <h3>Difficulty</h3>
+          <div class="fopt"><span class="radio"></span> Any</div>
+          <div class="fopt"><span class="radio"></span> Beginner</div>
+          <div class="fopt sel"><span class="radio k"></span> Intermediate</div>
+          <div class="fopt"><span class="radio"></span> Advanced</div>
+        </div>
+        <span class="reset">Reset filters</span>
+      </div>
+
+      <div class="results">
+        <div class="activebar">
+          <span class="count">6 projects match</span>
+          <span class="fchip">React <u>×</u></span>
+          <span class="fchip">TypeScript <u>×</u></span>
+          <span class="fchip">Intermediate <u>×</u></span>
+          <span class="clearall">Clear all</span>
+        </div>
+
+        <div class="grid">
+
+          <div class="card">
+            <div class="top"><h4>sharek-backend</h4><span class="badge b-int">Intermediate</span><span class="cat">Web</span><span class="save">☆</span></div>
+            <p class="desc">NestJS API powering Share-k’s open-source collaboration platform — auth, matching, and delivery workflows.</p>
+            <div class="langbar"><i style="width:78%;background:var(--indigo)"></i><i style="width:13%;background:var(--saffron)"></i><i style="width:9%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>TypeScript 78%</span><span>★ 214</span><span class="hot">46 commits this month</span><span>updated 2 days ago</span></div>
+            <div class="tags"><span class="tag v">TypeScript ✓</span><span class="tag">NestJS</span><span class="tag">PostgreSQL</span><span class="tag">Docker</span></div>
+            <div class="meta"><span class="hot">3 open tasks</span><span>maintainer @karim</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-strong">Strong match</span><span class="conf">confidence · high</span></div>
+              <ul class="threads">
+                <li><span class="thread"></span> Strong TypeScript evidence — 3 verified repos</li>
+                <li><span class="thread"></span> Node.js verified, Intermediate</li>
+                <li><span class="thread loose"></span> Docker not yet verified</li>
+              </ul>
+              <div class="actions"><button class="btn btn-p">Open project</button><button class="btn btn-g">Save ☆</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="top"><h4>masar-transit</h4><span class="badge b-int">Intermediate</span><span class="cat">Mobile</span><span class="save saved">★</span></div>
+            <p class="desc">Offline-first public transit maps and schedules for Cairo and Alexandria, built with React Native.</p>
+            <div class="langbar"><i style="width:64%;background:var(--indigo)"></i><i style="width:22%;background:var(--saffron)"></i><i style="width:14%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>TypeScript 64%</span><span>★ 342</span><span class="hot">28 commits this month</span><span>updated yesterday</span></div>
+            <div class="tags"><span class="tag v">React Native ✓</span><span class="tag v">TypeScript ✓</span><span class="tag">SQLite</span></div>
+            <div class="meta"><span class="hot">4 open tasks</span><span>maintainer @laila-io</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-strong">Strong match</span><span class="conf">confidence · high</span></div>
+              <ul class="threads">
+                <li><span class="thread"></span> Strong React evidence — 3 verified repos</li>
+                <li><span class="thread"></span> Intermediate TypeScript, verified</li>
+                <li><span class="thread loose"></span> Mobile testing not yet verified</li>
+              </ul>
+              <div class="actions"><button class="btn btn-p">Open project</button><button class="btn btn-g">Saved ★</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="top"><h4>hisab-ledger</h4><span class="badge b-int">Intermediate</span><span class="cat">Web</span><span class="save">☆</span></div>
+            <p class="desc">Double-entry accounting engine and dashboard for small cooperatives — React front end, Node.js API.</p>
+            <div class="langbar"><i style="width:71%;background:var(--saffron)"></i><i style="width:18%;background:var(--indigo)"></i><i style="width:11%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>JavaScript 71%</span><span>★ 128</span><span class="hot">33 commits this month</span><span>updated today</span></div>
+            <div class="tags"><span class="tag v">React ✓</span><span class="tag v">Node.js ✓</span><span class="tag">MongoDB</span></div>
+            <div class="meta"><span class="hot">5 open tasks</span><span>maintainer @youssef-a</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-strong">Strong match</span><span class="conf">confidence · high</span></div>
+              <ul class="threads">
+                <li><span class="thread"></span> Strong React evidence</li>
+                <li><span class="thread"></span> Node.js verified, Intermediate</li>
+                <li><span class="thread loose"></span> MongoDB not yet verified</li>
+              </ul>
+              <div class="actions"><button class="btn btn-p">Open project</button><button class="btn btn-g">Save ☆</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="top"><h4>taqrir-cli</h4><span class="badge b-beg">Beginner</span><span class="cat">Tools &amp; Utilities</span><span class="save">☆</span></div>
+            <p class="desc">Generates Arabic/English Markdown reports from JSON — a friendly first-contribution codebase with labeled starter tasks.</p>
+            <div class="langbar"><i style="width:88%;background:var(--teal)"></i><i style="width:12%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>Go 88%</span><span>★ 57</span><span class="hot">9 commits this month</span><span>updated 3 days ago</span></div>
+            <div class="tags"><span class="tag">Go</span><span class="tag">Cobra</span><span class="tag v">Git ✓</span></div>
+            <div class="meta"><span class="hot">6 open tasks</span><span>maintainer @omar-k</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-partial">Partial match</span><span class="conf">confidence · moderate</span></div>
+              <ul class="threads">
+                <li><span class="thread"></span> Verified CLI &amp; Git contribution history</li>
+                <li><span class="thread part"></span> Go not yet verified — Beginner tasks accept adjacent skills</li>
+              </ul>
+              <div class="actions"><button class="btn btn-p">Open project</button><button class="btn btn-g">Save ☆</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="top"><h4>arabic-nlp-toolkit</h4><span class="badge b-adv">Advanced</span><span class="cat">AI/ML</span><span class="save">☆</span></div>
+            <p class="desc">Tokenization, diacritic restoration, and named-entity recognition for Arabic text, used by three research projects.</p>
+            <div class="langbar"><i style="width:91%;background:var(--violet)"></i><i style="width:9%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>Python 91%</span><span>★ 1.2k</span><span class="hot">12 commits this month</span><span>updated 5 days ago</span></div>
+            <div class="tags"><span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">FastAPI</span></div>
+            <div class="meta"><span class="hot">2 open tasks</span><span>maintainer @nour-ml</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-low">Low match</span><span class="conf">confidence · high</span></div>
+              <ul class="threads">
+                <li><span class="thread loose"></span> No verified Python evidence yet</li>
+                <li><span class="thread"></span> Previous testing contributions</li>
+                <li><span class="thread loose"></span> Tasks here require Advanced Python</li>
+              </ul>
+              <div class="actions"><button class="btn btn-s">Open project</button><button class="btn btn-g">Save ☆</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="top"><h4>deploy-drift</h4><span class="badge b-adv">Advanced</span><span class="cat">DevOps</span><span class="save">☆</span></div>
+            <p class="desc">Detects infrastructure drift between Terraform state and live AWS resources, with scheduled drift reports.</p>
+            <div class="langbar"><i style="width:52%;background:var(--madder)"></i><i style="width:31%;background:var(--teal)"></i><i style="width:17%;background:var(--ibord)"></i></div>
+            <div class="meta"><span>HCL 52% · Go 31%</span><span>★ 486</span><span class="hot">17 commits this month</span><span>updated 4 days ago</span></div>
+            <div class="tags"><span class="tag">Terraform</span><span class="tag">AWS</span><span class="tag">Go</span></div>
+            <div class="meta"><span class="hot">1 open task</span><span>maintainer @sara-dev</span></div>
+            <div class="match">
+              <div class="head"><span class="mlabel m-un">Fit unknown</span><span class="conf">not enough evidence</span></div>
+              <ul class="threads">
+                <li><span class="thread loose"></span> No DevOps evidence in your verified profile yet — connect more repos or re-analyze.</li>
+              </ul>
+              <div class="actions"><button class="btn btn-s">Open project</button><button class="btn btn-g">Save ☆</button></div>
+            </div>
+          </div>
+
+        </div>
+
+        <button class="loadmore">Load more projects</button>
+        <p class="disclaimer">Fit hints are based on your verified skills only — eligibility is checked per task when you apply. Sample data for concept review.</p>
+      </div>
+    </div>
+
+    <!-- state specimens -->
+    <div class="states">
+      <div class="state">
+        <h5>Loading — thread weaves across, skeletons settle</h5>
+        <div class="skthread"></div>
+        <div class="sk"><div class="skline" style="width:45%"></div><div class="skline" style="width:90%"></div><div class="skline" style="width:70%"></div></div>
+        <div class="sk"><div class="skline" style="width:55%"></div><div class="skline" style="width:85%"></div><div class="skline" style="width:60%"></div></div>
+      </div>
+      <div class="state">
+        <h5>Filtered — no matching results</h5>
+        <div class="empty">
+          <svg width="88" height="36" viewBox="0 0 88 40" fill="none" aria-hidden="true">
+            <path d="M4 20 C 22 4, 34 36, 52 20 S 78 4, 84 20" stroke="#2B3A67" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 28 C 22 12, 34 44, 52 28" stroke="#C77F1A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 6"/>
+          </svg>
+          <b>These threads don’t cross yet</b>
+          Nothing matches React + Beginner + AI/ML — try removing one filter.
+          <div class="chips"><span class="fchip">React <u>×</u></span><span class="fchip">Beginner <u>×</u></span><span class="fchip">AI/ML <u>×</u></span></div>
+          <button class="btn btn-s">Reset filters</button>
+        </div>
+      </div>
+      <div class="state">
+        <h5>Empty — no published projects</h5>
+        <div class="empty">
+          <svg width="88" height="36" viewBox="0 0 88 40" fill="none" aria-hidden="true">
+            <path d="M4 20 C 22 4, 34 36, 52 20 S 78 4, 84 20" stroke="#2B3A67" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 6"/>
+            <circle cx="52" cy="20" r="4" fill="#1F8A70"/>
+          </svg>
+          <b>The fabric is just beginning</b>
+          Project owners are importing their repositories now — check back soon, or <span style="color:var(--teal);font-weight:600">get notified</span>.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+<footer>Weave · concept only — not production code · sample data</footer>
+</body>
+</html>

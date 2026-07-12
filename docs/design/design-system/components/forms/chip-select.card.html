@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" viewport="700x180" name="Chip Select" -->
+<html><head><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;font-family:var(--font-sans);background:var(--background)}</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { ChipSelect } = window.ShareKDesignSystem_b6d289;
+function Demo() {
+  const [v, setV] = React.useState(["ai","web"]);
+  return (
+    <div style={{padding:24,maxWidth:400}}>
+      <ChipSelect label="مجالات الاهتمام" multiple value={v} onChange={setV}
+        options={[{value:"web",label:"تطوير الويب"},{value:"ai",label:"الذكاء الاصطناعي"},{value:"design",label:"تصميم UI/UX"},{value:"devops",label:"DevOps"}]} />
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script>
+</body></html>

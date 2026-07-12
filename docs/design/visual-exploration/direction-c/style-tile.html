@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share-k · Direction C — Weave · Style Tile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ————— Direction C · WEAVE (نسيج) — token set ————— */
+  :root{
+    --sand:#F7F1E6; --sand-raised:#FDFAF3; --sand-deep:#EFE6D4;
+    --indigo:#2B3A67; --indigo-ink:#232E4E; --indigo-soft:#5A6A94;
+    --indigo-tint:#E3E7F1; --indigo-border:#C4CCE0;
+    --txt:#2A3350; --txt2:#5C6479; --txt3:#8B8FA0;
+    --saffron:#C77F1A; --saffron-tint:#F6E8CF;   /* progress / attention */
+    --teal:#1F8A70; --teal-tint:#DFF0EA;         /* verification / success */
+    --madder:#B3382C; --madder-tint:#F5E3E0;     /* negatives */
+    --violet:#6B5CA5;                             /* AI processing */
+    --r:12px; --r-s:10px;
+    --sans:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;
+    --disp:'Rubik','IBM Plex Sans Arabic',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --ar:'IBM Plex Sans Arabic',sans-serif;
+    --weave:repeating-linear-gradient(90deg,var(--teal) 0 6px,var(--saffron) 6px 12px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--sand);color:var(--txt);font:15px/1.55 var(--sans);padding:56px 40px}
+  .sheet{max-width:1180px;margin:0 auto}
+  h1{font:600 34px var(--disp);color:var(--indigo);letter-spacing:-.01em}
+  .kicker{font:12px/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--txt3);margin-bottom:10px}
+  .lede{color:var(--txt2);max-width:64ch;margin-top:10px}
+  section{margin-top:52px;padding-top:34px;position:relative}
+  section::before{content:'';position:absolute;top:0;left:0;width:64px;height:3px;background:var(--weave);border-radius:2px}
+  h2{font:600 21px var(--disp);color:var(--indigo);margin-bottom:4px}
+  .sub{color:var(--txt2);font-size:14px;margin-bottom:24px;max-width:70ch}
+  .grid{display:grid;gap:20px}
+  .c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .cell{border:1px solid var(--indigo-border);border-radius:var(--r);background:var(--sand-raised);padding:20px}
+  .lbl{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--txt3);margin-bottom:12px}
+  /* brand */
+  .brandrow{display:flex;gap:20px}
+  .logoplate{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:44px 20px;border:1px solid var(--indigo-border);border-radius:var(--r);background:var(--sand-raised);position:relative;overflow:hidden}
+  .logoplate::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--weave);opacity:.8}
+  .logoplate img{width:130px}
+  .wordmark{display:flex;align-items:center;gap:14px;margin-top:18px}
+  .wordmark .arname{font:700 30px var(--ar);color:var(--indigo)}
+  .wordmark .divider{width:2px;height:26px;background:var(--saffron);border-radius:1px}
+  .wordmark b{font:600 24px var(--disp);color:var(--indigo)}
+  .langtoggle{display:inline-flex;border:1.5px solid var(--indigo);border-radius:999px;overflow:hidden;font:600 13px var(--sans);margin-top:16px}
+  .langtoggle span{padding:6px 14px;color:var(--indigo)}
+  .langtoggle span.on{background:var(--indigo);color:var(--sand)}
+  /* swatches */
+  .sw{border-radius:var(--r-s);border:1px solid var(--indigo-border);overflow:hidden}
+  .sw .chip{height:64px}
+  .sw .meta{padding:8px 10px;font:11px/1.5 var(--mono);color:var(--txt2);background:var(--sand-raised)}
+  /* type */
+  .type-display-ar{font:700 40px/1.3 var(--ar);color:var(--indigo);direction:rtl}
+  .type-display-en{font:600 30px/1.2 var(--disp);color:var(--indigo);letter-spacing:-.01em;margin-top:2px}
+  .type-display-en em{font-style:normal;color:var(--teal)}
+  .type-body{font-size:15px;color:var(--txt2);max-width:56ch}
+  .type-mono{font:13px/1.6 var(--mono);background:var(--sand-deep);border-radius:var(--r-s);padding:10px 12px;display:inline-block;color:var(--txt)}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--sans);border-radius:999px;padding:11px 20px;border:1.5px solid transparent;cursor:pointer;transition:all .16s}
+  .btn-primary{background:var(--indigo);color:var(--sand)}
+  .btn-primary:hover{background:var(--indigo-ink)}
+  .btn-secondary{background:var(--sand-raised);border-color:var(--indigo);color:var(--indigo)}
+  .btn-secondary:hover{background:var(--indigo-tint)}
+  .btn-ghost{background:transparent;color:var(--indigo);border-color:transparent}
+  .btn-ghost:hover{background:var(--indigo-tint)}
+  /* inputs */
+  .input{display:flex;align-items:center;gap:10px;border:1.5px solid var(--indigo-border);background:var(--sand-raised);border-radius:999px;padding:11px 18px;color:var(--txt3);font-size:14px}
+  .select{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--indigo-border);background:var(--sand-raised);border-radius:999px;padding:10px 16px;font-size:14px;color:var(--indigo)}
+  .select small{font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--txt3)}
+  /* chips + badges */
+  .tag{display:inline-flex;align-items:center;gap:6px;font:500 12.5px/1 var(--sans);border:1px solid var(--indigo-border);border-radius:999px;padding:5px 11px;background:var(--sand-raised);color:var(--txt)}
+  .tag code{font:12px var(--mono)}
+  .tag.verified{border-color:var(--teal);color:var(--teal);background:var(--teal-tint)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 var(--sans);border-radius:999px;padding:5px 10px}
+  .b-beg{background:var(--sand-deep);color:var(--txt2)}
+  .b-int{background:var(--indigo-tint);color:var(--indigo)}
+  .b-adv{background:var(--saffron-tint);color:var(--saffron)}
+  .vbadge{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 var(--sans);color:var(--teal);background:var(--teal-tint);border:1px solid var(--teal);border-radius:999px;padding:5px 11px}
+  /* match — thread metaphor */
+  .match{border:1px solid var(--indigo-border);border-radius:var(--r);background:var(--sand-raised);padding:16px;max-width:440px;position:relative;overflow:hidden}
+  .match::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--weave)}
+  .match .verdict{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;padding-inline-start:10px}
+  .match .verdict b{font:600 15px var(--disp);color:var(--teal)}
+  .match .conf{font:11px var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:.08em}
+  .threads{list-style:none;padding-inline-start:10px;font-size:13.5px;color:var(--txt2)}
+  .threads li{padding:4px 0;display:flex;gap:10px;align-items:center}
+  .thread{width:26px;height:0;border-top:2.5px solid var(--teal);border-radius:2px;flex:none}
+  .thread.loose{border-top-style:dashed;border-top-color:var(--txt3)}
+  .thread.part{border-top-color:var(--saffron)}
+  .match .foot{margin-top:10px;padding:8px 0 0 10px;border-top:1px solid var(--indigo-tint);font-size:12px;color:var(--txt3)}
+  /* banner */
+  .banner{display:flex;gap:12px;align-items:flex-start;border:1px solid #E4C89A;background:var(--saffron-tint);border-radius:var(--r);padding:14px 18px;font-size:14px;max-width:640px}
+  .banner b{color:var(--saffron)}
+  /* cards */
+  .pcard{border:1px solid var(--indigo-border);border-radius:var(--r);background:var(--sand-raised);padding:18px;transition:transform .16s,border-color .16s}
+  .pcard:hover{transform:translateY(-2px);border-color:var(--indigo)}
+  .pcard h4{font:600 16.5px var(--disp);color:var(--indigo);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pcard h4 code{font:14px var(--mono)}
+  .pcard .desc{font-size:13.5px;color:var(--txt2);margin:8px 0 12px}
+  .langbar{height:7px;border-radius:4px;background:var(--sand-deep);overflow:hidden;display:flex;margin:10px 0 6px}
+  .langbar i{display:block;height:100%}
+  .meta-row{font:12px var(--sans);color:var(--txt3);display:flex;gap:14px;flex-wrap:wrap}
+  .pcard.featured{border:none;background:var(--indigo);color:var(--sand)}
+  .pcard.featured h4{color:var(--sand)}
+  .pcard.featured .desc{color:#C7CEE2}
+  .pcard.featured .meta-row{color:#9AA5C4}
+  .pcard.featured .flag{font:600 11.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--saffron);margin-bottom:8px}
+  .pcard.featured{position:relative;overflow:hidden}
+  .pcard.featured::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--weave)}
+  /* empty */
+  .empty{border:1.5px dashed var(--indigo-border);border-radius:var(--r);padding:30px;text-align:center;color:var(--txt2)}
+  .empty b{display:block;color:var(--indigo);font:600 16px var(--disp);margin:10px 0 6px}
+  .knot{display:inline-block}
+  /* nav */
+  .navdemo{display:flex;border:1px solid var(--indigo-border);border-radius:var(--r);overflow:hidden;background:var(--sand-raised)}
+  .navdemo aside{width:216px;border-inline-end:1px solid var(--indigo-tint);padding:14px 10px;background:var(--sand)}
+  .navdemo a{display:flex;align-items:center;gap:10px;padding:9px 14px;color:var(--txt2);text-decoration:none;font-size:14px;border-radius:999px;margin-bottom:2px}
+  .navdemo a.active{color:var(--sand);background:var(--indigo);font-weight:600}
+  .navdemo .body{flex:1;padding:16px;color:var(--txt3);font-size:13px}
+  .planchip{margin:12px 14px 0;border-top:1px solid var(--indigo-tint);padding-top:12px;font:12px var(--sans);color:var(--txt3)}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);text-align:start;padding:8px 10px;border-bottom:2px solid var(--indigo-border)}
+  td{padding:9px 10px;border-bottom:1px solid var(--indigo-tint);vertical-align:top;color:var(--txt2)}
+  td:first-child{color:var(--indigo);font-weight:600}
+  .rtl-demo{direction:rtl;font-family:var(--ar)}
+  .note{font-size:12.5px;color:var(--txt3);margin-top:14px}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="kicker">Share-k · Phase 2 · Visual direction validation — concept, sample data, not production UI</div>
+  <h1>Direction C — Weave <span style="font-family:var(--ar);color:var(--txt2)">· نسيج</span></h1>
+  <p class="lede"><strong style="color:var(--indigo)">شارك means to participate.</strong> Collaboration as weaving: individual threads — contributors, commits, skills — interlacing into shared fabric. A bilingual-first identity rooted in Arabic visual culture, executed flat and contemporary: pattern, never gradient-glow.</p>
+
+  <!-- BRAND -->
+  <section>
+    <h2>Brand</h2>
+    <p class="sub">The logo already <em>is</em> two figures interweaving — this direction is the only one that builds the whole language out of the mark’s own idea (and its actual indigo + teal palette). Logo untouched; the woven band is the recurring brand element.</p>
+    <div class="brandrow">
+      <div class="logoplate">
+        <img src="../../../../public/logo-1.png" alt="Share-k logo — two interlocking figures, indigo and teal">
+        <div class="wordmark"><span class="arname">شارك</span><span class="divider"></span><b>Share-k</b></div>
+        <div class="langtoggle"><span class="on">ع</span><span>EN</span></div>
+      </div>
+      <div class="cell" style="flex:1.4">
+        <div class="lbl">Primary brand expression</div>
+        <p class="type-body" style="margin-bottom:12px">Art-directed dual-script headlines (Arabic leads, Latin partners — never stacked translations), a thin woven band marking brand moments, and geometric thread illustrations that explain (weaving = collaborating), never decorate randomly.</p>
+        <div class="lbl">Background treatment</div>
+        <p class="type-body">Warm sand field <code style="font-family:var(--mono)">#F7F1E6</code>; indigo surfaces for emphasis blocks. Texture comes from pattern, not shaders — no WebGL, no glassmorphism. Dark mode: indigo-night field with sand text.</p>
+        <p class="note">The ع ⇄ EN toggle is celebrated in the header as a brand moment — not buried in settings.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDATIONS -->
+  <section>
+    <h2>Foundations</h2>
+    <p class="sub">Richer palette than Registry, still flat: indigo carries structure, saffron carries progress/attention, oasis teal carries verification, madder carries negatives — mapped onto the shared status grammar. Violet stays reserved for AI processing.</p>
+    <div class="grid c4">
+      <div class="sw"><div class="chip" style="background:#F7F1E6;border-bottom:1px solid var(--indigo-border)"></div><div class="meta">sand · #F7F1E6<br>field</div></div>
+      <div class="sw"><div class="chip" style="background:#2B3A67"></div><div class="meta">indigo · #2B3A67<br>structure / primary</div></div>
+      <div class="sw"><div class="chip" style="background:#2A3350"></div><div class="meta">text · #2A3350<br>body ink</div></div>
+      <div class="sw"><div class="chip" style="background:#C4CCE0"></div><div class="meta">border · #C4CCE0<br>indigo-tint lines</div></div>
+      <div class="sw"><div class="chip" style="background:#1F8A70"></div><div class="meta">teal · #1F8A70<br>verification / success</div></div>
+      <div class="sw"><div class="chip" style="background:#C77F1A"></div><div class="meta">saffron · #C77F1A<br>progress / attention</div></div>
+      <div class="sw"><div class="chip" style="background:#B3382C"></div><div class="meta">madder · #B3382C<br>negative terminal</div></div>
+      <div class="sw"><div class="chip" style="background:#6B5CA5"></div><div class="meta">violet · #6B5CA5<br>AI processing only</div></div>
+    </div>
+
+    <div class="grid c2" style="margin-top:20px">
+      <div class="cell">
+        <div class="lbl">Display — Arabic leads (IBM Plex Sans Arabic 700), Rubik partners</div>
+        <div class="type-display-ar">مهاراتك الموثقة تنسج مستقبلك</div>
+        <div class="type-display-en">Your verified skills <em>weave</em> your future.</div>
+        <p class="note">Bilingual headlines are art-directed together at brand moments only; normal UI renders one language (DEC-008). Arabic min-size 14px equivalent.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">Body · IBM Plex Sans &nbsp;·&nbsp; artifacts · IBM Plex Mono</div>
+        <p class="type-body">Your profile is generated from public GitHub activity, then reviewed by a human before it counts. Every AI decision carries its reason and its sources.</p>
+        <div class="type-mono" style="margin-top:12px">repo: dashboard-ui · 34 commits · confidence: high</div>
+        <p class="note">Spacing: generous and soft — 24/32/56 rhythm, roomier cards. Radius: 10–12px (the cap — no pill cards). Depth: tactile 1px indigo-tint borders; shadows avoided; the weave band is the only pattern allowed inside product UI.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section>
+    <h2>UI components</h2>
+    <p class="sub">Same component sample set as the other two directions.</p>
+
+    <div class="grid c3">
+      <div class="cell">
+        <div class="lbl">Buttons — rounded, warm</div>
+        <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-primary">Apply to task</button>
+          <button class="btn btn-secondary">View project</button>
+          <button class="btn btn-ghost">Save ☆</button>
+        </p>
+        <p class="note">Primary is indigo; teal stays reserved for verification moments.</p>
+      </div>
+      <div class="cell">
+        <div class="lbl">Search input</div>
+        <div class="input">🔍 <span>Try “realtime chat in Go” — search understands meaning</span></div>
+        <div class="lbl" style="margin-top:16px">Select / filter control</div>
+        <span class="select"><small>Sort</small> Newest first ▾</span>
+      </div>
+      <div class="cell">
+        <div class="lbl">Tags &amp; badges</div>
+        <p style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="tag"><code>React</code></span>
+          <span class="tag verified"><code>TypeScript</code> ✓</span>
+          <span class="vbadge">✓ Verified</span>
+        </p>
+        <p style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge b-beg">Beginner</span>
+          <span class="badge b-int">Intermediate</span>
+          <span class="badge b-adv">Advanced</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:20px">
+      <div class="cell">
+        <div class="lbl">Project card — fabric swatch</div>
+        <div class="pcard">
+          <h4>sharek-backend <span class="badge b-int">Intermediate</span> <span class="tag">Web</span></h4>
+          <p class="desc">NestJS API powering Share-k’s collaboration platform — auth, matching, and delivery workflows.</p>
+          <div class="langbar"><i style="width:78%;background:var(--indigo)"></i><i style="width:13%;background:var(--saffron)"></i><i style="width:9%;background:var(--indigo-border)"></i></div>
+          <div class="meta-row"><span>TypeScript 78%</span><span>★ 214</span><span>3 open tasks</span><span>@karim</span></div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Featured project card — indigo block + woven band</div>
+        <div class="pcard featured">
+          <div class="flag">Featured · Active this week</div>
+          <h4>arabic-nlp-toolkit <span class="badge b-adv">Advanced</span></h4>
+          <p class="desc">Tokenization, diacritic restoration, and NER for Arabic text.</p>
+          <div class="meta-row"><span>Python 91%</span><span>★ 1.2k</span><span>2 open tasks</span><span>@nour-ml</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:20px">
+      <div class="cell">
+        <div class="lbl">Match indicator — threads: verified woven tight, missing still loose</div>
+        <div class="match">
+          <div class="verdict"><b>Strong match</b><span class="conf">confidence · high</span></div>
+          <ul class="threads">
+            <li><span class="thread"></span> Strong React evidence — 3 verified repos</li>
+            <li><span class="thread"></span> Intermediate TypeScript, verified</li>
+            <li><span class="thread part"></span> Previous testing contributions</li>
+            <li><span class="thread loose"></span> Docker experience not yet verified</li>
+          </ul>
+          <div class="foot">Based on your verified skills only — eligibility is checked per task when you apply.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Status banner &nbsp;·&nbsp; Empty state with explaining illustration</div>
+        <div class="banner">⏳ <span><b>Your skill profile is in review.</b> Most profile reviews are completed within 48 hours — we’ll notify you. Explore projects meanwhile.</span></div>
+        <div class="empty" style="margin-top:14px">
+          <svg class="knot" width="88" height="40" viewBox="0 0 88 40" fill="none" aria-hidden="true">
+            <path d="M4 20 C 22 4, 34 36, 52 20 S 78 4, 84 20" stroke="#2B3A67" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 28 C 22 12, 34 44, 52 28" stroke="#C77F1A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 6"/>
+            <circle cx="52" cy="20" r="4" fill="#1F8A70"/>
+          </svg>
+          <b>Nothing matches React + Beginner + AI/ML</b>
+          These threads don’t cross yet — try removing one filter.
+          <br><button class="btn btn-secondary" style="margin-top:12px">Reset filters</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c2" style="margin-top:20px">
+      <div class="cell" style="padding:0;overflow:hidden">
+        <div class="lbl" style="padding:16px 20px 0">Navigation sample — warm sidebar, filled-pill active</div>
+        <div class="navdemo" style="border:none;border-top:1px solid var(--indigo-tint);border-radius:0;margin-top:12px">
+          <aside>
+            <a href="#">Dashboard</a>
+            <a href="#" class="active">Explore</a>
+            <a href="#">Tasks</a>
+            <a href="#">My applications</a>
+            <a href="#">My skills</a>
+            <div class="planchip">Bronze · 1/2 applications today</div>
+          </aside>
+          <div class="body">Active = indigo pill. The language toggle lives in the header (ع ⇄ EN), a first-class brand control.</div>
+        </div>
+      </div>
+      <div class="cell">
+        <div class="lbl">RTL sample — Arabic is the native script here, not the mirror</div>
+        <div class="rtl-demo">
+          <div class="match">
+            <div class="verdict"><b style="font-family:var(--ar)">توافق قوي</b><span class="conf">high · الثقة</span></div>
+            <ul class="threads" style="font-size:14px">
+              <li><span class="thread"></span> أدلة قوية على <code style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">React</code> — ٣ مستودعات موثقة</li>
+              <li><span class="thread loose"></span> خبرة <code style="font-family:var(--mono);direction:ltr;unicode-bidi:embed">Docker</code> غير موثقة بعد</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Weave band and thread lines mirror natively; horizontal rhythm already echoes script flow. Pattern borders are decorative-only (aria-hidden).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTION -->
+  <section>
+    <h2>Motion character — threads draw, knots tie</h2>
+    <p class="sub">The most motion-forward direction — and the one that needs reduced-motion discipline most. All motion is first-entry-only; nothing loops.</p>
+    <table>
+      <tr><th>Moment</th><th>Behavior</th><th>Reduced-motion fallback</th></tr>
+      <tr><td>Entrance</td><td>Cards settle softly (fade + 6px rise, 240 ms); section thread-band draws in 450 ms on first view</td><td>Static render, band pre-drawn</td></tr>
+      <tr><td>Hover</td><td>Card lifts 2px + border deepens to indigo, 160 ms — tactile, no glow</td><td>Border color only</td></tr>
+      <tr><td>Page transition</td><td>≤150 ms crossfade; never delays data</td><td>None</td></tr>
+      <tr><td>Loading</td><td>Skeletons in sand-deep; a single thread line “weaves” across the results header (SVG dash, 700 ms, once)</td><td>Static skeletons + text</td></tr>
+      <tr><td>AI analysis</td><td>Pipeline drawn as a thread passing through stations; stages tighten as they complete (SVG line-draw 450–700 ms)</td><td>Static complete diagram + “stage 7 of 12”</td></tr>
+      <tr><td>Verification / completion</td><td>“Tie the knot” — loose dashed thread pulls tight into solid teal, 320 ms, once</td><td>Static solid thread + ✓</td></tr>
+    </table>
+  </section>
+
+  <!-- REACT BITS -->
+  <section>
+    <h2>React Bits suitability — max 3, none installed this phase</h2>
+    <table>
+      <tr><th>Component</th><th>Intended use</th><th>Why it fits</th><th>Accessibility</th><th>Mobile</th><th>Reduced motion</th><th>Performance risk</th></tr>
+      <tr><td>Split Text</td><td>Bilingual hero headline, once per visit</td><td>Letters/words assembling = threads gathering; supports the ar/en art-directed reveal</td><td>Full string exposed to AT immediately; effect is visual-only; must handle RTL split correctly (test Arabic shaping — split by word, never by letter, in Arabic)</td><td>Word-level split, shorter</td><td>Static headline</td><td>Low</td></tr>
+      <tr><td>Logo Loop</td><td>Community/technology strip on marketing pages, slow scroll</td><td>A continuous strip reads as woven fabric; communal tone</td><td>aria-hidden duplicate track; pausable on hover/focus; never conveys unique info</td><td>Slower, fewer items</td><td>Static grid of logos</td><td>Low–medium — pause off-viewport</td></tr>
+      <tr><td>Stepper</td><td>Onboarding activation flow</td><td>The journey-as-thread through stations is this direction’s core metaphor</td><td>Keyboard traversal + aria-current on active step; RTL direction mirror</td><td>Vertical variant</td><td>Instant step swap, counter text</td><td>Trivial</td></tr>
+    </table>
+    <p class="note">Magnet (final marketing CTA, ≤4px) noted as optional in Phase 1 but excluded here — three is the cap and it adds accessibility risk for little gain.</p>
+  </section>
+
+  <p class="note" style="margin-top:40px;border-top:1px solid var(--indigo-border);padding-top:16px">Share-k · Phase 2 visual exploration · Direction C of 3 · All project data on this sheet is illustrative sample content, not real platform statistics.</p>
+</div>
+</body>
+</html>

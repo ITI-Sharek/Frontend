@@ -1,0 +1,30 @@
+<!-- @dsCard group="Components" viewport="700x260" name="Role Cards, Avatar & Badge" -->
+<html><head><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;font-family:var(--font-sans);background:var(--background)}</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { RoleOptionCard, Avatar, NotificationBadge } = window.ShareKDesignSystem_b6d289;
+function Demo() {
+  const [role, setRole] = React.useState("contributor");
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:20,padding:24}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        <RoleOptionCard title="مساهم" description="أرغب في المساهمة في مشاريع مفتوحة المصدر" icon="users" selected={role==="contributor"} onSelect={()=>setRole("contributor")} />
+        <RoleOptionCard title="صاحب مشروع" description="أمتلك مشروعًا وأبحث عن مساهمين" icon="briefcase" selected={role==="owner"} onSelect={()=>setRole("owner")} />
+      </div>
+      <div style={{display:"flex",gap:16,alignItems:"center"}}>
+        <Avatar size="lg" online />
+        <Avatar size="md" online={false} />
+        <NotificationBadge count={2} />
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script>
+</body></html>
