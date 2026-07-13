@@ -31,10 +31,14 @@ function LoginPage() {
   async function navigateAfterAuth(user: AuthUserDto) {
     if (shouldEnsureContributorProfile(user)) {
       const profile = await ensureCurrentContributorProfile();
+      storageService.setUsername(profile.username);
       navigate({ to: ROUTES.contributorProfile(profile.username) });
       return;
     }
 
+    if (user.username) {
+      storageService.setUsername(user.username);
+    }
     navigate({ to: getPostLoginPath(user) });
   }
 

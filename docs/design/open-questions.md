@@ -29,17 +29,11 @@
 | C5 port drift | DEC-019 — backend 4000 standard; residual CR-05 below |
 | C6 source hierarchy | DEC-020 — `docs/governance/source-of-truth.md` |
 
-## Residuals — resolved by batch 2 (2026-07-12, DEC-023…028)
-
-| Residual | Resolution |
-|---|---|
-| OQ-R1 frontend port | DEC-023 — frontend stays **3001** (deliberate repo decision); supersedes DEC-019's 3000 row |
-| OQ-R2 `/api` prefix | DEC-024 — routes stay **unprefixed**; `API_BASE_URL=http://localhost:4000`; future prefix = explicit decision only |
-| OQ-R3 payments (PRD OQ-002) | DEC-026 — no payment provider in MVP; entitlements independent of payments; `subscription_source` DEFAULT/ADMIN/DEMO; copy "Plan purchasing is not available during the MVP preview." |
-| OQ-R4 Figma URL | DEC-027 — formally "Pending human confirmation" placeholder in source-of-truth.md; no URL invented |
-| OQ-R5 project slug | DEC-025 — platform-owned `projects.slug` (`slug_normalized` unique, immutable after publication); `/projects/:projectSlug` stands |
-
 ## Still open
 
-- **Canonical Figma URL value** — the *entry* is resolved (DEC-027 placeholder); the actual URL + approved page/section still needs to be supplied by a human and recorded using the DEC-027 template.
-- **Post-MVP payment provider choice** — deliberately deferred behind the `PaymentProvider` interface (DEC-026).
+- **OQ-R1 · Frontend dev port 3001 vs. 3000 standard** (from CR-05). DEC-019's standard table says frontend 3000, but the repo deliberately moved to 3001 (commit 0ec5bbb; README + specs aligned). Changing back touches package.json, README, spec docs, test URLs. Needs a team call — either amend DEC-019 to 3001 or schedule the port change.
+- **OQ-R2 · `/api` base-path prefix** (CR-07). DEC-019's env example shows `API_BASE_URL=http://localhost:4000/api`, but the implemented backend serves unprefixed routes. Backend team to decide on a global prefix; frontend `VITE_API_URL` unchanged until then.
+- **OQ-R3 · Payment provider & commission mechanics** — PRD OQ-002, still undecided. Pricing/subscription UI ships with placeholder checkout until resolved.
+- **OQ-R4 · Canonical Figma URL** — to be added to `docs/governance/source-of-truth.md` (DEC-020 requires it).
+- **OQ-R5 · Project `:projectSlug`** — DEC-007 names the public route `/projects/:projectSlug`; PROJECT has no slug field yet (only UUID). Needs the same treatment as username (slug column + uniqueness + generation rule) or an amendment to keep `:projectId`. Flagged to backend; ERD delta lists it.
+

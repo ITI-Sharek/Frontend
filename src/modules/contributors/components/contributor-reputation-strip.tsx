@@ -1,12 +1,16 @@
-import { GitPullRequest, MessageSquare, Star, Timer } from "lucide-react";
-import type { ComponentType } from "react";
+import { Github, Star } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { cn } from "@/lib/utils";
 
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
 /**
- * Reputation strip (screen-inventory §1.8): the at-a-glance trust row under
- * the identity header. Desktop: one row; mobile: 2×2 grid. Success rate
- * (FR-070) is omitted until the profile API exposes it — nothing fabricated.
+ * Stats side panel (screen-inventory §1.8 reputation data), styled as a
+ * freelance-marketplace stats box: header bar, divider rows with the label
+ * at the start and the value at the end, star rating, and percentage chips.
+ * Only real API data — success rate (FR-070) is omitted until the backend
+ * exposes it.
  */
 export function ContributorReputationStrip({
   profile,
@@ -14,60 +18,126 @@ export function ContributorReputationStrip({
   profile: ContributorProfileDto;
 }) {
   const { rating, reviewsCount } = profile.reputationSummary;
+  const verifiedCount = profile.skills.filter(
+    (skill) => skill.status === "approved",
+  ).length;
+  const verifiedPercent =
+    profile.skills.length === 0
+      ? null
+      : Math.round((verifiedCount / profile.skills.length) * 100);
 
   return (
-    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-border bg-border md:grid-cols-4">
-      <StripCell
-        icon={Star}
-        label="التقييم"
-        value={rating === null ? "جديد" : `${rating.toFixed(1)} / 5`}
-        hint={
-          rating === null ? "يُبنى من التسليمات المعتمدة" : "من مراجعات أصحاب المشاريع"
-        }
-      />
-      <StripCell
-        icon={MessageSquare}
-        label="المراجعات"
-        value={String(reviewsCount)}
-        hint="مراجعات مستلمة"
-      />
-      <StripCell
-        icon={GitPullRequest}
-        label="المساهمات"
-        value={String(profile.contributionHistory.length)}
-        hint="مساهمات موثقة في الملف"
-      />
-      <StripCell
-        icon={Timer}
-        label="الإتاحة"
-        value={profile.availability ?? "غير محددة"}
-        hint="تحديث الإتاحة يساعد في المطابقة"
-      />
+    <div className="h-full overflow-hidden rounded-card border border-border bg-card">
+      <h2 className="border-b border-border bg-background px-5 py-3.5 text-base font-bold text-foreground">
+        إحصائيات
+      </h2>
+      <dl className="px-5">
+        <StatRow label="التقييمات">
+          {rating === null ? (
+            <span className="text-sm text-muted-foreground">جديد</span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5">
+              <StarRating rating={rating} />
+              <span dir="ltr" className="text-xs text-muted-foreground">
+                ({reviewsCount})
+              </span>
+            </span>
+          )}
+        </StatRow>
+
+        <StatRow label="المهارات الموثقة">
+          {verifiedPercent === null ? (
+            <span className="text-sm text-muted-foreground">—</span>
+          ) : (
+            <PercentChip percent={verifiedPercent} />
+          )}
+        </StatRow>
+
+        <StatRow label="المساهمات المكتملة">
+          <span className="text-sm font-bold text-foreground">
+            {profile.contributionHistory.length}
+          </span>
+        </StatRow>
+
+        <StatRow label="الإتاحة">
+          <span className="text-sm font-medium text-foreground">
+            {profile.availability ?? "غير محددة"}
+          </span>
+        </StatRow>
+
+        <StatRow label="حساب GitHub" last>
+          {profile.githubStatus.connected ? (
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+              <Github className="size-4" />
+              متصل
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground">غير متصل</span>
+          )}
+        </StatRow>
+      </dl>
     </div>
   );
 }
 
-function StripCell({
-  icon: Icon,
+function StatRow({
   label,
-  value,
-  hint,
+  children,
+  last = false,
 }: {
-  icon: ComponentType<{ className?: string }>;
   label: string;
-  value: string;
-  hint: string;
+  children: ReactNode;
+  last?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1 bg-card p-5">
-      <span className="flex items-center gap-2 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-        <Icon className="size-4 text-primary" />
-        {label}
-      </span>
-      <span className="text-xl font-bold text-foreground">
-        <bdi>{value}</bdi>
-      </span>
-      <span className="text-xs text-muted-foreground">{hint}</span>
+    <div
+      className={cn(
+        "flex items-center justify-between gap-3 py-3.5",
+        !last && "border-b border-border",
+      )}
+    >
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd>{children}</dd>
     </div>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  const filled = Math.round(rating);
+  return (
+    <span
+      dir="ltr"
+      className="inline-flex"
+      role="img"
+      aria-label={`التقييم ${rating.toFixed(1)} من 5`}
+    >
+      {Array.from({ length: 5 }, (_, index) => (
+        <Star
+          key={index}
+          className={cn(
+            "size-4",
+            index < filled
+              ? "fill-amber-400 text-amber-400"
+              : "fill-border text-border",
+          )}
+        />
+      ))}
+    </span>
+  );
+}
+
+function PercentChip({ percent }: { percent: number }) {
+  return (
+    <span
+      dir="ltr"
+      className={cn(
+        "inline-block min-w-14 rounded-sm px-2 py-1 text-center font-mono text-[11px] leading-none tracking-[0.65px]",
+        percent >= 60
+          ? "bg-primary/15 text-primary"
+          : "bg-border/60 text-muted-foreground",
+      )}
+    >
+      {percent}%
+    </span>
   );
 }
