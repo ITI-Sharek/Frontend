@@ -78,6 +78,15 @@ export function RegisterForm() {
   async function handleVerified(session: AuthSessionDto) {
     storageService.setAccessToken(session.tokens.accessToken);
     storageService.setRefreshToken(session.tokens.refreshToken);
+    if (session.user.username) {
+      storageService.setUsername(session.user.username);
+    }
+    // New contributors start at the activation stepper (CJ-1); everyone
+    // else follows the standard post-login path.
+    if (session.user.role === "contributor") {
+      navigate({ to: ROUTES.onboarding });
+      return;
+    }
     navigate({ to: getPostLoginPath(session.user) });
   }
 
