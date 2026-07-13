@@ -118,8 +118,9 @@ export function ExploreProjectCard({ project }: { project: ExploreProjectDto }) 
       )}
 
       <div className="mt-4 flex gap-2">
-        <Button size="sm" className="flex-1">
-          فتح المشروع
+        <Button asChild size="sm" className="flex-1">
+          {/* URL contract per DEC-025: /projects/:projectSlug */}
+          <a href={`/projects/${project.slug}`}>فتح المشروع</a>
         </Button>
         <Button size="sm" variant="outline">
           حفظ
