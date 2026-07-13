@@ -54,11 +54,3 @@ Approved by: product owner (Karim). Source: "Additional Repository-Level Decisio
 ### Supersessions (batch 2)
 - DEC-019 partially superseded: frontend port row (3000 → **3001**, DEC-023) and the `API_BASE_URL=…/api` env example (→ unprefixed, DEC-024). The backend-4000/Postgres/Redis rows stand.
 - open-questions.md residuals OQ-R1/R2/R3/R4/R5 → all resolved by this batch.
-
-## 2026-07-13 — DEC-028 exception (contributor GitHub repos/statistics)
-
-Approved by: product owner (Karim), verbally in-session, 2026-07-13.
-
-| ID | Decision | Reflected in |
-|---|---|---|
-| DEC-029 (scope) | **One-off exception to DEC-028**: the new contributor-facing "My GitHub repositories" feature (repo list + per-repo statistics on the contributor's own profile/dashboard, backed by the already-implemented backend endpoints `GET /github/repositories`, `GET /github/repository/statistics`, `GET /github/repository/contribution-activity`, `GET /github/repository/commit-signals`) is explicitly permitted to proceed through full Spec Kit implementation now, despite `001-contributor-profile-redirect` still having uncommitted working-tree changes. Scope stays additive (new module surface); it must not touch files already modified by `001-contributor-profile-redirect`'s uncommitted work. This does not lift the freeze for any other feature — DEC-028 remains the default rule for everything else | specs/003-contributor-github-repos (this feature) |

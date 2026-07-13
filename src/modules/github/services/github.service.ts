@@ -4,10 +4,7 @@ import type {
   GitHubAccountDto,
   GitHubOAuthCallbackPayload,
   GitHubOAuthStartDto,
-  GitHubRepositoryCommitSignalsDto,
-  GitHubRepositoryContributionActivityDto,
   GitHubRepositoryDto,
-  GitHubRepositoryStatisticsDto,
 } from "../types/github.types";
 
 export async function startGitHubOAuth(): Promise<GitHubOAuthStartDto> {
@@ -35,41 +32,6 @@ export async function getGitHubAccount(): Promise<GitHubAccountDto> {
 export async function listGitHubRepositories(): Promise<GitHubRepositoryDto[]> {
   const { data } =
     await axiosInstance.get<GitHubRepositoryDto[]>("/github/repositories");
-  return data;
-}
-
-export async function getGitHubRepositoryStatistics(
-  fullName: string,
-): Promise<GitHubRepositoryStatisticsDto> {
-  const { data } = await axiosInstance.get<GitHubRepositoryStatisticsDto>(
-    "/github/repository/statistics",
-    { params: { fullName } },
-  );
-  return data;
-}
-
-export async function getGitHubRepositoryContributionActivity(
-  fullName: string,
-): Promise<GitHubRepositoryContributionActivityDto> {
-  const { data } =
-    await axiosInstance.get<GitHubRepositoryContributionActivityDto>(
-      "/github/repository/contribution-activity",
-      { params: { fullName } },
-    );
-  return data;
-}
-
-export async function getGitHubRepositoryCommitSignals({
-  fullName,
-  author,
-}: {
-  fullName: string;
-  author?: string;
-}): Promise<GitHubRepositoryCommitSignalsDto> {
-  const { data } = await axiosInstance.get<GitHubRepositoryCommitSignalsDto>(
-    "/github/repository/commit-signals",
-    { params: { fullName, ...(author ? { author } : {}) } },
-  );
   return data;
 }
 
