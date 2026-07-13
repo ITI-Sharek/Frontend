@@ -94,7 +94,12 @@ function AppLayout() {
       icon: Compass,
       active: pathname === ROUTES.explore,
     },
-    { label: "المهام", href: "#", icon: ListTodo },
+    {
+      label: "المهام",
+      href: ROUTES.tasks,
+      icon: ListTodo,
+      active: pathname.startsWith(ROUTES.tasks),
+    },
     { label: "طلبات الانضمام", href: "#", icon: FileText, badge: 1 },
     { label: "مهاراتي", href: "#", icon: BadgeCheck, hideOnMobile: true },
     { label: "الإعدادات", href: "#", icon: Settings, secondary: true },
