@@ -9,9 +9,9 @@ import { ContributorReputationStrip } from "./contributor-reputation-strip";
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
 /**
- * Public contributor profile (screen-inventory §1.8) as a viewport-filling
- * grid: identity header + stats panel side by side on desktop, then the
- * content sections as columns — minimal vertical scroll. Mobile stacks.
+ * Public contributor profile (screen-inventory §1.8): identity header →
+ * reputation strip → owner completion checklist → bio / verified skills /
+ * contribution history.
  */
 export function ContributorProfileView({
   profile,
@@ -26,9 +26,9 @@ export function ContributorProfileView({
   onConnectGitHub?: () => Promise<void>;
 }) {
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 md:px-6 lg:grid-cols-4">
-      <Card className="lg:col-span-3">
-        <div className="flex h-full flex-col gap-5 md:flex-row md:items-center md:justify-between">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
+      <Card>
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <Avatar
               src={profile.avatarUrl}
@@ -74,17 +74,14 @@ export function ContributorProfileView({
         </div>
       </Card>
 
-      <div className="lg:col-span-1 lg:row-span-2">
-        <ContributorReputationStrip profile={profile} />
-      </div>
+      <ContributorReputationStrip profile={profile} />
 
-      <div className="flex flex-col gap-4 lg:col-span-3">
-        <ContributorProfileCompletion
-          profile={profile}
-          onConnectGitHub={onConnectGitHub ?? (() => Promise.resolve())}
-        />
-        <ContributorProfileSections profile={profile} />
-      </div>
+      <ContributorProfileCompletion
+        profile={profile}
+        onConnectGitHub={onConnectGitHub ?? (() => Promise.resolve())}
+      />
+
+      <ContributorProfileSections profile={profile} />
     </div>
   );
 }
