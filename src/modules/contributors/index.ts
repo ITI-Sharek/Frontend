@@ -9,6 +9,13 @@ export {
   ensureCurrentContributorProfile,
   getContributorProfileByUsername,
 } from "./services/contributors.service";
+export { OnboardingView } from "./components/onboarding/onboarding-view";
+export { getOnboardingState } from "./services/onboarding.service";
+export type {
+  OnboardingOutcome,
+  OnboardingStateDto,
+  OnboardingStep,
+} from "./types/onboarding.types";
 export { ContributorProfileError } from "./types/contributor-profile.types";
 export type {
   ContributorGithubStatusDto,
