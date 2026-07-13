@@ -4,7 +4,11 @@ import {
   CircleAlert,
   CircleSlash,
   Clock,
+  FolderGit2,
+  UserRound,
+  Wrench,
 } from "lucide-react";
+import { useState } from "react";
 import type { ComponentType } from "react";
 
 import { cn } from "@/lib/utils";
@@ -54,9 +58,234 @@ const UNVERIFIED_STATUS_META: Record<
   disputed: { icon: CircleAlert, label: "قيد الاعتراض" },
 };
 
+type ProfileTabId = "about" | "skills" | "contributions";
+
+const TABS: {
+  id: ProfileTabId;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+}[] = [
+  { id: "about", label: "البيانات الشخصية", icon: UserRound },
+  { id: "skills", label: "المهارات", icon: Wrench },
+  { id: "contributions", label: "المساهمات", icon: FolderGit2 },
+];
+
 /**
- * Verified skill row (screen-inventory §1.8: proficiency + evidence
- * expander). Verified and unverified skills must never look identical.
+ * Profile content as tabs (à la Mostaql): personal data / skills with review
+ * status / contribution history. Inactive panels stay in the DOM (`hidden`)
+ * so the full content renders server-side and stays crawlable.
+ */
+export function ContributorProfileSections({
+  profile,
+}: {
+  profile: ContributorProfileDto;
+}) {
+  const [activeTab, setActiveTab] = useState<ProfileTabId>("about");
+  const sections = getPublicProfileSections(profile);
+  const verifiedSkills = profile.skills.filter(
+    (skill) => skill.status === "approved",
+  );
+  const unverifiedSkills = profile.skills.filter(
+    (skill) => skill.status !== "approved",
+  );
+  const showUnverified =
+    profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card">
+      <div
+        role="tablist"
+        aria-label="أقسام الملف الشخصي"
+        className="flex border-b border-border bg-background"
+      >
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`profile-tab-${tab.id}`}
+              aria-selected={isActive}
+              aria-controls={`profile-panel-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex items-center gap-2 border-b-2 px-5 py-3.5 text-sm transition-colors",
+                isActive
+                  ? "-mb-px border-primary bg-card font-bold text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="size-4" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ——— البيانات الشخصية ——— */}
+      <div
+        role="tabpanel"
+        id="profile-panel-about"
+        aria-labelledby="profile-tab-about"
+        hidden={activeTab !== "about"}
+        className="flex-1 p-6"
+      >
+        <h2 className="text-lg font-bold text-foreground">نبذة عني</h2>
+        {sections.hasBio ? (
+          <p className="mt-3 max-w-prose leading-8 text-muted-foreground">
+            {profile.bio}
+          </p>
+        ) : (
+          <ContributorProfileEmptyState
+            title="أضف نبذة تعريفية"
+            description="اكتب ملخصاً قصيراً يوضح خبراتك وما تحب المساهمة فيه."
+          />
+        )}
+
+        <dl className="mt-6 grid gap-x-8 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">الدور</dt>
+            <dd className="font-medium text-foreground">{profile.roleLabel}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">الإتاحة</dt>
+            <dd className="font-medium text-foreground">
+              {profile.availability ?? "غير محددة"}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">حساب GitHub</dt>
+            <dd className="font-medium text-foreground">
+              {profile.githubStatus.connected &&
+              profile.githubStatus.username ? (
+                <a
+                  dir="ltr"
+                  href={`https://github.com/${profile.githubStatus.username}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-[13px] tracking-[0.65px] text-primary hover:opacity-80"
+                >
+                  @{profile.githubStatus.username}
+                </a>
+              ) : (
+                "غير متصل"
+              )}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">اسم المستخدم</dt>
+            <dd dir="ltr" className="font-mono text-[13px] tracking-[0.65px] text-foreground">
+              @{profile.username}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      {/* ——— المهارات ——— */}
+      <div
+        role="tabpanel"
+        id="profile-panel-skills"
+        aria-labelledby="profile-tab-skills"
+        hidden={activeTab !== "skills"}
+        className="flex-1 p-6"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-foreground">مهاراتي</h2>
+          {verifiedSkills.length > 0 && (
+            <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+              {verifiedSkills.length} موثقة
+            </span>
+          )}
+        </div>
+
+        {sections.hasSkills ? (
+          <div className="mt-4 flex flex-col gap-2.5">
+            {verifiedSkills.map((skill, index) => (
+              <VerifiedSkillRow key={`${skill.name}-${index}`} skill={skill} />
+            ))}
+
+            {verifiedSkills.length === 0 && (
+              <p className="text-sm leading-6 text-muted-foreground">
+                مهاراتك قيد المراجعة — تظهر هنا موثقةً بعد اعتماد فريق المراجعة.
+              </p>
+            )}
+
+            {showUnverified && (
+              <div className="mt-2 border-t border-border pt-4">
+                <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+                  غير موثقة بعد — تظهر لك فقط
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {unverifiedSkills.map((skill, index) => (
+                    <UnverifiedSkillChip
+                      key={`${skill.name}-${skill.status}-${index}`}
+                      skill={skill}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <ContributorProfileEmptyState
+            title="لا توجد مهارات بعد"
+            description="إضافة المهارات تساعد أصحاب المشاريع على فهم نقاط قوتك بسرعة."
+          />
+        )}
+      </div>
+
+      {/* ——— المساهمات ——— */}
+      <div
+        role="tabpanel"
+        id="profile-panel-contributions"
+        aria-labelledby="profile-tab-contributions"
+        hidden={activeTab !== "contributions"}
+        className="flex-1 p-6"
+      >
+        <h2 className="text-lg font-bold text-foreground">المساهمات</h2>
+        {sections.hasHistory ? (
+          <ol className="mt-4 flex flex-col">
+            {profile.contributionHistory.map((item, index) => (
+              <li
+                key={item.id}
+                className={cn(
+                  "relative border-s-2 border-border ps-5 pb-5",
+                  index === profile.contributionHistory.length - 1 &&
+                    "border-s-transparent pb-0",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-primary"
+                />
+                <h3 className="font-semibold text-foreground">{item.title}</h3>
+                {item.role && (
+                  <p className="mt-1 text-sm text-primary">{item.role}</p>
+                )}
+                {item.description && (
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {item.description}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <ContributorProfileEmptyState
+            title="لا توجد مساهمات منشورة"
+            description="ستظهر هنا المشاريع والمهام التي ساهمت فيها بعد توثيقها."
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Verified skill row: proficiency + labeled confidence + evidence expander.
+ * Verified and unverified skills must never look identical.
  */
 function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
   const hasEvidence =
@@ -119,120 +348,5 @@ function UnverifiedSkillChip({ skill }: { skill: ContributorSkillDto }) {
         {meta.label}
       </span>
     </span>
-  );
-}
-
-export function ContributorProfileSections({
-  profile,
-}: {
-  profile: ContributorProfileDto;
-}) {
-  const sections = getPublicProfileSections(profile);
-  const verifiedSkills = profile.skills.filter(
-    (skill) => skill.status === "approved",
-  );
-  const unverifiedSkills = profile.skills.filter(
-    (skill) => skill.status !== "approved",
-  );
-  const showUnverified =
-    profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-lg font-bold text-foreground">نبذة</h2>
-        {sections.hasBio ? (
-          <p className="mt-3 leading-8 text-muted-foreground">{profile.bio}</p>
-        ) : (
-          <ContributorProfileEmptyState
-            title="أضف نبذة تعريفية"
-            description="اكتب ملخصاً قصيراً يوضح خبراتك وما تحب المساهمة فيه."
-          />
-        )}
-      </section>
-
-      <section className="rounded-card border border-border bg-card p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-foreground">المهارات الموثقة</h2>
-          {verifiedSkills.length > 0 && (
-            <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {verifiedSkills.length} موثقة
-            </span>
-          )}
-        </div>
-
-        {sections.hasSkills ? (
-          <div className="mt-4 flex flex-col gap-2.5">
-            {verifiedSkills.map((skill, index) => (
-              <VerifiedSkillRow key={`${skill.name}-${index}`} skill={skill} />
-            ))}
-
-            {verifiedSkills.length === 0 && (
-              <p className="text-sm leading-6 text-muted-foreground">
-                مهاراتك قيد المراجعة — تظهر هنا موثقةً بعد اعتماد فريق المراجعة.
-              </p>
-            )}
-
-            {showUnverified && (
-              <div className="mt-2 border-t border-border pt-4">
-                <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-                  غير موثقة بعد — تظهر لك فقط
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {unverifiedSkills.map((skill, index) => (
-                    <UnverifiedSkillChip
-                      key={`${skill.name}-${skill.status}-${index}`}
-                      skill={skill}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <ContributorProfileEmptyState
-            title="لا توجد مهارات بعد"
-            description="إضافة المهارات تساعد أصحاب المشاريع على فهم نقاط قوتك بسرعة."
-          />
-        )}
-      </section>
-
-      <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-lg font-bold text-foreground">المساهمات</h2>
-        {sections.hasHistory ? (
-          <ol className="mt-4 flex flex-col">
-            {profile.contributionHistory.map((item, index) => (
-              <li
-                key={item.id}
-                className={cn(
-                  "relative border-s-2 border-border ps-5 pb-5",
-                  index === profile.contributionHistory.length - 1 &&
-                    "border-s-transparent pb-0",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-primary"
-                />
-                <h3 className="font-semibold text-foreground">{item.title}</h3>
-                {item.role && (
-                  <p className="mt-1 text-sm text-primary">{item.role}</p>
-                )}
-                {item.description && (
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {item.description}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <ContributorProfileEmptyState
-            title="لا توجد مساهمات منشورة"
-            description="ستظهر هنا المشاريع والمهام التي ساهمت فيها بعد توثيقها."
-          />
-        )}
-      </section>
-    </div>
   );
 }
