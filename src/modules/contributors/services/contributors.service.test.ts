@@ -38,6 +38,9 @@ const profile: ContributorProfileDto = {
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",
+  experienceLevel: null,
+  interests: [],
+  declaredSkills: [],
 };
 
 function axiosError(status: number, message = "Mapped backend message") {
