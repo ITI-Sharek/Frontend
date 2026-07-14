@@ -50,19 +50,35 @@ describe("github query options", () => {
   it("disables repository loading until a connected account is available", () => {
     const options = githubRepositoriesQueryOptions({ enabled: false });
 
-    expect(options.queryKey).toEqual(["github", "repositories"]);
+    expect(options.queryKey).toEqual(["github", "repositories", 1, 12]);
     expect(options.enabled).toBe(false);
     expect(listGitHubRepositories).not.toHaveBeenCalled();
   });
 
   it("loads repositories when enabled", async () => {
-    vi.mocked(listGitHubRepositories).mockResolvedValueOnce([]);
+    vi.mocked(listGitHubRepositories).mockResolvedValueOnce({
+      items: [],
+      page: 2,
+      perPage: 12,
+      hasNextPage: false,
+    });
 
-    const options = githubRepositoriesQueryOptions({ enabled: true });
+    const options = githubRepositoriesQueryOptions({
+      enabled: true,
+      page: 2,
+      perPage: 12,
+    });
 
     expect(options.enabled).toBe(true);
-    await expect(runQueryFn(options.queryFn)).resolves.toEqual([]);
-    expect(listGitHubRepositories).toHaveBeenCalledTimes(1);
+    expect(options.queryKey).toEqual(["github", "repositories", 2, 12]);
+    await expect(runQueryFn(options.queryFn)).resolves.toMatchObject({
+      page: 2,
+      items: [],
+    });
+    expect(listGitHubRepositories).toHaveBeenCalledWith({
+      page: 2,
+      perPage: 12,
+    });
   });
 
   it("disables repository statistics when fullName is blank", () => {

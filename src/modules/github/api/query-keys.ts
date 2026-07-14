@@ -1,7 +1,8 @@
 export const githubKeys = {
   all: ["github"] as const,
   account: () => [...githubKeys.all, "account"] as const,
-  repositories: () => [...githubKeys.all, "repositories"] as const,
+  repositories: (page = 1, perPage = 12) =>
+    [...githubKeys.all, "repositories", page, perPage] as const,
   repositoryStatistics: (fullName: string) =>
     [...githubKeys.all, "repositories", fullName, "statistics"] as const,
   repositoryContributionActivity: (fullName: string) =>

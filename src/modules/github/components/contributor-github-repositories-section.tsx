@@ -4,6 +4,8 @@ import { isAxiosError } from "axios";
 import {
   AlertCircle,
   Archive,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Clock,
   ExternalLink,
@@ -15,6 +17,7 @@ import {
   LockKeyhole,
   MousePointerClick,
   RefreshCw,
+  Sparkles,
   Star,
   Users,
 } from "lucide-react";
@@ -26,12 +29,22 @@ import { Card } from "@/shared/components/ui/card";
 import { useGitHubAccountQuery } from "../api/queries/use-github-account-query";
 import { useGitHubRepositoriesQuery } from "../api/queries/use-github-repositories-query";
 import { useGitHubRepositoryStatisticsQuery } from "../api/queries/use-github-repository-statistics-query";
+import { useStartSkillProfileGenerationMutation } from "../../skill-profiles/api/mutations/use-start-skill-profile-generation-mutation";
+import { useSkillProfileGenerationQuery } from "../../skill-profiles/api/queries/use-skill-profile-generation-query";
 import type {
   GitHubAccountDto,
   GitHubRepositoryDto,
+  GitHubRepositoryPageDto,
   GitHubRepositoryStatisticsDto,
   GitHubRepositoryUnavailableReason,
 } from "../types/github.types";
+import type {
+  SkillProfileGenerationDto,
+  SkillProfileGenerationStatus,
+} from "../../skill-profiles/types/skill-profile-generation.types";
+
+const REPOSITORY_PAGE_SIZE = 12;
+const MAX_SELECTED_REPOSITORIES = 10;
 
 type AccountState =
   | { status: "loading" }
@@ -43,7 +56,13 @@ type RepositoriesState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "error"; message?: string }
-  | { status: "loaded"; repositories: GitHubRepositoryDto[] };
+  | {
+      status: "loaded";
+      repositories: GitHubRepositoryDto[];
+      page: number;
+      perPage: number;
+      hasNextPage: boolean;
+    };
 
 type StatisticsState =
   | { status: "idle" }
@@ -51,16 +70,35 @@ type StatisticsState =
   | { status: "error"; message?: string }
   | { status: "loaded"; statistics: GitHubRepositoryStatisticsDto };
 
+type SkillGenerationState =
+  | { status: "idle" }
+  | { status: "submitting" }
+  | {
+      status: SkillProfileGenerationStatus;
+      generationId: string;
+      selectedRepositoryCount: number;
+      snapshottedRepositoryCount: number;
+      skillCount: number;
+      failureReason: string | null;
+    }
+  | { status: "error"; message?: string };
+
 export interface ContributorGitHubRepositoriesSectionProps {
   accountState: AccountState;
   repositoriesState: RepositoriesState;
   selectedFullName: string | null;
+  selectedForGenerationFullNames?: string[];
   statisticsState: StatisticsState;
+  skillGenerationState?: SkillGenerationState;
   onConnectGitHub: () => void;
   onRetryAccount?: () => void;
   onRetryRepositories?: () => void;
   onRetryStatistics?: () => void;
   onSelectRepository: (fullName: string) => void;
+  onToggleRepositoryForGeneration?: (fullName: string) => void;
+  onStartSkillGeneration?: () => void;
+  onNextRepositoriesPage: () => void;
+  onPreviousRepositoriesPage: () => void;
 }
 
 export interface ContributorGitHubRepositoriesPageProps {
@@ -74,20 +112,43 @@ export function ContributorGitHubRepositoriesPage({
 }: ContributorGitHubRepositoriesPageProps) {
   const accountQuery = useGitHubAccountQuery();
   const hasConnectedAccount = accountQuery.data !== undefined;
+  const [repositoriesPage, setRepositoriesPage] = useState(1);
   const repositoriesQuery = useGitHubRepositoriesQuery({
     enabled: hasConnectedAccount,
+    page: repositoriesPage,
+    perPage: REPOSITORY_PAGE_SIZE,
   });
   const [selectedFullName, setSelectedFullName] = useState<string | null>(null);
+  const [selectedForGeneration, setSelectedForGeneration] = useState<string[]>(
+    [],
+  );
+  const [generationId, setGenerationId] = useState<string | null>(null);
+  const startGenerationMutation = useStartSkillProfileGenerationMutation();
+  const generationQuery = useSkillProfileGenerationQuery({
+    generationId: generationId ?? "",
+    enabled: generationId !== null,
+  });
 
   const selectedRepositoryExists =
-    repositoriesQuery.data?.some((repo) => repo.fullName === selectedFullName) ??
-    false;
+    repositoriesQuery.data?.items.some(
+      (repo) => repo.fullName === selectedFullName,
+    ) ?? false;
 
   useEffect(() => {
     if (selectedFullName !== null && !selectedRepositoryExists) {
       setSelectedFullName(null);
     }
   }, [selectedFullName, selectedRepositoryExists]);
+
+  useEffect(() => {
+    if (
+      repositoriesQuery.data &&
+      repositoriesQuery.data.items.length === 0 &&
+      repositoriesPage > 1
+    ) {
+      setRepositoriesPage((currentPage) => currentPage - 1);
+    }
+  }, [repositoriesPage, repositoriesQuery.data]);
 
   const statisticsQuery = useGitHubRepositoryStatisticsQuery({
     fullName: selectedFullName ?? "",
@@ -108,11 +169,17 @@ export function ContributorGitHubRepositoriesPage({
         error: repositoriesQuery.error,
       })}
       selectedFullName={selectedFullName}
+      selectedForGenerationFullNames={selectedForGeneration}
       statisticsState={getStatisticsState({
         selectedFullName,
         isPending: statisticsQuery.isPending,
         data: statisticsQuery.data,
         error: statisticsQuery.error,
+      })}
+      skillGenerationState={getSkillGenerationState({
+        mutationPending: startGenerationMutation.isPending,
+        mutationError: startGenerationMutation.error,
+        generation: generationQuery.data,
       })}
       onConnectGitHub={() => {
         onConnectGitHub(returnTo);
@@ -127,6 +194,35 @@ export function ContributorGitHubRepositoriesPage({
         void statisticsQuery.refetch();
       }}
       onSelectRepository={setSelectedFullName}
+      onToggleRepositoryForGeneration={(fullName) => {
+        setSelectedForGeneration((current) =>
+          toggleRepositorySelection(
+            current,
+            fullName,
+            MAX_SELECTED_REPOSITORIES,
+          ),
+        );
+      }}
+      onStartSkillGeneration={() => {
+        startGenerationMutation.mutate(
+          {
+            repositories: selectedForGeneration.map((fullName) => ({
+              fullName,
+            })),
+          },
+          {
+            onSuccess: (generation) => {
+              setGenerationId(generation.generationId);
+            },
+          },
+        );
+      }}
+      onNextRepositoriesPage={() => {
+        setRepositoriesPage((currentPage) => currentPage + 1);
+      }}
+      onPreviousRepositoriesPage={() => {
+        setRepositoriesPage((currentPage) => Math.max(1, currentPage - 1));
+      }}
     />
   );
 }
@@ -135,12 +231,18 @@ export function ContributorGitHubRepositoriesSection({
   accountState,
   repositoriesState,
   selectedFullName,
+  selectedForGenerationFullNames = [],
   statisticsState,
+  skillGenerationState = { status: "idle" },
   onConnectGitHub,
   onRetryAccount,
   onRetryRepositories,
   onRetryStatistics,
   onSelectRepository,
+  onToggleRepositoryForGeneration,
+  onStartSkillGeneration,
+  onNextRepositoriesPage,
+  onPreviousRepositoriesPage,
 }: ContributorGitHubRepositoriesSectionProps) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-8 text-right sm:px-6 lg:px-8">
@@ -150,8 +252,8 @@ export function ContributorGitHubRepositoriesSection({
           مستودعاتي على GitHub
         </h1>
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          راجع المستودعات المرتبطة بحسابك وشاهد إشارات النشاط والالتزامات
-          الحديثة لكل مستودع.
+          راجع المستودعات التي منحت Share-k صلاحية قراءتها وشاهد إشارات
+          النشاط والالتزامات الحديثة لكل مستودع.
         </p>
       </header>
 
@@ -159,18 +261,18 @@ export function ContributorGitHubRepositoriesSection({
         <StateCard
           icon={<RefreshCw className="size-5 animate-spin" aria-hidden />}
           title="جارٍ التحقق من اتصال GitHub..."
-          description="لن نحمّل المستودعات قبل التأكد من وجود حساب GitHub متصل."
+          description="لن نحمّل المستودعات قبل موافقتك على ربط مستودعات GitHub."
         />
       ) : null}
 
       {accountState.status === "not-connected" ? (
         <StateCard
           icon={<Github className="size-5" aria-hidden />}
-          title="اربط حساب GitHub أولاً"
-          description="بعد الربط ستظهر هنا المستودعات المتاحة حسب صلاحيات OAuth التي منحتها."
+          title="اربط مستودعات GitHub"
+          description="هذا ربط منفصل بعد تسجيل الدخول. سنطلب صلاحية قراءة المستودعات العامة والخاصة لاستخدامها كدليل مهاري."
           action={
             <Button type="button" onClick={onConnectGitHub}>
-              ربط GitHub
+              السماح بقراءة المستودعات
             </Button>
           }
         />
@@ -194,10 +296,16 @@ export function ContributorGitHubRepositoriesSection({
           account={accountState.account}
           repositoriesState={repositoriesState}
           selectedFullName={selectedFullName}
+          selectedForGenerationFullNames={selectedForGenerationFullNames}
           statisticsState={statisticsState}
+          skillGenerationState={skillGenerationState}
           onRetryRepositories={onRetryRepositories}
           onRetryStatistics={onRetryStatistics}
           onSelectRepository={onSelectRepository}
+          onToggleRepositoryForGeneration={onToggleRepositoryForGeneration}
+          onStartSkillGeneration={onStartSkillGeneration}
+          onNextRepositoriesPage={onNextRepositoriesPage}
+          onPreviousRepositoriesPage={onPreviousRepositoriesPage}
         />
       ) : null}
     </main>
@@ -208,18 +316,30 @@ function ConnectedRepositoriesView({
   account,
   repositoriesState,
   selectedFullName,
+  selectedForGenerationFullNames,
   statisticsState,
+  skillGenerationState,
   onRetryRepositories,
   onRetryStatistics,
   onSelectRepository,
+  onToggleRepositoryForGeneration,
+  onStartSkillGeneration,
+  onNextRepositoriesPage,
+  onPreviousRepositoriesPage,
 }: {
   account: GitHubAccountDto;
   repositoriesState: RepositoriesState;
   selectedFullName: string | null;
+  selectedForGenerationFullNames: string[];
   statisticsState: StatisticsState;
+  skillGenerationState: SkillGenerationState;
   onRetryRepositories?: () => void;
   onRetryStatistics?: () => void;
   onSelectRepository: (fullName: string) => void;
+  onToggleRepositoryForGeneration?: (fullName: string) => void;
+  onStartSkillGeneration?: () => void;
+  onNextRepositoriesPage: () => void;
+  onPreviousRepositoriesPage: () => void;
 }) {
   if (repositoriesState.status === "loading") {
     return (
@@ -276,10 +396,22 @@ function ConnectedRepositoriesView({
               </span>
             </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {formatNumber(repositoriesState.repositories.length)} مستودع
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-sm font-medium text-foreground">
+              صفحة {formatNumber(repositoriesState.page)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {formatNumber(repositoriesState.repositories.length)} من أصل{" "}
+              {formatNumber(repositoriesState.perPage)} في الصفحة
+            </p>
+          </div>
         </div>
+
+        <SkillGenerationPanel
+          selectedCount={selectedForGenerationFullNames.length}
+          skillGenerationState={skillGenerationState}
+          onStartSkillGeneration={onStartSkillGeneration}
+        />
 
         <div className="grid gap-3">
           {repositoriesState.repositories.map((repository) => (
@@ -287,10 +419,29 @@ function ConnectedRepositoriesView({
               key={repository.githubRepoId}
               repository={repository}
               isSelected={repository.fullName === selectedFullName}
+              isSelectedForGeneration={selectedForGenerationFullNames.includes(
+                repository.fullName,
+              )}
+              selectionLimitReached={
+                selectedForGenerationFullNames.length >=
+                MAX_SELECTED_REPOSITORIES
+              }
               onSelect={() => onSelectRepository(repository.fullName)}
+              onToggleForGeneration={
+                onToggleRepositoryForGeneration
+                  ? () => onToggleRepositoryForGeneration(repository.fullName)
+                  : undefined
+              }
             />
           ))}
         </div>
+
+        <RepositoryPaginationControls
+          page={repositoriesState.page}
+          hasNextPage={repositoriesState.hasNextPage}
+          onNextPage={onNextRepositoriesPage}
+          onPreviousPage={onPreviousRepositoriesPage}
+        />
       </section>
 
       <RepositoryStatisticsPanel
@@ -302,14 +453,65 @@ function ConnectedRepositoriesView({
   );
 }
 
+function RepositoryPaginationControls({
+  page,
+  hasNextPage,
+  onNextPage,
+  onPreviousPage,
+}: {
+  page: number;
+  hasNextPage: boolean;
+  onNextPage: () => void;
+  onPreviousPage: () => void;
+}) {
+  return (
+    <nav
+      className="flex flex-wrap items-center justify-between gap-3 border-t pt-4"
+      aria-label="تصفح صفحات المستودعات"
+    >
+      <p className="text-sm text-muted-foreground">
+        الصفحة الحالية {formatNumber(page)}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={page <= 1}
+          onClick={onPreviousPage}
+        >
+          <ChevronRight className="size-4" />
+          <span>السابق</span>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!hasNextPage}
+          onClick={onNextPage}
+        >
+          <span>التالي</span>
+          <ChevronLeft className="size-4" />
+        </Button>
+      </div>
+    </nav>
+  );
+}
+
 function RepositoryCard({
   repository,
   isSelected,
   onSelect,
+  isSelectedForGeneration,
+  selectionLimitReached,
+  onToggleForGeneration,
 }: {
   repository: GitHubRepositoryDto;
   isSelected: boolean;
+  isSelectedForGeneration: boolean;
+  selectionLimitReached: boolean;
   onSelect: () => void;
+  onToggleForGeneration?: () => void;
 }) {
   const languageEntries = getLanguageEntries(repository.languages);
 
@@ -363,6 +565,32 @@ function RepositoryCard({
             فتح على GitHub
           </a>
         </div>
+
+        {onToggleForGeneration ? (
+          <div className="pointer-events-auto flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              variant={isSelectedForGeneration ? "default" : "outline"}
+              disabled={selectionLimitReached && !isSelectedForGeneration}
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleForGeneration();
+              }}
+            >
+              {isSelectedForGeneration ? (
+                <CheckCircle2 className="size-4" aria-hidden />
+              ) : (
+                <Sparkles className="size-4" aria-hidden />
+              )}
+              <span>
+                {isSelectedForGeneration
+                  ? "محدد للتحليل"
+                  : "اختيار للتحليل"}
+              </span>
+            </Button>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <StatusPill
@@ -446,6 +674,111 @@ function RepositoryCard({
         </div>
       </article>
     </Card>
+  );
+}
+
+function SkillGenerationPanel({
+  selectedCount,
+  skillGenerationState,
+  onStartSkillGeneration,
+}: {
+  selectedCount: number;
+  skillGenerationState: SkillGenerationState;
+  onStartSkillGeneration?: () => void;
+}) {
+  const isBusy =
+    skillGenerationState.status === "submitting" ||
+    skillGenerationState.status === "queued" ||
+    skillGenerationState.status === "collecting_evidence" ||
+    skillGenerationState.status === "analyzing";
+  const canStart =
+    selectedCount > 0 && !isBusy && onStartSkillGeneration !== undefined;
+
+  return (
+    <Card className="flex flex-col gap-3 border-primary/30 bg-primary/5 p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold text-foreground">
+            تحليل المهارات من المستودعات المختارة
+          </h2>
+          <p className="text-sm leading-6 text-muted-foreground">
+            اختر حتى 10 مستودعات قوية. سنرسل الأدلة المختارة للذكاء الاصطناعي
+            ثم تُحفظ المهارات في حالة انتظار المراجعة.
+          </p>
+        </div>
+        <Button
+          type="button"
+          disabled={!canStart}
+          onClick={onStartSkillGeneration}
+        >
+          {isBusy ? (
+            <RefreshCw className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Sparkles className="size-4" aria-hidden />
+          )}
+          <span>بدء تحليل المهارات</span>
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <StatusPill label={`${formatNumber(selectedCount)} محدد`} />
+        <SkillGenerationStatusPill state={skillGenerationState} />
+      </div>
+    </Card>
+  );
+}
+
+function SkillGenerationStatusPill({
+  state,
+}: {
+  state: SkillGenerationState;
+}) {
+  if (state.status === "idle") {
+    return <StatusPill label="لم يبدأ التحليل" tone="muted" />;
+  }
+
+  if (state.status === "submitting") {
+    return <StatusPill label="جارٍ بدء التحليل" tone="warning" />;
+  }
+
+  if (state.status === "error") {
+    return <StatusPill label={state.message ?? "تعذر بدء التحليل"} tone="warning" />;
+  }
+
+  if (state.status === "failed") {
+    return (
+      <StatusPill
+        label={state.failureReason ?? "تعذر اكتمال التحليل"}
+        tone="warning"
+      />
+    );
+  }
+
+  if (state.status === "pending_review") {
+    return (
+      <StatusPill
+        label={`${formatNumber(state.skillCount)} مهارات بانتظار المراجعة`}
+        tone="neutral"
+      />
+    );
+  }
+
+  if (state.status === "needs_more_evidence") {
+    return (
+      <StatusPill
+        label="الأدلة الحالية غير كافية. اختر مستودعات تحتوي على مساهمات برمجية أوضح."
+        tone="warning"
+      />
+    );
+  }
+
+  return (
+    <StatusPill
+      label={`${getGenerationStatusLabel(state.status)} - ${formatNumber(
+        state.snapshottedRepositoryCount,
+      )}/${formatNumber(state.selectedRepositoryCount)}`}
+      tone="warning"
+    />
   );
 }
 
@@ -910,13 +1243,19 @@ function getRepositoriesState({
 }: {
   enabled: boolean;
   isPending: boolean;
-  data: GitHubRepositoryDto[] | undefined;
+  data: GitHubRepositoryPageDto | undefined;
   error: Error | null;
 }): RepositoriesState {
   if (!enabled) return { status: "idle" };
   if (isPending) return { status: "loading" };
   if (error) return { status: "error", message: error.message };
-  return { status: "loaded", repositories: data ?? [] };
+  return {
+    status: "loaded",
+    repositories: data?.items ?? [],
+    page: data?.page ?? 1,
+    perPage: data?.perPage ?? REPOSITORY_PAGE_SIZE,
+    hasNextPage: data?.hasNextPage ?? false,
+  };
 }
 
 function getStatisticsState({
@@ -935,6 +1274,60 @@ function getStatisticsState({
   if (error) return { status: "error", message: error.message };
   if (data) return { status: "loaded", statistics: data };
   return { status: "idle" };
+}
+
+function getSkillGenerationState({
+  mutationPending,
+  mutationError,
+  generation,
+}: {
+  mutationPending: boolean;
+  mutationError: Error | null;
+  generation: SkillProfileGenerationDto | undefined;
+}): SkillGenerationState {
+  if (mutationPending) return { status: "submitting" };
+  if (mutationError) return { status: "error", message: mutationError.message };
+  if (!generation) return { status: "idle" };
+
+  return {
+    status: generation.status,
+    generationId: generation.generationId,
+    selectedRepositoryCount: generation.progress.selectedRepositoryCount,
+    snapshottedRepositoryCount: generation.progress.snapshottedRepositoryCount,
+    skillCount: generation.skills.length,
+    failureReason: generation.failureReason,
+  };
+}
+
+function getGenerationStatusLabel(status: SkillProfileGenerationStatus): string {
+  switch (status) {
+    case "queued":
+      return "في قائمة الانتظار";
+    case "collecting_evidence":
+      return "جمع الأدلة";
+    case "analyzing":
+      return "تحليل الأدلة";
+    case "pending_review":
+      return "بانتظار المراجعة";
+    case "needs_more_evidence":
+      return "الأدلة غير كافية";
+    case "failed":
+      return "فشل التحليل";
+  }
+}
+
+export function toggleRepositorySelection(
+  current: string[],
+  fullName: string,
+  maximum = MAX_SELECTED_REPOSITORIES,
+): string[] {
+  if (current.includes(fullName)) {
+    return current.filter((item) => item !== fullName);
+  }
+  if (current.length >= maximum) {
+    return current;
+  }
+  return [...current, fullName];
 }
 
 function isGitHubAccountNotConnectedError(error: Error | null) {

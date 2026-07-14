@@ -6,8 +6,9 @@ import { startGitHubOAuth } from "./github.service";
  * GET /github/oauth/start → provider redirect → POST /github/oauth/callback.
  *
  * The GitHub OAuth App used for account connection should redirect to the
- * backend OAuth callback URL, e.g. /github/oauth/callback. If the backend
- * forwards code/state to the SPA, /auth/callback can finish the browser flow.
+ * backend repository callback URL, e.g. /auth/github/callback/repository.
+ * The backend forwards code/state to the SPA /auth/callback route so this
+ * pending browser flow can finish with POST /github/oauth/callback.
  */
 
 export interface PendingGitHubConnect {
