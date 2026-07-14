@@ -1,7 +1,9 @@
-import { Building2, Github, Globe, Wrench } from "lucide-react";
+import { Building2, Github, Globe } from "lucide-react";
 import { useId } from "react";
 
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { TagInput } from "@/shared/components/forms/tag-input";
+import { ChipSelect } from "@/shared/components/forms/chip-select";
 
 import {
   EXPERIENCE_OPTIONS,
@@ -10,7 +12,6 @@ import {
 } from "../../constants/signup.constants";
 import type { SignupFormData } from "../../types/signup.types";
 import { AuthTextField } from "../auth-text-field";
-import { ChipSelect } from "../chip-select";
 
 interface DetailsStepProps {
   data: SignupFormData;
@@ -37,14 +38,13 @@ export function DetailsStep({ data, onFieldChange }: DetailsStepProps) {
 
       {data.role === "contributor" && (
         <>
-          <AuthTextField
+          <TagInput
             id="contributorSkills"
             label="مهاراتك التقنية"
-            icon={Wrench}
             dir="rtl"
-            placeholder="مثال: React, Node.js, Python"
+            placeholder="اكتب مهارة واضغط Enter أو فاصلة (مثال: React)"
             value={data.contributorSkills}
-            onChange={(e) => onFieldChange("contributorSkills", e.target.value)}
+            onChange={(tags) => onFieldChange("contributorSkills", tags)}
           />
           <ChipSelect
             label="سنوات الخبرة"
