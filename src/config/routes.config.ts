@@ -8,6 +8,8 @@ export const ROUTES = {
   register: "/register",
   forgotPassword: "/forgot-password",
   authCallback: "/auth/callback",
+  myProjects: "/my-projects",
+  settings: "/settings",
   contributorProfile: (username: string) =>
     `/profile/${encodeURIComponent(username)}`,
 } as const;
@@ -20,6 +22,12 @@ export type PostLoginUser = {
 export function getPostLoginPath(user: PostLoginUser): string {
   if (user.role === "contributor" && user.username) {
     return ROUTES.contributorProfile(user.username);
+  }
+
+  // The owner dashboard variant (docs/design/wireframes/09-owner-dashboard.md)
+  // isn't built yet — /my-projects is the owner's working landing page today.
+  if (user.role === "owner") {
+    return ROUTES.myProjects;
   }
 
   return ROUTES.home;
