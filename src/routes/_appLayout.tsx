@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import {
   BadgeCheck,
+  Briefcase,
   Compass,
   FileText,
   Github,
@@ -12,25 +13,30 @@ import {
 import { useEffect, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
-import { getCurrentUser } from "@/modules/auth";
+import { getCurrentUser, useCurrentUserQuery } from "@/modules/auth";
 import { ensureCurrentContributorProfile } from "@/modules/contributors";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
-import type { AppShellNavItem } from "@/shared/components/layout/app-shell";
+import type { AppShellNavItem, AppShellPlanChip } from "@/shared/components/layout/app-shell";
 
 export const Route = createFileRoute("/_appLayout")({
   component: AppLayout,
 });
 
 /**
- * Contributor app shell (navigation-model §2). Explore/Tasks/Applications/
- * Skills/Settings routes don't exist yet — they render as inert links until
- * their features land. Plan chip is mock data until a quota endpoint exists.
+ * Role-aware app shell (navigation-model §2, owner variant per
+ * docs/design/remaining-pages-implementation-plan.md §2.1). Contributor nav
+ * has items whose features don't exist yet — they render as inert links
+ * until they land. Plan chip is mock data until a quota endpoint exists.
  */
 function AppLayout() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  const currentUserQuery = useCurrentUserQuery();
+  // Default to the contributor shell while the role is still resolving —
+  // matches prior behavior and avoids a nav flash for the common case.
+  const isOwner = currentUserQuery.data?.role === "owner";
 
   // Resolved after mount: localStorage is unavailable during SSR and reading
   // it during render would cause a hydration mismatch. Sessions from before
@@ -65,7 +71,30 @@ function AppLayout() {
     };
   }, []);
 
-  const nav: AppShellNavItem[] = [
+  const settingsNavItem: AppShellNavItem = {
+    label: "الإعدادات",
+    href: ROUTES.settings,
+    icon: Settings,
+    active: pathname === ROUTES.settings,
+    secondary: true,
+  };
+
+  // The owner dashboard variant (decisions inbox, docs/design/wireframes/
+  // 09-owner-dashboard.md) isn't built yet — /dashboard only renders the
+  // contributor dashboard today, so owners get a deliberately smaller shell
+  // (مشاريعي is their real working landing page) rather than a nav item that
+  // would open the wrong role's content.
+  const ownerNav: AppShellNavItem[] = [
+    {
+      label: "مشاريعي",
+      href: ROUTES.myProjects,
+      icon: Briefcase,
+      active: pathname.startsWith(ROUTES.myProjects),
+    },
+    settingsNavItem,
+  ];
+
+  const contributorNav: AppShellNavItem[] = [
     {
       label: "الملف الشخصي",
       href: username ? ROUTES.contributorProfile(username) : "#",
@@ -102,14 +131,15 @@ function AppLayout() {
     },
     { label: "طلبات الانضمام", href: "#", icon: FileText, badge: 1 },
     { label: "مهاراتي", href: "#", icon: BadgeCheck, hideOnMobile: true },
-    { label: "الإعدادات", href: "#", icon: Settings, secondary: true },
+    settingsNavItem,
   ];
 
+  const planChip: AppShellPlanChip = isOwner
+    ? { planName: "Bronze", quotaLabel: "0 من 10 طلبات مساهمة هذا الشهر" }
+    : { planName: "Bronze", quotaLabel: "1 من 2 طلبات اليوم" };
+
   return (
-    <AppShell
-      nav={nav}
-      planChip={{ planName: "Bronze", quotaLabel: "1 من 2 طلبات اليوم" }}
-    >
+    <AppShell nav={isOwner ? ownerNav : contributorNav} planChip={planChip}>
       <Outlet />
     </AppShell>
   );

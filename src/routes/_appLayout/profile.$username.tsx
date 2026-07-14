@@ -1,13 +1,13 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
+import { useLogoutMutation } from "@/modules/auth";
 import {
   ContributorProfileErrorView,
   ContributorProfileNotFound,
   ContributorProfileView,
   useContributorProfileQuery,
 } from "@/modules/contributors";
-import { startGitHubConnect } from "@/modules/github";
 import { shouldRedirectUnauthenticatedProfile } from "./profile-auth.helpers";
 import { getProfileRouteState } from "./profile-route-state";
 
@@ -27,7 +27,18 @@ export const Route = createFileRoute("/_appLayout/profile/$username")({
 
 function ContributorProfilePage() {
   const { username } = Route.useParams();
+  const navigate = useNavigate();
+  const logoutMutation = useLogoutMutation();
   const profileQuery = useContributorProfileQuery(username);
+
+  function handleLogout() {
+    logoutMutation.mutate(undefined, {
+      onSettled: () => {
+        navigate({ to: ROUTES.login });
+      },
+    });
+  }
+
   const routeState = getProfileRouteState({
     isPending: profileQuery.isPending,
     hasData: profileQuery.data !== undefined,
@@ -71,11 +82,6 @@ function ContributorProfilePage() {
   }
 
   return (
-    <ContributorProfileView
-      profile={profileQuery.data}
-      onConnectGitHub={() =>
-        startGitHubConnect(ROUTES.contributorProfile(username))
-      }
-    />
+    <ContributorProfileView profile={profileQuery.data} onLogout={handleLogout} />
   );
 }
