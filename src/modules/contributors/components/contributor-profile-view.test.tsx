@@ -39,6 +39,9 @@ function makeProfile(
     ],
     completionPrompts: ["Add more skills"],
     viewerRelationship: "owner",
+    experienceLevel: "senior",
+    interests: ["web", "ai"],
+    declaredSkills: ["React", "Node.js"],
     ...overrides,
   };
 }

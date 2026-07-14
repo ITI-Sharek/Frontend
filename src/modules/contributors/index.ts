@@ -9,6 +9,8 @@ export {
   ensureCurrentContributorProfile,
   getContributorProfileByUsername,
 } from "./services/contributors.service";
+export { updateContributorProfileDetails } from "./services/contributor-profile-completion.service";
+export type { UpdateProfileDetailsPayload } from "./services/contributor-profile-completion.service";
 export { OnboardingView } from "./components/onboarding/onboarding-view";
 export { getOnboardingState } from "./services/onboarding.service";
 export type {
@@ -17,6 +19,12 @@ export type {
   OnboardingStep,
 } from "./types/onboarding.types";
 export { ContributorProfileError } from "./types/contributor-profile.types";
+export {
+  EXPERIENCE_LEVEL_LABELS,
+  INTEREST_LABELS,
+  getExperienceLevelLabel,
+  getInterestLabel,
+} from "./constants/profile-options.constants";
 export type {
   ContributorGithubStatusDto,
   ContributorHistoryItemDto,

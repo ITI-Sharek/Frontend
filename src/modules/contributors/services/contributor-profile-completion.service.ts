@@ -18,6 +18,9 @@ import type { ContributorProfileDto } from "../types/contributor-profile.types";
 export interface UpdateProfileDetailsPayload {
   bio: string | null;
   availability: string | null;
+  experienceLevel?: string | null;
+  interests?: string[];
+  declaredSkills?: string[];
 }
 
 function mockNetworkDelay(): Promise<void> {
@@ -38,6 +41,9 @@ export async function updateContributorProfileDetails(
     ...current,
     bio,
     availability,
+    experienceLevel: payload.experienceLevel ?? current.experienceLevel,
+    interests: payload.interests ?? current.interests,
+    declaredSkills: payload.declaredSkills ?? current.declaredSkills,
     completionPrompts: current.completionPrompts.filter(
       (prompt) => prompt !== "add_bio" || bio === null,
     ),

@@ -46,6 +46,14 @@ export interface ContributorProfileDto {
   contributionHistory: ContributorHistoryItemDto[];
   completionPrompts: string[];
   viewerRelationship: ViewerRelationship;
+  /**
+   * Self-declared during registration/settings, distinct from the AI-verified
+   * `skills` list. No backend column exists yet — mocked client-side (see
+   * docs/design/api-contract-additions.md).
+   */
+  experienceLevel: string | null;
+  interests: string[];
+  declaredSkills: string[];
 }
 
 export class ContributorProfileError extends Error {

@@ -14,6 +14,10 @@ import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 
 import { ContributorProfileEmptyState } from "./contributor-profile-empty-state";
+import {
+  getExperienceLevelLabel,
+  getInterestLabel,
+} from "../constants/profile-options.constants";
 import type {
   ContributorProfileDto,
   ContributorSkillDto,
@@ -180,6 +184,29 @@ export function ContributorProfileSections({
               @{profile.username}
             </dd>
           </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">مستوى الخبرة</dt>
+            <dd className="font-medium text-foreground">
+              {getExperienceLevelLabel(profile.experienceLevel) ?? "غير محدد"}
+            </dd>
+          </div>
+          <div className="flex items-start justify-between gap-4 sm:col-span-2">
+            <dt className="shrink-0 text-muted-foreground">مجالات الاهتمام</dt>
+            <dd className="flex flex-wrap justify-end gap-1.5">
+              {profile.interests.length > 0 ? (
+                profile.interests.map((interest) => (
+                  <span
+                    key={interest}
+                    className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground"
+                  >
+                    {getInterestLabel(interest)}
+                  </span>
+                ))
+              ) : (
+                <span className="font-medium text-foreground">غير محددة</span>
+              )}
+            </dd>
+          </div>
         </dl>
       </div>
 
@@ -233,6 +260,25 @@ export function ContributorProfileSections({
             title="لا توجد مهارات بعد"
             description="إضافة المهارات تساعد أصحاب المشاريع على فهم نقاط قوتك بسرعة."
           />
+        )}
+
+        {profile.declaredSkills.length > 0 && (
+          <div className="mt-6 border-t border-border pt-4">
+            <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+              مهارات أضفتها بنفسك — غير موثقة بواسطة GitHub
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {profile.declaredSkills.map((skill) => (
+                <span
+                  key={skill}
+                  dir="ltr"
+                  className="rounded-full border border-border bg-background px-3 py-1.5 font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

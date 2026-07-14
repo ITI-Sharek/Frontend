@@ -31,7 +31,25 @@ interface PendingVerification {
   verificationExpiresAt: string;
 }
 
-export function RegisterForm() {
+export interface ContributorSignupDetails {
+  experienceLevel: string;
+  interests: string[];
+  skills: string[];
+}
+
+export function RegisterForm({
+  onContributorDetailsCollected,
+}: {
+  /**
+   * Injected by the route (cross-module composition happens at the route
+   * layer): persists the details-step data (skills/experience/interests)
+   * to the contributor profile. Best-effort — a failure here must not block
+   * navigation to onboarding.
+   */
+  onContributorDetailsCollected?: (
+    details: ContributorSignupDetails,
+  ) => Promise<void>;
+}) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<SignupFormData>(
@@ -84,6 +102,22 @@ export function RegisterForm() {
     // New contributors start at the activation stepper (CJ-1); everyone
     // else follows the standard post-login path.
     if (session.user.role === "contributor") {
+      const hasDetails =
+        formData.contributorExperience !== "" ||
+        formData.contributorInterests.length > 0 ||
+        formData.contributorSkills.length > 0;
+      if (onContributorDetailsCollected && hasDetails) {
+        try {
+          await onContributorDetailsCollected({
+            experienceLevel: formData.contributorExperience,
+            interests: formData.contributorInterests,
+            skills: formData.contributorSkills,
+          });
+        } catch {
+          // Best-effort: the contributor still proceeds to onboarding even
+          // if persisting the details-step data failed.
+        }
+      }
       navigate({ to: ROUTES.onboarding });
       return;
     }
