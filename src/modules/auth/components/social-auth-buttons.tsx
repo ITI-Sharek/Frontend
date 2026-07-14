@@ -13,6 +13,9 @@ import type {
   SocialAuthRole,
 } from "../services/social-auth.service";
 
+const GITHUB_IDENTITY_ONLY_MESSAGE =
+  "تسجيل GitHub هنا للتحقق من هويتك فقط. ربط المستودعات العامة والخاصة يتم لاحقاً من الملف الشخصي بموافقة منفصلة.";
+
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
@@ -57,7 +60,11 @@ export function SocialAuthButtons({
   async function handleSocialAuth(provider: SocialAuthProvider) {
     const providerLabel = getSocialAuthProviderLabel(provider);
     setActiveProvider(provider);
-    setMessage(`جارٍ فتح تسجيل الدخول عبر ${providerLabel}...`);
+    setMessage(
+      provider === "github"
+        ? "جارٍ فتح تسجيل الدخول عبر GitHub للتحقق من هويتك فقط..."
+        : `جارٍ فتح تسجيل الدخول عبر ${providerLabel}...`,
+    );
 
     try {
       await startSocialAuth(provider, intent, role);
@@ -95,10 +102,17 @@ export function SocialAuthButtons({
       </div>
 
       {message && (
-        <p className="text-right text-xs leading-5 text-muted-foreground" role="status">
+        <p
+          className="text-right text-xs leading-5 text-muted-foreground"
+          role="status"
+        >
           {message}
         </p>
       )}
+
+      <p className="text-right text-xs leading-5 text-muted-foreground">
+        {GITHUB_IDENTITY_ONLY_MESSAGE}
+      </p>
     </div>
   );
 }

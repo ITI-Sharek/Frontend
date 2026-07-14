@@ -32,13 +32,7 @@ export interface RegisterPayload {
   password: string;
   firstName: string;
   lastName: string;
-  /**
-   * Not yet accepted by POST /auth/register (backend auto-generates usernames
-   * in the contributor-profile ensure flow). Collected only when
-   * REGISTER_USERNAME_FIELD_ENABLED is on; stripped before sending until the
-   * backend supports it (DEC-016 — see api-contract-additions.md §2).
-   */
-  username?: string;
+  username: string;
   role: Extract<UserRole, "owner" | "contributor">;
   preferredLanguage: "en" | "ar";
 }
@@ -64,9 +58,7 @@ export interface VerifyEmailPayload {
 }
 
 /**
- * Mirrors the agreed backend contract for GET /auth/username-availability
- * (see docs/design/api-contract-additions.md §2, DEC-016). `reason` is a
- * frontend-only enrichment for UI copy, not part of the backend response.
+ * Returned by GET /auth/username-availability.
  */
 export type UsernameAvailabilityReason = "invalid_format" | "reserved" | "taken";
 

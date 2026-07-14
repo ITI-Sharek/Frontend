@@ -1,9 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import {
   checkUsernameAvailability,
   isValidUsernameFormat,
 } from "./username-availability.service";
+
+vi.mock("@/lib/axios/axios-instance", () => ({
+  axiosInstance: {
+    get: vi.fn(),
+  },
+}));
+
+const mockedAxios = vi.mocked(axiosInstance);
 
 describe("isValidUsernameFormat", () => {
   it("accepts well-formed usernames", () => {
@@ -34,45 +44,66 @@ describe("isValidUsernameFormat", () => {
     expect(isValidUsernameFormat("sara.dev")).toBe(false);
     expect(isValidUsernameFormat("sara dev")).toBe(false);
     expect(isValidUsernameFormat("سارة")).toBe(false);
+    expect(isValidUsernameFormat("Sara")).toBe(false);
   });
 });
 
-describe("checkUsernameAvailability (mock)", () => {
-  it("reports available for an unused, well-formed username", async () => {
-    const result = await checkUsernameAvailability("brand-new-handle");
-    expect(result).toEqual({ available: true, suggestion: null, reason: null });
+describe("checkUsernameAvailability", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("reports invalid_format without a suggestion", async () => {
+  it("loads availability from the backend for a well-formed username", async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { available: true, suggestion: null, reason: null },
+    });
+
+    const result = await checkUsernameAvailability("brand-new-handle");
+
+    expect(result).toEqual({ available: true, suggestion: null, reason: null });
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/auth/username-availability",
+      {
+        params: {
+          username: "brand-new-handle",
+        },
+      },
+    );
+  });
+
+  it("reports invalid_format locally without a backend request", async () => {
     const result = await checkUsernameAvailability("ab");
+
     expect(result.available).toBe(false);
     expect(result.reason).toBe("invalid_format");
     expect(result.suggestion).toBeNull();
+    expect(mockedAxios.get).not.toHaveBeenCalled();
   });
 
-  it("blocks reserved words without a suggestion", async () => {
-    const result = await checkUsernameAvailability("admin");
-    expect(result.available).toBe(false);
-    expect(result.reason).toBe("reserved");
-    expect(result.suggestion).toBeNull();
-  });
+  it("passes through taken usernames with a suggested alternative", async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        available: false,
+        suggestion: "sara-dev-1",
+        reason: "taken",
+      },
+    });
 
-  it("is case-insensitive when matching reserved words", async () => {
-    const result = await checkUsernameAvailability("Admin");
-    expect(result.available).toBe(false);
-    expect(result.reason).toBe("reserved");
-  });
-
-  it("reports taken usernames with a suggested alternative", async () => {
     const result = await checkUsernameAvailability("sara-dev");
+
     expect(result.available).toBe(false);
     expect(result.reason).toBe("taken");
     expect(result.suggestion).toBe("sara-dev-1");
   });
 
-  it("is case-insensitive when matching taken usernames", async () => {
-    const result = await checkUsernameAvailability("Sara-Dev");
+  it("passes through reserved username responses", async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { available: false, suggestion: null, reason: "reserved" },
+    });
+
+    const result = await checkUsernameAvailability("admin");
+
     expect(result.available).toBe(false);
-    expect(result.reason).toBe("taken");
+    expect(result.reason).toBe("reserved");
   });
 });

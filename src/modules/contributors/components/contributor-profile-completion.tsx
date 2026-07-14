@@ -45,10 +45,10 @@ const PROMPT_META: Record<CompletionPrompt, PromptMeta> = {
   },
   connect_github: {
     icon: Github,
-    title: "اربط حساب GitHub",
+    title: "اربط مستودعات GitHub",
     description:
-      "الربط يتيح تحليل مستودعاتك لبناء مهارات موثقة — نقرأ النشاط فقط ولا نعدّل شيئًا.",
-    actionLabel: "ربط الحساب",
+      "هذا ربط منفصل بعد تسجيل الدخول يطلب صلاحية قراءة مستودعاتك لبناء مهارات موثقة.",
+    actionLabel: "ربط المستودعات",
   },
 };
 
@@ -337,7 +337,10 @@ function GitHubConnect({
   return (
     <div className="flex flex-col gap-4 text-right">
       <ul className="flex flex-col gap-2 text-xs leading-5 text-muted-foreground">
-        <li>• نقرأ المستودعات واللغات ونشاط الالتزامات (commits) فقط.</li>
+        <li>
+          • نقرأ المستودعات العامة والخاصة واللغات ونشاط الالتزامات (commits)
+          فقط.
+        </li>
         <li>• لا نكتب أو نعدّل أي شيء في حسابك.</li>
         <li>• يمكنك فصل الحساب في أي وقت من الإعدادات.</li>
       </ul>
@@ -359,7 +362,7 @@ function GitHubConnect({
         ) : (
           <>
             <Github className="size-4" />
-            <span>ربط الحساب</span>
+            <span>ربط المستودعات</span>
           </>
         )}
       </Button>

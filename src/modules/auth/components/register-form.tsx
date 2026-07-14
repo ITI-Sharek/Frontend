@@ -51,9 +51,8 @@ export function RegisterForm() {
 
   const usernameQuery = useUsernameAvailabilityQuery(formData.username);
   // Block on a confirmed conflict or an in-flight/pending check; a network
-  // failure (isError) never blocks — the backend re-validates at submit
-  // time regardless (see edge cases in specs/002-register-username-roles).
-  // Bypassed entirely while the field is disabled pending backend support.
+  // failure (isError) never blocks because the backend re-validates at submit
+  // time.
   const isUsernameOk =
     !REGISTER_USERNAME_FIELD_ENABLED ||
     (formData.username.trim() !== "" &&
@@ -98,9 +97,7 @@ export function RegisterForm() {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        username: REGISTER_USERNAME_FIELD_ENABLED
-          ? formData.username.trim()
-          : undefined,
+        username: formData.username.trim(),
         role: formData.role as "owner" | "contributor",
         preferredLanguage: "ar",
       });
@@ -115,10 +112,6 @@ export function RegisterForm() {
         error,
         "تعذر إنشاء الحساب، حاول مرة أخرى.",
       );
-      // TODO(backend): once /auth/register returns a distinguishable code
-      // (e.g. EMAIL_TAKEN / USERNAME_TAKEN per docs/design/
-      // api-contract-additions.md §2), branch on the code instead of this
-      // message heuristic.
       const lower = message.toLowerCase();
       if (lower.includes("username") || lower.includes("email")) {
         setStep(ACCOUNT_STEP_INDEX);
