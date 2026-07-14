@@ -10,12 +10,9 @@ export const SIGNUP_STEPS = ["الدور", "بيانات الحساب", "الت�
 export const ROLE_STEP_DISCLAIMER =
   "اختر طريقة استخدامك لـ Share-k في البداية. قد تتم إضافة أدوار إضافية لاحقًا.";
 
-// POST /auth/register rejects unknown fields and does not accept `username`
-// yet (usernames are backend-generated for now). Flip this on once the
-// backend implements register-time usernames per DEC-016
-// (docs/design/api-contract-additions.md §2) — the field, availability
-// check, and tests are already built and wired.
-export const REGISTER_USERNAME_FIELD_ENABLED = false as boolean;
+// POST /auth/register now requires a username and
+// GET /auth/username-availability checks the same backend policy.
+export const REGISTER_USERNAME_FIELD_ENABLED = true as boolean;
 
 export const ROLE_OPTIONS: RoleOption[] = [
   {

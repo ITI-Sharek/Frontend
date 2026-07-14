@@ -101,9 +101,11 @@ export function clearPendingSocialAuth(): void {
 /**
  * GET /auth/{provider}/start?role= — the backend requires `role` even for
  * sign-in (it is only used when a new user must be created; existing users
- * keep their saved role). For plain sign-in we default to "contributor";
- * making the param optional for sign-in is requested in
- * docs/design/api-contract-additions.md.
+ * keep their saved role). GitHub social auth is identity-only and must not be
+ * treated as repository consent; the profile/onboarding GitHub connector owns
+ * `/github/oauth/start` for public/private repository access. For plain
+ * sign-in we default to "contributor"; making the param optional for sign-in
+ * is requested in docs/design/api-contract-additions.md.
  */
 export async function requestSocialAuthStart(
   provider: SocialAuthProvider,
