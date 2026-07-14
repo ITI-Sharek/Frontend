@@ -6,6 +6,7 @@ import {
   getGitHubRepositoryCommitSignals,
   getGitHubRepositoryContributionActivity,
   getGitHubRepositoryStatistics,
+  listGitHubRepositories,
 } from "./github.service";
 import type {
   GitHubRepositoryCommitSignalsDto,
@@ -87,6 +88,24 @@ describe("github service repository statistics", () => {
       "/github/repository/statistics",
       { params: { fullName: "sharek/frontend" } },
     );
+  });
+
+  it("loads a paginated repository page", async () => {
+    const page = {
+      items: [],
+      page: 2,
+      perPage: 12,
+      hasNextPage: true,
+    };
+    mockedAxios.get.mockResolvedValueOnce({ data: page });
+
+    await expect(
+      listGitHubRepositories({ page: 2, perPage: 12 }),
+    ).resolves.toEqual(page);
+
+    expect(mockedAxios.get).toHaveBeenCalledWith("/github/repositories", {
+      params: { page: 2, perPage: 12 },
+    });
   });
 
   it("loads contribution activity with the required fullName query param", async () => {

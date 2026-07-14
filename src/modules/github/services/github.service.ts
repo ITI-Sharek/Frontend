@@ -6,7 +6,7 @@ import type {
   GitHubOAuthStartDto,
   GitHubRepositoryCommitSignalsDto,
   GitHubRepositoryContributionActivityDto,
-  GitHubRepositoryDto,
+  GitHubRepositoryPageDto,
   GitHubRepositoryStatisticsDto,
 } from "../types/github.types";
 
@@ -32,9 +32,17 @@ export async function getGitHubAccount(): Promise<GitHubAccountDto> {
   return data;
 }
 
-export async function listGitHubRepositories(): Promise<GitHubRepositoryDto[]> {
-  const { data } =
-    await axiosInstance.get<GitHubRepositoryDto[]>("/github/repositories");
+export async function listGitHubRepositories({
+  page = 1,
+  perPage = 12,
+}: {
+  page?: number;
+  perPage?: number;
+} = {}): Promise<GitHubRepositoryPageDto> {
+  const { data } = await axiosInstance.get<GitHubRepositoryPageDto>(
+    "/github/repositories",
+    { params: { page, perPage } },
+  );
   return data;
 }
 

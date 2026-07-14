@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   ContributorGitHubRepositoriesSection,
   getUnavailableReasonMessage,
+  toggleRepositorySelection,
 } from "./contributor-github-repositories-section";
 import type {
   GitHubAccountDto,
@@ -119,11 +120,19 @@ function renderSection(
   return renderToStaticMarkup(
     <ContributorGitHubRepositoriesSection
       accountState={{ status: "connected", account }}
-      repositoriesState={{ status: "loaded", repositories }}
+      repositoriesState={{
+        status: "loaded",
+        repositories,
+        page: 1,
+        perPage: 12,
+        hasNextPage: true,
+      }}
       selectedFullName={null}
       statisticsState={{ status: "idle" }}
       onConnectGitHub={vi.fn()}
       onSelectRepository={vi.fn()}
+      onNextRepositoriesPage={vi.fn()}
+      onPreviousRepositoriesPage={vi.fn()}
       {...overrides}
     />,
   );
@@ -136,8 +145,9 @@ describe("ContributorGitHubRepositoriesSection", () => {
       repositoriesState: { status: "idle" },
     });
 
-    expect(html).toContain("اربط حساب GitHub أولاً");
-    expect(html).toContain("ربط GitHub");
+    expect(html).toContain("اربط مستودعات GitHub");
+    expect(html).toContain("صلاحية قراءة المستودعات العامة والخاصة");
+    expect(html).toContain("السماح بقراءة المستودعات");
     expect(html).not.toContain("sara-dev/public-ui");
   });
 
@@ -163,6 +173,62 @@ describe("ContributorGitHubRepositoriesSection", () => {
     expect(html).toContain("عام");
     expect(html).toContain("خاص");
     expect(html).toContain("مؤرشف");
+    expect(html).toContain("الصفحة الحالية");
+    expect(html).toContain("التالي");
+  });
+
+  it("renders repository selection for skill generation", () => {
+    const html = renderSection({
+      selectedForGenerationFullNames: ["sara-dev/public-ui"],
+      onToggleRepositoryForGeneration: vi.fn(),
+      skillGenerationState: {
+        status: "pending_review",
+        generationId: "generation-1",
+        selectedRepositoryCount: 1,
+        snapshottedRepositoryCount: 1,
+        skillCount: 2,
+        failureReason: null,
+      },
+    });
+
+    expect(html).toContain("تحليل المهارات من المستودعات المختارة");
+    expect(html).toContain("محدد للتحليل");
+    expect(html).toContain("٢ مهارات بانتظار المراجعة");
+  });
+
+  it("keeps selections from other pages and enforces the maximum", () => {
+    const selectedAcrossPages = toggleRepositorySelection(
+      ["sara-dev/page-one-repo"],
+      "sara-dev/page-two-repo",
+      10,
+    );
+    expect(selectedAcrossPages).toEqual([
+      "sara-dev/page-one-repo",
+      "sara-dev/page-two-repo",
+    ]);
+
+    const maximumSelection = Array.from(
+      { length: 10 },
+      (_, index) => `sara-dev/repo-${index}`,
+    );
+    expect(
+      toggleRepositorySelection(maximumSelection, "sara-dev/repo-11", 10),
+    ).toEqual(maximumSelection);
+  });
+
+  it("renders the insufficient evidence terminal state", () => {
+    const html = renderSection({
+      skillGenerationState: {
+        status: "needs_more_evidence",
+        generationId: "generation-1",
+        selectedRepositoryCount: 1,
+        snapshottedRepositoryCount: 1,
+        skillCount: 0,
+        failureReason: null,
+      },
+    });
+
+    expect(html).toContain("الأدلة الحالية غير كافية");
   });
 
   it("renders loaded repository statistics and recent commits", () => {

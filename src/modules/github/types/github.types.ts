@@ -48,6 +48,13 @@ export interface GitHubRepositoryDto {
   updatedAt: string | null;
 }
 
+export interface GitHubRepositoryPageDto {
+  items: GitHubRepositoryDto[];
+  page: number;
+  perPage: number;
+  hasNextPage: boolean;
+}
+
 export type GitHubRepositoryUnavailableReason =
   | "github_stats_pending"
   | "github_no_content"
