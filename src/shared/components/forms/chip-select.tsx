@@ -1,6 +1,9 @@
 import { cn } from "@/lib/utils";
 
-import type { ChipOption } from "../types/signup.types";
+export interface ChipOption {
+  value: string;
+  label: string;
+}
 
 interface ChipSelectProps {
   label: string;

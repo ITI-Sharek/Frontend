@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
+export type { ChipOption } from "@/shared/components/forms/chip-select";
+
 export type SignupRole = "contributor" | "owner";
 
 export interface RoleOption {
@@ -7,11 +9,6 @@ export interface RoleOption {
   title: string;
   description: string;
   icon: LucideIcon;
-}
-
-export interface ChipOption {
-  value: string;
-  label: string;
 }
 
 export interface SignupFormData {
@@ -23,7 +20,7 @@ export interface SignupFormData {
   password: string;
   agreedToTerms: boolean;
 
-  contributorSkills: string;
+  contributorSkills: string[];
   contributorExperience: string;
   contributorInterests: string[];
   contributorGithubUrl: string;
@@ -43,7 +40,7 @@ export const INITIAL_SIGNUP_FORM_DATA: SignupFormData = {
   password: "",
   agreedToTerms: false,
 
-  contributorSkills: "",
+  contributorSkills: [],
   contributorExperience: "",
   contributorInterests: [],
   contributorGithubUrl: "",
