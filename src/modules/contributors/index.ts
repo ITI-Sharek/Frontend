@@ -2,7 +2,11 @@ export { ContributorProfileEmptyState } from "./components/contributor-profile-e
 export { ContributorProfileErrorView } from "./components/contributor-profile-error";
 export { ContributorProfileNotFound } from "./components/contributor-profile-not-found";
 export { ContributorProfileView } from "./components/contributor-profile-view";
+export { ContributorProfileSettingsSection } from "./components/settings/contributor-profile-settings-section";
+export { ContributorGithubSettingsSection } from "./components/settings/contributor-github-settings-section";
 export { useEnsureContributorProfileMutation } from "./api/mutations/use-ensure-contributor-profile-mutation";
+export { useUpdateProfileDetailsMutation } from "./api/mutations/use-update-profile-details-mutation";
+export { useGenerateSkillsMutation } from "./api/mutations/use-generate-skills-mutation";
 export { useContributorProfileQuery } from "./api/queries/use-contributor-profile-query";
 export { contributorProfileKeys } from "./api/query-keys";
 export {

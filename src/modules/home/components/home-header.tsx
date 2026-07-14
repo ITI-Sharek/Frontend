@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
+import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
+import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "كيف تعمل" },
@@ -13,7 +15,20 @@ const NAV_LINKS = [
   { href: "#plans", label: "الخطط" },
 ];
 
-export function HomeHeader() {
+export interface HomeHeaderAuthUser {
+  displayName: string;
+  avatarUrl: string | null;
+  menuItems: ProfileMenuItem[];
+}
+
+export function HomeHeader({
+  user,
+  onLogout,
+}: {
+  /** Injected by the route. Omitted/undefined renders the signed-out CTAs. */
+  user?: HomeHeaderAuthUser | null;
+  onLogout?: () => void;
+}) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -65,12 +80,28 @@ export function HomeHeader() {
               <Moon className="size-4" />
             )}
           </button>
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to={ROUTES.login}>تسجيل دخول</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link to={ROUTES.register}>إنشاء حساب</Link>
-          </Button>
+          {user && onLogout ? (
+            <ProfileMenu
+              displayName={user.displayName}
+              avatarUrl={user.avatarUrl}
+              items={user.menuItems}
+              onLogout={onLogout}
+            />
+          ) : (
+            <>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="hidden sm:inline-flex"
+              >
+                <Link to={ROUTES.login}>تسجيل دخول</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to={ROUTES.register}>إنشاء حساب</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

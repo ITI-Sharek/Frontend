@@ -1,4 +1,5 @@
 export { HomeHeader } from "./components/home-header";
+export type { HomeHeaderAuthUser } from "./components/home-header";
 export { HeroSection } from "./components/hero-section";
 export { HowItWorksSection } from "./components/how-it-works-section";
 export { FeaturesSection } from "./components/features-section";

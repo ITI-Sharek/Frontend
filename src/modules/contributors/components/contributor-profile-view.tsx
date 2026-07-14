@@ -1,6 +1,7 @@
-import { Github, UserRoundCheck } from "lucide-react";
+import { Github, LogOut, UserRoundCheck } from "lucide-react";
 
 import { Avatar } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 
 import { ContributorProfileCompletion } from "./contributor-profile-completion";
@@ -15,15 +16,11 @@ import type { ContributorProfileDto } from "../types/contributor-profile.types";
  */
 export function ContributorProfileView({
   profile,
-  onConnectGitHub,
+  onLogout,
 }: {
   profile: ContributorProfileDto;
-  /**
-   * Injected by the route (cross-module composition happens at the route
-   * layer): starts the GitHub OAuth connect flow. Optional so public/viewer
-   * contexts can omit it.
-   */
-  onConnectGitHub?: () => Promise<void>;
+  /** Injected by the route. Optional so public/viewer contexts can omit it. */
+  onLogout?: () => void;
 }) {
   return (
     <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 md:px-6 lg:grid-cols-4">
@@ -66,11 +63,19 @@ export function ContributorProfileView({
               </p>
             </div>
           </div>
-          <span className="self-start rounded-full border border-border bg-background px-4 py-2 font-mono text-[13px] tracking-[0.65px] text-muted-foreground md:self-center">
-            {profile.viewerRelationship === "owner"
-              ? "ملفك الشخصي"
-              : "عرض عام للمساهم"}
-          </span>
+          <div className="flex items-center gap-2 self-start md:self-center">
+            <span className="rounded-full border border-border bg-background px-4 py-2 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+              {profile.viewerRelationship === "owner"
+                ? "ملفك الشخصي"
+                : "عرض عام للمساهم"}
+            </span>
+            {profile.viewerRelationship === "owner" && onLogout && (
+              <Button type="button" variant="outline" size="sm" onClick={onLogout}>
+                <LogOut className="size-4" />
+                <span>تسجيل الخروج</span>
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -79,10 +84,7 @@ export function ContributorProfileView({
       </div>
 
       <div className="flex flex-col gap-4 lg:col-span-3">
-        <ContributorProfileCompletion
-          profile={profile}
-          onConnectGitHub={onConnectGitHub ?? (() => Promise.resolve())}
-        />
+        <ContributorProfileCompletion profile={profile} />
         <ContributorProfileSections profile={profile} />
       </div>
     </div>
