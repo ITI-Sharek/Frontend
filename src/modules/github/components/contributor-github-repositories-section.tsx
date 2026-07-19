@@ -19,7 +19,6 @@ import {
   RefreshCw,
   Sparkles,
   Star,
-  Users,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -571,7 +570,7 @@ function RepositoryCard({
             <Button
               type="button"
               size="sm"
-              variant={isSelectedForGeneration ? "default" : "outline"}
+              variant={isSelectedForGeneration ? "primary" : "outline"}
               disabled={selectionLimitReached && !isSelectedForGeneration}
               onClick={(event) => {
                 event.stopPropagation();
