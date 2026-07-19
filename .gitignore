@@ -24,6 +24,7 @@
 
 # next.js (leftover cache from pre-migration dev server)
 /.next/
+/next-env.d.ts
 
 # production
 /build
