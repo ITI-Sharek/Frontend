@@ -27,10 +27,12 @@ export interface AppShellPlanChip {
 export function AppShell({
   nav,
   planChip,
+  topBar,
   children,
 }: {
   nav: AppShellNavItem[];
   planChip: AppShellPlanChip;
+  topBar?: ReactNode;
   children: ReactNode;
 }) {
   const primaryItems = nav.filter((item) => !item.secondary);
@@ -79,7 +81,14 @@ export function AppShell({
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 pb-20 md:pb-0">{children}</main>
+      <main className="min-w-0 flex-1 pb-20 md:pb-0">
+        {topBar && (
+          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:px-6">
+            {topBar}
+          </header>
+        )}
+        {children}
+      </main>
 
       <nav
         className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border bg-card md:hidden"

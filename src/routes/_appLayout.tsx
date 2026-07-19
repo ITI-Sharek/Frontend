@@ -7,6 +7,7 @@ import {
   Github,
   LayoutDashboard,
   ListTodo,
+  Bell,
   Settings,
   UserRound,
 } from "lucide-react";
@@ -15,6 +16,8 @@ import { useEffect, useState } from "react";
 import { ROUTES } from "@/config/routes.config";
 import { getCurrentUser, useCurrentUserQuery } from "@/modules/auth";
 import { ensureCurrentContributorProfile } from "@/modules/contributors";
+import { NotificationPopover } from "@/modules/notifications";
+import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import type { AppShellNavItem, AppShellPlanChip } from "@/shared/components/layout/app-shell";
@@ -30,6 +33,7 @@ export const Route = createFileRoute("/_appLayout")({
  * until they land. Plan chip is mock data until a quota endpoint exists.
  */
 function AppLayout() {
+  const { unreadCount } = useNotifications();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -129,6 +133,13 @@ function AppLayout() {
       icon: ListTodo,
       active: pathname.startsWith(ROUTES.tasks),
     },
+    {
+      label: "الإشعارات",
+      href: ROUTES.notifications,
+      icon: Bell,
+      active: pathname === ROUTES.notifications,
+      badge: unreadCount,
+    },
     { label: "طلبات الانضمام", href: "#", icon: FileText, badge: 1 },
     { label: "مهاراتي", href: "#", icon: BadgeCheck, hideOnMobile: true },
     settingsNavItem,
@@ -139,7 +150,21 @@ function AppLayout() {
     : { planName: "Bronze", quotaLabel: "1 من 2 طلبات اليوم" };
 
   return (
-    <AppShell nav={isOwner ? ownerNav : contributorNav} planChip={planChip}>
+    <AppShell
+      nav={isOwner ? ownerNav : contributorNav}
+      planChip={planChip}
+      topBar={
+        <>
+          <div>
+            <p className="text-sm font-semibold text-foreground">مساحة العمل</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              مراجعات وإشعارات الحساب في مكان واحد
+            </p>
+          </div>
+          <NotificationPopover />
+        </>
+      }
+    >
       <Outlet />
     </AppShell>
   );

@@ -4,6 +4,11 @@ export const ROUTES = {
   explore: "/explore",
   onboarding: "/onboarding",
   tasks: "/tasks",
+  notifications: "/notifications",
+  admin: "/admin",
+  adminSkillReviews: "/admin/skill-reviews",
+  adminSkillReview: (userId: string) =>
+    `/admin/skill-reviews/${encodeURIComponent(userId)}`,
   login: "/login",
   register: "/register",
   forgotPassword: "/forgot-password",
@@ -20,6 +25,10 @@ export type PostLoginUser = {
 };
 
 export function getPostLoginPath(user: PostLoginUser): string {
+  if (user.role === "admin") {
+    return ROUTES.admin;
+  }
+
   if (user.role === "contributor" && user.username) {
     return ROUTES.contributorProfile(user.username);
   }

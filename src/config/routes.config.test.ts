@@ -11,6 +11,12 @@ describe("route config", () => {
     expect(ROUTES.authCallback).toBe("/auth/callback");
   });
 
+  it("builds admin skill review URLs", () => {
+    expect(ROUTES.adminSkillReview("user 1")).toBe(
+      "/admin/skill-reviews/user%201",
+    );
+  });
+
   it("routes contributor users to their username profile", () => {
     expect(getPostLoginPath({ role: "contributor", username: "mona" })).toBe(
       "/profile/mona",
@@ -23,7 +29,9 @@ describe("route config", () => {
     );
   });
 
-  it("keeps other non-contributor users on the existing default destination", () => {
-    expect(getPostLoginPath({ role: "admin", username: "admin" })).toBe("/");
+  it("routes admin users to the admin workspace", () => {
+    expect(getPostLoginPath({ role: "admin", username: "admin" })).toBe(
+      "/admin",
+    );
   });
 });
