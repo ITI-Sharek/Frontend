@@ -80,8 +80,10 @@ export function MyProjectsList({
                 <StatusChip tone={meta.tone} icon={meta.icon}>
                   {meta.label}
                 </StatusChip>
-                <Button size="sm" variant="outline">
-                  إدارة
+                <Button asChild size="sm" variant="outline">
+                  <a href={`/my-projects/${encodeURIComponent(project.id)}`}>
+                    إدارة
+                  </a>
                 </Button>
               </div>
             );
