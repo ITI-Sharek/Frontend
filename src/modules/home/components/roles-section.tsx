@@ -1,70 +1,115 @@
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { ArrowLeft, Check, FolderGit2, UserRound } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 
-const ROLES = [
-  {
-    eyebrow: "للمساهم",
-    title: "حوّل نشاطك على GitHub إلى سمعة مهنية",
-    bullets: [
-      "ملف مهارات موثّق يُبنى تلقائيًا من مستودعاتك",
-      "توصيات مهام تناسب مستواك الفعلي",
-      "تسليم عبر Pull Request وتقييم يوثّق إنجازك",
-      "مكافآت اختيارية على بعض المهام",
-    ],
-    cta: "أنشئ ملفك المهني",
-    slideFrom: 40,
-  },
-  {
-    eyebrow: "لصاحب المشروع",
-    title: "استقبل مساهمين مؤهّلين، لا طلبات عشوائية",
-    bullets: [
-      "انشر مشروعك برابط مستودع GitHub وسنجلب بياناته",
-      "أنشئ مهام مساهمة بمتطلبات وصعوبة وموعد واضح",
-      "تصلك فقط الطلبات التي اجتازت التحقق الذكي",
-      "مطابقة تلقائية مع أفضل المساهمين في الخطط الأعلى",
-    ],
-    cta: "انشر مشروعك",
-    slideFrom: -40,
-  },
+const CONTRIBUTOR_POINTS = [
+  "اكتشف عملاً يناسب سياقك الحالي، مع توضيح الدليل الناقص وعدم اليقين.",
+  "تعاون داخل مساحة المشروع بعد القبول، لا داخل سباق تطبيقات أو ترتيب عالمي.",
+  "حوّل العمل المكتمل والمراجع إلى سجل مهني يحفظ سياقه ومصدره.",
+] as const;
+
+const OWNER_POINTS = [
+  "قدّم نطاق العمل والمتطلبات وطريقة المراجعة قبل أن يتقدم أحد.",
+  "استخدم التحليل المساعد لتقليل الغموض، واحتفظ بقرار الاختيار النهائي.",
+  "راجع النتيجة وأنشئ دليلاً عادلاً مع أثر تدقيق واضح عند الحاجة.",
 ] as const;
 
 export function RolesSection() {
   return (
-    <section id="roles" className="scroll-mt-20 py-20">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 sm:px-6 lg:grid-cols-2">
-        {ROLES.map((role) => (
-          <motion.div
-            key={role.eyebrow}
-            initial={{ opacity: 0, x: role.slideFrom }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col gap-5 rounded-card border border-border bg-card p-8"
-          >
-            <span className="text-[13px] font-medium tracking-wide text-primary">
-              {role.eyebrow}
-            </span>
-            <h3 className="text-2xl font-bold text-foreground">{role.title}</h3>
-            <ul className="flex flex-col gap-3">
-              {role.bullets.map((bullet) => (
-                <li key={bullet} className="flex items-start gap-3 text-sm">
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                    <Check className="size-3" aria-hidden="true" />
-                  </span>
-                  <span className="text-muted-foreground">{bullet}</span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild size="sm" className="mt-2 self-start px-8">
-              <Link to={ROUTES.register}>{role.cta}</Link>
-            </Button>
-          </motion.div>
-        ))}
+    <section id="for-who" className="scroll-mt-24 py-20 sm:py-28">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid overflow-hidden rounded-card border border-border lg:grid-cols-2">
+          <RolePanel
+            icon={UserRound}
+            label="للمساهم"
+            title="اجعل العمل الذي أنجزته قابلاً للفهم والثقة."
+            description="Sharek يساعدك على الوصول إلى مساهمة ذات معنى، إكمالها بوضوح، ثم الاحتفاظ بسجل لا يعتمد على الادعاء الذاتي أو الشعبية."
+            points={CONTRIBUTOR_POINTS}
+            action="ابدأ سجل مساهماتك"
+            tone="accent"
+          />
+          <RolePanel
+            icon={FolderGit2}
+            label="لصاحب المشروع"
+            title="اعثر على مساهم مناسب بأقل غموض، لا بأكثر طلبات."
+            description="اعرض العمل كسياق تعاون واضح، افهم ما يدعم ملاءمة كل متقدم، ثم اتخذ القرار وراجع النتيجة بنفسك."
+            points={OWNER_POINTS}
+            action="أضف مشروعاً"
+            tone="paper"
+          />
+        </div>
       </div>
     </section>
+  );
+}
+
+function RolePanel({
+  icon: Icon,
+  label,
+  title,
+  description,
+  points,
+  action,
+  tone,
+}: {
+  icon: typeof UserRound;
+  label: string;
+  title: string;
+  description: string;
+  points: readonly string[];
+  action: string;
+  tone: "accent" | "paper";
+}) {
+  const isAccent = tone === "accent";
+
+  return (
+    <article
+      className={
+        isAccent
+          ? "bg-primary p-7 text-primary-foreground sm:p-10 lg:p-12"
+          : "bg-card p-7 text-foreground sm:p-10 lg:p-12"
+      }
+    >
+      <div className="flex items-center gap-3">
+        <Icon className="size-6" aria-hidden />
+        <p className="font-semibold">{label}</p>
+      </div>
+      <h2 className="mt-8 text-3xl font-bold leading-tight">{title}</h2>
+      <p
+        className={`mt-5 max-w-[62ch] text-sm leading-7 sm:text-base ${
+          isAccent ? "opacity-85" : "text-muted-foreground"
+        }`}
+      >
+        {description}
+      </p>
+      <ul className="mt-8 border-t border-current/20">
+        {points.map((point) => (
+          <li
+            key={point}
+            className="flex items-start gap-3 border-b border-current/20 py-4 text-sm leading-7"
+          >
+            <Check className="mt-1 size-4 shrink-0" aria-hidden />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+      <Button
+        asChild
+        variant={isAccent ? "outline" : "primary"}
+        size="default"
+        className={
+          isAccent
+            ? "mt-8 min-h-12 border-current/40 bg-transparent text-current hover:bg-white/10"
+            : "mt-8 min-h-12"
+        }
+      >
+        <Link to={ROUTES.register}>
+          {action}
+          <ArrowLeft className="size-4" aria-hidden />
+        </Link>
+      </Button>
+    </article>
   );
 }
