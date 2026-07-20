@@ -9,7 +9,6 @@ import {
 
 import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { cn } from "@/lib/utils";
 
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";

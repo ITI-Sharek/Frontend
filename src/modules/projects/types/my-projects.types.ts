@@ -1,9 +1,9 @@
 import type { ProjectCategory, ProjectDifficulty } from "./explore.types";
 
 /**
- * Owner portfolio contracts (OJ-1 · screen-inventory §4.2–4.3). Mock-first;
- * future endpoints: GET /my-projects · GET /github/repositories ·
- * POST /projects/import/github (exists) · POST /projects/:id/publish.
+ * Owner portfolio contracts (OJ-1 · screen-inventory §4.2–4.3).
+ * Backed by GET /projects/me, GET /github/repositories, and
+ * POST /projects/import/github for draft/published saves.
  */
 
 export type MyProjectStatus = "draft" | "published" | "archived";

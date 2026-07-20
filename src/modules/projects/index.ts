@@ -8,6 +8,7 @@ export {
   getMyProjects,
   getOwnerRepos,
   importRepoAsDraft,
+  publishProject,
 } from "./services/my-projects.service";
 export type {
   ImportDraftDto,
