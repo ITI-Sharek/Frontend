@@ -33,6 +33,19 @@ export interface ContributorGithubStatusDto {
   username: string | null;
 }
 
+export type ContributorExperienceRange =
+  | "zero_to_one"
+  | "two_to_four"
+  | "five_to_ten"
+  | "ten_plus";
+
+export interface ContributorFieldDto {
+  id: string;
+  key: string;
+  labelEn: string;
+  labelAr: string;
+}
+
 export interface ContributorProfileDto {
   username: string;
   displayName: string;
@@ -46,13 +59,9 @@ export interface ContributorProfileDto {
   contributionHistory: ContributorHistoryItemDto[];
   completionPrompts: string[];
   viewerRelationship: ViewerRelationship;
-  /**
-   * Self-declared during registration/settings, distinct from the AI-verified
-   * `skills` list. No backend column exists yet — mocked client-side (see
-   * docs/design/api-contract-additions.md).
-   */
-  experienceLevel: string | null;
-  interests: string[];
+  /** Self-declared profile data, distinct from the AI-verified `skills` list. */
+  experienceRange: ContributorExperienceRange | null;
+  fields: ContributorFieldDto[];
   declaredSkills: string[];
 }
 

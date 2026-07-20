@@ -1,5 +1,7 @@
 # 07 · Contributor skill profile (`/skills`, own view)
 
+> **Correction (DEC-032–DEC-035):** `/skills` is proposed IA only. Evidence is source-agnostic; GitHub OAuth is linked identity, not repository evidence authorization. Do not implement this wireframe until the read model, GitHub App selection, visibility, redaction, and non-GitHub evidence contracts exist.
+
 **Job**: show the contributor exactly what the platform believes about them, with what evidence, in which review state — and give them the two levers: re-analyze and dispute. Trust hinges on this page never blurring the line between AI-claimed, admin-verified, and rejected.
 
 ```

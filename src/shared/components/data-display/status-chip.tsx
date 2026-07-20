@@ -13,7 +13,7 @@ const TONE_CLASSES = {
   neutral: "bg-border/40 text-muted-foreground",
   waiting: "bg-brand-indigo/10 text-brand-indigo",
   attention: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-  positive: "bg-primary/10 text-primary",
+  positive: "bg-evidence-teal/10 text-evidence-teal",
   negative: "bg-destructive/10 text-destructive",
   ai: "bg-[#6B5CA5]/10 text-[#6B5CA5] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA]",
 } as const;

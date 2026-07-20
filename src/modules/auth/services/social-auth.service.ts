@@ -35,6 +35,7 @@ interface SocialAuthStartResponse {
 export interface PendingSocialAuth {
   provider: SocialAuthProvider;
   intent: SocialAuthIntent;
+  role?: SocialAuthRole;
   state: string;
   startedAt: string;
 }
@@ -150,6 +151,7 @@ export async function startSocialAuth(
   savePendingSocialAuth({
     provider,
     intent,
+    role,
     state: start.state,
     startedAt: new Date().toISOString(),
   });

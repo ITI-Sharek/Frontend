@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   ContributorGitHubRepositoriesSection,
+  getAuthorizedRepositoryFullNames,
+  getRepositoryEvidenceAvailability,
   getUnavailableReasonMessage,
   toggleRepositorySelection,
 } from "./contributor-github-repositories-section";
@@ -145,9 +147,9 @@ describe("ContributorGitHubRepositoriesSection", () => {
       repositoriesState: { status: "idle" },
     });
 
-    expect(html).toContain("اربط مستودعات GitHub");
-    expect(html).toContain("صلاحية قراءة المستودعات العامة والخاصة");
-    expect(html).toContain("السماح بقراءة المستودعات");
+    expect(html).toContain("اربط حساب GitHub");
+    expect(html).toContain("لن نحلل أي مستودع حتى تختاره وتوافق صراحةً");
+    expect(html).toContain("ربط حساب GitHub");
     expect(html).not.toContain("sara-dev/public-ui");
   });
 
@@ -179,6 +181,12 @@ describe("ContributorGitHubRepositoriesSection", () => {
 
   it("renders repository selection for skill generation", () => {
     const html = renderSection({
+      evidenceAuthorization: {
+        kind: "github_app_selected",
+        installationId: "installation-1",
+        repositoryFullNames: ["sara-dev/public-ui"],
+      },
+      evidenceConsentAccepted: true,
       selectedForGenerationFullNames: ["sara-dev/public-ui"],
       onToggleRepositoryForGeneration: vi.fn(),
       skillGenerationState: {
@@ -191,9 +199,47 @@ describe("ContributorGitHubRepositoriesSection", () => {
       },
     });
 
-    expect(html).toContain("تحليل المهارات من المستودعات المختارة");
+    expect(html).toContain("أدلة المهارات من مستودعات GitHub");
+    expect(html).toContain("تفويض الأدلة عبر GitHub App نشط");
     expect(html).toContain("محدد للتحليل");
     expect(html).toContain("٢ مهارات بانتظار المراجعة");
+  });
+
+  it("allows explicit repository selection and consent with repository OAuth", () => {
+    const html = renderSection({
+      onToggleRepositoryForGeneration: vi.fn(),
+    });
+
+    expect(html).toContain("وصول OAuth للمستودعات نشط");
+    expect(html).toContain("اختيار للتحليل");
+    expect(html).toContain("github-evidence-consent");
+    expect(html).not.toContain("يتطلب تفويض GitHub App");
+
+    const authorization = { kind: "oauth_repository_access" as const };
+    expect(
+      getRepositoryEvidenceAvailability(repositories[0], authorization),
+    ).toEqual({ available: true });
+    expect(
+      getAuthorizedRepositoryFullNames(
+        repositories.map((repository) => repository.fullName),
+        authorization,
+      ),
+    ).toEqual(["sara-dev/public-ui", "sara-dev/private-api"]);
+  });
+
+  it("allows only repositories selected by the GitHub App installation", () => {
+    const authorization = {
+      kind: "github_app_selected" as const,
+      installationId: "installation-1",
+      repositoryFullNames: ["sara-dev/public-ui"],
+    };
+
+    expect(
+      getRepositoryEvidenceAvailability(repositories[0], authorization),
+    ).toEqual({ available: true });
+    expect(
+      getRepositoryEvidenceAvailability(repositories[1], authorization),
+    ).toMatchObject({ available: false });
   });
 
   it("keeps selections from other pages and enforces the maximum", () => {

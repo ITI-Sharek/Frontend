@@ -1,5 +1,7 @@
 # 12 · Ineligible application + skill-gap guidance
 
+> **Status: SUPERSEDED for contributor implementation (DEC-030–DEC-031, 2026-07-20).** AI fit is advisory and cannot block an application solely from its conclusion; contributor Gold guidance and daily attempts are removed. Retain this file only as historical context. Use `../contributor-experience-brief.md`.
+
 **Job**: the product's hardest moment. The AI just blocked the user's application [Confirmed FR-055–056]. This screen must (1) explain honestly, (2) hand back momentum, (3) deliver Gold guidance [Confirmed FR-057] — and for non-Gold, show the reason in full while presenting Gold fairly (the *reason* is never paywalled; the *plan* is the premium).
 
 ## Outcome view (all tiers) — shown after validation, persisted on application detail

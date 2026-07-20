@@ -1,53 +1,57 @@
-import type { ContributorProfileDto } from "../types/contributor-profile.types";
-
-/**
- * MOCK IMPLEMENTATIONS.
- *
- * The backend exposes only `POST /contributors/profiles/me/ensure` and
- * `GET /contributors/profiles/:username` today — there is no profile-update
- * or skills-generation endpoint yet. Both are specified for the backend in
- * docs/design/api-contract-additions.md (§profile completion) and tracked in
- * docs/design/implementation-impact.md.
- *
- * Cutover: replace the bodies with the real axios calls
- * (`PATCH /contributors/profiles/me`, `POST /skill-profiles/me/generate`)
- * and delete the simulated latency. Callers (mutation hooks / components)
- * need no changes — they already consume the agreed contract shapes.
- */
+import type {
+  ContributorExperienceRange,
+  ContributorFieldDto,
+  ContributorProfileDto,
+} from "../types/contributor-profile.types";
+import { axiosInstance } from "@/lib/axios/axios-instance";
 
 export interface UpdateProfileDetailsPayload {
-  bio: string | null;
-  availability: string | null;
-  experienceLevel?: string | null;
-  interests?: string[];
+  bio?: string | null;
+  availability?: string | null;
+  experienceRange?: ContributorExperienceRange | null;
+  fieldIds?: string[];
   declaredSkills?: string[];
 }
 
-function mockNetworkDelay(): Promise<void> {
-  const ms = 400 + Math.round(Math.random() * 400);
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function normalizeProfileAssetUrls(
+  profile: ContributorProfileDto,
+): ContributorProfileDto {
+  if (!profile.avatarUrl?.startsWith("/")) return profile;
+  const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:3000").replace(
+    /\/+$/,
+    "",
+  );
+  return { ...profile, avatarUrl: `${apiUrl}${profile.avatarUrl}` };
 }
 
 export async function updateContributorProfileDetails(
-  current: ContributorProfileDto,
   payload: UpdateProfileDetailsPayload,
 ): Promise<ContributorProfileDto> {
-  await mockNetworkDelay();
+  const { data } = await axiosInstance.patch<ContributorProfileDto>(
+    "/contributors/profiles/me",
+    payload,
+  );
+  return normalizeProfileAssetUrls(data);
+}
 
-  const bio = payload.bio?.trim() || null;
-  const availability = payload.availability?.trim() || null;
+export async function listContributorFields(): Promise<ContributorFieldDto[]> {
+  const { data } = await axiosInstance.get<ContributorFieldDto[]>(
+    "/contributors/profile-fields",
+  );
+  return data;
+}
 
-  return {
-    ...current,
-    bio,
-    availability,
-    experienceLevel: payload.experienceLevel ?? current.experienceLevel,
-    interests: payload.interests ?? current.interests,
-    declaredSkills: payload.declaredSkills ?? current.declaredSkills,
-    completionPrompts: current.completionPrompts.filter(
-      (prompt) => prompt !== "add_bio" || bio === null,
-    ),
-  };
+export async function uploadContributorAvatar(
+  file: File,
+): Promise<ContributorProfileDto> {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await axiosInstance.put<ContributorProfileDto>(
+    "/contributors/profiles/me/avatar",
+    form,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return normalizeProfileAssetUrls(data);
 }
 
 export interface SkillsGenerationRequestResult {
@@ -56,8 +60,6 @@ export interface SkillsGenerationRequestResult {
 }
 
 export async function requestSkillsGeneration(): Promise<SkillsGenerationRequestResult> {
-  await mockNetworkDelay();
-
   return {
     status: "queued",
     message:

@@ -6,9 +6,9 @@ Eight principles that govern every Share-k design decision. Each is grounded in 
 
 ## 1. Evidence over declaration
 
-**Explanation.** Share-k's entire value is that skills, reputation, and eligibility are derived from verifiable evidence (GitHub activity, approved deliveries, owner ratings) — never from self-description. The UI must always show *where a claim comes from* and visually rank evidence-backed information above declared information. (FR-029, FR-033, FR-071, ERD `evidence_sources`.)
+**Explanation.** Share-k's entire value is that reviewed skills, reputation, contribution records, and fit explanations are grounded in evidence rather than self-description. Evidence may come from explicitly authorized repositories, owner attestation, attachments, descriptions, screenshots, demo links, or repository-free work where approved contracts support it. The UI always shows where a claim comes from and visually ranks reviewed evidence above declaration. (DEC-030–DEC-033.)
 
-**Good UI.** A skill chip reads "React — Intermediate ✓ Verified" and expands to show "Evidence: dashboard-ui (34 commits), portfolio-app (README, package.json) — reviewed by admin on Mar 3."
+**Good UI.** A skill chip reads "React — Intermediate · Reviewed" and expands to show source, verification method, visibility, freshness, review state, confidence, and uncertainty without exposing private source details to an unauthorized viewer.
 
 **Bad UI.** A skills section where AI-verified skills and a user-typed "skills I know" list render as identical tags, letting a visitor assume both are verified.
 
@@ -16,19 +16,19 @@ Eight principles that govern every Share-k design decision. Each is grounded in 
 
 ## 2. Explainable AI, always
 
-**Explanation.** Every AI output surfaced to a user — eligibility decision, match score, skill assessment, gap guidance — must carry its justification, confidence, and evidence attribution (NFR-003, FR-053, FR-088). A number without a reason is not allowed anywhere in the product. Confidence below threshold routes to human review, and the UI must say so rather than pretending certainty.
+**Explanation.** Every AI output surfaced to a user—fit assessment, recommendation, skill assessment, or evidence summary—carries plain-language reasoning, confidence, uncertainty, and audience-safe evidence attribution. A number without a reason is forbidden. AI fit is advisory and never prevents an application solely because of its conclusion; the project owner decides whom to select. (DEC-030, DEC-033.)
 
-**Good UI.** "Not eligible for this task. Why: requires JWT (Advanced) — your verified profile shows no authentication-related evidence. Matched: Node.js ✓, REST APIs ✓. Missing: JWT, OAuth 2.0. [Dispute this decision]"
+**Good UI.** "Limited fit. Supporting evidence: reviewed Node.js and REST API work. Missing evidence: recent JWT or OAuth work. Confidence: moderate because one supporting source is private and cannot be shown here. You may still apply; the project owner makes the final decision."
 
-**Bad UI.** A red banner: "Application rejected by AI." Or a match card showing only "87% match" with no expandable reasoning.
+**Bad UI.** A red banner saying the AI rejected the application, or a match card showing only "87%" with no reasoning, uncertainty, or human decision path.
 
 ---
 
 ## 3. Humans decide, AI recommends
 
-**Explanation.** AI gates and ranks, but a human always makes the consequential call: admins approve skills before they count (FR-014), owners accept applications and approve deliveries (FR-006, FR-008). The UI must make the human-decision moments feel deliberate and authoritative, and must never phrase AI output as a final verdict where a human step remains.
+**Explanation.** AI organizes and explains evidence, but a human makes the consequential call: project owners select contributors and review completed work, while admins handle account-level review and moderation where supported. The UI makes human-decision moments deliberate and never presents AI fit as a final verdict.
 
-**Good UI.** Owner application card: "AI pre-validated ✓ (confidence 0.91) — your decision:" followed by Accept / Reject buttons and the justification underneath.
+**Good UI.** Owner application card: "AI-assisted fit: Partial · confidence: moderate · supporting and missing evidence" followed by the owner's selection actions and the explanation.
 
 **Bad UI.** "Contributor auto-matched and assigned to your task." Or an admin queue with a bulk "Approve all" as the primary CTA, making rubber-stamping easier than reviewing.
 
@@ -36,21 +36,21 @@ Eight principles that govern every Share-k design decision. Each is grounded in 
 
 ## 4. Status is never silent
 
-**Explanation.** Share-k is full of asynchronous waits: GitHub ingestion, AI analysis, admin review, owner review, delivery review. Every wait state must show *where the user is*, *what happens next*, *who acts next*, and — when knowable — *roughly how long*. Recovery actions (retry, dispute, withdraw) live on the status itself. (FR-064; ERD status enums for every workflow entity.)
+**Explanation.** Share-k is full of asynchronous waits: evidence synchronization, AI analysis, admin review, owner decision, and contribution review. Every wait state shows where the user is, what happens next, who acts next, and the available recovery action. Expected timing appears only when the backend supplies a reliable value or the product has an approved service expectation.
 
-**Good UI.** A pipeline strip on the application page: Applied ✓ → AI validation ✓ Eligible → **Owner review (you're here — owners typically respond in ~2 days)** → Delivery → Completed.
+**Good UI.** A pipeline strip on the application page: Applied ✓ → Fit explanation available ✓ → **Awaiting owner decision (you are here)** → Collaboration → Evidence submitted → Reviewed.
 
 **Bad UI.** An application row that just says "Pending" for a week with no indication whether AI, owner, or the platform is the blocker.
 
 ---
 
-## 5. Rejection is a next step, not a wall
+## 5. Every outcome provides a next step
 
-**Explanation.** Rejection is a core, *designed* moment in Share-k: the AI gate blocks ineligible applications by design (FR-018–FR-019), and Gold members get structured gap guidance (FR-057). Every rejection screen must state the honest reason and offer at least one forward action: what to learn, what to dispute, or which easier task fits today. Never use rejection screens to shame, and never hide the reason to upsell.
+**Explanation.** Owner decisions, limited-fit assessments, evidence requests, revisions, and terminal states are designed moments. Every outcome states the current state and, where supported, offers a forward action: inspect evidence, improve the application, choose another task, revise work, dispute a factual error, or understand why access ended. Never use an outcome to shame or upsell.
 
-**Good UI.** "You don't meet this task's requirements yet. Missing: Docker. You *do* qualify for 4 similar tasks without Docker → [View them]. Gold members get a personalized learning path here → [See what's included]."
+**Good UI.** "Fit appears limited because no reviewed Docker evidence is available. You can still apply and explain related experience; the owner decides. Prefer a stronger fit? View tasks supported by your reviewed React and Node.js work."
 
-**Bad UI.** "Application blocked." with only an "Upgrade to Gold" button — burying the reason behind a paywall breaks FR-019 (the explanation itself is not a premium feature; the *guidance* is).
+**Bad UI.** "Application blocked by AI," a dead-end owner decision, or any outcome that hides its reason behind a plan or upgrade prompt.
 
 ---
 
@@ -64,13 +64,13 @@ Eight principles that govern every Share-k design decision. Each is grounded in 
 
 ---
 
-## 7. Limits are visible before the act
+## 7. Real constraints are visible before the act
 
-**Explanation.** Plan limits (orders/month, applications/day) and premium gating (matching, guidance, priority) are core business rules (FR-073–FR-082). The user must always see their remaining quota *before* starting a gated action, and tier-locked features must be visibly labeled with what tier unlocks them — no surprise walls after a filled form, no invisible premium features nobody discovers.
+**Explanation.** A contributor sees every real, contract-supported restriction before starting an action: a closed task, duplicate application, missing permission, terminal state, unavailable private workspace, unsupported file type, or another explicit backend rule. Legacy contributor daily attempts and plan restrictions are not part of the current experience. (DEC-031, DEC-035.)
 
-**Good UI.** The Apply button area reads "Apply (1 of 2 today remaining)". The matching panel for a Bronze owner shows a real preview frame: "AI contributor matching — available on Silver (top 5) and Gold (top 10). [Compare plans]".
+**Good UI.** A closed task replaces Apply with "Applications are closed" and a link back to suitable work. An applicant sees their application but cannot enter the accepted contributor's private workspace.
 
-**Bad UI.** Contributor fills a cover message, hits Apply, and only then gets "Daily limit reached." Or premium matching simply absent from Bronze owners' UI, so they never learn it exists.
+**Bad UI.** A contributor fills a cover message and only then learns the task is closed, or an applicant sees a private collaboration control that the backend will reject.
 
 ---
 
@@ -78,7 +78,7 @@ Eight principles that govern every Share-k design decision. Each is grounded in 
 
 **Explanation.** For contributors, Share-k is a growth loop: analyze → verify → contribute → reputation → better matches. The UI should make accumulation visible — verified skills gained, tasks completed, rating trend, gaps closed — so returning users see movement, and empty states show the *path*, not a void. This is what separates "trusted growth infrastructure" from "job board." (FR-021, FR-066–FR-072.)
 
-**Good UI.** Dashboard header: "2 skills verified this month · 3 tasks completed · rating 4.6 → 4.8". Empty reputation state: "Your reputation builds from approved contributions. Step 1: get your skill profile approved (in review, ~1 day) → Step 2: apply to a matched task."
+**Good UI.** Dashboard header: "2 skills reviewed this month · 3 contributions completed · rating 4.6 → 4.8". Empty record state: "Your contribution record grows from completed and reviewed work. Start by exploring tasks and comparing their requirements with your evidence."
 
 **Bad UI.** A dashboard of static lifetime totals with no deltas, and an empty state that says "No reputation data."
 

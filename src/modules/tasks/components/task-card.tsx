@@ -12,7 +12,7 @@ const DIFFICULTY_LABELS: Record<TaskCardDto["difficulty"], string> = {
 };
 
 export const FIT_META: Record<FitBucket, { label: string; className: string }> = {
-  strong: { label: "توافق قوي", className: "text-primary" },
+  strong: { label: "توافق قوي", className: "text-advisory-violet" },
   partial: { label: "توافق جزئي", className: "text-amber-600 dark:text-amber-400" },
   low: { label: "توافق منخفض", className: "text-muted-foreground" },
   unknown: { label: "التوافق غير معروف", className: "text-muted-foreground" },

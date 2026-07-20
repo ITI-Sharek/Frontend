@@ -38,13 +38,18 @@ export {
 export {
   ContributorGitHubRepositoriesPage,
   ContributorGitHubRepositoriesSection,
+  getRepositoryEvidenceAvailability,
   getUnavailableReasonMessage,
+} from "./components/contributor-github-repositories-section";
+export type {
+  RepositoryEvidenceAvailability,
 } from "./components/contributor-github-repositories-section";
 export type {
   GitHubAccountDto,
   GitHubIngestionStatus,
   GitHubOAuthCallbackPayload,
   GitHubOAuthStartDto,
+  GitHubRepositoryEvidenceAuthorization,
   GitHubRepositoryCommitSignalsDto,
   GitHubRepositoryContributionActivityDto,
   GitHubRepositoryDto,

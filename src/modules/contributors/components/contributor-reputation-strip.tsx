@@ -133,7 +133,7 @@ function PercentChip({ percent }: { percent: number }) {
       className={cn(
         "inline-block min-w-14 rounded-sm px-2 py-1 text-center font-mono text-[11px] leading-none tracking-[0.65px]",
         percent >= 60
-          ? "bg-primary/15 text-primary"
+          ? "bg-evidence-teal/15 text-evidence-teal"
           : "bg-border/60 text-muted-foreground",
       )}
     >

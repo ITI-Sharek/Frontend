@@ -7,7 +7,10 @@ import {
   ContributorProfileSettingsSection,
   useContributorProfileQuery,
 } from "@/modules/contributors";
-import { startGitHubConnect } from "@/modules/github";
+import {
+  disconnectGitHubAccount,
+  startGitHubConnect,
+} from "@/modules/github";
 import {
   LanguageSettingsSection,
   SettingsShell,
@@ -88,6 +91,13 @@ function SettingsPage() {
               onConnectGitHub={() =>
                 startGitHubConnect(`${ROUTES.settings}?section=github`)
               }
+              onDisconnectGitHub={async () => {
+                await disconnectGitHubAccount();
+                await profileQuery.refetch();
+              }}
+              onOpenRepositories={() => {
+                void navigate({ to: "/github/repositories" });
+              }}
             />
           ) : (
             <p className="text-sm text-muted-foreground">

@@ -64,6 +64,15 @@ Share-k must explicitly avoid:
 4. **Status, uncertainty, and next actions stay visible.** Waiting, rejection, review, and AI-assisted outcomes must state what happened, what influenced it, who acts next, and which recovery or escalation paths remain available.
 5. **Collaboration without competition.** Help people judge fit for a specific contribution without popularity mechanics, global rankings, marketplace pressure, or unsupported prestige signals.
 
+Contributor product policy:
+
+- AI-assisted fit is advisory. It communicates strong, partial, limited, unknown, or unavailable fit with supporting and missing evidence, confidence, and uncertainty. It never prevents an application solely because of an AI conclusion; the project owner retains the final selection decision.
+- Contributor applications have no legacy daily-attempt, reset-timing, plan-limit, or Gold-tier restriction unless a future approved and implemented contract explicitly introduces one.
+- GitHub OAuth establishes linked-account identity only. Read-only repository evidence requires a separate GitHub App installation and explicit repository selection, with understandable consent, visibility, synchronization, and revocation.
+- Contribution evidence is source-agnostic and may include repository evidence, owner attestation, attachments, descriptions, screenshots, demo links, and repository-free work where supported by approved contracts.
+- Contributor access is contextual: applicants receive their own application and permitted project information; private collaboration begins after owner acceptance; terminal states revoke capabilities where required. Admin remains the only account-level privilege.
+- AI explanations and public claims may use only evidence visible to their audience. Private repository details, filenames, excerpts, and source metadata never leak through public summaries or narratives.
+
 ## Accessibility & Inclusion
 
 Share-k conforms to WCAG 2.2 Level AA. All supported core journeys must be operable with keyboard-only input and usable with the documented assistive-technology and browser matrix, verified through automated checks and manual accessibility testing in both Arabic and English.

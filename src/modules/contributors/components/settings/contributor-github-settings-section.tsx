@@ -1,19 +1,22 @@
-import { Github, Loader2, Sparkles } from "lucide-react";
+import { Github, Loader2, Sparkles, Unlink } from "lucide-react";
 import { useState } from "react";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 
-import { useGenerateSkillsMutation } from "../../api/mutations/use-generate-skills-mutation";
 import type { ContributorProfileDto } from "../../types/contributor-profile.types";
 
 /** Settings → "GitHub": connection status, connect flow, AI skills analysis trigger. */
 export function ContributorGithubSettingsSection({
   profile,
   onConnectGitHub,
+  onDisconnectGitHub,
+  onOpenRepositories,
 }: {
   profile: ContributorProfileDto;
   onConnectGitHub: () => Promise<void>;
+  onDisconnectGitHub: () => Promise<void>;
+  onOpenRepositories: () => void;
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -43,8 +46,19 @@ export function ContributorGithubSettingsSection({
             )}
           </div>
         </div>
-        {!profile.githubStatus.connected && (
-          <GitHubConnectButton onConnectGitHub={onConnectGitHub} />
+        {profile.githubStatus.connected ? (
+          <div className="flex flex-wrap justify-end gap-2">
+            <GitHubConnectButton
+              label="تغيير الحساب"
+              onConnectGitHub={onConnectGitHub}
+            />
+            <GitHubDisconnectButton onDisconnectGitHub={onDisconnectGitHub} />
+          </div>
+        ) : (
+          <GitHubConnectButton
+            label="ربط الحساب"
+            onConnectGitHub={onConnectGitHub}
+          />
         )}
       </div>
 
@@ -56,15 +70,20 @@ export function ContributorGithubSettingsSection({
             يراجعها فريق المراجعة قبل اعتمادها — لا شيء يُنشر تلقائيًا.
           </p>
         </div>
-        <SkillsGenerator disabled={!profile.githubStatus.connected} />
+        <SkillsGenerator
+          disabled={!profile.githubStatus.connected}
+          onOpenRepositories={onOpenRepositories}
+        />
       </div>
     </div>
   );
 }
 
 function GitHubConnectButton({
+  label,
   onConnectGitHub,
 }: {
+  label: string;
   onConnectGitHub: () => Promise<void>;
 }) {
   const [isStarting, setIsStarting] = useState(false);
@@ -94,7 +113,7 @@ function GitHubConnectButton({
         ) : (
           <>
             <Github className="size-4" />
-            <span>ربط الحساب</span>
+            <span>{label}</span>
           </>
         )}
       </Button>
@@ -103,53 +122,80 @@ function GitHubConnectButton({
   );
 }
 
-function SkillsGenerator({ disabled }: { disabled: boolean }) {
-  const mutation = useGenerateSkillsMutation();
+function GitHubDisconnectButton({
+  onDisconnectGitHub,
+}: {
+  onDisconnectGitHub: () => Promise<void>;
+}) {
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (mutation.isSuccess) {
-    return (
-      <div className="flex items-start gap-3 text-right">
-        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-          <Loader2 className="size-4 animate-spin" />
-        </span>
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-semibold text-foreground">التحليل قيد التنفيذ</p>
-          <p className="text-xs leading-5 text-muted-foreground">
-            {mutation.data.message}
-          </p>
-        </div>
-      </div>
-    );
+  async function handleDisconnect() {
+    if (
+      !window.confirm(
+        "سيتم فصل وصول المستودعات وتسجيل الدخول عبر GitHub. هل تريد المتابعة؟",
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+    setIsDisconnecting(true);
+    try {
+      await onDisconnectGitHub();
+    } catch (disconnectError) {
+      setIsDisconnecting(false);
+      setError(
+        getApiErrorMessage(
+          disconnectError,
+          "تعذر فصل حساب GitHub. تأكد من وجود طريقة أخرى لتسجيل الدخول.",
+        ),
+      );
+    }
   }
 
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={isDisconnecting}
+        onClick={handleDisconnect}
+      >
+        {isDisconnecting ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Unlink className="size-4" />
+        )}
+        <span>{isDisconnecting ? "جارٍ الفصل..." : "فصل الحساب"}</span>
+      </Button>
+      {error && <p className="max-w-xs text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+function SkillsGenerator({
+  disabled,
+  onOpenRepositories,
+}: {
+  disabled: boolean;
+  onOpenRepositories: () => void;
+}) {
   return (
     <div className="flex flex-col items-start gap-2">
       <Button
         type="button"
         size="sm"
-        disabled={disabled || mutation.isPending}
-        onClick={() => mutation.mutate()}
+        disabled={disabled}
+        onClick={onOpenRepositories}
       >
-        {mutation.isPending ? (
-          <>
-            <Loader2 className="size-4 animate-spin" />
-            <span>جارٍ البدء...</span>
-          </>
-        ) : (
-          <>
-            <Sparkles className="size-4" />
-            <span>بدء التحليل</span>
-          </>
-        )}
+        <Sparkles className="size-4" />
+        <span>اختيار المستودعات وبدء التحليل</span>
       </Button>
       {disabled && (
         <p className="text-xs text-muted-foreground">
           اربط حساب GitHub أولاً لبدء التحليل.
-        </p>
-      )}
-      {mutation.isError && (
-        <p className="text-xs text-destructive">
-          {getApiErrorMessage(mutation.error, "تعذر بدء التحليل. حاول مرة أخرى.")}
         </p>
       )}
     </div>

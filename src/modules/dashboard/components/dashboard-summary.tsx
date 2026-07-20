@@ -43,7 +43,7 @@ export function DashboardSummary({
               {growth.completedCount} مساهمات مكتملة · معدل نجاح{" "}
               {growth.successRate}٪
             </p>
-            <p className="text-sm text-primary">
+            <p className="text-sm text-evidence-teal">
               +{growth.skillsVerifiedThisMonth} مهارة موثقة هذا الشهر
             </p>
           </div>

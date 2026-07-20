@@ -30,7 +30,7 @@ export function AdminSkillReviewQueue({
     <PageContainer>
       <PageHeader
         title="مراجعة المهارات المعلقة"
-        description="ابدأ بالمساهم الذي انتظر أطول وقت. لا تدخل هذه المهارات في الأهلية قبل اعتمادها."
+        description="ابدأ بالمساهم الذي انتظر أطول وقت، وافحص الأدلة والشكوك قبل توثيق المهارة. التحليل الآلي استشاري والقرار للمراجع البشري."
       />
 
       <dl className="mt-6 grid overflow-hidden rounded-card border border-border bg-card sm:grid-cols-3">

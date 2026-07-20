@@ -54,4 +54,23 @@ describe("workspace navigation", () => {
       false,
     );
   });
+
+  it("links every implemented admin section to a distinct route", () => {
+    const navigation = getAdminNavigation({
+      pathname: ROUTES.adminProjectOwners,
+      unreadCount: 0,
+      pendingReviewsCount: 2,
+    });
+
+    expect(navigation.find((item) => item.to === ROUTES.adminProjectOwners)).toMatchObject({
+      label: "ملاك المشاريع",
+      active: true,
+    });
+    expect(navigation.some((item) => item.to === ROUTES.adminProfileFields)).toBe(true);
+
+    const enabledRoutes = navigation
+      .filter((item) => !item.disabled)
+      .map((item) => item.to);
+    expect(new Set(enabledRoutes).size).toBe(enabledRoutes.length);
+  });
 });

@@ -6,6 +6,7 @@ import {
   Github,
   LayoutDashboard,
   ListTodo,
+  PanelsTopLeft,
   Settings,
   UserRound,
   Users,
@@ -13,7 +14,7 @@ import {
 
 import { ROUTES } from "@/config/routes.config";
 
-import type { AppShellNavItem, AppShellPlanChip } from "./app-shell";
+import type { AppShellNavItem } from "./app-shell";
 
 interface MemberNavigationOptions {
   role: "owner" | "contributor";
@@ -131,6 +132,18 @@ export function getAdminNavigation({
       badge: pendingReviewsCount,
     },
     {
+      label: "مجالات المساهمين",
+      to: ROUTES.adminProfileFields,
+      icon: PanelsTopLeft,
+      active: isActivePath(pathname, ROUTES.adminProfileFields),
+    },
+    {
+      label: "ملاك المشاريع",
+      to: ROUTES.adminProjectOwners,
+      icon: BriefcaseBusiness,
+      active: isActivePath(pathname, ROUTES.adminProjectOwners),
+    },
+    {
       label: "الإشعارات",
       to: ROUTES.adminNotifications,
       icon: Bell,
@@ -146,10 +159,4 @@ export function getAdminNavigation({
       hideOnMobile: true,
     },
   ];
-}
-
-export function getMemberPlanChip(role: "owner" | "contributor"): AppShellPlanChip {
-  return role === "owner"
-    ? { planName: "Bronze", quotaLabel: "0 من 10 طلبات مساهمة هذا الشهر" }
-    : { planName: "Bronze", quotaLabel: "1 من 2 طلبات اليوم" };
 }

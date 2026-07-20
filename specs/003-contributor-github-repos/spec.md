@@ -4,11 +4,22 @@
 
 **Created**: 2026-07-13
 
-**Status**: Draft
+**Status**: Implemented with OAuth repository selection and analysis consent
 
 **Input**: User description: "Contributor-facing GitHub repositories list and per-repository statistics view"
 
 **Grounded in**: `docs/governance/decision-log.md` DEC-029 (one-off exception to DEC-028); `docs/design/screen-inventory.md` sections 1.8, 2.1, 3.1, and 3.7 (profile/dashboard, GitHub connection, skill/repo LTR-in-RTL conventions); `docs/design/user-journeys.md` CJ-1 (GitHub connection and analysis context); backend GitHub endpoints already implemented for account status, repository listing, and repository statistics.
+
+> **DEC-032 correction (2026-07-20):** this feature may continue to expose the backend's current repository diagnostics, but it is not the final evidence-consent model. GitHub OAuth links identity only. Production evidence authorization requires GitHub App installation plus explicit repository selection, visibility, consent, synchronization, revocation, and redaction contracts. Any requirement below that treats OAuth scope or the returned repository list as sufficient evidence authorization is superseded.
+
+> **MVP implementation decision (2026-07-21):** the authenticated repository
+> OAuth flow is distinct from social sign-in and currently requests GitHub
+> repository scope. For the MVP, contributors may select up to 10 repositories
+> returned through that grant and accept a dedicated consent checkbox to start
+> the implemented backend skill-generation workflow. The backend revalidates
+> every selected repository through the connected token. A future GitHub App
+> may narrow provider-side repository access further, but it no longer blocks
+> the current analysis feature.
 
 **Scope note**: DEC-029 permits this feature to proceed now while `001-contributor-profile-redirect` remains in flight, but only as additive work that does not modify files already touched by 001. This feature adds a contributor-facing view for the contributor's own connected GitHub repositories and statistics. It does not import repositories into projects, edit repository metadata, or perform background synchronization.
 

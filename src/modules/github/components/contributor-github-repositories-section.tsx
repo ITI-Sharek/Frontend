@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  FileSearch,
   GitBranch,
   GitCommit,
   GitFork,
@@ -17,13 +18,13 @@ import {
   LockKeyhole,
   MousePointerClick,
   RefreshCw,
-  Sparkles,
   Star,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 
 import { useGitHubAccountQuery } from "../api/queries/use-github-account-query";
 import { useGitHubRepositoriesQuery } from "../api/queries/use-github-repositories-query";
@@ -33,6 +34,7 @@ import { useSkillProfileGenerationQuery } from "../../skill-profiles/api/queries
 import type {
   GitHubAccountDto,
   GitHubRepositoryDto,
+  GitHubRepositoryEvidenceAuthorization,
   GitHubRepositoryPageDto,
   GitHubRepositoryStatisticsDto,
   GitHubRepositoryUnavailableReason,
@@ -44,6 +46,9 @@ import type {
 
 const REPOSITORY_PAGE_SIZE = 12;
 const MAX_SELECTED_REPOSITORIES = 10;
+const CURRENT_EVIDENCE_AUTHORIZATION: GitHubRepositoryEvidenceAuthorization = {
+  kind: "oauth_repository_access",
+};
 
 type AccountState =
   | { status: "loading" }
@@ -82,6 +87,37 @@ type SkillGenerationState =
     }
   | { status: "error"; message?: string };
 
+export type RepositoryEvidenceAvailability =
+  | { available: true }
+  | { available: false; reason: string };
+
+export function getRepositoryEvidenceAvailability(
+  repository: GitHubRepositoryDto,
+  authorization: GitHubRepositoryEvidenceAuthorization,
+): RepositoryEvidenceAvailability {
+  if (authorization.kind === "oauth_identity_only") {
+    return {
+      available: false,
+      reason:
+        "هذا الاتصال يثبت الهوية فقط ولا يتضمن صلاحية قراءة المستودعات للتحليل. أعد ربط GitHub من صفحة المستودعات.",
+    };
+  }
+
+  if (authorization.kind === "oauth_repository_access") {
+    return { available: true };
+  }
+
+  if (!authorization.repositoryFullNames.includes(repository.fullName)) {
+    return {
+      available: false,
+      reason:
+        "هذا المستودع غير موجود ضمن المستودعات المختارة في تثبيت GitHub App.",
+    };
+  }
+
+  return { available: true };
+}
+
 export interface ContributorGitHubRepositoriesSectionProps {
   accountState: AccountState;
   repositoriesState: RepositoriesState;
@@ -89,12 +125,15 @@ export interface ContributorGitHubRepositoriesSectionProps {
   selectedForGenerationFullNames?: string[];
   statisticsState: StatisticsState;
   skillGenerationState?: SkillGenerationState;
+  evidenceAuthorization?: GitHubRepositoryEvidenceAuthorization;
+  evidenceConsentAccepted?: boolean;
   onConnectGitHub: () => void;
   onRetryAccount?: () => void;
   onRetryRepositories?: () => void;
   onRetryStatistics?: () => void;
   onSelectRepository: (fullName: string) => void;
   onToggleRepositoryForGeneration?: (fullName: string) => void;
+  onEvidenceConsentChange?: (accepted: boolean) => void;
   onStartSkillGeneration?: () => void;
   onNextRepositoriesPage: () => void;
   onPreviousRepositoriesPage: () => void;
@@ -122,6 +161,7 @@ export function ContributorGitHubRepositoriesPage({
     [],
   );
   const [generationId, setGenerationId] = useState<string | null>(null);
+  const [evidenceConsentAccepted, setEvidenceConsentAccepted] = useState(false);
   const startGenerationMutation = useStartSkillProfileGenerationMutation();
   const generationQuery = useSkillProfileGenerationQuery({
     generationId: generationId ?? "",
@@ -180,6 +220,8 @@ export function ContributorGitHubRepositoriesPage({
         mutationError: startGenerationMutation.error,
         generation: generationQuery.data,
       })}
+      evidenceAuthorization={CURRENT_EVIDENCE_AUTHORIZATION}
+      evidenceConsentAccepted={evidenceConsentAccepted}
       onConnectGitHub={() => {
         onConnectGitHub(returnTo);
       }}
@@ -194,6 +236,19 @@ export function ContributorGitHubRepositoriesPage({
       }}
       onSelectRepository={setSelectedFullName}
       onToggleRepositoryForGeneration={(fullName) => {
+        const repository = repositoriesQuery.data?.items.find(
+          (item) => item.fullName === fullName,
+        );
+        if (
+          !repository ||
+          !getRepositoryEvidenceAvailability(
+            repository,
+            CURRENT_EVIDENCE_AUTHORIZATION,
+          ).available
+        ) {
+          return;
+        }
+
         setSelectedForGeneration((current) =>
           toggleRepositorySelection(
             current,
@@ -201,11 +256,23 @@ export function ContributorGitHubRepositoriesPage({
             MAX_SELECTED_REPOSITORIES,
           ),
         );
+        setEvidenceConsentAccepted(false);
       }}
+      onEvidenceConsentChange={setEvidenceConsentAccepted}
       onStartSkillGeneration={() => {
+        if (!evidenceConsentAccepted) {
+          return;
+        }
+
+        const authorizedRepositories = getAuthorizedRepositoryFullNames(
+          selectedForGeneration,
+          CURRENT_EVIDENCE_AUTHORIZATION,
+        );
+        if (authorizedRepositories.length === 0) return;
+
         startGenerationMutation.mutate(
           {
-            repositories: selectedForGeneration.map((fullName) => ({
+            repositories: authorizedRepositories.map((fullName) => ({
               fullName,
             })),
           },
@@ -233,12 +300,15 @@ export function ContributorGitHubRepositoriesSection({
   selectedForGenerationFullNames = [],
   statisticsState,
   skillGenerationState = { status: "idle" },
+  evidenceAuthorization = CURRENT_EVIDENCE_AUTHORIZATION,
+  evidenceConsentAccepted = false,
   onConnectGitHub,
   onRetryAccount,
   onRetryRepositories,
   onRetryStatistics,
   onSelectRepository,
   onToggleRepositoryForGeneration,
+  onEvidenceConsentChange,
   onStartSkillGeneration,
   onNextRepositoriesPage,
   onPreviousRepositoriesPage,
@@ -251,8 +321,8 @@ export function ContributorGitHubRepositoriesSection({
           مستودعاتي على GitHub
         </h1>
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          راجع المستودعات التي منحت Share-k صلاحية قراءتها وشاهد إشارات
-          النشاط والالتزامات الحديثة لكل مستودع.
+          راجع المستودعات المرتبطة بحسابك وشاهد إشارات النشاط، ثم اختر بنفسك
+          المستودعات التي تريد استخدامها لإنشاء أدلة مهارية.
         </p>
       </header>
 
@@ -260,18 +330,18 @@ export function ContributorGitHubRepositoriesSection({
         <StateCard
           icon={<RefreshCw className="size-5 animate-spin" aria-hidden />}
           title="جارٍ التحقق من اتصال GitHub..."
-          description="لن نحمّل المستودعات قبل موافقتك على ربط مستودعات GitHub."
+          description="لن نحمّل بيانات GitHub قبل موافقتك على ربط الحساب."
         />
       ) : null}
 
       {accountState.status === "not-connected" ? (
         <StateCard
           icon={<Github className="size-5" aria-hidden />}
-          title="اربط مستودعات GitHub"
-          description="هذا ربط منفصل بعد تسجيل الدخول. سنطلب صلاحية قراءة المستودعات العامة والخاصة لاستخدامها كدليل مهاري."
+          title="اربط حساب GitHub"
+          description="يؤكد OAuth الحساب المرتبط ويمنح Sharek وصولاً للقراءة إلى المستودعات التي يسمح بها التفويض. لن نحلل أي مستودع حتى تختاره وتوافق صراحةً."
           action={
             <Button type="button" onClick={onConnectGitHub}>
-              السماح بقراءة المستودعات
+              ربط حساب GitHub
             </Button>
           }
         />
@@ -298,10 +368,13 @@ export function ContributorGitHubRepositoriesSection({
           selectedForGenerationFullNames={selectedForGenerationFullNames}
           statisticsState={statisticsState}
           skillGenerationState={skillGenerationState}
+          evidenceAuthorization={evidenceAuthorization}
+          evidenceConsentAccepted={evidenceConsentAccepted}
           onRetryRepositories={onRetryRepositories}
           onRetryStatistics={onRetryStatistics}
           onSelectRepository={onSelectRepository}
           onToggleRepositoryForGeneration={onToggleRepositoryForGeneration}
+          onEvidenceConsentChange={onEvidenceConsentChange}
           onStartSkillGeneration={onStartSkillGeneration}
           onNextRepositoriesPage={onNextRepositoriesPage}
           onPreviousRepositoriesPage={onPreviousRepositoriesPage}
@@ -318,10 +391,13 @@ function ConnectedRepositoriesView({
   selectedForGenerationFullNames,
   statisticsState,
   skillGenerationState,
+  evidenceAuthorization,
+  evidenceConsentAccepted,
   onRetryRepositories,
   onRetryStatistics,
   onSelectRepository,
   onToggleRepositoryForGeneration,
+  onEvidenceConsentChange,
   onStartSkillGeneration,
   onNextRepositoriesPage,
   onPreviousRepositoriesPage,
@@ -332,10 +408,13 @@ function ConnectedRepositoriesView({
   selectedForGenerationFullNames: string[];
   statisticsState: StatisticsState;
   skillGenerationState: SkillGenerationState;
+  evidenceAuthorization: GitHubRepositoryEvidenceAuthorization;
+  evidenceConsentAccepted: boolean;
   onRetryRepositories?: () => void;
   onRetryStatistics?: () => void;
   onSelectRepository: (fullName: string) => void;
   onToggleRepositoryForGeneration?: (fullName: string) => void;
+  onEvidenceConsentChange?: (accepted: boolean) => void;
   onStartSkillGeneration?: () => void;
   onNextRepositoriesPage: () => void;
   onPreviousRepositoriesPage: () => void;
@@ -345,7 +424,7 @@ function ConnectedRepositoriesView({
       <StateCard
         icon={<RefreshCw className="size-5 animate-spin" aria-hidden />}
         title="جارٍ تحميل مستودعاتك..."
-        description="نعرض المستودعات العامة والخاصة التي أعادها GitHub لحسابك."
+        description="نحمّل المستودعات المتاحة عبر اتصال OAuth الحالي لتختار ما تريد مراجعته أو تحليله."
       />
     );
   }
@@ -389,7 +468,7 @@ function ConnectedRepositoriesView({
               المستودعات المتصلة
             </h2>
             <p className="text-sm text-muted-foreground">
-              متصل بحساب{" "}
+              هوية GitHub مرتبطة بحساب{" "}
               <span dir="ltr" className="font-mono text-foreground">
                 @{account.username}
               </span>
@@ -406,9 +485,14 @@ function ConnectedRepositoriesView({
           </div>
         </div>
 
+        <EvidenceAuthorizationNotice authorization={evidenceAuthorization} />
+
         <SkillGenerationPanel
           selectedCount={selectedForGenerationFullNames.length}
           skillGenerationState={skillGenerationState}
+          evidenceAuthorization={evidenceAuthorization}
+          evidenceConsentAccepted={evidenceConsentAccepted}
+          onEvidenceConsentChange={onEvidenceConsentChange}
           onStartSkillGeneration={onStartSkillGeneration}
         />
 
@@ -425,6 +509,10 @@ function ConnectedRepositoriesView({
                 selectedForGenerationFullNames.length >=
                 MAX_SELECTED_REPOSITORIES
               }
+              evidenceAvailability={getRepositoryEvidenceAvailability(
+                repository,
+                evidenceAuthorization,
+              )}
               onSelect={() => onSelectRepository(repository.fullName)}
               onToggleForGeneration={
                 onToggleRepositoryForGeneration
@@ -448,6 +536,46 @@ function ConnectedRepositoriesView({
         statisticsState={statisticsState}
         onRetryStatistics={onRetryStatistics}
       />
+    </div>
+  );
+}
+
+function EvidenceAuthorizationNotice({
+  authorization,
+}: {
+  authorization: GitHubRepositoryEvidenceAuthorization;
+}) {
+  const hasRepositoryAccess = authorization.kind !== "oauth_identity_only";
+
+  return (
+    <div
+      className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4"
+      role="note"
+    >
+      {hasRepositoryAccess ? (
+        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+      ) : (
+        <LockKeyhole
+          className="mt-0.5 size-5 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+      )}
+      <div className="space-y-1">
+        <p className="text-sm font-semibold text-foreground">
+          {hasRepositoryAccess
+            ? authorization.kind === "github_app_selected"
+              ? "تفويض الأدلة عبر GitHub App نشط"
+              : "وصول OAuth للمستودعات نشط"
+            : "OAuth مرتبط للهوية والمراجعة فقط"}
+        </p>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {hasRepositoryAccess
+            ? authorization.kind === "github_app_selected"
+              ? "يمكن استخدام المستودعات التي اخترتها صراحةً في تثبيت GitHub App فقط."
+              : "يمكنك اختيار مستودعات محددة لتحليلها. الوصول للقراءة فقط، ولن يبدأ التحليل دون موافقتك."
+            : "هذا الاتصال لا يتضمن صلاحية تحليل المستودعات. أعد ربط GitHub باستخدام مسار المستودعات للمتابعة."}
+        </p>
+      </div>
     </div>
   );
 }
@@ -503,12 +631,14 @@ function RepositoryCard({
   onSelect,
   isSelectedForGeneration,
   selectionLimitReached,
+  evidenceAvailability,
   onToggleForGeneration,
 }: {
   repository: GitHubRepositoryDto;
   isSelected: boolean;
   isSelectedForGeneration: boolean;
   selectionLimitReached: boolean;
+  evidenceAvailability: RepositoryEvidenceAvailability;
   onSelect: () => void;
   onToggleForGeneration?: () => void;
 }) {
@@ -571,7 +701,15 @@ function RepositoryCard({
               type="button"
               size="sm"
               variant={isSelectedForGeneration ? "primary" : "outline"}
-              disabled={selectionLimitReached && !isSelectedForGeneration}
+              disabled={
+                !evidenceAvailability.available ||
+                (selectionLimitReached && !isSelectedForGeneration)
+              }
+              aria-describedby={
+                evidenceAvailability.available
+                  ? undefined
+                  : `repository-evidence-${repository.githubRepoId}`
+              }
               onClick={(event) => {
                 event.stopPropagation();
                 onToggleForGeneration();
@@ -580,15 +718,26 @@ function RepositoryCard({
               {isSelectedForGeneration ? (
                 <CheckCircle2 className="size-4" aria-hidden />
               ) : (
-                <Sparkles className="size-4" aria-hidden />
+                <FileSearch className="size-4" aria-hidden />
               )}
               <span>
-                {isSelectedForGeneration
-                  ? "محدد للتحليل"
-                  : "اختيار للتحليل"}
+                {evidenceAvailability.available
+                  ? isSelectedForGeneration
+                    ? "محدد للتحليل"
+                    : "اختيار للتحليل"
+                  : "غير متاح للتحليل"}
               </span>
             </Button>
           </div>
+        ) : null}
+
+        {!evidenceAvailability.available ? (
+          <p
+            id={`repository-evidence-${repository.githubRepoId}`}
+            className="text-xs leading-5 text-muted-foreground"
+          >
+            {evidenceAvailability.reason}
+          </p>
         ) : null}
 
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -679,10 +828,16 @@ function RepositoryCard({
 function SkillGenerationPanel({
   selectedCount,
   skillGenerationState,
+  evidenceAuthorization,
+  evidenceConsentAccepted,
+  onEvidenceConsentChange,
   onStartSkillGeneration,
 }: {
   selectedCount: number;
   skillGenerationState: SkillGenerationState;
+  evidenceAuthorization: GitHubRepositoryEvidenceAuthorization;
+  evidenceConsentAccepted: boolean;
+  onEvidenceConsentChange?: (accepted: boolean) => void;
   onStartSkillGeneration?: () => void;
 }) {
   const isBusy =
@@ -690,19 +845,26 @@ function SkillGenerationPanel({
     skillGenerationState.status === "queued" ||
     skillGenerationState.status === "collecting_evidence" ||
     skillGenerationState.status === "analyzing";
+  const hasEvidenceAuthorization =
+    evidenceAuthorization.kind !== "oauth_identity_only";
   const canStart =
-    selectedCount > 0 && !isBusy && onStartSkillGeneration !== undefined;
+    hasEvidenceAuthorization &&
+    evidenceConsentAccepted &&
+    selectedCount > 0 &&
+    !isBusy &&
+    onStartSkillGeneration !== undefined;
 
   return (
     <Card className="flex flex-col gap-3 border-primary/30 bg-primary/5 p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-semibold text-foreground">
-            تحليل المهارات من المستودعات المختارة
+            أدلة المهارات من مستودعات GitHub
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            اختر حتى 10 مستودعات قوية. سنرسل الأدلة المختارة للذكاء الاصطناعي
-            ثم تُحفظ المهارات في حالة انتظار المراجعة.
+            {hasEvidenceAuthorization
+              ? "اختر حتى 10 مستودعات. التحليل آلي واستشاري، وتبقى المهارات المستنتجة بانتظار مراجعة الفريق."
+              : "أعد ربط GitHub باستخدام تفويض المستودعات، ثم اختر المستودعات التي تريد تحليلها."}
           </p>
         </div>
         <Button
@@ -713,13 +875,38 @@ function SkillGenerationPanel({
           {isBusy ? (
             <RefreshCw className="size-4 animate-spin" aria-hidden />
           ) : (
-            <Sparkles className="size-4" aria-hidden />
+            <FileSearch className="size-4" aria-hidden />
           )}
           <span>بدء تحليل المهارات</span>
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      {hasEvidenceAuthorization ? (
+        <div className="flex items-start gap-3 rounded-md border border-border bg-background/70 p-3">
+          <Checkbox
+            id="github-evidence-consent"
+            className="mt-1 size-5"
+            checked={evidenceConsentAccepted}
+            onCheckedChange={(checked) =>
+              onEvidenceConsentChange?.(checked === true)
+            }
+          />
+          <label
+            htmlFor="github-evidence-consent"
+            className="text-sm leading-6 text-foreground"
+          >
+            أوافق على تحليل المستودعات المحددة لإنشاء أدلة مهارية. لن تصبح
+            الملفات أو التفاصيل الخاصة عامة، ولن تُنشر المهارات المستنتجة قبل
+            المراجعة.
+          </label>
+        </div>
+      ) : null}
+
+      <div
+        className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+        role="status"
+        aria-live="polite"
+      >
         <StatusPill label={`${formatNumber(selectedCount)} محدد`} />
         <SkillGenerationStatusPill state={skillGenerationState} />
       </div>
@@ -1327,6 +1514,23 @@ export function toggleRepositorySelection(
     return current;
   }
   return [...current, fullName];
+}
+
+export function getAuthorizedRepositoryFullNames(
+  selectedFullNames: string[],
+  authorization: GitHubRepositoryEvidenceAuthorization,
+): string[] {
+  if (authorization.kind === "oauth_identity_only") {
+    return [];
+  }
+
+  if (authorization.kind === "oauth_repository_access") {
+    return selectedFullNames;
+  }
+
+  return selectedFullNames.filter((fullName) =>
+    authorization.repositoryFullNames.includes(fullName),
+  );
 }
 
 function isGitHubAccountNotConnectedError(error: Error | null) {

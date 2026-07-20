@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,7 @@ import {
   getSocialAuthProviderLabel,
   readPendingSocialAuth,
   readSocialAuthCallbackResult,
+  startSocialAuth,
 } from "@/modules/auth/services/social-auth.service";
 import type {
   SocialAuthIntent,
@@ -22,6 +24,7 @@ import {
   clearPendingGitHubConnect,
   completeGitHubOAuth,
   readPendingGitHubConnect,
+  startGitHubConnect,
 } from "@/modules/github";
 import { storageService } from "@/services/storage.service";
 import { Button } from "@/shared/components/ui/button";
@@ -48,6 +51,25 @@ function AuthCallbackPage() {
     provider: SocialAuthProvider;
     intent: SocialAuthIntent;
   } | null>(null);
+  const [githubRetry, setGitHubRetry] = useState<
+    | { kind: "connect"; returnTo: string }
+    | { kind: "social"; intent: SocialAuthIntent; role: "owner" | "contributor" }
+    | null
+  >(null);
+
+  async function retryGitHubWithAccountPicker() {
+    if (!githubRetry) return;
+    setErrorMessage(null);
+    try {
+      if (githubRetry.kind === "connect") {
+        await startGitHubConnect(githubRetry.returnTo);
+      } else {
+        await startSocialAuth("github", githubRetry.intent, githubRetry.role);
+      }
+    } catch {
+      setErrorMessage("تعذر إعادة فتح اختيار حساب GitHub. حاول مرة أخرى.");
+    }
+  }
 
   async function navigateAfterSocialAuth(
     user: AuthUserDto,
@@ -144,12 +166,49 @@ function AuthCallbackPage() {
         if (!isActive) return;
 
         await navigateAfterSocialAuth(user, { ensureContributorProfile: true });
-      } catch {
+      } catch (error) {
+        const pendingConnect = readPendingGitHubConnect();
+        const pendingSocial = readPendingSocialAuth();
+        const errorCode = isAxiosError(error)
+          ? (error.response?.data as { code?: unknown } | undefined)?.code
+          : undefined;
+        const isGitHubAccountConflict =
+          errorCode === "GITHUB_ACCOUNT_TAKEN" ||
+          errorCode === "AUTH_PROVIDER_ACCOUNT_ALREADY_LINKED" ||
+          errorCode === "GITHUB_SIGN_IN_EMAIL_CONFLICT" ||
+          errorCode === "GITHUB_AUTH_ACCOUNT_MISMATCH";
+
+        if (isGitHubAccountConflict) {
+          if (pendingConnect) {
+            setGitHubRetry({
+              kind: "connect",
+              returnTo: pendingConnect.returnTo,
+            });
+          } else if (pendingSocial?.provider === "github") {
+            setGitHubRetry({
+              kind: "social",
+              intent: pendingSocial.intent,
+              role: pendingSocial.role ?? "contributor",
+            });
+          }
+        }
         clearPendingSocialAuth();
         clearPendingGitHubConnect();
-        storageService.clearTokens();
+        if (!pendingConnect) {
+          storageService.clearTokens();
+        }
         if (isActive) {
-          setErrorMessage("تعذر إكمال تسجيل الدخول عبر مزود الحساب.");
+          const githubConflictMessage =
+            errorCode === "GITHUB_SIGN_IN_EMAIL_CONFLICT"
+              ? "يوجد حساب Sharek بهذا البريد، لكن حساب GitHub المختار غير مرتبط به. سجّل الدخول إلى Sharek أولًا ثم اربط GitHub من الإعدادات، أو اختر حساب GitHub آخر."
+              : errorCode === "GITHUB_AUTH_ACCOUNT_MISMATCH"
+                ? "حساب Sharek هذا مرتبط بحساب GitHub مختلف. اختر حساب GitHub المتصل به، أو سجّل الدخول يدويًا لتغيير الربط."
+                : "حساب GitHub الذي اخترته مرتبط بحساب Sharek آخر. اختر حساب GitHub مختلفًا للمتابعة.";
+          setErrorMessage(
+            isGitHubAccountConflict
+              ? githubConflictMessage
+              : "تعذر إكمال تسجيل الدخول عبر مزود الحساب.",
+          );
         }
       }
     }
@@ -182,6 +241,14 @@ function AuthCallbackPage() {
         ) : errorMessage ? (
           <div className="flex w-full flex-col items-center gap-4">
             <p className="text-sm text-destructive">{errorMessage}</p>
+            {githubRetry && (
+              <Button
+                type="button"
+                onClick={() => void retryGitHubWithAccountPicker()}
+              >
+                اختيار حساب GitHub آخر
+              </Button>
+            )}
             <Button asChild variant="outline">
               <Link to={ROUTES.login}>العودة لتسجيل الدخول</Link>
             </Button>

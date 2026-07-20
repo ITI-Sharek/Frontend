@@ -1,5 +1,7 @@
 # Share-k — Product State Model **v2 (approved)**
 
+> **Contributor policy correction (DEC-030–DEC-035, 2026-07-20):** the task/application AI gate, `eligible`/`ineligible` contributor outcomes, `BLOCKED_INELIGIBLE` as an AI conclusion, contributor quotas, and Gold-only contributor guidance in this document are superseded. Use advisory fit, owner final selection, contextual access, and the contract-gated journey in `contributor-experience-brief.md`. The remaining state model must be reconciled before task/application implementation.
+
 > **Version note**: v2 supersedes the v1 ERD-only model (DEC-021, 2026-07-12). The states below are the **approved product states** — the ERD/schema must migrate to match (`bmad/_bmad-output/ERD/_MVP-DECISION-DELTA.md`). States previously tagged [Proposed] that were approved are now normative; anything still not approved was dropped.
 >
 > Visual priority: **Blocking** (owns the screen) > **Attention** (badge/banner) > **Info** (chip) > **Quiet** (muted/history).
