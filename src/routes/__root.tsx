@@ -9,10 +9,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sharek" },
+      { title: "Sharek — مساهمات حقيقية، وسجل مهني قائم على الدليل" },
       {
         name: "description",
-        content: "Sharek — community for developers and technical experts",
+        content:
+          "Sharek ينظم التعاون في المشاريع مفتوحة المصدر ويحفظ سجلاً مهنياً موثوقاً للمساهمات المكتملة والأدلة التي تدعمها.",
       },
       { name: "theme-color", content: "#ffffff" },
     ],

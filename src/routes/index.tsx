@@ -3,14 +3,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery, useLogoutMutation } from "@/modules/auth";
 import {
+  CollaborationSpaceSection,
+  ContributionRecordSection,
   CtaSection,
   FeaturesSection,
   HeroSection,
   HomeHeader,
   HowItWorksSection,
-  PlansSection,
   RolesSection,
-  TasksMarqueeSection,
 } from "@/modules/home";
 import type { HomeHeaderAuthUser } from "@/modules/home";
 import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
@@ -43,13 +43,13 @@ function HomePage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <HomeHeader user={headerUser} onLogout={handleLogout} />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <HeroSection />
         <HowItWorksSection />
         <FeaturesSection />
+        <CollaborationSpaceSection />
         <RolesSection />
-        <TasksMarqueeSection />
-        <PlansSection />
+        <ContributionRecordSection />
         <CtaSection />
       </main>
       <SiteFooter />

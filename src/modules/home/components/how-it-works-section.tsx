@@ -1,70 +1,84 @@
-import { motion } from "framer-motion";
-import { Github, GitPullRequest, ScanSearch } from "lucide-react";
+import {
+  ClipboardCheck,
+  Compass,
+  MessagesSquare,
+  ShieldCheck,
+} from "lucide-react";
 
-const STEPS = [
+import { JourneyPathIllustration } from "./illustrations/journey-path-illustration";
+
+const JOURNEY = [
   {
-    icon: Github,
-    title: "اربط حساب GitHub",
+    icon: Compass,
+    title: "اكتشف عملاً مناسباً وافهم المطلوب",
     description:
-      "سجّل واربط حسابك؛ تجلب المنصّة مستودعاتك ولغاتك ونشاطك الفعلي كدليل على مهاراتك.",
+      "تعرّف على المشروع، نطاق المهمة، طريقة التعاون، والأدلة المطلوبة. يعرض التقييم المساعد ما يدعم الملاءمة وما ينقصها دون أن يمنعك من التقديم.",
   },
   {
-    icon: ScanSearch,
-    title: "الذكاء الاصطناعي يبني ملف مهاراتك",
+    icon: ClipboardCheck,
+    title: "قدّم طلبك وتلقَّ قرار المالك",
     description:
-      "يحلّل وكيل الذكاء الاصطناعي الأدلة وينشئ ملفًا موثّقًا بمستويات واضحة، يراجعه مشرف قبل اعتماده.",
+      "يصل طلب واضح إلى صاحب المشروع مع السياق المناسب. التحليل الآلي يشرح الإشارات وعدم اليقين؛ صاحب المشروع يتخذ قرار الاختيار النهائي.",
   },
   {
-    icon: GitPullRequest,
-    title: "ساهم وابنِ سمعتك",
+    icon: MessagesSquare,
+    title: "تعاون وأنجز العمل المتفق عليه",
     description:
-      "قدّم على مهام تناسب مستواك، سلّم عبر Pull Request، واحصل على تقييم يرفع سمعتك الموثّقة.",
+      "بعد القبول تبدأ مساحة التعاون الخاصة بالمساهمة: مهمة محددة، نقاش مرتبط بها، حالات واضحة، وتسليم يمكن مراجعته.",
   },
-];
+  {
+    icon: ShieldCheck,
+    title: "قدّم الدليل وابنِ سجلاً موثوقاً",
+    description:
+      "تُراجع النتيجة ومصادرها ودرجة ظهورها. تتحول المساهمة المكتملة إلى سجل مهني يحفظ السياق من دون كشف معلومات المصدر الخاصة.",
+  },
+] as const;
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 py-20">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="mb-12 flex flex-col items-center gap-3 text-center">
-          <span className="text-[13px] font-medium tracking-wide text-primary">
-            كيف تعمل المنصّة؟
-          </span>
-          <h2 className="max-w-lg text-3xl font-bold text-foreground">
-            ثلاث خطوات من التسجيل إلى أول مساهمة معتمدة
-          </h2>
-        </div>
+    <section id="journey" className="scroll-mt-24 py-20 sm:py-28">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+              الرحلة تبدأ بالعمل المناسب، وتنتهي بأثرٍ مهني دائم.
+            </h2>
+            <p className="mt-5 max-w-[58ch] text-base leading-8 text-muted-foreground">
+              صُممت كل خطوة لخدمة المساهمة نفسها. لا توجد مسابقات شعبية، ولا
+              سباق طلبات، ولا نشاط يُقاس لمجرد إبقاء الناس داخل المنصة.
+            </p>
+            <JourneyPathIllustration className="mt-12 hidden w-full max-w-[240px] lg:block" />
+          </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {STEPS.map((step, idx) => (
-            <motion.div
-              key={step.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: idx * 0.15 }}
-              className="relative flex flex-col gap-4 rounded-card border border-border bg-card p-6"
-            >
-              <div className="flex items-center justify-between">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-brand-indigo/10 text-brand-indigo">
-                  <step.icon className="size-5" aria-hidden="true" />
-                </span>
-                <span
-                  className="font-wordmark text-3xl font-bold text-border"
-                  dir="ltr"
-                  aria-hidden="true"
-                >
-                  0{idx + 1}
-                </span>
-              </div>
-              <h3 className="text-lg font-semibold text-foreground">
-                {step.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {step.description}
-              </p>
-            </motion.div>
-          ))}
+          <ol className="border-t border-border">
+            {JOURNEY.map((step, index) => (
+              <li
+                key={step.title}
+                className="grid gap-4 border-b border-border py-7 sm:grid-cols-[56px_1fr] sm:gap-6 sm:py-9"
+              >
+                <div className="flex items-center gap-3 sm:flex-col sm:items-start">
+                  <span
+                    className="font-mono text-sm font-semibold text-primary"
+                    dir="ltr"
+                  >
+                    0{index + 1}
+                  </span>
+                  <step.icon
+                    className="size-6 text-primary"
+                    aria-hidden
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold leading-8 text-foreground sm:text-2xl">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 max-w-[68ch] text-sm leading-7 text-muted-foreground sm:text-base">
+                    {step.description}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>

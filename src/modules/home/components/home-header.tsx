@@ -9,10 +9,9 @@ import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
 
 const NAV_LINKS = [
-  { href: "#how-it-works", label: "كيف تعمل" },
-  { href: "#features", label: "المزايا" },
-  { href: "#roles", label: "الأدوار" },
-  { href: "#plans", label: "الخطط" },
+  { href: "#journey", label: "رحلة المساهمة" },
+  { href: "#evidence", label: "سجل الأدلة" },
+  { href: "#for-who", label: "لمن صُممت" },
 ];
 
 export interface HomeHeaderAuthUser {
@@ -37,7 +36,13 @@ export function HomeHeader({
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-header-bg">
+      <a
+        href="#main-content"
+        className="sr-only fixed start-4 top-4 z-50 rounded-input bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground focus:not-sr-only"
+      >
+        تجاوز إلى المحتوى الرئيسي
+      </a>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link to={ROUTES.home} className="flex items-center gap-2.5">
           <img
@@ -60,7 +65,7 @@ export function HomeHeader({
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="flex min-h-11 items-center text-sm text-muted-foreground underline-offset-8 transition-colors hover:text-foreground hover:underline focus-visible:rounded-social focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
             >
               {link.label}
             </a>
@@ -72,7 +77,7 @@ export function HomeHeader({
             type="button"
             aria-label="تبديل المظهر"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+            className="flex size-11 items-center justify-center rounded-input text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             {mounted && resolvedTheme === "dark" ? (
               <Sun className="size-4" />
@@ -92,12 +97,12 @@ export function HomeHeader({
               <Button
                 asChild
                 variant="ghost"
-                size="sm"
+                size="default"
                 className="hidden sm:inline-flex"
               >
                 <Link to={ROUTES.login}>تسجيل دخول</Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild variant="primary" size="default">
                 <Link to={ROUTES.register}>إنشاء حساب</Link>
               </Button>
             </>
