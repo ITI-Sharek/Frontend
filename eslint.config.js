@@ -16,6 +16,7 @@ export default [
   },
   {
     ignores: [
+      '.agents/**',
       '.next/**',
       '.output/**',
       '.tanstack/**',

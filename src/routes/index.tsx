@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { ROUTES } from "@/config/routes.config";
+import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery, useLogoutMutation } from "@/modules/auth";
 import {
   CtaSection,
@@ -61,11 +61,14 @@ function getProfileMenuItems(user: {
   role: "owner" | "contributor" | "admin";
   username: string | null;
 }): ProfileMenuItem[] {
-  if (user.role === "contributor" && user.username) {
-    return [{ label: "ملفي الشخصي", to: ROUTES.contributorProfile(user.username) }];
-  }
-  if (user.role === "owner") {
-    return [{ label: "مشاريعي", to: ROUTES.myProjects }];
-  }
-  return [];
+  const label =
+    user.role === "admin"
+      ? "لوحة الإدارة"
+      : user.role === "owner"
+        ? "مشاريعي"
+        : user.username
+          ? "ملفي الشخصي"
+          : "إكمال التفعيل";
+
+  return [{ label, to: getPostLoginPath(user) }];
 }

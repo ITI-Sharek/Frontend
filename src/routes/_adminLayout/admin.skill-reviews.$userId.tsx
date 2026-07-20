@@ -4,6 +4,11 @@ import {
   AdminSkillReviewWorkspace,
   useAdminPendingSkillReviewsQuery,
 } from "@/modules/skill-profiles";
+import {
+  PageContainer,
+  PageFeedback,
+  PageHeader,
+} from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_adminLayout/admin/skill-reviews/$userId")({
@@ -19,34 +24,41 @@ function AdminSkillReviewWorkspacePage() {
 
   if (pendingReviews.isPending) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل مساحة المراجعة...</p>
-      </div>
+      <PageContainer>
+        <PageHeader
+          title="مساحة مراجعة المساهم"
+          description="جارٍ تحميل المهارات والأدلة…"
+        />
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-6 rounded-card border border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground"
+        >
+          جارٍ تحميل مساحة المراجعة…
+        </div>
+      </PageContainer>
     );
   }
 
   if (pendingReviews.isError) {
     return (
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl items-center px-4">
-        <div className="rounded-card border border-border bg-card p-8 text-center">
-          <h1 className="text-xl font-bold text-foreground">
-            تعذر تحميل بيانات المراجعة
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            أعد المحاولة بعد التأكد من صلاحية admin.
-          </p>
-          <Button
+      <PageContainer>
+        <PageHeader title="مساحة مراجعة المساهم" />
+        <PageFeedback
+          className="mt-6"
+          title="تعذر تحميل بيانات المراجعة"
+          description="تحقق من الاتصال ثم أعد المحاولة. لم يتم حفظ أي قرار جديد."
+          action={<Button
             type="button"
             variant="outline"
-            className="mt-5"
             onClick={() => {
               void pendingReviews.refetch();
             }}
           >
             إعادة المحاولة
-          </Button>
-        </div>
-      </div>
+          </Button>}
+        />
+      </PageContainer>
     );
   }
 

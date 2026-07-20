@@ -11,6 +11,7 @@ import { Card } from "@/shared/components/ui/card";
 
 import { AuthDivider } from "./auth-divider";
 import { AuthPasswordField } from "./auth-password-field";
+import { DevLoginButtons } from "./dev-login-buttons";
 import { AuthTextField } from "./auth-text-field";
 import { SocialAuthButtons } from "./social-auth-buttons";
 import { loginUser } from "../services/auth.service";
@@ -107,6 +108,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           </Button>
         </form>
       </Card>
+
+      <DevLoginButtons onLoginSuccess={onLoginSuccess} />
 
       <p className="w-full text-center text-base">
         <span className="text-muted-foreground">ليس لديك حساب؟ </span>

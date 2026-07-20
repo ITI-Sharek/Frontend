@@ -32,7 +32,7 @@ export function ProfileMenu({
   useEffect(() => {
     if (!open) return;
 
-    function handlePointerDown(event: MouseEvent) {
+    function handlePointerDown(event: PointerEvent) {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
@@ -41,8 +41,16 @@ export function ProfileMenu({
       }
     }
 
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [open]);
 
   return (
@@ -52,7 +60,7 @@ export function ProfileMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-2 rounded-full text-sm text-foreground transition-colors hover:opacity-80"
+        className="flex min-h-10 touch-manipulation items-center gap-2 rounded-full px-1 text-sm text-foreground transition-colors duration-150 hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <Avatar
           src={avatarUrl}
@@ -64,6 +72,7 @@ export function ProfileMenu({
           {displayName}
         </span>
         <ChevronDown
+          aria-hidden="true"
           className={cn(
             "size-4 text-muted-foreground transition-transform",
             open && "rotate-180",
@@ -82,7 +91,7 @@ export function ProfileMenu({
               to={item.to}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="block rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-border/20"
+              className="block min-h-10 rounded-md px-3 py-2 text-sm text-foreground transition-colors duration-150 hover:bg-border/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               {item.label}
             </Link>
@@ -94,9 +103,9 @@ export function ProfileMenu({
               setOpen(false);
               onLogout();
             }}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors hover:bg-destructive/10"
+            className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors duration-150 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
           >
-            <LogOut className="size-4" />
+            <LogOut className="size-4" aria-hidden="true" />
             تسجيل الخروج
           </button>
         </div>

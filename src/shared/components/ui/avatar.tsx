@@ -12,6 +12,13 @@ const AVATAR_SIZES = {
   xl: "size-20",
 } as const;
 
+const AVATAR_DIMENSIONS = {
+  sm: 32,
+  md: 40,
+  lg: 52,
+  xl: 80,
+} as const;
+
 const DOT_SIZES = {
   sm: "size-2.5",
   md: "size-3",
@@ -52,15 +59,22 @@ export function Avatar({
         <img
           src={src}
           alt={alt}
+          width={AVATAR_DIMENSIONS[size]}
+          height={AVATAR_DIMENSIONS[size]}
           className="block size-full rounded-full object-cover"
         />
       ) : (
-        <span className="flex size-full items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_30%,var(--border))] text-2xl font-bold text-foreground">
+        <span
+          role={alt ? "img" : undefined}
+          aria-label={alt || undefined}
+          className="flex size-full items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_30%,var(--border))] text-2xl font-bold text-foreground"
+        >
           {fallback}
         </span>
       )}
       {online !== undefined && (
         <span
+          aria-hidden="true"
           className={cn(
             "absolute -right-px -bottom-px rounded-full border-2 border-card",
             DOT_SIZES[size],

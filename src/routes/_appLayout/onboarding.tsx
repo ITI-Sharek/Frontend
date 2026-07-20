@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { ROUTES } from "@/config/routes.config";
+import { requireContributorRoute } from "@/modules/auth";
 import { getOnboardingState, OnboardingView } from "@/modules/contributors";
 import { startGitHubConnect } from "@/modules/github";
 import type {
@@ -35,6 +36,7 @@ const OUTCOME_MAP: Record<
 };
 
 export const Route = createFileRoute("/_appLayout/onboarding")({
+  beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "تفعيل الحساب | Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): OnboardingSearch => ({
     ...(STEPS.includes(search.step as OnboardingStep)

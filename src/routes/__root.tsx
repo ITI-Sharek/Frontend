@@ -14,6 +14,7 @@ export const Route = createRootRoute({
         name: "description",
         content: "Sharek — community for developers and technical experts",
       },
+      { name: "theme-color", content: "#ffffff" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

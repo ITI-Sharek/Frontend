@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+
+import { requireContributorRoute } from "@/modules/auth";
 import { useQuery } from "@tanstack/react-query";
 
 import { ROUTES } from "@/config/routes.config";
 import { getProjectBySlug, ProjectDetailsView } from "@/modules/projects";
 
 export const Route = createFileRoute("/_appLayout/projects/$projectSlug")({
+  beforeLoad: requireContributorRoute,
   head: ({ params }) => ({
     meta: [{ title: `${params.projectSlug} | Sharek` }],
   }),

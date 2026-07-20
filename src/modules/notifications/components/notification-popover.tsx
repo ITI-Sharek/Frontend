@@ -1,5 +1,6 @@
+import { Link } from "@tanstack/react-router";
 import { Bell, BellRing, WifiOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
@@ -7,8 +8,14 @@ import { useNotifications } from "@/providers/notifications-provider";
 
 import { getNotificationTypeLabel } from "./notification-presenter";
 
-export function NotificationPopover() {
+export function NotificationPopover({
+  allNotificationsHref = ROUTES.notifications,
+}: {
+  allNotificationsHref?: string;
+}) {
   const [open, setOpen] = useState(false);
+  const popoverId = useId();
+  const containerRef = useRef<HTMLDivElement>(null);
   const {
     latestNotifications,
     unreadCount,
@@ -18,29 +25,58 @@ export function NotificationPopover() {
   } = useNotifications();
   const Icon = unreadCount > 0 ? BellRing : Bell;
 
+  useEffect(() => {
+    if (!open) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
-        aria-label="الإشعارات"
+        aria-label={
+          unreadCount > 0 ? `الإشعارات، ${unreadCount} غير مقروءة` : "الإشعارات"
+        }
         aria-expanded={open}
+        aria-controls={open ? popoverId : undefined}
         onClick={() => setOpen((value) => !value)}
-        className="relative inline-flex size-10 items-center justify-center rounded-input border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+        className="relative inline-flex size-10 touch-manipulation items-center justify-center rounded-input border border-border bg-card text-muted-foreground transition-colors duration-150 hover:bg-border/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <Icon className="size-4.5" />
+        <Icon className="size-4.5" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -left-1 rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white">
-            {unreadCount}
+          <span className="absolute -start-1 -top-1 min-w-5 rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white">
+            {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute left-0 top-12 z-20 w-[min(22rem,calc(100vw-2rem))] rounded-card border border-border bg-card p-3 text-right shadow-lg">
-          <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
+        <div
+          id={popoverId}
+          role="dialog"
+          aria-label="آخر الإشعارات"
+          className="absolute start-0 top-12 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-border bg-card text-right shadow-md"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div>
               <p className="text-sm font-bold text-foreground">الإشعارات</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {getConnectionCopy(connectionStatus)}
               </p>
             </div>
@@ -48,42 +84,47 @@ export function NotificationPopover() {
               <button
                 type="button"
                 onClick={markAllNotificationsRead}
-                className="text-xs font-semibold text-primary"
+                className="min-h-9 rounded-input px-2 text-xs font-semibold text-foreground transition-colors duration-150 hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 تحديد الكل كمقروء
               </button>
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto py-2">
+          <div className="max-h-80 overscroll-contain overflow-y-auto p-2">
             {latestNotifications.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-8 text-center">
-                <WifiOff className="size-5 text-muted-foreground" />
+              <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
+                <WifiOff
+                  className="size-5 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <p className="text-sm text-muted-foreground">
                   لا توجد إشعارات في هذه الجلسة بعد.
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
                 {latestNotifications.slice(0, 5).map((notification) => (
                   <button
                     key={notification.notificationId}
                     type="button"
-                    onClick={() => markNotificationRead(notification.notificationId)}
+                    onClick={() =>
+                      markNotificationRead(notification.notificationId)
+                    }
                     className={cn(
-                      "rounded-input border p-3 text-right transition-colors",
+                      "rounded-input p-3 text-right transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                       notification.isRead
-                        ? "border-border bg-background"
-                        : "border-primary/30 bg-primary/10",
+                        ? "hover:bg-border/25"
+                        : "bg-primary/10 hover:bg-primary/15",
                     )}
                   >
-                    <span className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {getNotificationTypeLabel(notification.type)}
                     </span>
-                    <span className="mt-1 block text-sm font-semibold text-foreground">
+                    <span className="mt-1 block truncate text-sm font-semibold text-foreground">
                       {notification.title}
                     </span>
-                    <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                    <span className="mt-1 line-clamp-2 block break-words text-xs leading-5 text-muted-foreground">
                       {notification.message}
                     </span>
                   </button>
@@ -92,12 +133,13 @@ export function NotificationPopover() {
             )}
           </div>
 
-          <a
-            href={ROUTES.notifications}
-            className="block border-t border-border pt-3 text-center text-sm font-semibold text-primary"
+          <Link
+            to={allNotificationsHref}
+            onClick={() => setOpen(false)}
+            className="block border-t border-border px-4 py-3 text-center text-sm font-semibold text-foreground transition-colors duration-150 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           >
             عرض كل الإشعارات
-          </a>
+          </Link>
         </div>
       )}
     </div>
@@ -107,8 +149,8 @@ export function NotificationPopover() {
 function getConnectionCopy(
   status: ReturnType<typeof useNotifications>["connectionStatus"],
 ): string {
-  if (status === "connected") return "متصلة الآن";
-  if (status === "connecting") return "جارٍ الاتصال";
+  if (status === "connected") return "متصل مباشرة";
+  if (status === "connecting") return "جارٍ الاتصال…";
   if (status === "unauthorized") return "الجلسة لا تسمح بالإشعارات";
-  return "سيتم التحديث عند الاتصال";
+  return "سيتم التحديث عند استعادة الاتصال";
 }
