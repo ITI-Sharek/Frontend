@@ -6,6 +6,14 @@ export { ForgotPasswordForm } from "./components/forgot-password-form";
 export { useLogoutMutation } from "./api/mutations/use-logout-mutation";
 export { useCurrentUserQuery } from "./api/queries/use-current-user-query";
 export {
+  requireAdminRoute,
+  requireContributorRoute,
+  requireMemberRoute,
+  requireOwnerRoute,
+  requireRouteAccess,
+} from "./routing/route-access";
+export type { RouteAccessContext } from "./routing/route-access";
+export {
   assignUserRole,
   getCurrentUser,
   loginUser,

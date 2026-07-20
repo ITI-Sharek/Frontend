@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireContributorRoute } from "@/modules/auth";
 import {
   ContributorDashboardView,
   useContributorDashboardQuery,
@@ -20,6 +21,7 @@ const SEARCH_STATE_MAP: Record<
 };
 
 export const Route = createFileRoute("/_appLayout/dashboard")({
+  beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "لوحة التحكم | Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): DashboardSearch => {
     const state = search.state;

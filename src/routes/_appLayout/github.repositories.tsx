@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireContributorRoute } from "@/modules/auth";
 import {
   ContributorGitHubRepositoriesPage,
   startGitHubConnect,
@@ -8,6 +9,7 @@ import {
 export const CONTRIBUTOR_GITHUB_REPOSITORIES_PATH = "/github/repositories";
 
 export const Route = createFileRoute("/_appLayout/github/repositories")({
+  beforeLoad: requireContributorRoute,
   head: () => ({
     meta: [{ title: "مستودعات GitHub | Sharek" }],
   }),

@@ -6,6 +6,7 @@ export const ROUTES = {
   tasks: "/tasks",
   notifications: "/notifications",
   admin: "/admin",
+  adminNotifications: "/admin/notifications",
   adminSkillReviews: "/admin/skill-reviews",
   adminSkillReview: (userId: string) =>
     `/admin/skill-reviews/${encodeURIComponent(userId)}`,
@@ -29,15 +30,13 @@ export function getPostLoginPath(user: PostLoginUser): string {
     return ROUTES.admin;
   }
 
-  if (user.role === "contributor" && user.username) {
-    return ROUTES.contributorProfile(user.username);
+  if (user.role === "contributor") {
+    return user.username
+      ? ROUTES.contributorProfile(user.username)
+      : ROUTES.onboarding;
   }
 
   // The owner dashboard variant (docs/design/wireframes/09-owner-dashboard.md)
   // isn't built yet — /my-projects is the owner's working landing page today.
-  if (user.role === "owner") {
-    return ROUTES.myProjects;
-  }
-
-  return ROUTES.home;
+  return ROUTES.myProjects;
 }

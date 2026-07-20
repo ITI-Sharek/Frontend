@@ -17,9 +17,19 @@ describe("route config", () => {
     );
   });
 
+  it("keeps admin notifications inside the admin workspace", () => {
+    expect(ROUTES.adminNotifications).toBe("/admin/notifications");
+  });
+
   it("routes contributor users to their username profile", () => {
     expect(getPostLoginPath({ role: "contributor", username: "mona" })).toBe(
       "/profile/mona",
+    );
+  });
+
+  it("routes contributors without a profile username to onboarding", () => {
+    expect(getPostLoginPath({ role: "contributor", username: null })).toBe(
+      ROUTES.onboarding,
     );
   });
 

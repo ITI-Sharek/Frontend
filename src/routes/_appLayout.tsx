@@ -1,171 +1,152 @@
-import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import {
-  BadgeCheck,
-  Briefcase,
-  Compass,
-  FileText,
-  Github,
-  LayoutDashboard,
-  ListTodo,
-  Bell,
-  Settings,
-  UserRound,
-} from "lucide-react";
+  Outlet,
+  createFileRoute,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-import { ROUTES } from "@/config/routes.config";
-import { getCurrentUser, useCurrentUserQuery } from "@/modules/auth";
+import { getPostLoginPath, ROUTES } from "@/config/routes.config";
+import {
+  requireMemberRoute,
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "@/modules/auth";
 import { ensureCurrentContributorProfile } from "@/modules/contributors";
 import { NotificationPopover } from "@/modules/notifications";
 import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
-import type { AppShellNavItem, AppShellPlanChip } from "@/shared/components/layout/app-shell";
+import {
+  getMemberNavigation,
+  getMemberPlanChip,
+} from "@/shared/components/layout/workspace-navigation";
+import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
+import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 
 export const Route = createFileRoute("/_appLayout")({
+  beforeLoad: requireMemberRoute,
   component: AppLayout,
 });
 
-/**
- * Role-aware app shell (navigation-model §2, owner variant per
- * docs/design/remaining-pages-implementation-plan.md §2.1). Contributor nav
- * has items whose features don't exist yet — they render as inert links
- * until they land. Plan chip is mock data until a quota endpoint exists.
- */
 function AppLayout() {
   const { unreadCount } = useNotifications();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const currentUserQuery = useCurrentUserQuery();
-  // Default to the contributor shell while the role is still resolving —
-  // matches prior behavior and avoids a nav flash for the common case.
-  const isOwner = currentUserQuery.data?.role === "owner";
+  const navigate = useNavigate();
+  const routeContext = Route.useRouteContext();
+  const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
+  const logoutMutation = useLogoutMutation();
+  const currentUser = routeContext.currentUser ?? currentUserQuery.data;
+  const [resolvedUsername, setResolvedUsername] = useState<string | null>(
+    currentUser?.username ?? null,
+  );
 
-  // Resolved after mount: localStorage is unavailable during SSR and reading
-  // it during render would cause a hydration mismatch. Sessions from before
-  // the username was persisted at login fall back to GET /auth/me.
-  const [username, setUsername] = useState<string | null>(null);
   useEffect(() => {
-    const stored = storageService.getUsername();
-    if (stored !== null) {
-      setUsername(stored);
+    if (currentUser?.username) {
+      storageService.setUsername(currentUser.username);
+      setResolvedUsername(currentUser.username);
       return;
     }
-    if (storageService.getAccessToken() === null) return;
+
+    const storedUsername = storageService.getUsername();
+    if (storedUsername) {
+      setResolvedUsername(storedUsername);
+      return;
+    }
+
+    if (currentUser?.role !== "contributor") return;
 
     let isActive = true;
-    getCurrentUser()
-      .then(async (user) => {
-        let resolved = user.username;
-        if (resolved === null && user.role === "contributor") {
-          const profile = await ensureCurrentContributorProfile();
-          resolved = profile.username;
-        }
-        if (resolved !== null && isActive) {
-          storageService.setUsername(resolved);
-          setUsername(resolved);
-        }
+    ensureCurrentContributorProfile()
+      .then((profile) => {
+        if (!isActive) return;
+        storageService.setUsername(profile.username);
+        setResolvedUsername(profile.username);
       })
       .catch(() => {
-        // Not signed in / session expired — the link stays inert.
+        // The profile route stays disabled until the next successful refresh.
       });
+
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [currentUser]);
 
-  const settingsNavItem: AppShellNavItem = {
-    label: "الإعدادات",
-    href: ROUTES.settings,
-    icon: Settings,
-    active: pathname === ROUTES.settings,
-    secondary: true,
-  };
+  useEffect(() => {
+    if (!currentUser && !storageService.getAccessToken()) {
+      window.location.replace(ROUTES.login);
+      return;
+    }
 
-  // The owner dashboard variant (decisions inbox, docs/design/wireframes/
-  // 09-owner-dashboard.md) isn't built yet — /dashboard only renders the
-  // contributor dashboard today, so owners get a deliberately smaller shell
-  // (مشاريعي is their real working landing page) rather than a nav item that
-  // would open the wrong role's content.
-  const ownerNav: AppShellNavItem[] = [
-    {
-      label: "مشاريعي",
-      href: ROUTES.myProjects,
-      icon: Briefcase,
-      active: pathname.startsWith(ROUTES.myProjects),
-    },
-    settingsNavItem,
+    if (currentUser?.role === "admin") {
+      window.location.replace(getPostLoginPath(currentUser));
+    }
+  }, [currentUser]);
+
+  if (!currentUser || currentUser.role === "admin") {
+    return <SessionLoadingState />;
+  }
+
+  const username = currentUser.username ?? resolvedUsername;
+  const navigation = getMemberNavigation({
+    role: currentUser.role,
+    pathname,
+    username,
+    unreadCount,
+  });
+  const displayName =
+    [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
+    currentUser.email;
+  const profileItems = [
+    ...(currentUser.role === "contributor" && username
+      ? [{ label: "عرض الملف الشخصي", to: ROUTES.contributorProfile(username) }]
+      : []),
+    { label: "الإعدادات", to: ROUTES.settings },
   ];
-
-  const contributorNav: AppShellNavItem[] = [
-    {
-      label: "الملف الشخصي",
-      href: username ? ROUTES.contributorProfile(username) : "#",
-      icon: UserRound,
-      active: pathname.startsWith("/profile/"),
-    },
-    {
-      label: "لوحة التحكم",
-      href: ROUTES.dashboard,
-      icon: LayoutDashboard,
-      active: pathname === ROUTES.dashboard,
-    },
-    {
-      // Local path (not ROUTES.*): src/config/routes.config.ts is mid-edit
-      // by 001-contributor-profile-redirect. Mirrors
-      // CONTRIBUTOR_GITHUB_REPOSITORIES_PATH in
-      // routes/_appLayout/github.repositories.tsx.
-      label: "مستودعات GitHub",
-      href: "/github/repositories",
-      icon: Github,
-      active: pathname === "/github/repositories",
-    },
-    {
-      label: "استكشاف",
-      href: ROUTES.explore,
-      icon: Compass,
-      active: pathname === ROUTES.explore,
-    },
-    {
-      label: "المهام",
-      href: ROUTES.tasks,
-      icon: ListTodo,
-      active: pathname.startsWith(ROUTES.tasks),
-    },
-    {
-      label: "الإشعارات",
-      href: ROUTES.notifications,
-      icon: Bell,
-      active: pathname === ROUTES.notifications,
-      badge: unreadCount,
-    },
-    { label: "طلبات الانضمام", href: "#", icon: FileText, badge: 1 },
-    { label: "مهاراتي", href: "#", icon: BadgeCheck, hideOnMobile: true },
-    settingsNavItem,
-  ];
-
-  const planChip: AppShellPlanChip = isOwner
-    ? { planName: "Bronze", quotaLabel: "0 من 10 طلبات مساهمة هذا الشهر" }
-    : { planName: "Bronze", quotaLabel: "1 من 2 طلبات اليوم" };
 
   return (
     <AppShell
-      nav={isOwner ? ownerNav : contributorNav}
-      planChip={planChip}
+      nav={navigation}
+      planChip={getMemberPlanChip(currentUser.role)}
       topBar={
-        <>
-          <div>
-            <p className="text-sm font-semibold text-foreground">مساحة العمل</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              مراجعات وإشعارات الحساب في مكان واحد
-            </p>
-          </div>
-          <NotificationPopover />
-        </>
+        <WorkspaceTopBar
+          title={currentUser.role === "owner" ? "مساحة المشاريع" : "مساحة المساهم"}
+          description="كل ما يحتاج إلى انتباهك في مكان واحد"
+          actions={
+            <>
+              <NotificationPopover allNotificationsHref={ROUTES.notifications} />
+              <ProfileMenu
+                displayName={displayName}
+                avatarUrl={currentUser.avatarUrl}
+                items={profileItems}
+                onLogout={() => {
+                  logoutMutation.mutate(undefined, {
+                    onSettled: () => {
+                      void navigate({ to: ROUTES.login });
+                    },
+                  });
+                }}
+              />
+            </>
+          }
+        />
       }
     >
       <Outlet />
     </AppShell>
+  );
+}
+
+function SessionLoadingState() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
+    >
+      جارٍ التحقق من صلاحية الجلسة…
+    </div>
   );
 }

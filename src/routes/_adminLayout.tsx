@@ -1,39 +1,28 @@
 import {
   Outlet,
   createFileRoute,
-  notFound,
-  redirect,
+  useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
-import {
-  Bell,
-  ClipboardList,
-  LayoutDashboard,
-  LogOut,
-  Search,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
+import { useEffect } from "react";
 
-import { ROUTES } from "@/config/routes.config";
-import { getCurrentUser } from "@/modules/auth";
+import { getPostLoginPath, ROUTES } from "@/config/routes.config";
+import {
+  requireAdminRoute,
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "@/modules/auth";
 import { NotificationPopover } from "@/modules/notifications";
+import { useAdminPendingSkillReviewsQuery } from "@/modules/skill-profiles";
 import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
+import { AppShell } from "@/shared/components/layout/app-shell";
+import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
+import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { Button } from "@/shared/components/ui/button";
 
-export async function beforeLoadAdminRoute() {
-  if (typeof window === "undefined") return;
-
-  if (!storageService.getAccessToken()) {
-    throw redirect({ to: ROUTES.login });
-  }
-
-  const user = await getCurrentUser();
-  if (user.role !== "admin") {
-    throw notFound();
-  }
-}
+export const beforeLoadAdminRoute = requireAdminRoute;
 
 export const Route = createFileRoute("/_adminLayout")({
   beforeLoad: beforeLoadAdminRoute,
@@ -45,103 +34,92 @@ function AdminLayout() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  const navigate = useNavigate();
+  const routeContext = Route.useRouteContext();
+  const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
+  const logoutMutation = useLogoutMutation();
+  const pendingReviews = useAdminPendingSkillReviewsQuery({ page: 1, limit: 1 });
+  const currentUser = routeContext.currentUser ?? currentUserQuery.data;
 
-  const nav = [
-    {
-      label: "نظرة عامة",
-      href: ROUTES.admin,
-      icon: LayoutDashboard,
-      active: pathname === ROUTES.admin,
-    },
-    {
-      label: "مراجعة المهارات",
-      href: ROUTES.adminSkillReviews,
-      icon: ClipboardList,
-      active: pathname.startsWith(ROUTES.adminSkillReviews),
-    },
-    {
-      label: "الإشعارات",
-      href: ROUTES.notifications,
-      icon: Bell,
-      active: pathname === ROUTES.notifications,
-      badge: unreadCount,
-    },
-    {
-      label: "المستخدمون",
-      href: "#",
-      icon: Users,
-      active: false,
-    },
-  ];
+  useEffect(() => {
+    if (!currentUser && !storageService.getAccessToken()) {
+      window.location.replace(ROUTES.login);
+      return;
+    }
+
+    if (currentUser && currentUser.role !== "admin") {
+      window.location.replace(getPostLoginPath(currentUser));
+    }
+  }, [currentUser]);
+
+  if (!currentUser || currentUser.role !== "admin") {
+    return <AdminSessionLoadingState />;
+  }
+
+  const displayName =
+    [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
+    currentUser.email;
+  const navigation = getAdminNavigation({
+    pathname,
+    unreadCount,
+    pendingReviewsCount: pendingReviews.data?.total ?? 0,
+  });
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-e border-border bg-card md:flex">
-        <div className="border-b border-border px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="size-7 text-primary" />
-            <div>
-              <p className="text-lg font-bold text-foreground">Admin</p>
-              <p className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-                Sharek review desk
-              </p>
-            </div>
-          </div>
-        </div>
-        <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="تنقل الإدارة">
-          {nav.map((item) => {
-            const Icon = item.icon;
-            return (
-              <a
-                key={item.label}
-                href={item.href}
-                aria-current={item.active ? "page" : undefined}
-                className={
-                  item.active
-                    ? "flex items-center gap-3 rounded-input border-s-2 border-primary bg-primary/10 px-3 py-2.5 text-sm font-semibold text-foreground"
-                    : "flex items-center gap-3 rounded-input border-s-2 border-transparent px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-border/20 hover:text-foreground"
-                }
+    <AppShell
+      nav={navigation}
+      brand={{
+        title: "إدارة شارك",
+        subtitle: "Review operations",
+        icon: ShieldCheck,
+      }}
+      navigationLabel="تنقل الإدارة"
+      topBar={
+        <WorkspaceTopBar
+          title="مكتب المراجعة"
+          description="طوابير الثقة والسلامة"
+          actions={
+            <>
+              <NotificationPopover
+                allNotificationsHref={ROUTES.adminNotifications}
+              />
+              <span className="hidden max-w-44 truncate rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-foreground sm:inline-flex">
+                {displayName}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="تسجيل الخروج"
+                disabled={logoutMutation.isPending}
+                onClick={() => {
+                  logoutMutation.mutate(undefined, {
+                    onSettled: () => {
+                      void navigate({ to: ROUTES.login });
+                    },
+                  });
+                }}
               >
-                <Icon className="size-4.5" />
-                <span className="flex-1">{item.label}</span>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 font-mono text-[11px] text-amber-600">
-                    {item.badge}
-                  </span>
-                )}
-              </a>
-            );
-          })}
-        </nav>
-      </aside>
+                <LogOut className="size-4" aria-hidden="true" />
+              </Button>
+            </>
+          }
+        />
+      }
+    >
+      <Outlet />
+    </AppShell>
+  );
+}
 
-      <main className="min-w-0 flex-1">
-        <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:px-6">
-          <div className="hidden min-w-0 max-w-md flex-1 items-center gap-2 rounded-input border border-border bg-card px-3 py-2 text-sm text-muted-foreground md:flex">
-            <Search className="size-4" />
-            <span>بحث سريع بالاسم أو البريد أو المعرف</span>
-          </div>
-          <div className="flex items-center gap-3 md:ms-auto">
-            <NotificationPopover />
-            <span className="hidden rounded-full border border-border bg-card px-3 py-2 font-mono text-[12px] tracking-[0.65px] text-muted-foreground sm:inline-flex">
-              Admin
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="تسجيل الخروج"
-              onClick={() => {
-                storageService.clearTokens();
-                window.location.assign(ROUTES.login);
-              }}
-            >
-              <LogOut className="size-4" />
-            </Button>
-          </div>
-        </header>
-        <Outlet />
-      </main>
+function AdminSessionLoadingState() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
+    >
+      جارٍ التحقق من صلاحية الإدارة…
     </div>
   );
 }

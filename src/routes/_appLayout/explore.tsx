@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireContributorRoute } from "@/modules/auth";
 import { ExploreView } from "@/modules/projects";
 import type {
   ExploreSearchParamsDto,
@@ -57,6 +58,7 @@ function validateSearch(search: Record<string, unknown>): ExploreSearchParamsDto
 }
 
 export const Route = createFileRoute("/_appLayout/explore")({
+  beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "استكشاف المشاريع | Sharek" }] }),
   validateSearch,
   component: ExplorePage,

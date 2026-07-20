@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireContributorRoute } from "@/modules/auth";
 import { TasksFeedView } from "@/modules/tasks";
 import type { ProjectDifficulty, TaskFeedFiltersDto } from "@/modules/tasks";
 
@@ -35,6 +36,7 @@ function validateSearch(search: Record<string, unknown>): TaskFeedFiltersDto {
 }
 
 export const Route = createFileRoute("/_appLayout/tasks/")({
+  beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "المهام | Sharek" }] }),
   validateSearch,
   component: TasksPage,

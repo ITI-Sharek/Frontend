@@ -1,51 +1,80 @@
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  useRouterState,
+} from "@tanstack/react-router";
 
+import { ROUTES } from "@/config/routes.config";
 import {
   AdminSkillReviewQueue,
   useAdminPendingSkillReviewsQuery,
 } from "@/modules/skill-profiles";
+import {
+  PageContainer,
+  PageFeedback,
+  PageHeader,
+} from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_adminLayout/admin/skill-reviews")({
   head: () => ({
     meta: [{ title: "مراجعة المهارات | Sharek" }],
   }),
-  component: AdminSkillReviewsPage,
+  component: AdminSkillReviewsRoute,
 });
+
+function AdminSkillReviewsRoute() {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+
+  if (pathname.startsWith(`${ROUTES.adminSkillReviews}/`)) {
+    return <Outlet />;
+  }
+
+  return <AdminSkillReviewsPage />;
+}
 
 function AdminSkillReviewsPage() {
   const pendingReviews = useAdminPendingSkillReviewsQuery({ page: 1, limit: 50 });
 
   if (pendingReviews.isPending) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل طابور المراجعة...</p>
-      </div>
+      <PageContainer>
+        <PageHeader
+          title="مراجعة المهارات المعلقة"
+          description="جارٍ تجهيز الطابور من الأقدم إلى الأحدث…"
+        />
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-6 rounded-card border border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground"
+        >
+          جارٍ تحميل طابور المراجعة…
+        </div>
+      </PageContainer>
     );
   }
 
   if (pendingReviews.isError) {
     return (
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl items-center px-4">
-        <div className="rounded-card border border-border bg-card p-8 text-center">
-          <h1 className="text-xl font-bold text-foreground">
-            تعذر تحميل طابور المراجعة
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            تأكد من أن الجلسة الحالية تملك صلاحية admin ثم أعد المحاولة.
-          </p>
-          <Button
+      <PageContainer>
+        <PageHeader title="مراجعة المهارات المعلقة" />
+        <PageFeedback
+          className="mt-6"
+          title="تعذر تحميل طابور المراجعة"
+          description="تحقق من الاتصال ثم أعد المحاولة. إذا انتهت الجلسة فستعود إلى تسجيل الدخول تلقائياً."
+          action={<Button
             type="button"
             variant="outline"
-            className="mt-5"
             onClick={() => {
               void pendingReviews.refetch();
             }}
           >
             إعادة المحاولة
-          </Button>
-        </div>
-      </div>
+          </Button>}
+        />
+      </PageContainer>
     );
   }
 

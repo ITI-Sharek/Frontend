@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireContributorRoute } from "@/modules/auth";
 import { ROUTES } from "@/config/routes.config";
 import { TaskDetailsView, useTaskDetailsQuery } from "@/modules/tasks";
 import type { TaskApplicationState } from "@/modules/tasks";
@@ -18,6 +19,7 @@ interface TaskDetailsSearch {
 }
 
 export const Route = createFileRoute("/_appLayout/tasks/$taskId")({
+  beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "تفاصيل المهمة | Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): TaskDetailsSearch =>
     APPLICATION_STATES.includes(search.state as TaskApplicationState)

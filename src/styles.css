@@ -42,10 +42,44 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: clip;
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
