@@ -1,5 +1,7 @@
 # 05 · Contribution-task details (`/tasks/$taskId`)
 
+> **Correction (DEC-030–DEC-035):** AI fit is advisory, owner selection is final, and contributor quotas/Gold restrictions are removed. The application flow below is not implementation-ready and must be replaced by the contract-first flow in `../contributor-experience-brief.md`.
+
 **Job**: the product's most important screen. It must (1) present requirements honestly against the contributor's verified skills *before* they spend a limited application, and (2) run the apply → AI-validation moment without anxiety. Applications are scarce (2–4/day [Confirmed]) — this screen protects them.
 
 ```

@@ -1,5 +1,7 @@
 # Share-k — API Contract Additions (approved MVP decisions)
 
+> **Contributor contract correction (DEC-030–DEC-035, 2026-07-20):** backend asks involving AI eligibility gates, contributor application quotas, Gold-only contributor guidance, or OAuth-as-repository-evidence authorization are superseded and must not be implemented. New contributor contracts must follow `contributor-experience-brief.md`; current frontend/backend readiness is tracked in `contributor-implementation-readiness.md`. Owner-side limits are unaffected unless separately revised.
+
 > ## ⚡ Backend handoff — current asks (2026-07-12, post social-auth integration)
 > The frontend is now integrated with the implemented endpoints (register + email OTP, social auth start/callback, GitHub connect, contributor profiles). **These are the items the backend needs to do next, in priority order:**
 >

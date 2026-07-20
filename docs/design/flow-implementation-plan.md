@@ -1,5 +1,7 @@
 # Share-k — Six-Flow Implementation Plan (execution handoff)
 
+> **Status correction (DEC-030–DEC-035, 2026-07-20):** do not execute this plan's mock-first contributor flows. Production routes must not ship over invented APIs. Contributor AI gates, quotas, Gold restrictions, teal-as-generic-primary semantics, and OAuth-as-evidence-authorization are superseded. Use `contributor-implementation-readiness.md` to decide build-now versus deferred scope.
+
 > **Audience**: the implementing agent/developer (Sonnet) working in `sharek-frontend/`.
 > **Covers TASK-1-01 flows**: registration · GitHub connection · role selection · project publishing · project discovery · task application.
 > **Prime directive: do not duplicate pages.** The inventory in §2 lists what already exists — extend or audit it, never rebuild it.

@@ -1,5 +1,7 @@
 # 02 · Contributor dashboard (`/dashboard`)
 
+> **Correction (DEC-030–DEC-035):** quota and AI-gate content in this historical wireframe is superseded. Dashboard implementation is deferred until its real read model exists; see `../contributor-implementation-readiness.md`.
+
 **Job**: answer "what needs me, and what should I do next?" — actions outrank metrics. Layout re-composes by lifecycle state.
 
 ## State A — active contributor (steady state)

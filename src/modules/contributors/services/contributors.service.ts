@@ -44,32 +44,35 @@ function normalizeContributorProfileError(error: unknown): never {
   throw new ContributorProfileError("تعذر تحميل ملف المساهم.", "unavailable");
 }
 
-/**
- * The backend doesn't send experienceLevel/interests/declaredSkills yet (no
- * Prisma column — see docs/design/api-contract-additions.md §3), so the raw
- * response can't be trusted to match ContributorProfileDto's declared shape.
- * `RawContributorProfileResponse` reflects that reality; normalize fills the
- * defaults so the rest of the app can rely on the DTO's declared shape
- * instead of every consumer defensively optional-chaining.
- */
+/** Normalize older responses defensively while all environments migrate. */
 type RawContributorProfileResponse = Omit<
   ContributorProfileDto,
-  "experienceLevel" | "interests" | "declaredSkills"
+  "experienceRange" | "fields" | "declaredSkills"
 > &
   Partial<
     Pick<
       ContributorProfileDto,
-      "experienceLevel" | "interests" | "declaredSkills"
+      "experienceRange" | "fields" | "declaredSkills"
     >
   >;
+
+function resolveAvatarUrl(avatarUrl: string | null): string | null {
+  if (!avatarUrl || !avatarUrl.startsWith("/")) return avatarUrl;
+  const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:3000").replace(
+    /\/+$/,
+    "",
+  );
+  return `${apiUrl}${avatarUrl}`;
+}
 
 function normalizeContributorProfile(
   data: RawContributorProfileResponse,
 ): ContributorProfileDto {
   return {
     ...data,
-    experienceLevel: data.experienceLevel ?? null,
-    interests: data.interests ?? [],
+    avatarUrl: resolveAvatarUrl(data.avatarUrl),
+    experienceRange: data.experienceRange ?? null,
+    fields: data.fields ?? [],
     declaredSkills: data.declaredSkills ?? [],
   };
 }

@@ -1,5 +1,7 @@
 # Share-k — Navigation Models (Step 4)
 
+> **Contributor IA correction (DEC-030–DEC-035, 2026-07-20):** quota/plan labels in the contributor shell are superseded. Applications and skills are approved as proposed destinations only and must not enter production navigation until their routes, DTOs, APIs, and contextual authorization are mapped. See `contributor-experience-brief.md` and `contributor-implementation-readiness.md`.
+
 > Four distinct navigation systems — one per audience. They deliberately do **not** share one structure: the public site sells, the contributor app is a personal workspace, the owner app is a review pipeline, the admin app is a queue processor.
 > RTL note: every model must mirror fully in Arabic — sidebar position, chevrons, breadcrumb separators, stepper direction, badge placement. Directional icons flip; technical tokens (repo names, code) stay LTR.
 

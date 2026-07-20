@@ -21,6 +21,11 @@ describe("route config", () => {
     expect(ROUTES.adminNotifications).toBe("/admin/notifications");
   });
 
+  it("exposes distinct admin destinations for fields and published owners", () => {
+    expect(ROUTES.adminProfileFields).toBe("/admin/profile-fields");
+    expect(ROUTES.adminProjectOwners).toBe("/admin/project-owners");
+  });
+
   it("routes contributor users to their username profile", () => {
     expect(getPostLoginPath({ role: "contributor", username: "mona" })).toBe(
       "/profile/mona",

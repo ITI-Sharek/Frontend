@@ -26,6 +26,16 @@ export interface GitHubOAuthCallbackPayload {
   state: string;
 }
 
+/** Repository evidence authorization currently granted to the contributor. */
+export type GitHubRepositoryEvidenceAuthorization =
+  | { kind: "oauth_identity_only" }
+  | { kind: "oauth_repository_access" }
+  | {
+      kind: "github_app_selected";
+      installationId: string;
+      repositoryFullNames: string[];
+    };
+
 export interface GitHubRepositoryDto {
   githubRepoId: string;
   fullName: string;

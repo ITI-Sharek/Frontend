@@ -1,43 +1,49 @@
-import { Check, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Check, ChevronDown, ImagePlus, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
-import { ChipSelect } from "@/shared/components/forms/chip-select";
 import { TagInput } from "@/shared/components/forms/tag-input";
-import { cn } from "@/lib/utils";
+import { Avatar } from "@/shared/components/ui/avatar";
 
-import { useUpdateProfileDetailsMutation } from "../../api/mutations/use-update-profile-details-mutation";
-import { EXPERIENCE_LEVEL_LABELS, INTEREST_LABELS } from "../../constants/profile-options.constants";
-import type { ContributorProfileDto } from "../../types/contributor-profile.types";
+import {
+  useUpdateProfileDetailsMutation,
+  useUploadContributorAvatarMutation,
+} from "../../api/mutations/use-update-profile-details-mutation";
+import { useContributorFieldsQuery } from "../../api/queries/use-contributor-fields-query";
+import { EXPERIENCE_RANGE_LABELS } from "../../constants/profile-options.constants";
+import type {
+  ContributorExperienceRange,
+  ContributorProfileDto,
+} from "../../types/contributor-profile.types";
 
-const EXPERIENCE_LEVEL_DESCRIPTIONS: Record<string, string> = {
-  junior: "بدأت للتو في هذا المجال.",
-  mid: "لدي خبرة عملية في مشاريع حقيقية.",
-  senior: "لدي خبرة واسعة وأستطيع قيادة مهام معقدة.",
-  expert: "لدي خبرة عميقة وشاملة في هذا المجال.",
-};
-
-const INTEREST_OPTIONS = Object.entries(INTEREST_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-/** Settings → "الملف الشخصي": bio, availability, experience level, interests, declared skills. */
+/** Settings → profile details, dynamic fields, declared skills, and avatar. */
 export function ContributorProfileSettingsSection({
   profile,
 }: {
   profile: ContributorProfileDto;
 }) {
-  const mutation = useUpdateProfileDetailsMutation(profile);
+  const mutation = useUpdateProfileDetailsMutation();
+  const avatarMutation = useUploadContributorAvatarMutation();
+  const fieldsQuery = useContributorFieldsQuery();
   const [bio, setBio] = useState(profile.bio ?? "");
   const [availability, setAvailability] = useState(profile.availability ?? "");
-  const [experienceLevel, setExperienceLevel] = useState(
-    profile.experienceLevel ?? "",
+  const [experienceRange, setExperienceRange] = useState<
+    ContributorExperienceRange | ""
+  >(
+    profile.experienceRange ?? "",
   );
-  const [interests, setInterests] = useState(profile.interests);
+  const [fieldIds, setFieldIds] = useState(profile.fields.map((field) => field.id));
   const [declaredSkills, setDeclaredSkills] = useState(profile.declaredSkills);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  useEffect(
+    () => () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    },
+    [avatarPreview],
+  );
 
   const canSave = bio.trim().length > 0 && !mutation.isPending;
 
@@ -50,12 +56,57 @@ export function ContributorProfileSettingsSection({
         mutation.mutate({
           bio,
           availability: availability || null,
-          experienceLevel: experienceLevel || null,
-          interests,
+          experienceRange: experienceRange || null,
+          fieldIds,
           declaredSkills,
         });
       }}
     >
+      <div className="flex flex-col gap-3 rounded-input border border-border p-4 sm:flex-row sm:items-center">
+        <Avatar
+          src={avatarPreview ?? profile.avatarUrl}
+          alt={profile.displayName}
+          fallback={profile.displayName.charAt(0)}
+          size="xl"
+        />
+        <div className="flex-1 text-right">
+          <p className="font-semibold text-foreground">صورة الملف الشخصي</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            PNG أو JPEG أو WebP، بحد أقصى 2 ميجابايت. لن تغيّرها تسجيلات الدخول الاجتماعية لاحقًا.
+          </p>
+          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-input border border-border px-3 py-2 text-sm font-semibold text-foreground hover:border-primary/50">
+            {avatarMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ImagePlus className="size-4" />
+            )}
+            اختيار صورة
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="sr-only"
+              disabled={avatarMutation.isPending}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                if (file.size > 2_000_000) {
+                  event.target.value = "";
+                  return;
+                }
+                if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+                setAvatarPreview(URL.createObjectURL(file));
+                avatarMutation.mutate(file);
+              }}
+            />
+          </label>
+          {avatarMutation.isError && (
+            <p className="mt-2 text-xs text-destructive">
+              {getApiErrorMessage(avatarMutation.error, "تعذر رفع الصورة.")}
+            </p>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="settings-profile-bio" className="text-right">
           النبذة التعريفية
@@ -90,42 +141,72 @@ export function ContributorProfileSettingsSection({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-right text-sm font-medium text-foreground">
+        <Label htmlFor="settings-profile-experience" className="text-right">
           مستوى الخبرة
-        </span>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Object.entries(EXPERIENCE_LEVEL_LABELS).map(([value, label]) => {
-            const isSelected = experienceLevel === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => setExperienceLevel(value)}
-                className={cn(
-                  "flex flex-col gap-1 rounded-input border p-4 text-right transition-colors",
-                  isSelected
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/40",
-                )}
-              >
-                <span className="font-semibold text-foreground">{label}</span>
-                <span className="text-xs leading-5 text-muted-foreground">
-                  {EXPERIENCE_LEVEL_DESCRIPTIONS[value]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        </Label>
+        <select
+          id="settings-profile-experience"
+          value={experienceRange}
+          onChange={(event) =>
+            setExperienceRange(
+              event.target.value as ContributorExperienceRange | "",
+            )
+          }
+          className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-right text-base text-foreground outline-none"
+        >
+          <option value="">اختر نطاق الخبرة</option>
+          {Object.entries(EXPERIENCE_RANGE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <ChipSelect
-        label="مجالات الاهتمام"
-        options={INTEREST_OPTIONS}
-        value={interests}
-        onChange={(value) => setInterests(Array.isArray(value) ? value : [value])}
-        multiple
-      />
+      <div className="flex flex-col gap-1.5">
+        <span className="text-right text-sm font-medium text-foreground">
+          المجالات
+        </span>
+        <details className="group relative">
+          <summary className="flex h-[50px] cursor-pointer list-none items-center justify-between rounded-input border border-border bg-input-bg px-[17px] text-base text-foreground">
+            <span>
+              {fieldIds.length > 0
+                ? `تم اختيار ${fieldIds.length} مجال`
+                : "اختر مجالًا أو أكثر"}
+            </span>
+            <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-input border border-border bg-card p-2 shadow-lg">
+            {fieldsQuery.isPending ? (
+              <p className="p-3 text-sm text-muted-foreground">جارٍ تحميل المجالات...</p>
+            ) : fieldsQuery.data?.length ? (
+              fieldsQuery.data.map((field) => (
+                <label
+                  key={field.id}
+                  className="flex cursor-pointer items-center gap-3 rounded-input px-3 py-2 text-sm hover:bg-border/20"
+                >
+                  <input
+                    type="checkbox"
+                    checked={fieldIds.includes(field.id)}
+                    onChange={(event) =>
+                      setFieldIds((current) =>
+                        event.target.checked
+                          ? [...current, field.id]
+                          : current.filter((id) => id !== field.id),
+                      )
+                    }
+                  />
+                  <span>{field.labelAr}</span>
+                </label>
+              ))
+            ) : (
+              <p className="p-3 text-sm text-muted-foreground">
+                لم يضف المسؤول مجالات متاحة بعد.
+              </p>
+            )}
+          </div>
+        </details>
+      </div>
 
       <TagInput
         label="مهارات إضافية (يدوية)"

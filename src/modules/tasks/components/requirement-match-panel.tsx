@@ -30,7 +30,7 @@ export function RequirementMatchPanel({
             className="flex items-center gap-3 rounded-input border border-border bg-background px-3.5 py-2.5"
           >
             {requirement.verified ? (
-              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-evidence-teal/15 text-evidence-teal">
                 <Check className="size-3.5" />
               </span>
             ) : (

@@ -38,8 +38,8 @@ const profile: ContributorProfileDto = {
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",
-  experienceLevel: null,
-  interests: [],
+  experienceRange: null,
+  fields: [],
   declaredSkills: [],
 };
 

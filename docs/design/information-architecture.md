@@ -1,5 +1,7 @@
 # Share-k — Information Architecture (Step 3)
 
+> **Contributor policy correction (DEC-030–DEC-035, 2026-07-20):** contributor AI fit is advisory, contributor quotas/Gold restrictions are removed, evidence authorization is distinct from linked GitHub identity, and `/applications`, `/applications/:applicationId`, and `/skills` remain proposed IA until contract mapping is complete. Use `contributor-experience-brief.md` and `contributor-implementation-readiness.md` for contributor implementation decisions; conflicting contributor passages below are retained only until the document is fully migrated.
+
 > Labels: **[Confirmed]** PRD/ERD-locked · **[Existing]** implemented in code · **[UX-Required]** addition needed to complete a confirmed journey · **[Future]** post-MVP recommendation.
 > Route syntax follows TanStack Router file routes (constitution: routes are composition-only; business logic lives in `src/modules/*`).
 

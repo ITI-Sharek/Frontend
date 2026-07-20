@@ -361,8 +361,8 @@ export function ImportProjectStepper({
       )}
 
       {published && draft !== null && (
-        <Card className="border-primary/40 bg-primary/5">
-          <p className="flex items-center gap-2 font-mono text-[13px] tracking-[0.65px] text-primary">
+        <Card className="border-evidence-teal/40 bg-evidence-teal/5">
+          <p className="flex items-center gap-2 font-mono text-[13px] tracking-[0.65px] text-evidence-teal">
             <CircleCheck className="size-4" />
             منشور
           </p>

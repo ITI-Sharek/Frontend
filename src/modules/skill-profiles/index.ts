@@ -1,4 +1,5 @@
 export { AdminSkillReviewQueue } from "./components/admin-skill-review-queue";
+export { AdminSkillReviewSummary } from "./components/admin-skill-review-summary";
 export { AdminSkillReviewWorkspace } from "./components/admin-skill-review-workspace";
 export {
   formatConfidence,

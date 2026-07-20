@@ -8,6 +8,8 @@ export const ROUTES = {
   admin: "/admin",
   adminNotifications: "/admin/notifications",
   adminSkillReviews: "/admin/skill-reviews",
+  adminProfileFields: "/admin/profile-fields",
+  adminProjectOwners: "/admin/project-owners",
   adminSkillReview: (userId: string) =>
     `/admin/skill-reviews/${encodeURIComponent(userId)}`,
   login: "/login",

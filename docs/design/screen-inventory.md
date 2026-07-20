@@ -1,5 +1,7 @@
 # Share-k — Screen Inventory (Step 6)
 
+> **Contributor readiness correction (DEC-030–DEC-035, 2026-07-20):** contributor screen descriptions are design intent, not proof of backend readiness. AI fit is advisory; contributor quotas and Gold restrictions are superseded; evidence is source-agnostic and audience-filtered. Use `contributor-implementation-readiness.md` before implementing any contributor screen.
+
 > Grouped by feature. Format per screen: role · journey (see `user-journeys.md`) · purpose → primary CTA · content & components · states · mobile/RTL notes · priority (**MVP** / Secondary / Future).
 > Shared component names anticipate `src/shared/components/*`; feature components live in their owning module (constitution).
 

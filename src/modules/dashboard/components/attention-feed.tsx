@@ -29,7 +29,7 @@ export function AttentionFeed({ items }: { items: AttentionItemDto[] }) {
               className={
                 item.kind === "changes_requested"
                   ? "mt-0.5 shrink-0 self-start text-amber-500 sm:self-center"
-                  : "mt-0.5 shrink-0 self-start text-primary sm:self-center"
+                  : "mt-0.5 shrink-0 self-start text-evidence-teal sm:self-center"
               }
             >
               {item.kind === "changes_requested" ? (

@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-20T03:07:38+03:00",
+  "title": "Design System: Share-k",
+  "extensions": {
+    "colorMeta": {
+      "institutional-indigo": {
+        "role": "primary",
+        "displayName": "Institutional Indigo",
+        "canonical": "#2E3192",
+        "tonalRamp": ["oklch(15% 0.12 280)", "oklch(25% 0.12 280)", "oklch(35% 0.12 280)", "oklch(45% 0.12 280)", "oklch(55% 0.12 280)", "oklch(68% 0.10 280)", "oklch(82% 0.07 280)", "oklch(95% 0.03 280)"]
+      },
+      "institutional-indigo-dark": {
+        "role": "primary",
+        "displayName": "Institutional Indigo — Dark",
+        "canonical": "#9AA3F0",
+        "tonalRamp": ["oklch(15% 0.10 280)", "oklch(25% 0.10 280)", "oklch(35% 0.10 280)", "oklch(45% 0.10 280)", "oklch(55% 0.10 280)", "oklch(68% 0.09 280)", "oklch(82% 0.06 280)", "oklch(95% 0.03 280)"]
+      },
+      "on-indigo": {
+        "role": "neutral",
+        "displayName": "Indigo Contrast",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["oklch(15% 0 0)", "oklch(25% 0 0)", "oklch(35% 0 0)", "oklch(45% 0 0)", "oklch(55% 0 0)", "oklch(68% 0 0)", "oklch(82% 0 0)", "oklch(95% 0 0)"]
+      },
+      "on-indigo-dark": {
+        "role": "neutral",
+        "displayName": "Indigo Contrast — Dark",
+        "canonical": "#10132B",
+        "tonalRamp": ["oklch(15% 0.03 275)", "oklch(25% 0.03 275)", "oklch(35% 0.03 275)", "oklch(45% 0.03 275)", "oklch(55% 0.03 275)", "oklch(68% 0.02 275)", "oklch(82% 0.01 275)", "oklch(95% 0.005 275)"]
+      },
+      "evidence-teal": {
+        "role": "secondary",
+        "displayName": "Evidence Teal",
+        "canonical": "#2DD4BF",
+        "tonalRamp": ["oklch(15% 0.10 175)", "oklch(25% 0.11 175)", "oklch(35% 0.12 175)", "oklch(45% 0.13 175)", "oklch(55% 0.14 175)", "oklch(68% 0.13 175)", "oklch(82% 0.09 175)", "oklch(95% 0.03 175)"]
+      },
+      "evidence-teal-dark": {
+        "role": "secondary",
+        "displayName": "Evidence Teal — Dark",
+        "canonical": "#57F1DB",
+        "tonalRamp": ["oklch(15% 0.10 175)", "oklch(25% 0.11 175)", "oklch(35% 0.12 175)", "oklch(45% 0.13 175)", "oklch(55% 0.14 175)", "oklch(68% 0.13 175)", "oklch(82% 0.09 175)", "oklch(95% 0.03 175)"]
+      },
+      "on-evidence": {
+        "role": "neutral",
+        "displayName": "Evidence Contrast",
+        "canonical": "#0E1513",
+        "tonalRamp": ["oklch(15% 0.015 165)", "oklch(25% 0.015 165)", "oklch(35% 0.014 165)", "oklch(45% 0.013 165)", "oklch(55% 0.012 165)", "oklch(68% 0.010 165)", "oklch(82% 0.007 165)", "oklch(95% 0.003 165)"]
+      },
+      "on-evidence-dark": {
+        "role": "neutral",
+        "displayName": "Evidence Contrast — Dark",
+        "canonical": "#003731",
+        "tonalRamp": ["oklch(15% 0.04 175)", "oklch(25% 0.04 175)", "oklch(35% 0.04 175)", "oklch(45% 0.04 175)", "oklch(55% 0.035 175)", "oklch(68% 0.025 175)", "oklch(82% 0.015 175)", "oklch(95% 0.006 175)"]
+      },
+      "registry-ink": {
+        "role": "neutral",
+        "displayName": "Registry Ink",
+        "canonical": "#0E1513",
+        "tonalRamp": ["oklch(15% 0.015 165)", "oklch(25% 0.015 165)", "oklch(35% 0.014 165)", "oklch(45% 0.013 165)", "oklch(55% 0.012 165)", "oklch(68% 0.010 165)", "oklch(82% 0.007 165)", "oklch(95% 0.003 165)"]
+      },
+      "registry-paper": {
+        "role": "neutral",
+        "displayName": "Registry Paper",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["oklch(15% 0.003 165)", "oklch(25% 0.003 165)", "oklch(35% 0.003 165)", "oklch(45% 0.003 165)", "oklch(55% 0.003 165)", "oklch(68% 0.003 165)", "oklch(82% 0.003 165)", "oklch(95% 0.003 165)"]
+      },
+      "evidence-slate": {
+        "role": "neutral",
+        "displayName": "Evidence Slate",
+        "canonical": "#64748B",
+        "tonalRamp": ["oklch(15% 0.025 250)", "oklch(25% 0.025 250)", "oklch(35% 0.025 250)", "oklch(45% 0.025 250)", "oklch(55% 0.023 250)", "oklch(68% 0.018 250)", "oklch(82% 0.012 250)", "oklch(95% 0.005 250)"]
+      },
+      "hairline-rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule",
+        "canonical": "#E2E8F0",
+        "tonalRamp": ["oklch(15% 0.012 250)", "oklch(25% 0.012 250)", "oklch(35% 0.012 250)", "oklch(45% 0.012 250)", "oklch(55% 0.011 250)", "oklch(68% 0.009 250)", "oklch(82% 0.007 250)", "oklch(95% 0.003 250)"]
+      },
+      "surface-fog": {
+        "role": "neutral",
+        "displayName": "Surface Fog",
+        "canonical": "#F8FAFC",
+        "tonalRamp": ["oklch(15% 0.008 250)", "oklch(25% 0.008 250)", "oklch(35% 0.008 250)", "oklch(45% 0.008 250)", "oklch(55% 0.007 250)", "oklch(68% 0.006 250)", "oklch(82% 0.004 250)", "oklch(95% 0.002 250)"]
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "Registry Canvas — Dark",
+        "canonical": "#0E1513",
+        "tonalRamp": ["oklch(15% 0.015 165)", "oklch(25% 0.015 165)", "oklch(35% 0.014 165)", "oklch(45% 0.013 165)", "oklch(55% 0.012 165)", "oklch(68% 0.010 165)", "oklch(82% 0.007 165)", "oklch(95% 0.003 165)"]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Registry Ink — Dark",
+        "canonical": "#DDE4E1",
+        "tonalRamp": ["oklch(15% 0.012 165)", "oklch(25% 0.012 165)", "oklch(35% 0.011 165)", "oklch(45% 0.010 165)", "oklch(55% 0.009 165)", "oklch(68% 0.008 165)", "oklch(82% 0.006 165)", "oklch(95% 0.003 165)"]
+      },
+      "dark-slate": {
+        "role": "neutral",
+        "displayName": "Evidence Slate — Dark",
+        "canonical": "#BACAC5",
+        "tonalRamp": ["oklch(15% 0.018 165)", "oklch(25% 0.018 165)", "oklch(35% 0.017 165)", "oklch(45% 0.016 165)", "oklch(55% 0.014 165)", "oklch(68% 0.012 165)", "oklch(82% 0.008 165)", "oklch(95% 0.003 165)"]
+      },
+      "dark-rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule — Dark",
+        "canonical": "#3C4A46",
+        "tonalRamp": ["oklch(15% 0.018 165)", "oklch(25% 0.018 165)", "oklch(35% 0.017 165)", "oklch(45% 0.016 165)", "oklch(55% 0.014 165)", "oklch(68% 0.012 165)", "oklch(82% 0.008 165)", "oklch(95% 0.003 165)"]
+      },
+      "dark-card": {
+        "role": "neutral",
+        "displayName": "Surface Fog — Dark",
+        "canonical": "#1A211F",
+        "tonalRamp": ["oklch(15% 0.014 165)", "oklch(25% 0.014 165)", "oklch(35% 0.013 165)", "oklch(45% 0.012 165)", "oklch(55% 0.011 165)", "oklch(68% 0.009 165)", "oklch(82% 0.006 165)", "oklch(95% 0.003 165)"]
+      },
+      "danger-red": {
+        "role": "tertiary",
+        "displayName": "Danger Red",
+        "canonical": "#DC2626",
+        "tonalRamp": ["oklch(15% 0.14 25)", "oklch(25% 0.16 25)", "oklch(35% 0.18 25)", "oklch(45% 0.19 25)", "oklch(55% 0.18 25)", "oklch(68% 0.14 25)", "oklch(82% 0.09 25)", "oklch(95% 0.03 25)"]
+      },
+      "danger-red-dark": {
+        "role": "tertiary",
+        "displayName": "Danger Red — Dark",
+        "canonical": "#F87171",
+        "tonalRamp": ["oklch(15% 0.13 25)", "oklch(25% 0.15 25)", "oklch(35% 0.17 25)", "oklch(45% 0.18 25)", "oklch(55% 0.17 25)", "oklch(68% 0.13 25)", "oklch(82% 0.08 25)", "oklch(95% 0.03 25)"]
+      },
+      "review-amber": {
+        "role": "tertiary",
+        "displayName": "Review Amber",
+        "canonical": "#D97706",
+        "tonalRamp": ["oklch(15% 0.10 70)", "oklch(25% 0.12 70)", "oklch(35% 0.14 70)", "oklch(45% 0.16 70)", "oklch(55% 0.16 70)", "oklch(68% 0.13 70)", "oklch(82% 0.08 70)", "oklch(95% 0.03 70)"]
+      },
+      "review-amber-dark": {
+        "role": "tertiary",
+        "displayName": "Review Amber — Dark",
+        "canonical": "#FBBF24",
+        "tonalRamp": ["oklch(15% 0.10 80)", "oklch(25% 0.12 80)", "oklch(35% 0.14 80)", "oklch(45% 0.16 80)", "oklch(55% 0.16 80)", "oklch(68% 0.13 80)", "oklch(82% 0.08 80)", "oklch(95% 0.03 80)"]
+      },
+      "advisory-violet": {
+        "role": "tertiary",
+        "displayName": "Advisory Violet",
+        "canonical": "#6B5CA5",
+        "tonalRamp": ["oklch(15% 0.09 300)", "oklch(25% 0.10 300)", "oklch(35% 0.11 300)", "oklch(45% 0.12 300)", "oklch(55% 0.12 300)", "oklch(68% 0.10 300)", "oklch(82% 0.07 300)", "oklch(95% 0.03 300)"]
+      },
+      "advisory-violet-dark": {
+        "role": "tertiary",
+        "displayName": "Advisory Violet — Dark",
+        "canonical": "#A78BFA",
+        "tonalRamp": ["oklch(15% 0.09 300)", "oklch(25% 0.10 300)", "oklch(35% 0.11 300)", "oklch(45% 0.12 300)", "oklch(55% 0.12 300)", "oklch(68% 0.10 300)", "oklch(82% 0.07 300)", "oklch(95% 0.03 300)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Rare page-level and brand moments." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles and decisive workflow moments." },
+      "title": { "displayName": "Title", "purpose": "Section and evidence-group titles." },
+      "body": { "displayName": "Body", "purpose": "Explanation, instruction, summary, and narrative context." },
+      "label": { "displayName": "Label", "purpose": "Concise field labels, metadata categories, and controls." },
+      "technical": { "displayName": "Technical", "purpose": "LTR repository, Pull Request, commit, path, and evidence identifiers." }
+    },
+    "shadows": [
+      { "name": "legacy-card-light", "value": "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05)", "purpose": "Compatibility for existing light cards during migration." },
+      { "name": "legacy-card-dark", "value": "0 8px 16px rgba(0,0,0,0.37)", "purpose": "Compatibility for existing dark cards during migration." },
+      { "name": "primary-action-tint", "value": "0 4px 6px -4px rgba(46,49,146,0.35)", "purpose": "Restrained separation under a primary action, never a glow." },
+      { "name": "overlay-lift", "value": "0 12px 32px rgba(14,21,19,0.16)", "purpose": "Menus, popovers, and dialogs above the registry plane." }
+    ],
+    "motion": [
+      { "name": "state-change", "value": "color 150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Restrained hover, pressed, selected, and focus feedback." },
+      { "name": "skip-link-reveal", "value": "transform 200ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Makes the keyboard skip link visible when focused." },
+      { "name": "reduced-motion", "value": "0.01ms with one iteration", "purpose": "Removes non-essential animation while preserving information when reduced motion is requested." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single clear next action in a region; Institutional Indigo represents agency, not verification.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">متابعة</button>",
+      "css": ".ds-btn-primary { min-height: 44px; padding: 10px 16px; border: 0; border-radius: var(--radius-input, 8px); background: var(--brand-indigo, #2E3192); color: var(--brand-indigo-foreground, #FFFFFF); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--brand-indigo, #2E3192) 85%, black); } .ds-btn-primary:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; } .ds-btn-primary:active { background: color-mix(in srgb, var(--brand-indigo, #2E3192) 78%, black); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "A quieter secondary action with a visible structural boundary.",
+      "html": "<button class=\"ds-btn-outline\" type=\"button\">عرض الدليل</button>",
+      "css": ".ds-btn-outline { min-height: 44px; padding: 10px 16px; border: 1px solid var(--border, #E2E8F0); border-radius: var(--radius-input, 8px); background: var(--card, #FFFFFF); color: var(--foreground, #0E1513); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-outline:hover { background: color-mix(in srgb, var(--border, #E2E8F0) 25%, var(--card, #FFFFFF)); } .ds-btn-outline:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; } .ds-btn-outline:active { background: color-mix(in srgb, var(--border, #E2E8F0) 40%, var(--card, #FFFFFF)); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "A low-emphasis utility action that becomes visible through hover and focus, not permanent decoration.",
+      "html": "<button class=\"ds-btn-ghost\" type=\"button\">إلغاء</button>",
+      "css": ".ds-btn-ghost { min-height: 44px; padding: 10px 16px; border: 0; border-radius: var(--radius-input, 8px); background: transparent; color: var(--muted-foreground, #64748B); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: color 150ms cubic-bezier(0.4,0,0.2,1), background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-ghost:hover { background: color-mix(in srgb, var(--border, #E2E8F0) 25%, transparent); color: var(--foreground, #0E1513); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; } .ds-btn-ghost:active { background: color-mix(in srgb, var(--border, #E2E8F0) 40%, transparent); }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Reserved for destructive actions, serious failures, and revoked access with the consequence named in the label or nearby copy.",
+      "html": "<button class=\"ds-btn-danger\" type=\"button\">حذف المشروع</button>",
+      "css": ".ds-btn-danger { min-height: 44px; padding: 10px 16px; border: 0; border-radius: var(--radius-input, 8px); background: var(--destructive, #DC2626); color: #FFFFFF; font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-danger:hover { background: color-mix(in srgb, var(--destructive, #DC2626) 85%, black); } .ds-btn-danger:focus-visible { outline: 2px solid var(--destructive, #DC2626); outline-offset: 3px; } .ds-btn-danger:active { background: color-mix(in srgb, var(--destructive, #DC2626) 76%, black); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "field-default",
+      "description": "A persistent-label field with a clear boundary, generous target, and Indigo focus treatment.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">رابط طلب السحب</span><input class=\"ds-field-input\" dir=\"ltr\" value=\"https://github.com/sharek/app/pull/142\" /></label>",
+      "css": ".ds-field { display: grid; gap: 6px; color: var(--muted-foreground, #64748B); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 13px; letter-spacing: 0.65px; } .ds-field-input { box-sizing: border-box; width: 100%; height: 50px; padding: 13px 17px; border: 1px solid var(--border, #E2E8F0); border-radius: var(--radius-input, 8px); background: var(--input-bg, #FFFFFF); color: var(--foreground, #0E1513); font-family: 'Geist Mono', monospace; font-size: 14px; outline: none; transition: border-color 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms cubic-bezier(0.4,0,0.2,1); } .ds-field-input:hover { border-color: color-mix(in srgb, var(--brand-indigo, #2E3192) 45%, var(--border, #E2E8F0)); } .ds-field-input:focus-visible { border-color: var(--brand-indigo, #2E3192); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-indigo, #2E3192) 24%, transparent); }"
+    },
+    {
+      "name": "Active Navigation Item",
+      "kind": "nav",
+      "refersTo": "navigation-active",
+      "description": "The unmistakable current destination, using Indigo for navigation rather than the verification color.",
+      "html": "<a class=\"ds-nav-active\" href=\"#\" aria-current=\"page\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect width=\"7\" height=\"9\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"5\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"9\" x=\"14\" y=\"12\" rx=\"1\"/><rect width=\"7\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\"/></svg><span>لوحة التحكم</span></a>",
+      "css": ".ds-nav-active { display: inline-flex; min-height: 44px; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-input, 8px); background: var(--brand-indigo, #2E3192); color: var(--brand-indigo-foreground, #FFFFFF); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-nav-active:hover { background: color-mix(in srgb, var(--brand-indigo, #2E3192) 88%, black); } .ds-nav-active:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; } .ds-nav-active:active { background: color-mix(in srgb, var(--brand-indigo, #2E3192) 78%, black); }"
+    },
+    {
+      "name": "Verified Evidence Chip",
+      "kind": "chip",
+      "refersTo": "evidence-verified",
+      "description": "A text-and-icon verification state; Teal means confirmed evidence, never generic activity.",
+      "html": "<span class=\"ds-chip-verified\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>دليل موثّق</span></span>",
+      "css": ".ds-chip-verified { display: inline-flex; min-height: 24px; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: color-mix(in srgb, var(--primary, #2DD4BF) 16%, transparent); color: color-mix(in srgb, var(--primary, #2DD4BF) 62%, var(--foreground, #0E1513)); font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Contribution Evidence Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "The signature record: plain-language contribution context paired with explicit evidence, verification, and next action.",
+      "html": "<article class=\"ds-evidence-card\" dir=\"rtl\"><div class=\"ds-evidence-head\"><div><p class=\"ds-evidence-kicker\">مساهمة مكتملة</p><h3 class=\"ds-evidence-title\" dir=\"ltr\">sharek/web#142</h3></div><span class=\"ds-evidence-state\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\"><path d=\"M20 6 9 17l-5-5\"/></svg>تم التحقق</span></div><p class=\"ds-evidence-summary\">أكملت سارة تحسين تنقّل لوحة التحكم وراجعه مالك المشروع قبل اعتماده كدليل.</p><dl class=\"ds-evidence-meta\"><div><dt>المصدر</dt><dd dir=\"ltr\">GitHub PR #142</dd></div><div><dt>الحداثة</dt><dd>20 يوليو 2026</dd></div><div><dt>الرؤية</dt><dd>عام</dd></div></dl><a class=\"ds-evidence-link\" href=\"#\">عرض الدليل والمراجعة</a></article>",
+      "css": ".ds-evidence-card { max-width: 620px; padding: 24px; border: 1px solid var(--border, #E2E8F0); border-radius: var(--radius-card, 12px); background: var(--card, #FFFFFF); color: var(--foreground, #0E1513); font-family: 'IBM Plex Sans Arabic', sans-serif; } .ds-evidence-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; } .ds-evidence-kicker { margin: 0 0 4px; color: var(--muted-foreground, #64748B); font-size: 12px; } .ds-evidence-title { margin: 0; font-family: 'Geist Mono', monospace; font-size: 17px; } .ds-evidence-state { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: color-mix(in srgb, var(--primary, #2DD4BF) 16%, transparent); color: color-mix(in srgb, var(--primary, #2DD4BF) 62%, var(--foreground, #0E1513)); font-size: 12px; font-weight: 600; white-space: nowrap; } .ds-evidence-summary { margin: 18px 0; color: var(--foreground, #0E1513); font-size: 15px; line-height: 1.7; } .ds-evidence-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 16px 0; border-block: 1px solid var(--border, #E2E8F0); } .ds-evidence-meta div { min-width: 0; } .ds-evidence-meta dt { color: var(--muted-foreground, #64748B); font-size: 12px; } .ds-evidence-meta dd { margin: 4px 0 0; overflow-wrap: anywhere; font-size: 13px; } .ds-evidence-link { display: inline-flex; min-height: 44px; align-items: center; margin-top: 12px; color: var(--brand-indigo, #2E3192); font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; } .ds-evidence-link:hover { text-decoration-thickness: 2px; } .ds-evidence-link:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "AI Advisory Panel",
+      "kind": "custom",
+      "description": "An advisory recommendation with evidence, uncertainty, and an explicit human decision path.",
+      "html": "<section class=\"ds-ai-panel\" dir=\"rtl\" aria-labelledby=\"ds-ai-title\"><div class=\"ds-ai-heading\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2a7 7 0 0 0-4 12.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 2Z\"/><path d=\"M9 22h6\"/></svg><h3 id=\"ds-ai-title\">توصية مساعدة — القرار لك</h3></div><p>تبدو هذه المهمة مناسبة بناءً على مساهمتين موثّقتين في React. لا يوجد دليل حديث على اختبارات الوصول، لذلك تبقى الملاءمة غير مؤكدة.</p><ul><li><strong>الدليل الداعم:</strong> Pull Requests موثّقة في واجهات React</li><li><strong>غير متوفر:</strong> دليل حديث على WCAG أو اختبارات قارئ الشاشة</li></ul><a href=\"#\" class=\"ds-ai-action\">فحص الأدلة والتفاصيل</a></section>",
+      "css": ".ds-ai-panel { max-width: 620px; padding: 20px; border: 1px solid color-mix(in srgb, #6B5CA5 35%, var(--border, #E2E8F0)); border-radius: var(--radius-card, 12px); background: color-mix(in srgb, #6B5CA5 6%, var(--card, #FFFFFF)); color: var(--foreground, #0E1513); font-family: 'IBM Plex Sans Arabic', sans-serif; } .ds-ai-heading { display: flex; align-items: center; gap: 10px; color: #6B5CA5; } .ds-ai-heading h3 { margin: 0; color: var(--foreground, #0E1513); font-size: 16px; } .ds-ai-panel p, .ds-ai-panel li { font-size: 14px; line-height: 1.7; } .ds-ai-panel ul { margin: 12px 0; padding-inline-start: 22px; } .ds-ai-action { display: inline-flex; min-height: 44px; align-items: center; color: var(--brand-indigo, #2E3192); font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; } .ds-ai-action:hover { text-decoration-thickness: 2px; } .ds-ai-action:focus-visible { outline: 2px solid var(--brand-indigo, #2E3192); outline-offset: 3px; border-radius: 4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Human Contribution Registry",
+    "overview": "Share-k is structured like a contribution registry: calm, precise, evidence-led, and durable enough to feel trustworthy. It borrows the documented narrative quality of a casebook for completed contributions and the human warmth of a workshop so the product remains encouraging rather than bureaucratic or clinical. The intended impression is a trustworthy record of real people completing meaningful work—not a cold institutional database.\n\nThe hierarchy always starts with the project or contribution, the people involved, the current state, the next action, and the supporting evidence. Completed-contribution views may tell a concise narrative, but every statement remains traceable to evidence and review outcomes. Human warmth comes from plain language, contributor context, respectful feedback, comfortable spacing, and purposeful moments of recognition—not decorative gradients, engagement mechanics, or unsupported prestige.",
+    "keyCharacteristics": [
+      "Evidence-first hierarchy with explicit provenance, freshness, visibility, confidence, and verification.",
+      "Calm bordered surfaces with restrained elevation and strong typographic hierarchy.",
+      "Institutional Indigo for interaction; Evidence Teal for verified truth.",
+      "Plain-language summaries beside structured technical evidence.",
+      "Consistent authority and meaning across light/dark themes and Arabic RTL/English LTR.",
+      "AI that advises with evidence and uncertainty while humans retain consequential decisions."
+    ],
+    "rules": [
+      { "name": "The Action/Truth Split", "body": "Institutional Indigo is interaction; Evidence Teal is verified truth. Never exchange their roles for visual variety.", "section": "colors" },
+      { "name": "The Status Is a Sentence Rule", "body": "Every state includes explicit text and, where useful, an icon. Color is never the only carrier of meaning.", "section": "colors" },
+      { "name": "The Theme Parity Rule", "body": "Light and dark palettes may use different values, but contrast, hierarchy, semantic authority, and state meaning remain equivalent.", "section": "colors" },
+      { "name": "The Technical Isolation Rule", "body": "Technical tokens use Geist Mono and remain LTR inside Arabic layouts using semantic bidirectional isolation such as <bdi> or an explicitly isolated dir=\"ltr\" container.", "section": "typography" },
+      { "name": "The Mono Ration Rule", "body": "Monospace supports technical evidence; it never becomes the default interface voice or cyberpunk decoration.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "A surface at rest is defined by a hairline border and spacing. Shadows are reserved for actual spatial elevation.", "section": "elevation" },
+      { "name": "The No Glow Rule", "body": "A shadow may clarify depth; it must never read as an AI glow, neon effect, or decorative aura.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** make the contribution, people, status, evidence, and next action the primary hierarchy.",
+      "**Do** use Institutional Indigo for primary actions, active navigation, links, and focus; use Evidence Teal only for verified evidence and confirmed outcomes.",
+      "**Do** show provenance, freshness, visibility, verification, confidence, and uncertainty with explicit text.",
+      "**Do** combine every meaningful status color with text and, where useful, an icon.",
+      "**Do** pair structured evidence with plain-language summaries and contributor context so the registry remains human.",
+      "**Do** keep AI advisory: explain supporting evidence and uncertainty and provide human review, correction, or dispute paths.",
+      "**Do** preserve functional and content parity across light/dark themes and Arabic RTL/English LTR layouts.",
+      "**Do** isolate usernames, repositories, URLs, code, commit hashes, and paths as LTR technical content within Arabic pages.",
+      "**Do** meet WCAG 2.2 AA, provide visible keyboard focus, support 200% zoom and reflow, honor reduced motion, and prefer 44×44 interactive targets.",
+      "**Do** provide keyboard and button or menu alternatives for dragging, file upload, Kanban movement, and reorder actions.",
+      "**Do** use clear confirmation or undo for destructive actions and state their consequences before commitment.",
+      "**Do** write rejection and waiting states as informative next steps, not dead ends."
+    ],
+    "donts": [
+      "**Don't** use generic AI or SaaS styling: excessive gradient blobs, glowing AI orbs, floating bento cards, vague “AI magic” visuals, or decoration that substitutes for product evidence are prohibited.",
+      "**Don't** make Share-k look like a conventional job or freelance marketplace: no salary-first cards, bidding language, applicant funnels, or “hire top talent” messaging.",
+      "**Don't** become a GitHub clone: repository context supports evidence, but file explorers, commit graphs, and Pull Request interfaces must not dominate.",
+      "**Don't** add social-network engagement gimmicks: no follower counts, likes, streaks, infinite feeds, popularity contests, activity bait, or meaningless achievement badges.",
+      "**Don't** use terminal-heavy or cyberpunk aesthetics: no neon-on-black interfaces, hacker imagery, Matrix grids, excessive monospace typography, or command-line decoration.",
+      "**Don't** present AI as unquestionable authority: no magical scores, robot personas, or definitive qualification claims without evidence, confidence, uncertainty, advisory language, and a human path.",
+      "**Don't** use unverified portfolio or certificate-platform styling: no decorative skill bars, trophy walls, unsupported badges, or self-declared expertise presented as verified.",
+      "**Don't** become Jira, Trello, or Slack: tasks, discussion, and chat support a contribution rather than turning Share-k into a general project-management or communication suite.",
+      "**Don't** create recruitment-style competition: no leaderboards, global rankings, “top 1% developer” labels, or candidate-versus-candidate framing.",
+      "**Don't** overload dashboards with KPIs, charts, cards, and scores; keep the required work, people, status, next action, and supporting evidence primary.",
+      "**Don't** use Evidence Teal for generic progress or routine calls to action. Unverified activity is not verified evidence.",
+      "**Don't** use Danger Red for a neutral outcome such as “not selected”; reserve it for destructive actions, serious failures, and revoked access.",
+      "**Don't** make color, tooltips, dragging, hover, or motion the only way to receive information or complete an action."
+    ]
+  }
+}

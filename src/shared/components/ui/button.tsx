@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "rounded-input bg-primary text-primary-foreground shadow-[0_4px_6px_-4px_rgba(45,212,191,0.45)] hover:bg-primary/85",
+          "rounded-input bg-primary text-primary-foreground shadow-[0_4px_6px_-4px_rgba(46,49,146,0.35)] hover:bg-primary/85",
         outline:
           "rounded-input border border-border bg-card text-foreground hover:bg-border/25",
         ghost:

@@ -48,7 +48,7 @@ export function MatchedTasksSection({
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] tracking-[0.65px]",
                   fullMatch
-                    ? "border-primary/50 bg-primary/10 text-primary"
+                    ? "border-evidence-teal/50 bg-evidence-teal/10 text-evidence-teal"
                     : "border-border bg-background text-muted-foreground",
                 )}
               >

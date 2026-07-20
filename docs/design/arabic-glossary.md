@@ -10,10 +10,13 @@
 | Project Owner | صاحب المشروع | |
 | Contribution Request | طلب مساهمة | the task/order entity |
 | Application | طلب انضمام | |
-| Eligible | مؤهل | |
-| Ineligible | غير مؤهل | |
-| Pending Validation | قيد التحقق | |
-| Needs Review | يحتاج إلى مراجعة | REVIEW_NEEDED |
+| Fit Assessment | تقييم الملاءمة | advisory, never the final selection decision |
+| Strong Fit | ملاءمة قوية | |
+| Partial Fit | ملاءمة جزئية | |
+| Limited Fit | ملاءمة محدودة | |
+| Unknown Fit | ملاءمة غير معروفة | insufficient information to assess |
+| Unavailable Fit | تقييم الملاءمة غير متاح | service or evidence unavailable |
+| Pending Owner Decision | بانتظار قرار صاحب المشروع | owner retains the final selection decision |
 | Verified Skill | مهارة موثقة | |
 | Skill Profile | الملف المهاري | |
 | Skill Evidence | دليل المهارة | |
@@ -39,6 +42,7 @@
 4. `تسليم العمل` = the act of delivering; `العمل المُسلَّم` = the delivered artifact — never interchange.
 5. The same Arabic term is used on every screen, notification, and message for a given concept — no synonyms.
 6. New terms are added here **before** they ship; additions go through the decision log if they name a product concept.
+7. `مؤهل` / `غير مؤهل` are retired for contributor task fit. Use the five advisory fit terms above and state that the owner decides.
 
 ## Extended state labels (drafts consistent with the glossary — from `state-model.md` v2)
 

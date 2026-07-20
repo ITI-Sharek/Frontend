@@ -24,6 +24,10 @@
   --color-destructive: var(--destructive);
   --color-brand-indigo: var(--brand-indigo);
   --color-brand-indigo-foreground: var(--brand-indigo-foreground);
+  --color-evidence-teal: var(--evidence-teal);
+  --color-evidence-teal-foreground: var(--evidence-teal-foreground);
+  --color-review-amber: var(--review-amber);
+  --color-advisory-violet: var(--advisory-violet);
   --animate-scroll: scroll var(--animation-duration, 40s)
     var(--animation-direction, forwards) linear infinite;
   --radius-card: var(--radius-card);
@@ -57,6 +61,10 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), sans-serif;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-indigo) 24%, transparent);
 }
 
 h1,

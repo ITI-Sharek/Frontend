@@ -1,5 +1,7 @@
 # Share-k — Core User Journeys (Step 5)
 
+> **Contributor policy correction (DEC-030–DEC-035, 2026-07-20):** contributor AI fit is advisory and owner-decided; contributor quotas/Gold restrictions and GitHub-only evidence assumptions are superseded. GitHub OAuth links identity only; evidence authorization requires explicit GitHub App repository selection; non-GitHub evidence and contextual accepted-contributor access must be supported by approved contracts. Conflicting contributor steps below are retained only until this journey document is fully migrated. Use `contributor-experience-brief.md` for implementation.
+
 > The 38 journey items requested are grouped into 11 journey maps — many items are stages of one continuous experience and designing them separately would fracture the flow. Every requested item is covered and cross-referenced.
 > State labels reference `state-model.md`. Screens reference `screen-inventory.md`.
 

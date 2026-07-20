@@ -1,5 +1,7 @@
 # 08 · GitHub analysis progress (onboarding step 2 / re-analysis)
 
+> **Correction (DEC-032–DEC-034):** GitHub OAuth links identity only. Repository analysis requires GitHub App installation and explicit repository selection. The progress UI may show only backend-provided stages/counts and must not expose private repository details outside the permitted audience.
+
 **Job**: turn a multi-minute async black box (`ingestion_status: pending → in_progress → completed|failed` [Confirmed] + AI profiling) into a narrated, leaveable process. This is the user's first experience of Share-k's AI — it sets the explainability tone for everything after.
 
 ```

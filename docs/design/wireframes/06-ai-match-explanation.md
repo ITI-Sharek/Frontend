@@ -1,5 +1,7 @@
 # 06 · AI match / decision explanation (shared pattern)
 
+> **Correction (DEC-030–DEC-035):** this pattern explains advisory fit, not an AI verdict or application gate. It must use strong/partial/limited/unknown/unavailable fit and audience-safe evidence; owner selection remains final. Plan-tier examples below are superseded for the contributor experience.
+
 **Job**: one reusable explanation anatomy for *every* AI output in the product — validation decisions (contributor + owner views), owner match suggestions, skill assessments. Consistency is the trust mechanism: users learn to read one shape. [Confirmed data: AI_VALIDATION_RESULT / AI_MATCH_RESULT — decision, confidence, justification, matched/missing skills, source attribution.]
 
 ## The anatomy (`ExplanationCard`)

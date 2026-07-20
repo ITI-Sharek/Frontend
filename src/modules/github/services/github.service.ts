@@ -20,7 +20,7 @@ export async function completeGitHubOAuth(
   payload: GitHubOAuthCallbackPayload,
 ): Promise<GitHubAccountDto> {
   const { data } = await axiosInstance.post<GitHubAccountDto>(
-    "/github/oauth/callback",
+    "/auth/github/account/callback",
     payload,
   );
   return data;
@@ -83,7 +83,7 @@ export async function getGitHubRepositoryCommitSignals({
 
 export async function disconnectGitHubAccount(): Promise<{ success: boolean }> {
   const { data } = await axiosInstance.delete<{ success: boolean }>(
-    "/github/account",
+    "/auth/github/account",
   );
   return data;
 }

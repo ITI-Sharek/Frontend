@@ -39,8 +39,11 @@ function makeProfile(
     ],
     completionPrompts: ["Add more skills"],
     viewerRelationship: "owner",
-    experienceLevel: "senior",
-    interests: ["web", "ai"],
+    experienceRange: "five_to_ten",
+    fields: [
+      { id: "field-web", key: "web", labelEn: "Web", labelAr: "الويب" },
+      { id: "field-ai", key: "ai", labelEn: "AI", labelAr: "الذكاء الاصطناعي" },
+    ],
     declaredSkills: ["React", "Node.js"],
     ...overrides,
   };

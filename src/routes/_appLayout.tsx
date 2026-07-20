@@ -17,10 +17,7 @@ import { NotificationPopover } from "@/modules/notifications";
 import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
-import {
-  getMemberNavigation,
-  getMemberPlanChip,
-} from "@/shared/components/layout/workspace-navigation";
+import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 
@@ -109,7 +106,6 @@ function AppLayout() {
   return (
     <AppShell
       nav={navigation}
-      planChip={getMemberPlanChip(currentUser.role)}
       topBar={
         <WorkspaceTopBar
           title={currentUser.role === "owner" ? "مساحة المشاريع" : "مساحة المساهم"}

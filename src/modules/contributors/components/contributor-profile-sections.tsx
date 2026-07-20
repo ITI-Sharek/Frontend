@@ -14,10 +14,7 @@ import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 
 import { ContributorProfileEmptyState } from "./contributor-profile-empty-state";
-import {
-  getExperienceLevelLabel,
-  getInterestLabel,
-} from "../constants/profile-options.constants";
+import { getExperienceRangeLabel } from "../constants/profile-options.constants";
 import type {
   ContributorProfileDto,
   ContributorSkillDto,
@@ -187,23 +184,16 @@ export function ContributorProfileSections({
           <div className="flex items-center justify-between gap-4">
             <dt className="text-muted-foreground">مستوى الخبرة</dt>
             <dd className="font-medium text-foreground">
-              {getExperienceLevelLabel(profile.experienceLevel) ?? "غير محدد"}
+              {getExperienceRangeLabel(profile.experienceRange) ?? "غير محدد"}
             </dd>
           </div>
           <div className="flex items-start justify-between gap-4 sm:col-span-2">
             <dt className="shrink-0 text-muted-foreground">مجالات الاهتمام</dt>
-            <dd className="flex flex-wrap justify-end gap-1.5">
-              {profile.interests.length > 0 ? (
-                profile.interests.map((interest) => (
-                  <span
-                    key={interest}
-                    className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground"
-                  >
-                    {getInterestLabel(interest)}
-                  </span>
-                ))
+            <dd className="text-end font-medium text-foreground">
+              {profile.fields.length > 0 ? (
+                profile.fields.map((field) => field.labelAr).join("، ")
               ) : (
-                <span className="font-medium text-foreground">غير محددة</span>
+                "غير محددة"
               )}
             </dd>
           </div>
@@ -304,11 +294,11 @@ export function ContributorProfileSections({
               >
                 <span
                   aria-hidden
-                  className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-primary"
+                  className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-evidence-teal"
                 />
                 <h3 className="font-semibold text-foreground">{item.title}</h3>
                 {item.role && (
-                  <p className="mt-1 text-sm text-primary">{item.role}</p>
+                  <p className="mt-1 text-sm text-evidence-teal">{item.role}</p>
                 )}
                 {item.description && (
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -345,7 +335,7 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
       <span className="text-xs text-muted-foreground">
         {PROFICIENCY_LABEL[skill.proficiencyLevel]}
       </span>
-      <span className="inline-flex items-center gap-1 text-xs text-primary">
+      <span className="inline-flex items-center gap-1 text-xs text-evidence-teal">
         <BadgeCheck className="size-3.5" />
         موثقة
       </span>
@@ -357,14 +347,14 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
 
   if (!hasEvidence) {
     return (
-      <div className="flex flex-wrap items-center gap-3 rounded-input border border-primary/40 bg-primary/5 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-input border border-evidence-teal/40 bg-evidence-teal/5 px-4 py-3">
         {header}
       </div>
     );
   }
 
   return (
-    <details className="group rounded-input border border-primary/40 bg-primary/5">
+    <details className="group rounded-input border border-evidence-teal/40 bg-evidence-teal/5">
       <summary className="flex cursor-pointer flex-wrap items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
         {header}
         <span className="ms-auto inline-flex items-center gap-1 text-xs text-muted-foreground">
@@ -372,7 +362,7 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
           <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
         </span>
       </summary>
-      <p className="border-t border-primary/20 px-4 py-3 text-sm leading-6 text-muted-foreground">
+      <p className="border-t border-evidence-teal/20 px-4 py-3 text-sm leading-6 text-muted-foreground">
         {skill.evidenceSummary}
       </p>
     </details>
