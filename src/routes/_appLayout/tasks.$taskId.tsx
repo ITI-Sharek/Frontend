@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requireContributorRoute } from "@/modules/auth";
-import { ROUTES } from "@/config/routes.config";
 import { TaskDetailsView, useTaskDetailsQuery } from "@/modules/tasks";
 import type { TaskApplicationState } from "@/modules/tasks";
 

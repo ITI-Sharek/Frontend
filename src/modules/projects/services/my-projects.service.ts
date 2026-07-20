@@ -1,85 +1,106 @@
+import { axiosInstance } from "@/lib/axios/axios-instance";
+
+import type { GitHubRepositoryPageDto } from "@/modules/github/types/github.types";
+
 import type {
   ImportDraftDto,
   MyProjectDto,
   OwnerQuotaDto,
   RepoPickDto,
 } from "../types/my-projects.types";
+import type { ImportedProjectDto } from "../types/project.types";
 
 /**
- * MOCK SERVICE — owner portfolio + import flow. The repo list mirrors the
- * shape of the real GET /github/repositories; import failures are keyed by
- * repo name so every OJ-1 error state is demoable:
- * "sara-dev/private-notes" → private · "missing/repo" → not_found ·
- * "sara-dev/hisab-ledger" → duplicate.
+ * Owner project APIs backed by the NestJS projects module.
  */
-
-const MOCK_MY_PROJECTS: MyProjectDto[] = [
-  {
-    id: "mp1",
-    title: "hisab-ledger",
-    slug: "hisab-ledger",
-    status: "published",
-    openRequestsCount: 3,
-    pendingApplicationsCount: 4,
-    lastActivityLabel: "اليوم",
-  },
-  {
-    id: "mp2",
-    title: "masar-transit",
-    slug: "masar-transit",
-    status: "draft",
-    openRequestsCount: 0,
-    pendingApplicationsCount: 0,
-    lastActivityLabel: "منذ 3 أيام",
-  },
-];
-
-const MOCK_REPOS: RepoPickDto[] = [
-  { fullName: "sara-dev/qamar-ui", description: "مكتبة مكونات React عربية RTL", language: "TypeScript", stars: 88, isPrivate: false },
-  { fullName: "sara-dev/hisab-ledger", description: "محرك محاسبة بالقيد المزدوج", language: "JavaScript", stars: 128, isPrivate: false },
-  { fullName: "sara-dev/wasl-api", description: "بوابة API للربط بين الخدمات", language: "Go", stars: 41, isPrivate: false },
-  { fullName: "sara-dev/private-notes", description: "ملاحظات شخصية", language: "TypeScript", stars: 0, isPrivate: true },
-  { fullName: "sara-dev/tajruba-e2e", description: "إطار اختبارات E2E بالعربية", language: "TypeScript", stars: 15, isPrivate: false },
-];
 
 export async function getMyProjects(): Promise<{
   projects: MyProjectDto[];
   quota: OwnerQuotaDto;
 }> {
-  return Promise.resolve({
-    projects: MOCK_MY_PROJECTS,
-    quota: { used: 14, monthlyLimit: 20 },
-  });
+  const { data } = await axiosInstance.get<{
+    projects: MyProjectDto[];
+    quota: OwnerQuotaDto;
+  }>("/projects/me");
+
+  return data;
 }
 
 export async function getOwnerRepos(): Promise<RepoPickDto[]> {
-  return Promise.resolve(MOCK_REPOS);
+  const { data } =
+    await axiosInstance.get<GitHubRepositoryPageDto>("/github/repositories");
+
+  return data.items.map((repo) => ({
+    fullName: repo.fullName,
+    description: repo.description,
+    language: repo.primaryLanguage,
+    stars: repo.stars,
+    isPrivate: repo.private,
+  }));
 }
 
 export async function importRepoAsDraft(
   fullName: string,
 ): Promise<ImportDraftDto> {
-  if (fullName === "missing/repo" || !fullName.includes("/")) {
-    return Promise.reject({ code: "not_found" });
-  }
-  const repo = MOCK_REPOS.find((item) => item.fullName === fullName);
-  if (repo?.isPrivate) return Promise.reject({ code: "private" });
-  if (fullName === "sara-dev/hisab-ledger") {
-    return Promise.reject({ code: "duplicate" });
-  }
-  const shortName = fullName.split("/")[1] ?? fullName;
-  return new Promise((resolve) =>
-    setTimeout(
-      () =>
-        resolve({
-          title: shortName,
-          description: repo?.description ?? "",
-          technologies: repo?.language ? [repo.language] : [],
-          category: null,
-          difficulty: null,
-          fetchedFields: ["title", "description", "technologies"],
-        }),
-      900,
-    ),
+  const { data } = await axiosInstance.post<ImportedProjectDto>(
+    "/projects/import/github",
+    {
+      fullName,
+      status: "draft",
+    },
   );
+
+  return toImportDraftDto(data);
+}
+
+export async function publishProject(
+  fullName: string,
+  metadata: Omit<ImportDraftDto, "fetchedFields">,
+): Promise<ImportedProjectDto> {
+  const { data } = await axiosInstance.post<ImportedProjectDto>(
+    "/projects/import/github",
+    {
+      fullName,
+      status: "published",
+      title: metadata.title,
+      description: metadata.description,
+      category: metadata.category,
+      difficulty: metadata.difficulty,
+      technologies: metadata.technologies,
+    },
+  );
+
+  return data;
+}
+
+function toImportDraftDto(response: ImportedProjectDto): ImportDraftDto {
+  const technologies = toStringArray(response.technologies);
+
+  return {
+    title: response.title,
+    description: response.description ?? "",
+    technologies,
+    category: response.category,
+    difficulty: response.difficulty,
+    fetchedFields: getFetchedFields(response, technologies),
+  };
+}
+
+function toStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function getFetchedFields(
+  response: ImportedProjectDto,
+  technologies: string[],
+): string[] {
+  return [
+    response.title.trim() ? "title" : null,
+    response.description?.trim() ? "description" : null,
+    technologies.length > 0 ? "technologies" : null,
+    response.category ? "category" : null,
+    response.difficulty ? "difficulty" : null,
+  ].filter((field): field is string => field !== null);
 }

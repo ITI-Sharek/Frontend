@@ -5,21 +5,24 @@ import {
   Search,
   Star,
 } from "lucide-react";
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 
+import { startGitHubConnect } from "@/modules/github";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
+import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { cn } from "@/lib/utils";
 
 import {
   getOwnerRepos,
   importRepoAsDraft,
+  publishProject,
 } from "../../services/my-projects.service";
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../explore-filters";
 import type {
   ImportDraftDto,
-  ImportFailureCause,
   RepoPickDto,
 } from "../../types/my-projects.types";
 import type {
@@ -28,13 +31,6 @@ import type {
 } from "../../types/explore.types";
 
 const STEPS = ["اختيار المستودع", "مراجعة البيانات", "النشر"] as const;
-
-const IMPORT_ERRORS: Record<ImportFailureCause, string> = {
-  not_found: "لم نعثر على هذا المستودع — تأكد من الاسم بصيغة owner/repo.",
-  private: "هذا المستودع خاص — «شارك» تدعم المستودعات العامة فقط حاليًا.",
-  rate_limited: "تجاوزنا حد طلبات GitHub مؤقتًا — حاول بعد دقائق.",
-  duplicate: "هذا المستودع مستورد بالفعل على «شارك» — تواصل مع الدعم إن كان ملكك.",
-};
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
 const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
@@ -56,27 +52,78 @@ export function ImportProjectStepper({
   const [pasted, setPasted] = useState("");
   const [importing, setImporting] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [repoLoadError, setRepoLoadError] = useState<string | null>(null);
+  const [selectedRepoFullName, setSelectedRepoFullName] = useState<string | null>(null);
+  const [connectingGitHub, setConnectingGitHub] = useState(false);
   const [draft, setDraft] = useState<ImportDraftDto | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
 
   useEffect(() => {
-    void getOwnerRepos().then(setRepos);
+    void getOwnerRepos()
+      .then((ownerRepos) => {
+        setRepos(ownerRepos);
+        setRepoLoadError(null);
+      })
+      .catch((error) => {
+        setRepos([]);
+        setRepoLoadError(getRepositoryLoadErrorMessage(error));
+      });
   }, []);
 
   async function handleImport(fullName: string) {
     setImportError(null);
+    setPublishError(null);
     setImporting(fullName);
     try {
       const imported = await importRepoAsDraft(fullName);
+      setSelectedRepoFullName(fullName);
       setDraft(imported);
+      setPublished(false);
       setStep(1);
     } catch (error) {
-      const cause = (error as { code?: ImportFailureCause }).code;
       setImportError(
-        (cause && IMPORT_ERRORS[cause]) ?? "تعذر الاستيراد — حاول مرة أخرى.",
+        getApiErrorMessage(error, "تعذر الاستيراد — حاول مرة أخرى."),
       );
     } finally {
       setImporting(null);
+    }
+  }
+
+  async function handlePublish() {
+    if (draft === null || selectedRepoFullName === null) return;
+
+    setPublishError(null);
+    setPublishing(true);
+    try {
+      await publishProject(selectedRepoFullName, {
+        title: draft.title,
+        description: draft.description,
+        technologies: draft.technologies,
+        category: draft.category,
+        difficulty: draft.difficulty,
+      });
+      setPublished(true);
+    } catch (error) {
+      setPublishError(
+        getApiErrorMessage(error, "تعذر نشر المشروع — حاول مرة أخرى."),
+      );
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  async function handleConnectGitHub() {
+    setConnectingGitHub(true);
+    setRepoLoadError(null);
+    try {
+      await startGitHubConnect(window.location.pathname);
+    } catch (error) {
+      setRepoLoadError(
+        getApiErrorMessage(error, "تعذر فتح ربط GitHub — حاول مرة أخرى."),
+      );
+      setConnectingGitHub(false);
     }
   }
 
@@ -112,6 +159,26 @@ export function ImportProjectStepper({
               <p className="py-6 text-center text-sm text-muted-foreground">
                 جارٍ جلب مستودعاتك…
               </p>
+            ) : repoLoadError ? (
+              <div className="py-6 text-center">
+                <p className="text-sm leading-6 text-destructive">
+                  {repoLoadError}
+                </p>
+                {isGitHubNotConnectedMessage(repoLoadError) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3"
+                    disabled={connectingGitHub}
+                    onClick={() => void handleConnectGitHub()}
+                  >
+                    {connectingGitHub && (
+                      <Loader2 className="size-4 animate-spin" />
+                    )}
+                    ربط GitHub
+                  </Button>
+                )}
+              </div>
             ) : (
               filteredRepos.map((repo) => (
                 <button
@@ -243,7 +310,10 @@ export function ImportProjectStepper({
             <Button
               className="flex-1"
               disabled={draft.category === null || draft.difficulty === null || draft.title.trim() === ""}
-              onClick={() => setStep(2)}
+              onClick={() => {
+                setPublishError(null);
+                setStep(2);
+              }}
             >
               متابعة إلى النشر
             </Button>
@@ -262,11 +332,25 @@ export function ImportProjectStepper({
             لكل المساهمين في صفحة الاستكشاف، وتُفهرس بياناته للبحث الدلالي.
             يمكنك أرشفته لاحقًا في أي وقت.
           </p>
+          {publishError && (
+            <p className="mt-3 text-sm leading-6 text-destructive">
+              {publishError}
+            </p>
+          )}
           <div className="mt-4 flex gap-2.5">
-            <Button className="flex-1" onClick={() => setPublished(true)}>
+            <Button
+              className="flex-1"
+              disabled={publishing}
+              onClick={() => void handlePublish()}
+            >
+              {publishing && <Loader2 className="size-4 animate-spin" />}
               نشر المشروع
             </Button>
-            <Button variant="outline" onClick={() => setStep(1)}>
+            <Button
+              variant="outline"
+              disabled={publishing}
+              onClick={() => setStep(1)}
+            >
               رجوع
             </Button>
           </div>
@@ -300,6 +384,24 @@ export function ImportProjectStepper({
       )}
     </div>
   );
+}
+
+function getRepositoryLoadErrorMessage(error: unknown): string {
+  if (
+    isAxiosError(error) &&
+    error.response?.data?.code === "GITHUB_ACCOUNT_NOT_CONNECTED"
+  ) {
+    return "حساب GitHub غير مربوط بهذا المستخدم — اربطه أولاً أو استورد مستودعًا عامًا بالاسم.";
+  }
+
+  return getApiErrorMessage(
+    error,
+    "تعذر جلب مستودعات GitHub — تأكد من ربط حسابك وحاول مرة أخرى.",
+  );
+}
+
+function isGitHubNotConnectedMessage(message: string): boolean {
+  return message.includes("GitHub غير مربوط");
 }
 
 function FieldLabel({
