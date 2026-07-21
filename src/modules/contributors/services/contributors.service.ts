@@ -47,12 +47,12 @@ function normalizeContributorProfileError(error: unknown): never {
 /** Normalize older responses defensively while all environments migrate. */
 type RawContributorProfileResponse = Omit<
   ContributorProfileDto,
-  "experienceRange" | "fields" | "declaredSkills"
+  "experienceLevel" | "fields" | "declaredSkills"
 > &
   Partial<
     Pick<
       ContributorProfileDto,
-      "experienceRange" | "fields" | "declaredSkills"
+      "experienceLevel" | "fields" | "declaredSkills"
     >
   >;
 
@@ -71,7 +71,7 @@ function normalizeContributorProfile(
   return {
     ...data,
     avatarUrl: resolveAvatarUrl(data.avatarUrl),
-    experienceRange: data.experienceRange ?? null,
+    experienceLevel: data.experienceLevel ?? null,
     fields: data.fields ?? [],
     declaredSkills: data.declaredSkills ?? [],
   };

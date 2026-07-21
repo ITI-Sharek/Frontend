@@ -39,7 +39,12 @@ function makeProfile(
     ],
     completionPrompts: ["Add more skills"],
     viewerRelationship: "owner",
-    experienceRange: "five_to_ten",
+    experienceLevel: {
+      id: "level-five-to-ten",
+      key: "five_to_ten",
+      labelEn: "5-10 years",
+      labelAr: "5-10 سنوات",
+    },
     fields: [
       { id: "field-web", key: "web", labelEn: "Web", labelAr: "الويب" },
       { id: "field-ai", key: "ai", labelEn: "AI", labelAr: "الذكاء الاصطناعي" },

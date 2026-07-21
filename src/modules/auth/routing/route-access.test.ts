@@ -79,7 +79,7 @@ describe("route access", () => {
         makeDependencies(makeUser("contributor")),
       ),
     ).rejects.toMatchObject({
-      options: { to: ROUTES.contributorProfile("sara") },
+      options: { to: ROUTES.home },
     });
   });
 

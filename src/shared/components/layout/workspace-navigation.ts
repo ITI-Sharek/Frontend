@@ -4,10 +4,14 @@ import {
   ClipboardCheck,
   Compass,
   Github,
+  House,
   LayoutDashboard,
   ListTodo,
+  MessageCircleQuestion,
+  Newspaper,
   PanelsTopLeft,
   Settings,
+  TrendingUp,
   UserRound,
   Users,
 } from "lucide-react";
@@ -39,6 +43,18 @@ export function getMemberNavigation({
   username,
   unreadCount,
 }: MemberNavigationOptions): AppShellNavItem[] {
+  const homeItem: AppShellNavItem = {
+    label: "الرئيسية",
+    to: ROUTES.home,
+    icon: House,
+    active: isActivePath(pathname, ROUTES.home, true),
+  };
+  const discussionsItem: AppShellNavItem = {
+    label: "النقاشات",
+    to: ROUTES.discussions,
+    icon: Newspaper,
+    active: isActivePath(pathname, ROUTES.discussions),
+  };
   const settingsItem: AppShellNavItem = {
     label: "الإعدادات",
     to: ROUTES.settings,
@@ -46,15 +62,25 @@ export function getMemberNavigation({
     active: isActivePath(pathname, ROUTES.settings),
     secondary: true,
   };
+  const supportItem: AppShellNavItem = {
+    label: "الدعم",
+    to: ROUTES.support,
+    icon: MessageCircleQuestion,
+    active: isActivePath(pathname, ROUTES.support),
+    secondary: true,
+    hideOnMobile: true,
+  };
 
   if (role === "owner") {
     return [
+      homeItem,
       {
         label: "مشاريعي",
         to: ROUTES.myProjects,
         icon: BriefcaseBusiness,
         active: isActivePath(pathname, ROUTES.myProjects),
       },
+      discussionsItem,
       {
         label: "الإشعارات",
         to: ROUTES.notifications,
@@ -63,10 +89,12 @@ export function getMemberNavigation({
         badge: unreadCount,
       },
       settingsItem,
+      supportItem,
     ];
   }
 
   return [
+    homeItem,
     {
       label: "لوحة التحكم",
       to: ROUTES.dashboard,
@@ -85,6 +113,7 @@ export function getMemberNavigation({
       icon: ListTodo,
       active: isActivePath(pathname, ROUTES.tasks),
     },
+    discussionsItem,
     {
       label: "مستودعات GitHub",
       to: "/github/repositories",
@@ -109,6 +138,7 @@ export function getMemberNavigation({
       hideOnMobile: true,
     },
     settingsItem,
+    supportItem,
   ];
 }
 
@@ -136,6 +166,12 @@ export function getAdminNavigation({
       to: ROUTES.adminProfileFields,
       icon: PanelsTopLeft,
       active: isActivePath(pathname, ROUTES.adminProfileFields),
+    },
+    {
+      label: "مستويات الخبرة",
+      to: ROUTES.adminExperienceLevels,
+      icon: TrendingUp,
+      active: isActivePath(pathname, ROUTES.adminExperienceLevels),
     },
     {
       label: "ملاك المشاريع",

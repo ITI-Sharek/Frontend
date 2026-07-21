@@ -1,5 +1,5 @@
 import type {
-  ContributorExperienceRange,
+  ContributorExperienceLevelDto,
   ContributorFieldDto,
   ContributorProfileDto,
 } from "../types/contributor-profile.types";
@@ -8,7 +8,7 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 export interface UpdateProfileDetailsPayload {
   bio?: string | null;
   availability?: string | null;
-  experienceRange?: ContributorExperienceRange | null;
+  experienceLevelId?: string | null;
   fieldIds?: string[];
   declaredSkills?: string[];
 }
@@ -37,6 +37,15 @@ export async function updateContributorProfileDetails(
 export async function listContributorFields(): Promise<ContributorFieldDto[]> {
   const { data } = await axiosInstance.get<ContributorFieldDto[]>(
     "/contributors/profile-fields",
+  );
+  return data;
+}
+
+export async function listExperienceLevels(): Promise<
+  ContributorExperienceLevelDto[]
+> {
+  const { data } = await axiosInstance.get<ContributorExperienceLevelDto[]>(
+    "/contributors/experience-levels",
   );
   return data;
 }

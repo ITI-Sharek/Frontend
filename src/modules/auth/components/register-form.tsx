@@ -8,6 +8,7 @@ import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
+import type { ChipOption } from "@/shared/components/forms/chip-select";
 
 import { useUsernameAvailabilityQuery } from "../api/queries/use-username-availability-query";
 import {
@@ -38,8 +39,17 @@ export interface ContributorSignupDetails {
 }
 
 export function RegisterForm({
+  experienceLevelOptions,
+  isExperienceLevelsLoading = false,
   onContributorDetailsCollected,
 }: {
+  /**
+   * Injected by the route (cross-module composition happens at the route
+   * layer): admin-managed experience-level options owned by the
+   * `contributors` module.
+   */
+  experienceLevelOptions: ChipOption[];
+  isExperienceLevelsLoading?: boolean;
   /**
    * Injected by the route (cross-module composition happens at the route
    * layer): persists the details-step data (skills/experience/interests)
@@ -230,7 +240,12 @@ export function RegisterForm({
             />
           )}
           {step === 2 && (
-            <DetailsStep data={formData} onFieldChange={setField} />
+            <DetailsStep
+              data={formData}
+              onFieldChange={setField}
+              experienceLevelOptions={experienceLevelOptions}
+              isExperienceLevelsLoading={isExperienceLevelsLoading}
+            />
           )}
 
           {submitError && (

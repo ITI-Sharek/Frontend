@@ -4,9 +4,9 @@ import { useId } from "react";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { TagInput } from "@/shared/components/forms/tag-input";
 import { ChipSelect } from "@/shared/components/forms/chip-select";
+import type { ChipOption } from "@/shared/components/forms/chip-select";
 
 import {
-  EXPERIENCE_OPTIONS,
   INTEREST_OPTIONS,
   TEAM_SIZE_OPTIONS,
 } from "../../constants/signup.constants";
@@ -19,9 +19,21 @@ interface DetailsStepProps {
     field: TKey,
     value: SignupFormData[TKey],
   ) => void;
+  /**
+   * Admin-managed experience-level options (cross-module data owned by the
+   * `contributors` module) — injected by the route, not fetched here, per
+   * the one-way module dependency rule.
+   */
+  experienceLevelOptions: ChipOption[];
+  isExperienceLevelsLoading: boolean;
 }
 
-export function DetailsStep({ data, onFieldChange }: DetailsStepProps) {
+export function DetailsStep({
+  data,
+  onFieldChange,
+  experienceLevelOptions,
+  isExperienceLevelsLoading,
+}: DetailsStepProps) {
   const termsId = useId();
 
   return (
@@ -48,10 +60,19 @@ export function DetailsStep({ data, onFieldChange }: DetailsStepProps) {
           />
           <ChipSelect
             label="سنوات الخبرة"
-            options={EXPERIENCE_OPTIONS}
+            options={experienceLevelOptions}
             value={data.contributorExperience}
             onChange={(v) => onFieldChange("contributorExperience", v as string)}
           />
+          {isExperienceLevelsLoading ? (
+            <p className="text-right text-xs text-muted-foreground">
+              جارٍ تحميل مستويات الخبرة…
+            </p>
+          ) : experienceLevelOptions.length === 0 ? (
+            <p className="text-right text-xs text-muted-foreground">
+              لم يضف المسؤول مستويات خبرة متاحة بعد.
+            </p>
+          ) : null}
           <ChipSelect
             label="مجالات الاهتمام"
             options={INTEREST_OPTIONS}

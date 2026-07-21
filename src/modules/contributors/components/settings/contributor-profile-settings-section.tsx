@@ -12,11 +12,8 @@ import {
   useUploadContributorAvatarMutation,
 } from "../../api/mutations/use-update-profile-details-mutation";
 import { useContributorFieldsQuery } from "../../api/queries/use-contributor-fields-query";
-import { EXPERIENCE_RANGE_LABELS } from "../../constants/profile-options.constants";
-import type {
-  ContributorExperienceRange,
-  ContributorProfileDto,
-} from "../../types/contributor-profile.types";
+import { useExperienceLevelsQuery } from "../../api/queries/use-experience-levels-query";
+import type { ContributorProfileDto } from "../../types/contributor-profile.types";
 
 /** Settings → profile details, dynamic fields, declared skills, and avatar. */
 export function ContributorProfileSettingsSection({
@@ -27,12 +24,11 @@ export function ContributorProfileSettingsSection({
   const mutation = useUpdateProfileDetailsMutation();
   const avatarMutation = useUploadContributorAvatarMutation();
   const fieldsQuery = useContributorFieldsQuery();
+  const experienceLevelsQuery = useExperienceLevelsQuery();
   const [bio, setBio] = useState(profile.bio ?? "");
   const [availability, setAvailability] = useState(profile.availability ?? "");
-  const [experienceRange, setExperienceRange] = useState<
-    ContributorExperienceRange | ""
-  >(
-    profile.experienceRange ?? "",
+  const [experienceLevelId, setExperienceLevelId] = useState(
+    profile.experienceLevel?.id ?? "",
   );
   const [fieldIds, setFieldIds] = useState(profile.fields.map((field) => field.id));
   const [declaredSkills, setDeclaredSkills] = useState(profile.declaredSkills);
@@ -56,7 +52,7 @@ export function ContributorProfileSettingsSection({
         mutation.mutate({
           bio,
           availability: availability || null,
-          experienceRange: experienceRange || null,
+          experienceLevelId: experienceLevelId || null,
           fieldIds,
           declaredSkills,
         });
@@ -146,18 +142,14 @@ export function ContributorProfileSettingsSection({
         </Label>
         <select
           id="settings-profile-experience"
-          value={experienceRange}
-          onChange={(event) =>
-            setExperienceRange(
-              event.target.value as ContributorExperienceRange | "",
-            )
-          }
+          value={experienceLevelId}
+          onChange={(event) => setExperienceLevelId(event.target.value)}
           className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-right text-base text-foreground outline-none"
         >
           <option value="">اختر نطاق الخبرة</option>
-          {Object.entries(EXPERIENCE_RANGE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
+          {experienceLevelsQuery.data?.map((level) => (
+            <option key={level.id} value={level.id}>
+              {level.labelAr}
             </option>
           ))}
         </select>

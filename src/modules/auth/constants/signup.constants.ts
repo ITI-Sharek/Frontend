@@ -29,13 +29,6 @@ export const ROLE_OPTIONS: RoleOption[] = [
   },
 ];
 
-export const EXPERIENCE_OPTIONS: ChipOption[] = [
-  { value: "junior", label: "أقل من سنة" },
-  { value: "mid", label: "1 - 3 سنوات" },
-  { value: "senior", label: "3 - 5 سنوات" },
-  { value: "expert", label: "أكثر من 5 سنوات" },
-];
-
 export const TEAM_SIZE_OPTIONS: ChipOption[] = [
   { value: "solo", label: "أعمل بمفردي" },
   { value: "small", label: "2 - 10" },
