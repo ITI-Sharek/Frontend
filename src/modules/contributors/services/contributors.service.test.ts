@@ -38,7 +38,7 @@ const profile: ContributorProfileDto = {
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",
-  experienceRange: null,
+  experienceLevel: null,
   fields: [],
   declaredSkills: [],
 };

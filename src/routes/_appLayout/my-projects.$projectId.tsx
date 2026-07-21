@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Archive, CircleCheck, FileText, Plus } from "lucide-react";
 
-import { requireOwnerRoute } from "@/modules/auth";
+import { requireMemberRoute } from "@/modules/auth";
 import { getMyProjects } from "@/modules/projects";
 import type { MyProjectDto } from "@/modules/projects";
 import { Button } from "@/shared/components/ui/button";
@@ -17,7 +17,7 @@ const STATUS_META = {
 };
 
 export const Route = createFileRoute("/_appLayout/my-projects/$projectId")({
-  beforeLoad: requireOwnerRoute,
+  beforeLoad: requireMemberRoute,
   head: () => ({ meta: [{ title: "إدارة المشروع | Sharek" }] }),
   component: OwnerProjectManagementPage,
 });

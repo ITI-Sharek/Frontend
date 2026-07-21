@@ -3,17 +3,24 @@ export { ContributorProfileErrorView } from "./components/contributor-profile-er
 export { ContributorProfileNotFound } from "./components/contributor-profile-not-found";
 export { ContributorProfileView } from "./components/contributor-profile-view";
 export { AdminContributorFieldsPanel } from "./components/admin-contributor-fields-panel";
+export { AdminExperienceLevelsPanel } from "./components/admin-experience-levels-panel";
 export { ContributorProfileSettingsSection } from "./components/settings/contributor-profile-settings-section";
 export { ContributorGithubSettingsSection } from "./components/settings/contributor-github-settings-section";
 export { useEnsureContributorProfileMutation } from "./api/mutations/use-ensure-contributor-profile-mutation";
 export { useUpdateProfileDetailsMutation } from "./api/mutations/use-update-profile-details-mutation";
 export { useUploadContributorAvatarMutation } from "./api/mutations/use-update-profile-details-mutation";
 export { useContributorFieldsQuery } from "./api/queries/use-contributor-fields-query";
+export { useExperienceLevelsQuery } from "./api/queries/use-experience-levels-query";
 export {
   useAdminContributorFieldsQuery,
   useCreateContributorFieldMutation,
   useUpdateContributorFieldMutation,
 } from "./api/queries/use-admin-contributor-fields-query";
+export {
+  useAdminExperienceLevelsQuery,
+  useCreateExperienceLevelMutation,
+  useUpdateExperienceLevelMutation,
+} from "./api/queries/use-admin-experience-levels-query";
 export { useGenerateSkillsMutation } from "./api/mutations/use-generate-skills-mutation";
 export { useContributorProfileQuery } from "./api/queries/use-contributor-profile-query";
 export { contributorProfileKeys } from "./api/query-keys";
@@ -23,6 +30,7 @@ export {
 } from "./services/contributors.service";
 export {
   listContributorFields,
+  listExperienceLevels,
   updateContributorProfileDetails,
 } from "./services/contributor-profile-completion.service";
 export type { UpdateProfileDetailsPayload } from "./services/contributor-profile-completion.service";
@@ -34,12 +42,8 @@ export type {
   OnboardingStep,
 } from "./types/onboarding.types";
 export { ContributorProfileError } from "./types/contributor-profile.types";
-export {
-  EXPERIENCE_RANGE_LABELS,
-  getExperienceRangeLabel,
-} from "./constants/profile-options.constants";
 export type {
-  ContributorExperienceRange,
+  ContributorExperienceLevelDto,
   ContributorFieldDto,
   ContributorGithubStatusDto,
   ContributorHistoryItemDto,

@@ -1,74 +1,47 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
-import { useCurrentUserQuery, useLogoutMutation } from "@/modules/auth";
-import {
-  CollaborationSpaceSection,
-  ContributionRecordSection,
-  CtaSection,
-  FeaturesSection,
-  HeroSection,
-  HomeHeader,
-  HowItWorksSection,
-  RolesSection,
-} from "@/modules/home";
-import type { HomeHeaderAuthUser } from "@/modules/home";
-import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
-import { SiteFooter } from "@/shared/components/layout/site-footer";
+import { useCurrentUserQuery } from "@/modules/auth";
+import { storageService } from "@/services/storage.service";
 
-export const Route = createFileRoute("/")({ component: HomePage });
+export const Route = createFileRoute("/")({ component: RootDispatcher });
 
-function HomePage() {
+/**
+ * "/" has no content of its own: signed-out visitors go to the marketing
+ * page at /lp, signed-in users go to their workspace home. Keeping this as
+ * a redirect (rather than merging into /lp or /home) means both destinations
+ * stay single-purpose and neither route has to know about the other.
+ */
+function RootDispatcher() {
   const navigate = useNavigate();
+  const hasToken =
+    typeof window !== "undefined" && storageService.getAccessToken() !== null;
   const currentUserQuery = useCurrentUserQuery();
-  const logoutMutation = useLogoutMutation();
 
-  function handleLogout() {
-    logoutMutation.mutate(undefined, {
-      onSettled: () => {
-        navigate({ to: ROUTES.login });
-      },
-    });
-  }
+  useEffect(() => {
+    if (!hasToken) {
+      void navigate({ to: ROUTES.landing, replace: true });
+      return;
+    }
 
-  const authUser = currentUserQuery.data;
-  const headerUser: HomeHeaderAuthUser | null = authUser
-    ? {
-        displayName: `${authUser.firstName} ${authUser.lastName}`.trim(),
-        avatarUrl: authUser.avatarUrl,
-        menuItems: getProfileMenuItems(authUser),
-      }
-    : null;
+    if (currentUserQuery.data) {
+      void navigate({ to: getPostLoginPath(currentUserQuery.data), replace: true });
+      return;
+    }
+
+    if (currentUserQuery.isError) {
+      void navigate({ to: ROUTES.landing, replace: true });
+    }
+  }, [hasToken, currentUserQuery.data, currentUserQuery.isError, navigate]);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <HomeHeader user={headerUser} onLogout={handleLogout} />
-      <main id="main-content" className="flex-1">
-        <HeroSection />
-        <HowItWorksSection />
-        <FeaturesSection />
-        <CollaborationSpaceSection />
-        <RolesSection />
-        <ContributionRecordSection />
-        <CtaSection />
-      </main>
-      <SiteFooter />
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
+    >
+      جارٍ التحميل…
     </div>
   );
-}
-
-function getProfileMenuItems(user: {
-  role: "owner" | "contributor" | "admin";
-  username: string | null;
-}): ProfileMenuItem[] {
-  const label =
-    user.role === "admin"
-      ? "لوحة الإدارة"
-      : user.role === "owner"
-        ? "مشاريعي"
-        : user.username
-          ? "ملفي الشخصي"
-          : "إكمال التفعيل";
-
-  return [{ label, to: getPostLoginPath(user) }];
 }

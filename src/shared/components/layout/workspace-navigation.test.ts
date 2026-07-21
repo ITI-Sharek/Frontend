@@ -17,9 +17,12 @@ describe("workspace navigation", () => {
     });
 
     expect(navigation.map((item) => item.to)).toEqual([
+      ROUTES.home,
       ROUTES.myProjects,
+      ROUTES.discussions,
       ROUTES.notifications,
       ROUTES.settings,
+      ROUTES.support,
     ]);
     expect(navigation.some((item) => item.to === ROUTES.dashboard)).toBe(false);
   });

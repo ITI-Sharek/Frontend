@@ -19,6 +19,8 @@ import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
+import { HeaderSearch } from "@/shared/components/navigation/header-search";
+import { MessagesButton } from "@/shared/components/navigation/messages-button";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 
 export const Route = createFileRoute("/_appLayout")({
@@ -110,8 +112,10 @@ function AppLayout() {
         <WorkspaceTopBar
           title={currentUser.role === "owner" ? "مساحة المشاريع" : "مساحة المساهم"}
           description="كل ما يحتاج إلى انتباهك في مكان واحد"
+          search={<HeaderSearch />}
           actions={
             <>
+              <MessagesButton />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
               <ProfileMenu
                 displayName={displayName}

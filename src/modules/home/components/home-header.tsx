@@ -44,7 +44,7 @@ export function HomeHeader({
         تجاوز إلى المحتوى الرئيسي
       </a>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link to={ROUTES.home} className="flex items-center gap-2.5">
+        <Link to={ROUTES.landing} className="flex items-center gap-2.5">
           <img
             src="/logo-1.png"
             alt=""

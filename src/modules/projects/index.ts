@@ -1,5 +1,6 @@
 export { importGitHubProject } from "./services/projects.service";
 export { ExploreView } from "./components/explore-view";
+export { ExploreProjectCard } from "./components/explore-project-card";
 export { ProjectDetailsView } from "./components/project-details-view";
 export { AdminPublishedProjectOwnersPanel } from "./components/admin-published-project-owners-panel";
 export { getProjectBySlug } from "./services/project-details.service";

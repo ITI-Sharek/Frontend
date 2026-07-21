@@ -6,6 +6,7 @@ import {
   ensureCurrentContributorProfile,
   listContributorFields,
   updateContributorProfileDetails,
+  useExperienceLevelsQuery,
 } from "@/modules/contributors";
 
 export const Route = createFileRoute("/_authLayout/register")({
@@ -21,22 +22,11 @@ async function persistContributorSignupDetails(
   const profile = await ensureCurrentContributorProfile();
   const fields = await listContributorFields();
   const selectedKeys = new Set(details.interests);
-  const experienceRange = {
-    junior: "zero_to_one",
-    mid: "two_to_four",
-    senior: "five_to_ten",
-    expert: "ten_plus",
-  }[details.experienceLevel] as
-    | "zero_to_one"
-    | "two_to_four"
-    | "five_to_ten"
-    | "ten_plus"
-    | undefined;
 
   await updateContributorProfileDetails({
     bio: profile.bio,
     availability: profile.availability,
-    experienceRange: experienceRange ?? null,
+    experienceLevelId: details.experienceLevel || null,
     fieldIds: fields
       .filter((field) => selectedKeys.has(field.key))
       .map((field) => field.id),
@@ -45,6 +35,8 @@ async function persistContributorSignupDetails(
 }
 
 function RegisterPage() {
+  const experienceLevelsQuery = useExperienceLevelsQuery();
+
   return (
     <>
       <AuthHero
@@ -52,6 +44,10 @@ function RegisterPage() {
         subtext="انضم إلى مجتمع المطورين والخبراء التقنيين"
       />
       <RegisterForm
+        experienceLevelOptions={(experienceLevelsQuery.data ?? []).map(
+          (level) => ({ value: level.id, label: level.labelAr }),
+        )}
+        isExperienceLevelsLoading={experienceLevelsQuery.isPending}
         onContributorDetailsCollected={persistContributorSignupDetails}
       />
     </>

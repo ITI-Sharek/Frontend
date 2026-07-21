@@ -1,14 +1,19 @@
 export const ROUTES = {
-  home: "/",
+  landing: "/lp",
+  home: "/home",
   dashboard: "/dashboard",
   explore: "/explore",
   onboarding: "/onboarding",
   tasks: "/tasks",
   notifications: "/notifications",
+  discussions: "/discussions",
+  discussion: (postId: string) => `/discussions/${encodeURIComponent(postId)}`,
+  support: "/support",
   admin: "/admin",
   adminNotifications: "/admin/notifications",
   adminSkillReviews: "/admin/skill-reviews",
   adminProfileFields: "/admin/profile-fields",
+  adminExperienceLevels: "/admin/experience-levels",
   adminProjectOwners: "/admin/project-owners",
   adminSkillReview: (userId: string) =>
     `/admin/skill-reviews/${encodeURIComponent(userId)}`,
@@ -17,6 +22,7 @@ export const ROUTES = {
   forgotPassword: "/forgot-password",
   authCallback: "/auth/callback",
   myProjects: "/my-projects",
+  newProject: "/my-projects/new",
   settings: "/settings",
   contributorProfile: (username: string) =>
     `/profile/${encodeURIComponent(username)}`,
@@ -32,13 +38,10 @@ export function getPostLoginPath(user: PostLoginUser): string {
     return ROUTES.admin;
   }
 
-  if (user.role === "contributor") {
-    return user.username
-      ? ROUTES.contributorProfile(user.username)
-      : ROUTES.onboarding;
+  if (user.role === "contributor" && !user.username) {
+    return ROUTES.onboarding;
   }
 
-  // The owner dashboard variant (docs/design/wireframes/09-owner-dashboard.md)
-  // isn't built yet — /my-projects is the owner's working landing page today.
-  return ROUTES.myProjects;
+  // Both owners and contributors land on the shared workspace home hub.
+  return ROUTES.home;
 }

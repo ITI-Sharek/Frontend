@@ -1,0 +1,188 @@
+import { Check, Loader2, Plus } from "lucide-react";
+import { useState } from "react";
+
+import { Button } from "@/shared/components/ui/button";
+import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
+
+import {
+  useAdminExperienceLevelsQuery,
+  useCreateExperienceLevelMutation,
+  useUpdateExperienceLevelMutation,
+} from "../api/queries/use-admin-experience-levels-query";
+
+const INPUT_CLASS_NAME =
+  "min-h-11 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary";
+
+export function AdminExperienceLevelsPanel() {
+  const levels = useAdminExperienceLevelsQuery();
+  const createLevel = useCreateExperienceLevelMutation();
+  const updateLevel = useUpdateExperienceLevelMutation();
+  const [key, setKey] = useState("");
+  const [labelAr, setLabelAr] = useState("");
+  const [labelEn, setLabelEn] = useState("");
+
+  const error = levels.error ?? createLevel.error ?? updateLevel.error;
+
+  return (
+    <section
+      aria-labelledby="experience-levels-heading"
+      className="mt-6 overflow-hidden rounded-card border border-border bg-card"
+    >
+      <div className="border-b border-border p-5 md:p-6">
+        <h2 id="experience-levels-heading" className="text-lg font-bold text-foreground">
+          مستويات الخبرة
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          تظهر المستويات النشطة كخيار موحّد في التسجيل وإعدادات المساهم. تعطيل
+          مستوى لا يحذفه ولا يمحو اختيارات سابقة.
+        </p>
+      </div>
+
+      <form
+        className="grid gap-4 border-b border-border p-5 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!key.trim() || !labelAr.trim() || !labelEn.trim()) return;
+          createLevel.mutate(
+            { key: key.trim(), labelAr: labelAr.trim(), labelEn: labelEn.trim() },
+            {
+              onSuccess: () => {
+                setKey("");
+                setLabelAr("");
+                setLabelEn("");
+              },
+            },
+          );
+        }}
+      >
+        <label className="grid gap-1.5 text-sm font-semibold text-foreground">
+          المفتاح البرمجي
+          <input
+            dir="ltr"
+            name="levelKey"
+            required
+            maxLength={50}
+            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+            title="استخدم حروفاً إنجليزية صغيرة وأرقاماً وشرطات فقط"
+            placeholder="two-to-four"
+            value={key}
+            onChange={(event) => setKey(event.target.value)}
+            className={INPUT_CLASS_NAME}
+          />
+          <span className="text-xs font-normal text-muted-foreground">
+            حروف صغيرة وأرقام وشرطات فقط
+          </span>
+        </label>
+        <label className="grid gap-1.5 text-sm font-semibold text-foreground">
+          الاسم العربي
+          <input
+            name="labelAr"
+            required
+            maxLength={100}
+            placeholder="2-4 سنوات"
+            value={labelAr}
+            onChange={(event) => setLabelAr(event.target.value)}
+            className={INPUT_CLASS_NAME}
+          />
+        </label>
+        <label className="grid gap-1.5 text-sm font-semibold text-foreground">
+          الاسم الإنجليزي
+          <input
+            dir="ltr"
+            name="labelEn"
+            required
+            maxLength={100}
+            placeholder="2-4 years"
+            value={labelEn}
+            onChange={(event) => setLabelEn(event.target.value)}
+            className={INPUT_CLASS_NAME}
+          />
+        </label>
+        <Button type="submit" disabled={createLevel.isPending}>
+          {createLevel.isPending ? (
+            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          ) : (
+            <Plus className="size-4" aria-hidden="true" />
+          )}
+          {createLevel.isPending ? "جارٍ الإضافة…" : "إضافة مستوى"}
+        </Button>
+      </form>
+
+      {error && (
+        <p role="alert" className="border-b border-border px-5 py-4 text-sm text-destructive md:px-6">
+          {getApiErrorMessage(error, "تعذر تحديث مستويات الخبرة.")}
+        </p>
+      )}
+
+      <div className="divide-y divide-border">
+        {levels.isPending ? (
+          <p role="status" aria-live="polite" className="p-6 text-sm text-muted-foreground">
+            جارٍ تحميل المستويات…
+          </p>
+        ) : levels.data?.length ? (
+          levels.data.map((level) => (
+            <div
+              key={level.id}
+              className="grid gap-4 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center md:px-6"
+            >
+              <div className="min-w-0">
+                <p className="font-semibold text-foreground">{level.labelAr}</p>
+                <p
+                  dir="ltr"
+                  className="mt-1 truncate text-left font-mono text-xs text-muted-foreground"
+                >
+                  {level.labelEn} · {level.key}
+                </p>
+              </div>
+              <label className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
+                ترتيب الظهور
+                <input
+                  aria-label={`ترتيب ${level.labelAr}`}
+                  type="number"
+                  min={0}
+                  max={10000}
+                  defaultValue={level.sortOrder}
+                  disabled={updateLevel.isPending}
+                  className="h-10 w-24 rounded-input border border-border bg-input-bg px-2 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  onBlur={(event) => {
+                    const sortOrder = Number(event.target.value);
+                    if (
+                      Number.isInteger(sortOrder) &&
+                      sortOrder >= 0 &&
+                      sortOrder <= 10000 &&
+                      sortOrder !== level.sortOrder
+                    ) {
+                      updateLevel.mutate({ levelId: level.id, payload: { sortOrder } });
+                    }
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                aria-pressed={level.active}
+                disabled={updateLevel.isPending}
+                onClick={() =>
+                  updateLevel.mutate({
+                    levelId: level.id,
+                    payload: { active: !level.active },
+                  })
+                }
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input border border-border px-3 text-sm font-semibold text-foreground hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {level.active && <Check className="size-4 text-primary" aria-hidden="true" />}
+                {level.active ? "نشط" : "غير نشط"}
+              </button>
+            </div>
+          ))
+        ) : levels.isError ? null : (
+          <div className="p-6">
+            <p className="font-semibold text-foreground">لا توجد مستويات بعد</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              أضف أول مستوى من النموذج أعلاه ليصبح متاحًا في التسجيل وإعدادات المساهم.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
