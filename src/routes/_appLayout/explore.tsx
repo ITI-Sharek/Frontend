@@ -4,7 +4,6 @@ import { requireMemberRoute } from "@/modules/auth";
 import { ExploreView } from "@/modules/projects";
 import type {
   ExploreSearchParamsDto,
-  ExploreSortKey,
   ProjectCategory,
   ProjectDifficulty,
 } from "@/modules/projects";
@@ -21,14 +20,8 @@ const DIFFICULTIES: ProjectDifficulty[] = [
   "intermediate",
   "advanced",
 ];
-const SORT_KEYS: ExploreSortKey[] = [
-  "newest",
-  "best_fit",
-  "most_active",
-  "open_tasks",
-];
 
-/** WF-03: all filters/search/sort live in the URL (shareable, back-navigable). */
+/** WF-03: all filters/search/page live in the URL (shareable, back-navigable). */
 function validateSearch(search: Record<string, unknown>): ExploreSearchParamsDto {
   const params: ExploreSearchParamsDto = {};
 
@@ -50,8 +43,9 @@ function validateSearch(search: Record<string, unknown>): ExploreSearchParamsDto
   if (DIFFICULTIES.includes(search.difficulty as ProjectDifficulty)) {
     params.difficulty = search.difficulty as ProjectDifficulty;
   }
-  if (SORT_KEYS.includes(search.sort as ExploreSortKey)) {
-    params.sort = search.sort as ExploreSortKey;
+  const page = Number(search.page);
+  if (Number.isInteger(page) && page > 1) {
+    params.page = page;
   }
 
   return params;
@@ -70,13 +64,17 @@ function ExplorePage() {
 
   function applyParams(partial: Partial<ExploreSearchParamsDto>) {
     const next = { ...params, ...partial };
+    // Any filter/search change other than an explicit page change starts back at page 1.
+    if (!("page" in partial)) {
+      next.page = undefined;
+    }
     void navigate({
       search: {
         q: next.q,
         technologies: next.technologies,
         category: next.category,
         difficulty: next.difficulty,
-        sort: next.sort,
+        page: next.page,
       },
       replace: true,
     });

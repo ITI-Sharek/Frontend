@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import { useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 import type {
@@ -24,56 +27,77 @@ const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
 const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
 
 interface ExploreFiltersProps {
-  technologyFacets: string[];
   params: ExploreSearchParamsDto;
   onChange: (partial: Partial<ExploreSearchParamsDto>) => void;
   onReset: () => void;
 }
 
 /**
- * WF-03 filter panel: technology (multi), category (single), difficulty
- * (single) + reset. Rendered in the desktop sidebar and the mobile sheet.
+ * WF-03 filter panel: technology (free-text, multi), category (single),
+ * difficulty (single) + reset. Rendered in the desktop sidebar and the
+ * mobile sheet. Technology has no backend-provided facet list (TASK-3-05
+ * follow-up) — contributors type the technology name directly.
  */
-export function ExploreFilters({
-  technologyFacets,
-  params,
-  onChange,
-  onReset,
-}: ExploreFiltersProps) {
+export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProps) {
   const selectedTech = params.technologies ?? [];
+  const [techDraft, setTechDraft] = useState("");
 
-  function toggleTechnology(tech: string) {
-    const next = selectedTech.includes(tech)
-      ? selectedTech.filter((item) => item !== tech)
-      : [...selectedTech, tech];
+  function addTechnology() {
+    const value = techDraft.trim();
+    if (value === "") return;
+    const exists = selectedTech.some(
+      (tech) => tech.toLowerCase() === value.toLowerCase(),
+    );
+    if (!exists) {
+      onChange({ technologies: [...selectedTech, value] });
+    }
+    setTechDraft("");
+  }
+
+  function removeTechnology(tech: string) {
+    const next = selectedTech.filter((item) => item !== tech);
     onChange({ technologies: next.length > 0 ? next : undefined });
   }
 
   return (
     <div className="flex flex-col gap-1">
       <FilterGroup title="التقنية" first>
-        {technologyFacets.map((tech) => {
-          const checked = selectedTech.includes(tech);
-          return (
-            <label key={tech} className="flex cursor-pointer items-center gap-2.5 py-1">
-              <input
-                type="checkbox"
-                checked={checked}
-                onChange={() => toggleTechnology(tech)}
-                className="size-4 accent-[var(--primary)]"
-              />
-              <span
-                dir="ltr"
-                className={cn(
-                  "font-mono text-[13px] tracking-[0.65px]",
-                  checked ? "font-medium text-foreground" : "text-muted-foreground",
-                )}
+        <form
+          className="flex gap-1.5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            addTechnology();
+          }}
+        >
+          <input
+            value={techDraft}
+            onChange={(event) => setTechDraft(event.target.value)}
+            placeholder="مثال: React"
+            dir="ltr"
+            className="w-full rounded-input border border-border bg-background px-2.5 py-1.5 font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
+          />
+          <button
+            type="submit"
+            className="shrink-0 rounded-input border border-border px-2.5 text-xs font-medium text-foreground hover:bg-border/20"
+          >
+            إضافة
+          </button>
+        </form>
+        {selectedTech.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {selectedTech.map((tech) => (
+              <button
+                key={tech}
+                type="button"
+                onClick={() => removeTechnology(tech)}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[11px] tracking-[0.65px] text-foreground"
               >
-                {tech}
-              </span>
-            </label>
-          );
-        })}
+                <bdi>{tech}</bdi>
+                <X className="size-3 text-muted-foreground" />
+              </button>
+            ))}
+          </div>
+        )}
       </FilterGroup>
 
       <FilterGroup title="التصنيف">
