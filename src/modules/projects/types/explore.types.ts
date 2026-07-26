@@ -1,7 +1,6 @@
 /**
- * Project discovery contract (WF-03 · IA §A `/explore`). No backend endpoint
- * exists yet — `explore.service.ts` serves mock data with this exact shape;
- * this file is the handoff contract for `GET /projects/explore`.
+ * Project discovery contract (WF-03 · IA §A `/explore`). Backed by
+ * `GET /projects/discover` (TASK-3-05, see `docs/api-contracts.md`).
  */
 
 export type ProjectCategory =
@@ -13,40 +12,43 @@ export type ProjectCategory =
 
 export type ProjectDifficulty = "beginner" | "intermediate" | "advanced";
 
-export type ExploreSortKey = "newest" | "best_fit" | "most_active" | "open_tasks";
-
-/** DEC-010: coverage buckets, never percentages. */
-export type FitBucket = "strong" | "partial" | "low" | "unknown";
-
 export interface ProjectLanguageShareDto {
   name: string;
   percent: number;
 }
 
-export interface ExploreFitHintDto {
-  bucket: FitBucket;
-  matchedCount: number;
-  requiredCount: number;
-  /** One-line explanation — a hint is never an unexplained score. */
-  reason: string;
+export interface ProjectRepoStatisticsDto {
+  stars?: number;
+  forks?: number;
+  openIssues?: number;
+  watchers?: number;
+  pushedAt?: string | null;
+  updatedAt?: string | null;
 }
 
-export interface ExploreProjectDto {
+/** Mirrors the metadata indexed into the RAG store — source attribution only. */
+export interface ProjectDiscoveryMetadataDto {
+  source: "project";
+  sourceId: string;
+  keywords: string[];
+  semanticText: string;
+}
+
+export interface DiscoveredProjectDto {
   id: string;
+  title: string;
   slug: string;
-  name: string;
-  description: string;
-  category: ProjectCategory;
-  difficulty: ProjectDifficulty;
-  languages: ProjectLanguageShareDto[];
+  description: string | null;
+  category: ProjectCategory | null;
+  difficulty: ProjectDifficulty | null;
   technologies: string[];
-  stars: number;
-  commitsThisMonth: number;
-  updatedAgoLabel: string;
-  openTasksCount: number;
-  ownerUsername: string;
-  /** Null for unauthenticated viewers (DEC-010). */
-  fitHint: ExploreFitHintDto | null;
+  tags: string[];
+  /** Raw byte counts per language, as returned by GitHub — not percentages. */
+  languages: Record<string, number>;
+  githubRepoUrl: string;
+  repoStatistics: ProjectRepoStatisticsDto | null;
+  publishedAt: string | null;
+  discoveryMetadata: ProjectDiscoveryMetadataDto;
 }
 
 export interface ExploreSearchParamsDto {
@@ -54,12 +56,25 @@ export interface ExploreSearchParamsDto {
   technologies?: string[];
   category?: ProjectCategory;
   difficulty?: ProjectDifficulty;
-  sort?: ExploreSortKey;
+  page?: number;
 }
 
-export interface ExploreResultDto {
-  projects: ExploreProjectDto[];
-  totalCount: number;
-  /** All technologies available as filters (backend-provided facet). */
-  technologyFacets: string[];
+export interface DiscoverProjectsPaginationDto {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface DiscoverProjectsAppliedFiltersDto {
+  technologies: string[];
+  category: ProjectCategory | null;
+  difficulty: ProjectDifficulty | null;
+  search: string | null;
+}
+
+export interface DiscoverProjectsResponseDto {
+  projects: DiscoveredProjectDto[];
+  pagination: DiscoverProjectsPaginationDto;
+  appliedFilters: DiscoverProjectsAppliedFiltersDto;
 }

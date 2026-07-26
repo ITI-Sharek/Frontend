@@ -12,8 +12,11 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";
-import type { ProjectDetailsDto, ProjectTaskSummaryDto } from "../types/project-details.types";
-import type { FitBucket } from "../types/explore.types";
+import type {
+  FitBucket,
+  ProjectDetailsDto,
+  ProjectTaskSummaryDto,
+} from "../types/project-details.types";
 
 const FIT_META: Record<FitBucket, { label: string; className: string }> = {
   strong: { label: "توافق قوي", className: "text-advisory-violet" },

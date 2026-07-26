@@ -32,10 +32,9 @@ export type {
   ProjectTaskSummaryDto,
 } from "./types/project-details.types";
 export type {
-  ExploreProjectDto,
-  ExploreResultDto,
+  DiscoveredProjectDto,
+  DiscoverProjectsResponseDto,
   ExploreSearchParamsDto,
-  ExploreSortKey,
   ProjectCategory,
   ProjectDifficulty,
 } from "./types/explore.types";

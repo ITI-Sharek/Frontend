@@ -1,10 +1,9 @@
-import { BadgeCheck, Bookmark, Star } from "lucide-react";
+import { Bookmark, ExternalLink, Star } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";
-import type { ExploreProjectDto, FitBucket } from "../types/explore.types";
+import type { DiscoveredProjectDto } from "../types/explore.types";
 
 const LANGUAGE_BAR_COLORS = [
   "var(--primary)",
@@ -12,38 +11,67 @@ const LANGUAGE_BAR_COLORS = [
   "var(--border)",
 ];
 
-const FIT_META: Record<FitBucket, { label: string; className: string }> = {
-  strong: { label: "توافق قوي", className: "text-advisory-violet" },
-  partial: {
-    label: "توافق جزئي",
-    className: "text-amber-600 dark:text-amber-400",
-  },
-  low: { label: "توافق منخفض", className: "text-muted-foreground" },
-  unknown: { label: "التوافق غير معروف", className: "text-muted-foreground" },
-};
+const MAX_LANGUAGES_SHOWN = 3;
+
+function getLanguageShares(
+  languages: Record<string, number>,
+): { name: string; percent: number }[] {
+  const total = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
+  if (total <= 0) return [];
+
+  return Object.entries(languages)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, MAX_LANGUAGES_SHOWN)
+    .map(([name, bytes]) => ({
+      name,
+      percent: Math.round((bytes / total) * 100),
+    }));
+}
+
+function getStars(project: DiscoveredProjectDto): number | null {
+  const stars = project.repoStatistics?.stars;
+  return typeof stars === "number" ? stars : null;
+}
+
+function formatPublishedAgo(publishedAt: string | null): string | null {
+  if (publishedAt === null) return null;
+  const days = Math.floor(
+    (Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60 * 24),
+  );
+  if (days <= 0) return "اليوم";
+  if (days === 1) return "منذ يوم";
+  if (days < 30) return `منذ ${days} أيام`;
+  const months = Math.floor(days / 30);
+  return months === 1 ? "منذ شهر" : `منذ ${months} أشهر`;
+}
 
 /**
- * WF-03 card anatomy (fixed order, comparison surface): name → difficulty +
- * category chips → description → language bar + tech tags → stats · open
- * tasks · owner → fit hint (authed only, explained — DEC-010).
+ * WF-03 card anatomy (comparison surface): title → difficulty + category
+ * chips → description → language bar + tech tags → stats · owner repo link.
  */
-export function ExploreProjectCard({ project }: { project: ExploreProjectDto }) {
-  const fit = project.fitHint === null ? null : FIT_META[project.fitHint.bucket];
-  const otherPercent =
-    100 - project.languages.reduce((sum, lang) => sum + lang.percent, 0);
+export function ExploreProjectCard({ project }: { project: DiscoveredProjectDto }) {
+  const languages = getLanguageShares(project.languages);
+  const otherPercent = 100 - languages.reduce((sum, lang) => sum + lang.percent, 0);
+  const stars = getStars(project);
+  const publishedAgo = formatPublishedAgo(project.publishedAt);
+  const repoOwner = project.githubRepoUrl.split("/").slice(-2, -1)[0] ?? "";
 
   return (
     <article className="flex flex-col rounded-card border border-border bg-card p-5 transition-colors hover:border-primary/50">
       <div className="flex flex-wrap items-center gap-2">
         <h3 dir="ltr" className="font-mono text-[15px] font-bold tracking-[0.65px] text-foreground">
-          {project.name}
+          {project.title}
         </h3>
-        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-          {DIFFICULTY_LABELS[project.difficulty]}
-        </span>
-        <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-          {CATEGORY_LABELS[project.category]}
-        </span>
+        {project.difficulty !== null && (
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+            {DIFFICULTY_LABELS[project.difficulty]}
+          </span>
+        )}
+        {project.category !== null && (
+          <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+            {CATEGORY_LABELS[project.category]}
+          </span>
+        )}
         <button
           type="button"
           aria-label="حفظ المشروع"
@@ -54,24 +82,28 @@ export function ExploreProjectCard({ project }: { project: ExploreProjectDto }) 
       </div>
 
       <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
-        {project.description}
+        {project.description ?? "لا يوجد وصف لهذا المشروع بعد."}
       </p>
 
-      <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border/50" aria-hidden>
-        {project.languages.map((lang, index) => (
-          <span
-            key={lang.name}
-            style={{
-              width: `${lang.percent}%`,
-              background: LANGUAGE_BAR_COLORS[index % LANGUAGE_BAR_COLORS.length],
-            }}
-          />
-        ))}
-        {otherPercent > 0 && <span style={{ width: `${otherPercent}%` }} />}
-      </div>
-      <p dir="ltr" className="mt-1.5 text-end font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-        {project.languages.map((lang) => `${lang.name} ${lang.percent}%`).join(" · ")}
-      </p>
+      {languages.length > 0 && (
+        <>
+          <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border/50" aria-hidden>
+            {languages.map((lang, index) => (
+              <span
+                key={lang.name}
+                style={{
+                  width: `${lang.percent}%`,
+                  background: LANGUAGE_BAR_COLORS[index % LANGUAGE_BAR_COLORS.length],
+                }}
+              />
+            ))}
+            {otherPercent > 0 && <span style={{ width: `${otherPercent}%` }} />}
+          </div>
+          <p dir="ltr" className="mt-1.5 text-end font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
+            {languages.map((lang) => `${lang.name} ${lang.percent}%`).join(" · ")}
+          </p>
+        </>
+      )}
 
       <div className="mt-2 flex flex-wrap gap-1.5">
         {project.technologies.map((tech) => (
@@ -86,36 +118,25 @@ export function ExploreProjectCard({ project }: { project: ExploreProjectDto }) 
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <Star className="size-3.5" />
-          <bdi>{project.stars >= 1000 ? `${(project.stars / 1000).toFixed(1)}k` : project.stars}</bdi>
-        </span>
-        <span>{project.commitsThisMonth} commit هذا الشهر</span>
-        <span>آخر تحديث {project.updatedAgoLabel}</span>
-        <span className="font-medium text-foreground">
-          {project.openTasksCount} مهام مفتوحة
-        </span>
-        <span dir="ltr" className="font-mono text-[11px] tracking-[0.65px]">
-          @{project.ownerUsername}
-        </span>
+        {stars !== null && (
+          <span className="inline-flex items-center gap-1">
+            <Star className="size-3.5" />
+            <bdi>{stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}</bdi>
+          </span>
+        )}
+        {publishedAgo !== null && <span>نُشر {publishedAgo}</span>}
+        {repoOwner !== "" && (
+          <a
+            href={project.githubRepoUrl}
+            target="_blank"
+            rel="noreferrer"
+            dir="ltr"
+            className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[0.65px] hover:text-foreground"
+          >
+            <ExternalLink className="size-3" />@{repoOwner}
+          </a>
+        )}
       </div>
-
-      {project.fitHint !== null && fit !== null && (
-        <div className="mt-3 border-t border-border pt-3">
-          <p className={cn("flex items-center gap-1.5 text-sm font-bold", fit.className)}>
-            {project.fitHint.bucket === "strong" && <BadgeCheck className="size-4" />}
-            {fit.label}
-            {project.fitHint.requiredCount > 0 && (
-              <span dir="ltr" className="font-mono text-[11px] font-normal tracking-[0.65px] text-muted-foreground">
-                {project.fitHint.matchedCount}/{project.fitHint.requiredCount}
-              </span>
-            )}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            {project.fitHint.reason}
-          </p>
-        </div>
-      )}
 
       <div className="mt-4 flex gap-2">
         <Button asChild size="sm" className="flex-1">

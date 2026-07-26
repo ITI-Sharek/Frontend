@@ -1,27 +1,13 @@
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
-import {
-  CATEGORY_LABELS,
-  DIFFICULTY_LABELS,
-  ExploreFilters,
-} from "./explore-filters";
+import { CATEGORY_LABELS, DIFFICULTY_LABELS, ExploreFilters } from "./explore-filters";
 import { ExploreProjectCard } from "./explore-project-card";
-import type {
-  ExploreSearchParamsDto,
-  ExploreSortKey,
-} from "../types/explore.types";
-
-const SORT_LABELS: Record<ExploreSortKey, string> = {
-  newest: "الأحدث",
-  best_fit: "الأنسب لك",
-  most_active: "الأكثر نشاطًا",
-  open_tasks: "مهام مفتوحة أكثر",
-};
+import type { ExploreSearchParamsDto } from "../types/explore.types";
 
 interface ExploreViewProps {
   params: ExploreSearchParamsDto;
@@ -31,9 +17,9 @@ interface ExploreViewProps {
 }
 
 /**
- * WF-03 project discovery: semantic search, filters (desktop sidebar /
- * mobile sheet), active-filter chips, result count, uniform comparison
- * cards, loading + filtered-empty states, DEC-010 disclaimer.
+ * WF-03 project discovery: keyword search, filters (desktop sidebar /
+ * mobile sheet), active-filter chips, result count + pagination, uniform
+ * comparison cards, loading + filtered-empty states.
  */
 export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProps) {
   const exploreQuery = useExploreProjectsQuery(params);
@@ -73,20 +59,21 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
   ];
   const filtersCount = activeChips.length;
   const result = exploreQuery.data;
+  const pagination = result?.pagination;
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6">
       <h1 className="text-2xl font-bold text-foreground">استكشاف المشاريع</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        اعثر على مشروع مفتوح المصدر يناسب مهاراتك الموثقة — كل توافق مُفسَّر، لا
-        درجات بلا سبب.
+        اعثر على مشروع مفتوح المصدر يناسب مهاراتك — كل مشروع منشور بتقنياته
+        وتصنيفه ومستوى صعوبته.
       </p>
 
       <form
         className="mt-4 flex gap-2.5"
         onSubmit={(event) => {
           event.preventDefault();
-          onParamsChange({ q: searchDraft.trim() || undefined });
+          onParamsChange({ q: searchDraft.trim() || undefined, page: undefined });
         }}
       >
         <label className="flex flex-1 items-center gap-2.5 rounded-input border border-border bg-card px-4 py-3">
@@ -94,7 +81,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
           <input
             value={searchDraft}
             onChange={(event) => setSearchDraft(event.target.value)}
-            placeholder='جرّب "دردشة فورية بـ Go" — البحث يفهم المعنى'
+            placeholder="ابحث بالاسم أو الوصف"
             className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
           />
           {searchDraft !== "" && (
@@ -104,31 +91,12 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
               className="text-muted-foreground hover:text-foreground"
               onClick={() => {
                 setSearchDraft("");
-                onParamsChange({ q: undefined });
+                onParamsChange({ q: undefined, page: undefined });
               }}
             >
               <X className="size-4" />
             </button>
           )}
-        </label>
-
-        <label className="hidden items-center gap-2 rounded-input border border-border bg-card px-3.5 text-sm sm:flex">
-          <span className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-            ترتيب
-          </span>
-          <select
-            value={params.sort ?? "newest"}
-            onChange={(event) =>
-              onParamsChange({ sort: event.target.value as ExploreSortKey })
-            }
-            className="bg-transparent text-foreground outline-none"
-          >
-            {(Object.keys(SORT_LABELS) as ExploreSortKey[]).map((key) => (
-              <option key={key} value={key}>
-                {SORT_LABELS[key]}
-              </option>
-            ))}
-          </select>
         </label>
 
         <button
@@ -148,22 +116,17 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
 
       <div className="mt-5 flex items-start gap-6">
         <aside className="hidden w-56 shrink-0 rounded-card border border-border bg-card px-4 py-1 lg:block">
-          <ExploreFilters
-            technologyFacets={result?.technologyFacets ?? []}
-            params={params}
-            onChange={onParamsChange}
-            onReset={onReset}
-          />
+          <ExploreFilters params={params} onChange={onParamsChange} onReset={onReset} />
         </aside>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm text-foreground">
-              <b>{result?.totalCount ?? "…"}</b> مشاريع مطابقة
+              <b>{pagination?.total ?? "…"}</b> مشاريع مطابقة
               {params.q !== undefined && (
                 <span className="text-muted-foreground">
                   {" "}
-                  — نتائج بمعنى «{params.q}»
+                  — نتائج بحث «{params.q}»
                 </span>
               )}
             </p>
@@ -212,10 +175,31 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
                   <ExploreProjectCard key={project.id} project={project} />
                 ))}
               </div>
-              <p className="mt-6 text-center text-xs text-muted-foreground">
-                التوافق مبني على مهاراتك الموثقة فقط — الأهلية تُفحص لكل مهمة
-                عند التقديم.
-              </p>
+              {pagination !== undefined && pagination.totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    disabled={pagination.page <= 1}
+                    onClick={() => onParamsChange({ page: pagination.page - 1 })}
+                    className="inline-flex items-center gap-1 rounded-input border border-border px-3 py-1.5 text-sm text-foreground disabled:opacity-40"
+                  >
+                    <ChevronRight className="size-4" />
+                    السابق
+                  </button>
+                  <span className="font-mono text-xs tracking-[0.65px] text-muted-foreground">
+                    صفحة {pagination.page} من {pagination.totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={pagination.page >= pagination.totalPages}
+                    onClick={() => onParamsChange({ page: pagination.page + 1 })}
+                    className="inline-flex items-center gap-1 rounded-input border border-border px-3 py-1.5 text-sm text-foreground disabled:opacity-40"
+                  >
+                    التالي
+                    <ChevronLeft className="size-4" />
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="mt-4 rounded-card border border-dashed border-border bg-card p-10 text-center">
@@ -251,14 +235,9 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
                 إعادة تعيين
               </button>
             </div>
-            <ExploreFilters
-              technologyFacets={result?.technologyFacets ?? []}
-              params={params}
-              onChange={onParamsChange}
-              onReset={onReset}
-            />
+            <ExploreFilters params={params} onChange={onParamsChange} onReset={onReset} />
             <Button className="mt-2 w-full" onClick={() => setSheetOpen(false)}>
-              عرض {result?.totalCount ?? ""} مشاريع
+              عرض {pagination?.total ?? ""} مشاريع
             </Button>
           </div>
         </div>
