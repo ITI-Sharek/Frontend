@@ -5,3 +5,11 @@
 #
 # [agents.bmad-agent-pm]
 # description = "Prefers short, bulleted PRDs over narrative drafts."
+
+[core]
+output_folder = "{project-root}/../../docs/generated/bmad"
+
+[modules.bmm]
+planning_artifacts = "{project-root}/../../docs/generated/bmad/planning-artifacts"
+implementation_artifacts = "{project-root}/../../docs/generated/bmad/implementation-artifacts"
+project_knowledge = "{project-root}/../../docs"
