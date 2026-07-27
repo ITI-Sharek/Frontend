@@ -6,6 +6,14 @@ A modern, responsive frontend application built with TanStack Start, TypeScript,
 
 ShareK Frontend is a TanStack Start (React, file-based routing, SSR via Vite/Nitro) application that provides a user interface for the ShareK platform. The project is structured with a modular architecture, featuring authentication flows, reusable UI components, and a clean separation of concerns.
 
+## Shared Product Documentation
+
+Product behavior, domain language, decisions, sprint outcomes, and shared
+contracts are canonical in the sibling `../docs` repository. Start with
+`../docs/README.md` or
+<https://github.com/ITI-Sharek/Documentation>; this repository contains
+frontend implementation details only.
+
 ## Features
 
 - **Modern Tech Stack**: Built with TanStack Start, TanStack Router, React 19, and TypeScript
@@ -95,7 +103,7 @@ The app will auto-update as you edit files.
 
 ### Backend API
 
-The standard local backend port is `4000` (see `docs/governance/decision-log.md`
+The standard local backend port is `4000` (see `../docs/product/governance/decision-log.md`
 DEC-019). The frontend axios client targets `VITE_API_URL`
 (default `http://localhost:4000`, see `.env.example`).
 

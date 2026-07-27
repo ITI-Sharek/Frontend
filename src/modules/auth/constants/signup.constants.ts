@@ -4,9 +4,9 @@ import type { ChipOption, RoleOption } from "../types/signup.types";
 
 export const SIGNUP_STEPS = ["الدور", "بيانات الحساب", "التفاصيل"] as const;
 
-// DEC-001 copy (docs/governance/decision-log.md): the role choice must never
+// DEC-001 copy (../docs/product/governance/decision-log.md): the role choice must never
 // read as permanent. Arabic translation is a draft pending native-speaker
-// review (see docs/design/arabic-glossary.md).
+// review (see ../docs/design/arabic-glossary.md).
 export const ROLE_STEP_DISCLAIMER =
   "اختر طريقة استخدامك لـ Share-k في البداية. قد تتم إضافة أدوار إضافية لاحقًا.";
 

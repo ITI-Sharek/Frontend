@@ -4,7 +4,7 @@
 
 - Frontend dependencies installed with `pnpm install`.
 - Backend API available at `http://localhost:4000` (approved standard port,
-  DEC-019/023 in `docs/governance/decision-log.md`), or at the configured
+  DEC-019/023 in `../docs/product/governance/decision-log.md`), or at the configured
   `VITE_API_URL`.
 - At least one contributor account with a unique username.
 - At least one non-contributor account for role-based redirect validation.

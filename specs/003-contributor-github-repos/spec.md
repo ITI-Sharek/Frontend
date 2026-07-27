@@ -8,7 +8,7 @@
 
 **Input**: User description: "Contributor-facing GitHub repositories list and per-repository statistics view"
 
-**Grounded in**: `docs/governance/decision-log.md` DEC-029 (one-off exception to DEC-028); `docs/design/screen-inventory.md` sections 1.8, 2.1, 3.1, and 3.7 (profile/dashboard, GitHub connection, skill/repo LTR-in-RTL conventions); `docs/design/user-journeys.md` CJ-1 (GitHub connection and analysis context); backend GitHub endpoints already implemented for account status, repository listing, and repository statistics.
+**Grounded in**: `../docs/product/governance/decision-log.md` DEC-029 (one-off exception to DEC-028); `../docs/design/screen-inventory.md` sections 1.8, 2.1, 3.1, and 3.7 (profile/dashboard, GitHub connection, skill/repo LTR-in-RTL conventions); `../docs/product/user-journeys.md` CJ-1 (GitHub connection and analysis context); backend GitHub endpoints already implemented for account status, repository listing, and repository statistics.
 
 > **DEC-032 correction (2026-07-20):** this feature may continue to expose the backend's current repository diagnostics, but it is not the final evidence-consent model. GitHub OAuth links identity only. Production evidence authorization requires GitHub App installation plus explicit repository selection, visibility, consent, synchronization, revocation, and redaction contracts. Any requirement below that treats OAuth scope or the returned repository list as sufficient evidence authorization is superseded.
 
