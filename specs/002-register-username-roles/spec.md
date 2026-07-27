@@ -8,7 +8,7 @@
 
 **Input**: User description: "Contributor and owner registration gains a platform-owned username field with availability checking, and role-selection cards use the approved DEC-001 copy (role changeable later via admin, never described as permanent)."
 
-**Grounded in**: `docs/governance/decision-log.md` DEC-001 (account roles), DEC-016 (canonical username); `docs/design/api-contract-additions.md` §2 (registration/username-availability contract); `docs/design/screen-inventory.md` §1.5; `docs/design/user-journeys.md` CJ-1 step 1. This is backlog item **FE-1** in `docs/design/implementation-impact.md`.
+**Grounded in**: `../docs/product/governance/decision-log.md` DEC-001 (account roles), DEC-016 (canonical username); `../docs/architecture/contracts/api-contract-additions.md` §2 (registration/username-availability contract); `../docs/design/screen-inventory.md` §1.5; `../docs/product/user-journeys.md` CJ-1 step 1. This is backlog item **FE-1** in `../docs/architecture/implementation-impact.md`.
 
 **Scope note**: This spec may be authored and refined now under the frontend safe-scope rule (DEC-028). Implementation (code) waits on the backend endpoints in the "Assumptions" section below — writing the spec does not require them to exist yet.
 
@@ -59,7 +59,7 @@ A user with `preferred_language: ar` completes the same registration flow with t
 
 **Acceptance Scenarios**:
 
-1. **Given** the language toggle is set to Arabic, **When** the registration form renders, **Then** labels, role-card copy, and availability messages appear in Arabic per `docs/design/arabic-glossary.md`, with layout mirrored (field order, button alignment, icon direction).
+1. **Given** the language toggle is set to Arabic, **When** the registration form renders, **Then** labels, role-card copy, and availability messages appear in Arabic per `../docs/design/arabic-glossary.md`, with layout mirrored (field order, button alignment, icon direction).
 2. **Given** an Arabic-rendered form, **When** the user types a username, **Then** the username text itself renders left-to-right within the right-to-left form (technical tokens stay LTR).
 
 ### Edge Cases
@@ -93,7 +93,7 @@ A user with `preferred_language: ar` completes the same registration flow with t
 
 ### Key Entities *(include if feature involves data)*
 
-- **Registration payload**: the existing fields (email, password, first name, last name, preferred language) plus the new `username` and the selected role — a client-side form/request shape, not a new persisted entity in this feature's scope (the backend's `USER.username` column is defined in `bmad/_bmad-output/ERD/_MVP-DECISION-DELTA.md` §1).
+- **Registration payload**: the existing fields (email, password, first name, last name, preferred language) plus the new `username` and the selected role — a client-side form/request shape, not a new persisted entity in this feature's scope (the backend's `USER.username` column is defined in `../docs/architecture/domain-model/_MVP-DECISION-DELTA.md` §1).
 - **Username availability check**: an ephemeral, non-persisted query result (`available: boolean`, `suggestion?: string`) used only to drive the form's live feedback; it is never cached beyond the current form session and is not trusted as a submission guarantee (the backend re-validates at submit time).
 
 ## Success Criteria *(mandatory)*
@@ -109,7 +109,7 @@ A user with `preferred_language: ar` completes the same registration flow with t
 
 ## Assumptions
 
-- **Backend dependency (blocks implementation, not spec work)**: this feature's implementation depends on `POST /auth/register` accepting `username` and `GET /auth/username-availability` existing per `docs/design/api-contract-additions.md` §2. Per `docs/design/implementation-impact.md`, FE-1 implementation is queued behind that backend work; this spec is written now so implementation can start the moment the endpoints land, without a design gap in between.
+- **Backend dependency (blocks implementation, not spec work)**: this feature's implementation depends on `POST /auth/register` accepting `username` and `GET /auth/username-availability` existing per `../docs/architecture/contracts/api-contract-additions.md` §2. Per `../docs/architecture/implementation-impact.md`, FE-1 implementation is queued behind that backend work; this spec is written now so implementation can start the moment the endpoints land, without a design gap in between.
 - Registration continues to happen before GitHub connection (per the current IA/CJ-1 order): username is entered manually here; a future GitHub-driven username *suggestion* (mentioned in DEC-016 for GitHub-connected flows) would apply during onboarding or profile setup, not registration, and is out of scope for this feature.
 - The existing `src/modules/auth/` module, `/register` route, and `auth.service.ts` remain the implementation surface — no new module is created (constitution: modules own their domain; `auth` already owns registration).
 - Role values sent by the frontend map directly to the backend's `primary_role` enum (`owner | contributor | admin`); `admin` is never offered as a selectable card (admin accounts are provisioned, never self-registered, per the root CLAUDE.md cross-repo contract).
