@@ -2,6 +2,11 @@ export { ContributorProfileEmptyState } from "./components/contributor-profile-e
 export { ContributorProfileErrorView } from "./components/contributor-profile-error";
 export { ContributorProfileNotFound } from "./components/contributor-profile-not-found";
 export { ContributorProfileView } from "./components/contributor-profile-view";
+export {
+  ContributorGithubSkillsSection,
+  GITHUB_SKILL_ANALYSIS_PATH,
+  getGithubSkillsSectionModel,
+} from "./components/contributor-github-skills-section";
 export { AdminContributorFieldsPanel } from "./components/admin-contributor-fields-panel";
 export { AdminExperienceLevelsPanel } from "./components/admin-experience-levels-panel";
 export { ContributorProfileSettingsSection } from "./components/settings/contributor-profile-settings-section";
@@ -45,6 +50,7 @@ export { ContributorProfileError } from "./types/contributor-profile.types";
 export type {
   ContributorExperienceLevelDto,
   ContributorFieldDto,
+  ContributorGithubInstallationDto,
   ContributorGithubStatusDto,
   ContributorHistoryItemDto,
   ContributorProfileDto,

@@ -7,11 +7,26 @@ export type SkillProfileGenerationStatus =
   | "failed";
 
 export interface SkillProfileGenerationRepositorySelectionDto {
+  repositoryId: string;
   fullName: string;
 }
 
+export interface SkillProfileAnalysisConsentPayload {
+  accepted: boolean;
+  version: string;
+}
+
 export interface StartSkillProfileGenerationPayload {
-  repositories: SkillProfileGenerationRepositorySelectionDto[];
+  installationLinkId: string;
+  /** Immutable GitHub repository IDs, never full names. */
+  repositoryIds: string[];
+  consent: SkillProfileAnalysisConsentPayload;
+}
+
+export interface RetrySkillProfileGenerationPayload {
+  generationId: string;
+  /** Retry always requires fresh explicit consent. */
+  consent: SkillProfileAnalysisConsentPayload;
 }
 
 export interface SkillProfileGenerationSkillDto {
@@ -23,14 +38,22 @@ export interface SkillProfileGenerationSkillDto {
   evidenceSummary: string | null;
 }
 
+export interface SkillProfileGenerationProgressDto {
+  selectedRepositoryCount: number;
+  snapshottedRepositoryCount: number;
+}
+
 export interface SkillProfileGenerationDto {
   generationId: string;
   status: SkillProfileGenerationStatus;
-  progress: {
-    selectedRepositoryCount: number;
-    snapshottedRepositoryCount: number;
-  };
+  progress: SkillProfileGenerationProgressDto;
   failureReason: string | null;
+  installationLinkId: string | null;
+  providerInstallationId: string | null;
+  consentVersion: string | null;
+  consentedAt: string | null;
+  authorizationVerifiedAt: string | null;
+  retryOfGenerationId: string | null;
   selectedRepositories: SkillProfileGenerationRepositorySelectionDto[];
   skills: SkillProfileGenerationSkillDto[];
   fraudSignals: unknown[];

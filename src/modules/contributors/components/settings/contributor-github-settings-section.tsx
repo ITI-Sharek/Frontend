@@ -6,7 +6,12 @@ import { Button } from "@/shared/components/ui/button";
 
 import type { ContributorProfileDto } from "../../types/contributor-profile.types";
 
-/** Settings → "GitHub": connection status, connect flow, AI skills analysis trigger. */
+/**
+ * Settings → "GitHub". Two independent concerns live here:
+ * 1. GitHub *identity* (social login) — `profile.githubStatus`.
+ * 2. GitHub App *repository* access for skill analysis — its own page.
+ * Neither gates the other, and disconnecting one never touches the other.
+ */
 export function ContributorGithubSettingsSection({
   profile,
   onConnectGitHub,
@@ -66,14 +71,12 @@ export function ContributorGithubSettingsSection({
         <div>
           <p className="font-semibold text-foreground">تحليل المهارات بالذكاء الاصطناعي</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            نقرأ مستودعاتك ونشاطك على GitHub لاستخراج مهارات موثقة بالأدلة، ثم
-            يراجعها فريق المراجعة قبل اعتمادها — لا شيء يُنشر تلقائيًا.
+            تحليل المهارات يستخدم ربط تطبيق GitHub وصلاحية مستقلة تماماً عن
+            تسجيل الدخول عبر GitHub. تختار المستودعات وتوافق صراحةً قبل بدء أي
+            تحليل، ويراجع الفريق المهارات قبل اعتمادها — لا شيء يُنشر تلقائيًا.
           </p>
         </div>
-        <SkillsGenerator
-          disabled={!profile.githubStatus.connected}
-          onOpenRepositories={onOpenRepositories}
-        />
+        <SkillsGenerator onOpenRepositories={onOpenRepositories} />
       </div>
     </div>
   );
@@ -133,7 +136,7 @@ function GitHubDisconnectButton({
   async function handleDisconnect() {
     if (
       !window.confirm(
-        "سيتم فصل وصول المستودعات وتسجيل الدخول عبر GitHub. هل تريد المتابعة؟",
+        "سيتم فصل تسجيل الدخول عبر GitHub فقط. لن يؤثر ذلك على ربط تطبيق GitHub الخاص بتحليل المهارات. هل تريد المتابعة؟",
       )
     ) {
       return;
@@ -176,28 +179,19 @@ function GitHubDisconnectButton({
 }
 
 function SkillsGenerator({
-  disabled,
   onOpenRepositories,
 }: {
-  disabled: boolean;
   onOpenRepositories: () => void;
 }) {
   return (
     <div className="flex flex-col items-start gap-2">
-      <Button
-        type="button"
-        size="sm"
-        disabled={disabled}
-        onClick={onOpenRepositories}
-      >
+      <Button type="button" size="sm" onClick={onOpenRepositories}>
         <Sparkles className="size-4" />
-        <span>اختيار المستودعات وبدء التحليل</span>
+        <span>ربط تطبيق GitHub واختيار المستودعات</span>
       </Button>
-      {disabled && (
-        <p className="text-xs text-muted-foreground">
-          اربط حساب GitHub أولاً لبدء التحليل.
-        </p>
-      )}
+      <p className="text-xs text-muted-foreground">
+        متاح حتى لو لم تربط تسجيل الدخول عبر GitHub.
+      </p>
     </div>
   );
 }
