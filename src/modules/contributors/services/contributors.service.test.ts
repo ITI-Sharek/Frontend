@@ -34,6 +34,7 @@ const profile: ContributorProfileDto = {
   ],
   availability: null,
   githubStatus: { connected: false, username: null },
+  githubInstallations: [],
   reputationSummary: { rating: null, reviewsCount: 0 },
   contributionHistory: [],
   completionPrompts: [],

@@ -1,17 +1,17 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import { getSkillProfileGeneration } from "../../services/skill-profile-generation.service";
+import { isGenerationTerminal } from "../../utils/skill-generation-presenter";
 import { skillProfileKeys } from "../query-keys";
 import type { SkillProfileGenerationDto } from "../../types/skill-profile-generation.types";
 
+export const SKILL_PROFILE_POLL_INTERVAL_MS = 3000;
+
 function isGenerationDone(data: SkillProfileGenerationDto | undefined): boolean {
-  return (
-    data?.status === "pending_review" ||
-    data?.status === "needs_more_evidence" ||
-    data?.status === "failed"
-  );
+  return data !== undefined && isGenerationTerminal(data.status);
 }
 
+/** Polls while the generation is active; stops on any terminal status. */
 export function skillProfileGenerationQueryOptions({
   generationId,
   enabled = true,
@@ -22,9 +22,9 @@ export function skillProfileGenerationQueryOptions({
   return queryOptions({
     queryKey: skillProfileKeys.generation(generationId),
     queryFn: () => getSkillProfileGeneration(generationId),
-    enabled,
+    enabled: enabled && generationId !== "",
     refetchInterval: (query) =>
-      isGenerationDone(query.state.data) ? false : 3000,
+      isGenerationDone(query.state.data) ? false : SKILL_PROFILE_POLL_INTERVAL_MS,
   });
 }
 

@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
@@ -7,6 +8,13 @@ import {
 } from "./contributor-profile-sections";
 import { ContributorProfileView } from "./contributor-profile-view";
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
+
+// `Link` needs a RouterProvider; these are markup-only assertions.
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ to, children }: { to: string; children: ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
+}));
 
 function makeProfile(
   overrides: Partial<ContributorProfileDto> = {},
@@ -28,6 +36,7 @@ function makeProfile(
     ],
     availability: "10 hours/week",
     githubStatus: { connected: true, username: "sara-dev" },
+  githubInstallations: [],
     reputationSummary: { rating: 4.8, reviewsCount: 6 },
     contributionHistory: [
       {

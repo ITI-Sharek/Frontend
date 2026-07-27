@@ -24,6 +24,8 @@ export const ROUTES = {
   myProjects: "/my-projects",
   newProject: "/my-projects/new",
   settings: "/settings",
+  /** Optional GitHub App skill-analysis workspace (backend callback target). */
+  githubSkillAnalysis: "/profile/github",
   contributorProfile: (username: string) =>
     `/profile/${encodeURIComponent(username)}`,
 } as const;

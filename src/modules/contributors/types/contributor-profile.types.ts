@@ -28,9 +28,26 @@ export interface ContributorReputationSummaryDto {
   reviewsCount: number;
 }
 
+/**
+ * Legacy GitHub *identity* status (social login). It is NOT GitHub App
+ * repository authorization and must never gate the skill-analysis flow.
+ */
 export interface ContributorGithubStatusDto {
   connected: boolean;
   username: string | null;
+}
+
+/**
+ * Owner-only GitHub App installation summary. The backend returns an empty
+ * array for any viewer that is not the profile owner.
+ */
+export interface ContributorGithubInstallationDto {
+  installationLinkId: string;
+  accountLogin: string;
+  accountType: "user" | "organization";
+  status: "active" | "disconnected" | "reauthorization_required" | "revoked";
+  verifiedAt: string | null;
+  manageUrl: string | null;
 }
 
 export interface ContributorFieldDto {
@@ -51,6 +68,8 @@ export interface ContributorProfileDto {
   skills: ContributorSkillDto[];
   availability: string | null;
   githubStatus: ContributorGithubStatusDto;
+  /** Owner-only; empty for other viewers. Zero, one, or many links. */
+  githubInstallations: ContributorGithubInstallationDto[];
   reputationSummary: ContributorReputationSummaryDto;
   contributionHistory: ContributorHistoryItemDto[];
   completionPrompts: string[];

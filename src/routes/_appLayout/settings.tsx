@@ -96,7 +96,7 @@ function SettingsPage() {
                 await profileQuery.refetch();
               }}
               onOpenRepositories={() => {
-                void navigate({ to: "/github/repositories" });
+                void navigate({ to: ROUTES.githubSkillAnalysis });
               }}
             />
           ) : (

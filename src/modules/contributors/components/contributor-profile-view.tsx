@@ -4,6 +4,7 @@ import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 
+import { ContributorGithubSkillsSection } from "./contributor-github-skills-section";
 import { ContributorProfileCompletion } from "./contributor-profile-completion";
 import { ContributorProfileSections } from "./contributor-profile-sections";
 import { ContributorReputationStrip } from "./contributor-reputation-strip";
@@ -85,6 +86,7 @@ export function ContributorProfileView({
 
       <div className="flex flex-col gap-4 lg:col-span-3">
         <ContributorProfileCompletion profile={profile} />
+        <ContributorGithubSkillsSection profile={profile} />
         <ContributorProfileSections profile={profile} />
       </div>
     </div>

@@ -35,15 +35,6 @@ export {
   githubRepositoryStatisticsQueryOptions,
   useGitHubRepositoryStatisticsQuery,
 } from "./api/queries/use-github-repository-statistics-query";
-export {
-  ContributorGitHubRepositoriesPage,
-  ContributorGitHubRepositoriesSection,
-  getRepositoryEvidenceAvailability,
-  getUnavailableReasonMessage,
-} from "./components/contributor-github-repositories-section";
-export type {
-  RepositoryEvidenceAvailability,
-} from "./components/contributor-github-repositories-section";
 export type {
   GitHubAccountDto,
   GitHubIngestionStatus,

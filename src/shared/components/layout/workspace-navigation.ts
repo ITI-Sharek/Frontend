@@ -115,17 +115,19 @@ export function getMemberNavigation({
     },
     discussionsItem,
     {
-      label: "مستودعات GitHub",
-      to: "/github/repositories",
+      label: "تحليل المهارات",
+      to: ROUTES.githubSkillAnalysis,
       icon: Github,
-      active: isActivePath(pathname, "/github/repositories"),
+      active: isActivePath(pathname, ROUTES.githubSkillAnalysis),
       hideOnMobile: true,
     },
     {
       label: "الملف الشخصي",
       to: username ? ROUTES.contributorProfile(username) : ROUTES.dashboard,
       icon: UserRound,
-      active: pathname.startsWith("/profile/"),
+      active:
+        pathname.startsWith("/profile/") &&
+        !isActivePath(pathname, ROUTES.githubSkillAnalysis),
       disabled: username === null,
       statusLabel: username === null ? "جارٍ التحميل" : undefined,
     },
