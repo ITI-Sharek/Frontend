@@ -106,7 +106,7 @@ export function clearPendingSocialAuth(): void {
  * treated as repository consent; the profile/onboarding GitHub connector owns
  * `/github/oauth/start` for public/private repository access. For plain
  * sign-in we default to "contributor"; making the param optional for sign-in
- * is requested in docs/design/api-contract-additions.md.
+ * is requested in ../docs/architecture/contracts/api-contract-additions.md.
  */
 export async function requestSocialAuthStart(
   provider: SocialAuthProvider,

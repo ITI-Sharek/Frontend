@@ -1,6 +1,6 @@
 # Share-k — Six-Flow Implementation Plan (execution handoff)
 
-> **Status correction (DEC-030–DEC-035, 2026-07-20):** do not execute this plan's mock-first contributor flows. Production routes must not ship over invented APIs. Contributor AI gates, quotas, Gold restrictions, teal-as-generic-primary semantics, and OAuth-as-evidence-authorization are superseded. Use `contributor-implementation-readiness.md` to decide build-now versus deferred scope.
+> **Status correction (DEC-030–DEC-039, through 2026-07-27):** do not execute this plan's mock-first contributor flows. Production routes must not ship over invented APIs. Contributor AI gates, quotas, Gold restrictions, teal-as-generic-primary semantics, and OAuth-as-evidence-authorization are superseded. Any mock using `eligible`, `ineligible`, `review_needed`, automatic validation, or an AI-filtered owner queue is invalid. Contribution Proposal and safe Material Analysis are absent and require the new Sprint 4 spec. Use `contributor-implementation-readiness.md` to decide build-now versus deferred scope.
 
 > **Audience**: the implementing agent/developer (Sonnet) working in `sharek-frontend/`.
 > **Covers TASK-1-01 flows**: registration · GitHub connection · role selection · project publishing · project discovery · task application.
@@ -21,9 +21,9 @@
 - Buttons/Cards/Inputs: use `src/shared/components/ui/{button,card,input,label,checkbox,avatar}.tsx` — they already match the DS.
 - Motion: `transition-colors` only; no entrance animations.
 
-**Language** — the app is Arabic-first RTL (`lang="ar" dir="rtl"` global). One language at a time (DEC-008). Terms from `docs/design/arabic-glossary.md` are binding: application = طلب انضمام · contribution request = طلب مساهمة · eligible/ineligible = مؤهل / غير مؤهل · pending validation = قيد التحقق · verified skill = مهارة موثقة · delivery = تسليم العمل · Pull Request = طلب سحب (Pull Request) · not selected = لم يتم الاختيار.
+**Language** — the app is Arabic-first RTL (`lang="ar" dir="rtl"` global). One language at a time (DEC-008). Terms from `../docs/design/arabic-glossary.md` are binding: application = طلب انضمام · contribution request = طلب مساهمة · eligible/ineligible = مؤهل / غير مؤهل · pending validation = قيد التحقق · verified skill = مهارة موثقة · delivery = تسليم العمل · Pull Request = طلب سحب (Pull Request) · not selected = لم يتم الاختيار.
 
-**Product principles that gate review** (`docs/design/product-experience-principles.md`): every AI output carries its reason (never a bare score — DEC-010 buckets قوي/جزئي/منخفض/غير معروف + explanation line); quotas visible **before** the act (on the button); every wait state names the next actor; rejection screens always offer a next step; verified ≠ unverified visually, icon + text, never color-only.
+**Product principles that gate review** (`../docs/design/product-experience-principles.md`): every AI output carries its reason (never a bare score — DEC-010 buckets قوي/جزئي/منخفض/غير معروف + explanation line); quotas visible **before** the act (on the button); every wait state names the next actor; rejection screens always offer a next step; verified ≠ unverified visually, icon + text, never color-only.
 
 **Mock pattern** — `services/<name>.service.ts` exports `async get…(): Promise<Dto>` returning `Promise.resolve(MOCK)`, with a JSDoc block naming the future endpoint; TanStack Query hook in `api/queries/`; query keys in `api/query-keys.ts`; a `?state=` search param on the route to preview alternate lifecycle states (see `src/routes/_appLayout/dashboard.tsx`).
 
@@ -56,7 +56,7 @@ Commit: `feat(shared): status-chip primitive (state-model §6 grammar)`.
 ## 3 · Flow 1 — Registration (audit only, one tweak)
 
 **Exists.** Do not rebuild. Two tasks:
-1. **Audit** against `docs/design/screen-inventory.md` §1.5 + DEC-001: role cards outcome-framed; copy says «اختر طريقة استخدامك لشارك مبدئيًا. قد ندعم أدوارًا إضافية لاحقًا.» (never "لن يمكن تغييره أبدًا"); username availability check present; email/password inputs LTR content inside RTL form. Fix only what fails the audit.
+1. **Audit** against `../docs/design/screen-inventory.md` §1.5 + DEC-001: role cards outcome-framed; copy says «اختر طريقة استخدامك لشارك مبدئيًا. قد ندعم أدوارًا إضافية لاحقًا.» (never "لن يمكن تغييره أبدًا"); username availability check present; email/password inputs LTR content inside RTL form. Fix only what fails the audit.
 2. **Redirect tweak** (after Flow 2 lands): successful contributor registration/verification routes to `/onboarding` instead of the profile. Change is confined to the post-register navigation in `register-form.tsx` / verify step + `ROUTES.onboarding`.
 
 Commit: `feat(auth): route new contributors to onboarding after registration`.

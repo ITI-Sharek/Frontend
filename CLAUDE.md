@@ -2,7 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-This is the `sharek-frontend/` project only. It is a standalone git repository nested inside `Graduation/`, which is not itself a git repo — never assume a repo root above this directory. See `../CLAUDE.md` for the cross-repo (backend + frontend) contract if a task spans both.
+This is the `sharek-frontend/` project only. It is a standalone Git repository.
+Shared product policy is maintained in the sibling `../docs` Git repository;
+read `../docs/README.md` before planning product behavior. Do not recreate that
+documentation in the frontend repository.
 
 ## Active Spec Kit plan
 
@@ -63,4 +66,5 @@ Use the five default triage labels. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-This is a single-context repository. See `docs/agents/domain.md`.
+Share-k's canonical domain language and accepted ADRs are in the sibling
+`../docs` repository. See `docs/agents/domain.md`.

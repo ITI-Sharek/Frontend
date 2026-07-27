@@ -179,7 +179,7 @@ modules/projects/
 
 ### Module Responsibilities
 
-> **MVP scope note (2026-07-12, DEC-017)**: `chat`, `kanban`, `discussion`, `roadmaps`, and the socket client (`lib/socket/`) are **architecture intent only — outside current MVP scope**. Do not implement them during the MVP. The MVP feature set is defined by the PRD and `docs/governance/decision-log.md`. (A generated Gold learning roadmap is AI guidance content, not the roadmaps module.)
+> **MVP scope note (2026-07-12, DEC-017)**: `chat`, `kanban`, `discussion`, `roadmaps`, and the socket client (`lib/socket/`) are **architecture intent only — outside current MVP scope**. Do not implement them during the MVP. The MVP feature set is defined by the PRD and `../docs/product/governance/decision-log.md`. (A generated Gold learning roadmap is AI guidance content, not the roadmaps module.)
 
 - **auth**: login/register/forgot-reset-password flows and session bootstrap orchestration.
 - **users**: public profiles, user search, reputation display.

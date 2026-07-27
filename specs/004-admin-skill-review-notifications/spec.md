@@ -8,7 +8,7 @@
 
 **Input**: Admin skill review APIs, review audit storage, and realtime notification delivery are already available on the backend. This feature covers the frontend surfaces that consume them.
 
-**Grounded in**: `docs/design/wireframes/11-admin-skill-review.md`, `docs/design/navigation-model.md`, `docs/design/information-architecture.md`, `docs/design/user-journeys.md`, and `docs/design/implementation-impact.md`.
+**Grounded in**: `../docs/design/wireframes/11-admin-skill-review.md`, `../docs/design/navigation-model.md`, `../docs/design/information-architecture.md`, `../docs/product/user-journeys.md`, and `../docs/architecture/implementation-impact.md`.
 
 ## User Scenarios & Testing *(mandatory)*
 

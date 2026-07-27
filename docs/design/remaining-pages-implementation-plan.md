@@ -1,5 +1,7 @@
 # Share-k — Remaining-Pages Implementation Plan (Part 2)
 
+> **PARTIALLY SUPERSEDED — DO NOT EXECUTE THE APPLICATION/OWNER-REVIEW SECTIONS.** DEC-036–039 remove AI-gated Application states and contributor quotas and add Contribution Proposals plus a final safe Material Analysis stretch slice. Batches 1.1, 1.2, 1.5 subscription quota copy, and 2.1–2.4 must be regenerated from state-model v3 and the new Sprint 4 specification before implementation. The legacy snippets below remain only as design history.
+
 > Companion to `flow-implementation-plan.md` (Part 1 — the six core flows). Same ground rules apply verbatim (Part 1 §1): mock-first services as API contracts, teal DS tokens, Arabic-first RTL + glossary, module boundaries, `?state=` dev switches, per-step DoD, one commit per row of the ledger.
 > **Execute only after Part 1 lands.** Batches are ordered by product priority; each batch is independently shippable.
 
