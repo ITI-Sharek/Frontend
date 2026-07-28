@@ -32,9 +32,13 @@ export interface GrowthSummaryDto {
   skillsVerifiedThisMonth: number;
 }
 
+/**
+ * DEC-030/036 removed AI eligibility as an Application gate: every
+ * otherwise-valid Application lands directly in `pending_owner_review`, so
+ * there is no separate "eligible" bucket to report here.
+ */
 export interface ApplicationsSummaryDto {
-  eligibleCount: number;
-  waitingOwnerCount: number;
+  pendingOwnerReviewCount: number;
 }
 
 export interface OnboardingStepDto {

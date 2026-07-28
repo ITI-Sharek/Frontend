@@ -1,425 +1,397 @@
-import {
-  CircleCheck,
-  Loader2,
-  Lock,
-  Search,
-  Star,
-} from "lucide-react";
-import { isAxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { AlertTriangle, Loader2, Lock, Search } from "lucide-react";
+import { useState } from "react";
 
-import { startGitHubConnect } from "@/modules/github";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
-import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
+import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 import { cn } from "@/lib/utils";
-import { ROUTES } from "@/config/routes.config";
 
+import { useCreateProjectDraftMutation } from "../../api/mutations/use-create-project-draft-mutation";
+import { usePreviewGitHubRepositoryMutation } from "../../api/mutations/use-preview-github-repository-mutation";
 import {
-  getOwnerRepos,
-  importRepoAsDraft,
-  publishProject,
-} from "../../services/my-projects.service";
+  getProjectApiErrorMessage,
+  isPreviewStaleError,
+} from "../../utils/project-error-presenter";
+import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
+import { getOwnerTypeLabel } from "../../utils/project-source-presenter";
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../explore-filters";
-import type {
-  ImportDraftDto,
-  RepoPickDto,
-} from "../../types/my-projects.types";
 import type {
   ProjectCategory,
   ProjectDifficulty,
-} from "../../types/explore.types";
+} from "../../types/project.types";
+import type { PreviewGitHubRepositoryResponseDto } from "../../types/project-draft.types";
 
-const STEPS = ["اختيار المستودع", "مراجعة البيانات", "النشر"] as const;
+const STEPS = ["إدخال المستودع", "مراجعة وحفظ كمسودة"] as const;
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
 const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
 
+export interface SuggestedRepository {
+  fullName: string;
+  description: string | null;
+  isPrivate: boolean;
+}
+
+interface ImportProjectStepperProps {
+  onDraftCreated: (projectId: string) => void;
+  /** Optional: the owner's connected GitHub repos, composed in at the route
+   * level (this module never imports the `github`/`github-app` modules
+   * directly). Purely a convenience shortcut for filling the reference field. */
+  suggestedRepositories?: SuggestedRepository[];
+  suggestedRepositoriesLoading?: boolean;
+  suggestedRepositoriesError?: string | null;
+}
+
 /**
- * OJ-1 import & publish stepper (screen-inventory §4.3): repo pick (with
- * paste fallback + distinct failure causes) → metadata review (fetched
- * fields labeled «من GitHub», category/difficulty with matching help) →
- * publish confirm with visibility consequence.
+ * SK-112 owner draft flow: submit a repository reference, review the
+ * normalized preview (source facts are never editable), adjust the
+ * owner-controlled defaults, then explicitly save a private draft. Nothing
+ * here publishes — publication is a separate explicit step on the owner
+ * project management page.
  */
 export function ImportProjectStepper({
-  myProjectsHref,
-}: {
-  myProjectsHref: string;
-}) {
+  onDraftCreated,
+  suggestedRepositories = [],
+  suggestedRepositoriesLoading = false,
+  suggestedRepositoriesError = null,
+}: ImportProjectStepperProps) {
   const [step, setStep] = useState(0);
-  const [repos, setRepos] = useState<RepoPickDto[] | null>(null);
-  const [repoSearch, setRepoSearch] = useState("");
-  const [pasted, setPasted] = useState("");
-  const [importing, setImporting] = useState<string | null>(null);
-  const [importError, setImportError] = useState<string | null>(null);
-  const [repoLoadError, setRepoLoadError] = useState<string | null>(null);
-  const [selectedRepoFullName, setSelectedRepoFullName] = useState<string | null>(null);
-  const [connectingGitHub, setConnectingGitHub] = useState(false);
-  const [draft, setDraft] = useState<ImportDraftDto | null>(null);
-  const [publishing, setPublishing] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
-  const [published, setPublished] = useState(false);
-  const [publishedProjectId, setPublishedProjectId] = useState<string | null>(null);
+  const [reference, setReference] = useState("");
+  const [preview, setPreview] =
+    useState<PreviewGitHubRepositoryResponseDto | null>(null);
+  const [draftIdempotencyKey, setDraftIdempotencyKey] = useState<
+    string | null
+  >(null);
 
-  useEffect(() => {
-    void getOwnerRepos()
-      .then((ownerRepos) => {
-        setRepos(ownerRepos);
-        setRepoLoadError(null);
-      })
-      .catch((error) => {
-        setRepos([]);
-        setRepoLoadError(getRepositoryLoadErrorMessage(error));
-      });
-  }, []);
-
-  async function handleImport(fullName: string) {
-    setImportError(null);
-    setPublishError(null);
-    setImporting(fullName);
-    try {
-      const imported = await importRepoAsDraft(fullName);
-      setSelectedRepoFullName(fullName);
-      setDraft(imported);
-      setPublished(false);
-      setPublishedProjectId(null);
-      setStep(1);
-    } catch (error) {
-      setImportError(
-        getApiErrorMessage(error, "تعذر الاستيراد — حاول مرة أخرى."),
-      );
-    } finally {
-      setImporting(null);
-    }
-  }
-
-  async function handlePublish() {
-    if (draft === null || selectedRepoFullName === null) return;
-
-    setPublishError(null);
-    setPublishing(true);
-    try {
-      const publishedProject = await publishProject(selectedRepoFullName, {
-        title: draft.title,
-        description: draft.description,
-        technologies: draft.technologies,
-        category: draft.category,
-        difficulty: draft.difficulty,
-      });
-      setPublished(true);
-      setPublishedProjectId(publishedProject.id);
-    } catch (error) {
-      setPublishError(
-        getApiErrorMessage(error, "تعذر نشر المشروع — حاول مرة أخرى."),
-      );
-    } finally {
-      setPublishing(false);
-    }
-  }
-
-  async function handleConnectGitHub() {
-    setConnectingGitHub(true);
-    setRepoLoadError(null);
-    try {
-      await startGitHubConnect(window.location.pathname);
-    } catch (error) {
-      setRepoLoadError(
-        getApiErrorMessage(error, "تعذر فتح ربط GitHub — حاول مرة أخرى."),
-      );
-      setConnectingGitHub(false);
-    }
-  }
-
-  const filteredRepos = (repos ?? []).filter((repo) =>
-    repo.fullName.toLowerCase().includes(repoSearch.toLowerCase()),
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState("");
+  const [technologies, setTechnologies] = useState("");
+  const [category, setCategory] = useState<ProjectCategory | null>(null);
+  const [difficulty, setDifficulty] = useState<ProjectDifficulty | null>(
+    null,
   );
+
+  const previewMutation = usePreviewGitHubRepositoryMutation();
+  const createDraftMutation = useCreateProjectDraftMutation();
+
+  function handlePreview(referenceValue: string) {
+    const trimmed = referenceValue.trim();
+    if (trimmed === "") return;
+    setReference(trimmed);
+    previewMutation.mutate(
+      { repositoryReference: trimmed },
+      {
+        onSuccess: (result) => {
+          setPreview(result);
+          setTitle(result.ownerDefaults.title);
+          setDescription(result.ownerDefaults.description ?? "");
+          setTags(formatFieldList(result.ownerDefaults.tags));
+          setTechnologies(formatFieldList(result.ownerDefaults.technologies));
+          setCategory(null);
+          setDifficulty(null);
+          setDraftIdempotencyKey(createIdempotencyKey());
+          setStep(1);
+        },
+      },
+    );
+  }
+
+  function handleSaveDraft() {
+    if (preview === null || draftIdempotencyKey === null) return;
+    createDraftMutation.mutate(
+      {
+        idempotencyKey: draftIdempotencyKey,
+        source: {
+          provider: "github",
+          repositoryReference: reference,
+          previewFingerprint: preview.previewFingerprint,
+        },
+        project: {
+          title,
+          description: description.trim() === "" ? null : description,
+          tags: parseFieldList(tags),
+          technologies: parseFieldList(technologies),
+          category,
+          difficulty,
+        },
+      },
+      {
+        onSuccess: (project) => onDraftCreated(project.id),
+        onError: (error) => {
+          if (isPreviewStaleError(error)) {
+            setPreview(null);
+            setStep(0);
+          }
+        },
+      },
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">استيراد مشروع</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          من مستودع GitHub إلى مشروع منشور يراه المساهمون.
+          من مستودع GitHub إلى مسودة تراجعها قبل النشر.
         </p>
       </div>
 
-      <StepIndicator steps={STEPS} currentStep={published ? 3 : step} />
+      <StepIndicator steps={STEPS} currentStep={step} />
 
       {step === 0 && (
         <Card>
-          <label className="flex items-center gap-2.5 rounded-input border border-border bg-input-bg px-4 py-2.5">
-            <Search className="size-4 shrink-0 text-muted-foreground" />
-            <input
-              value={repoSearch}
-              onChange={(event) => setRepoSearch(event.target.value)}
-              placeholder="ابحث في مستودعاتك…"
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
-            />
-          </label>
-
-          <div className="mt-3 flex flex-col gap-2">
-            {repos === null ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                جارٍ جلب مستودعاتك…
-              </p>
-            ) : repoLoadError ? (
-              <div className="py-6 text-center">
-                <p className="text-sm leading-6 text-destructive">
-                  {repoLoadError}
-                </p>
-                {isGitHubNotConnectedMessage(repoLoadError) && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="mt-3"
-                    disabled={connectingGitHub}
-                    onClick={() => void handleConnectGitHub()}
-                  >
-                    {connectingGitHub && (
-                      <Loader2 className="size-4 animate-spin" />
-                    )}
-                    ربط GitHub
-                  </Button>
-                )}
-              </div>
-            ) : (
-              filteredRepos.map((repo) => (
-                <button
-                  key={repo.fullName}
-                  type="button"
-                  disabled={repo.isPrivate || importing !== null}
-                  onClick={() => void handleImport(repo.fullName)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-input border border-border bg-background p-3.5 text-start transition-colors",
-                    repo.isPrivate
-                      ? "cursor-not-allowed opacity-60"
-                      : "hover:border-primary/50",
-                  )}
-                >
-                  <div className="min-w-0 flex-1">
-                    <p dir="ltr" className="text-end font-mono text-[13px] font-bold tracking-[0.65px] text-foreground">
-                      {repo.fullName}
-                    </p>
-                    {repo.description && (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {repo.description}
-                      </p>
-                    )}
-                  </div>
-                  {repo.isPrivate ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <Lock className="size-3.5" />
-                      خاص
-                    </span>
-                  ) : importing === repo.fullName ? (
-                    <Loader2 className="size-4 animate-spin text-primary" />
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                      <Star className="size-3.5" />
-                      {repo.stars}
-                    </span>
-                  )}
-                </button>
-              ))
-            )}
-          </div>
-
           <form
-            className="mt-4 flex gap-2 border-t border-border pt-4"
+            className="flex flex-col gap-2"
             onSubmit={(event) => {
               event.preventDefault();
-              if (pasted.trim() !== "") void handleImport(pasted.trim());
+              handlePreview(reference);
             }}
           >
-            <input
-              dir="ltr"
-              value={pasted}
-              onChange={(event) => setPasted(event.target.value)}
-              placeholder="owner/repo"
-              className="w-full flex-1 rounded-input border border-border bg-input-bg px-[17px] py-2.5 font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
-            />
-            <Button type="submit" size="sm" variant="outline" disabled={importing !== null}>
-              استيراد بالاسم
+            <label className="flex items-center gap-2.5 rounded-input border border-border bg-input-bg px-4 py-2.5">
+              <Search className="size-4 shrink-0 text-muted-foreground" />
+              <input
+                dir="ltr"
+                value={reference}
+                onChange={(event) => setReference(event.target.value)}
+                placeholder="owner/repo أو رابط GitHub كامل"
+                className="w-full bg-transparent font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
+              />
+            </label>
+            <Button
+              type="submit"
+              className="mt-1"
+              disabled={previewMutation.isPending || reference.trim() === ""}
+            >
+              {previewMutation.isPending && (
+                <Loader2 className="size-4 animate-spin" />
+              )}
+              معاينة المستودع
             </Button>
           </form>
 
-          {importError && (
-            <p className="mt-3 text-sm leading-6 text-destructive">{importError}</p>
-          )}
-        </Card>
-      )}
-
-      {step === 1 && draft !== null && (
-        <Card>
-          <h2 className="text-lg font-bold text-foreground">راجع بيانات المشروع</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            الحقول المعلَّمة «من GitHub» جُلبت تلقائيًا — عدّلها كما تريد.
-          </p>
-
-          <div className="mt-4 flex flex-col gap-4">
-            <FieldLabel label="العنوان" fetched={draft.fetchedFields.includes("title")}>
-              <input
-                dir="ltr"
-                value={draft.title}
-                onChange={(event) => setDraft({ ...draft, title: event.target.value })}
-                className="w-full rounded-input border border-border bg-input-bg px-[17px] py-2.5 font-mono text-[13px] tracking-[0.65px] text-foreground outline-none"
-              />
-            </FieldLabel>
-
-            <FieldLabel label="الوصف" fetched={draft.fetchedFields.includes("description")}>
-              <textarea
-                dir="rtl"
-                rows={3}
-                value={draft.description}
-                onChange={(event) => setDraft({ ...draft, description: event.target.value })}
-                className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-right text-sm text-foreground outline-none"
-              />
-            </FieldLabel>
-
-            <FieldLabel
-              label="التصنيف"
-              hint="يُستخدم في الاكتشاف والمطابقة"
-            >
-              <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map((category) => (
-                  <PillOption
-                    key={category}
-                    label={CATEGORY_LABELS[category]}
-                    selected={draft.category === category}
-                    onSelect={() => setDraft({ ...draft, category })}
-                  />
-                ))}
-              </div>
-            </FieldLabel>
-
-            <FieldLabel
-              label="مستوى الصعوبة"
-              hint="المبالغة في رفع المستوى تُقصي المتقدمين المناسبين"
-            >
-              <div className="flex flex-wrap gap-2">
-                {DIFFICULTIES.map((difficulty) => (
-                  <PillOption
-                    key={difficulty}
-                    label={DIFFICULTY_LABELS[difficulty]}
-                    selected={draft.difficulty === difficulty}
-                    onSelect={() => setDraft({ ...draft, difficulty })}
-                  />
-                ))}
-              </div>
-            </FieldLabel>
-          </div>
-
-          <div className="mt-5 flex gap-2.5 border-t border-border pt-4">
-            <Button
-              className="flex-1"
-              disabled={draft.category === null || draft.difficulty === null || draft.title.trim() === ""}
-              onClick={() => {
-                setPublishError(null);
-                setStep(2);
-              }}
-            >
-              متابعة إلى النشر
-            </Button>
-            <Button variant="outline" onClick={() => setStep(0)}>
-              رجوع
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {step === 2 && draft !== null && !published && (
-        <Card>
-          <h2 className="text-lg font-bold text-foreground">جاهز للنشر؟</h2>
-          <p className="mt-2 text-sm leading-7 text-muted-foreground">
-            بعد النشر سيظهر «<bdi className="font-mono text-[13px] tracking-[0.65px] text-foreground">{draft.title}</bdi>»
-            لكل المساهمين في صفحة الاستكشاف، وتُفهرس بياناته للبحث الدلالي.
-            يمكنك أرشفته لاحقًا في أي وقت.
-          </p>
-          {publishError && (
+          {previewMutation.isError && (
             <p className="mt-3 text-sm leading-6 text-destructive">
-              {publishError}
+              {getProjectApiErrorMessage(previewMutation.error)}
             </p>
           )}
-          <div className="mt-4 flex gap-2.5">
-            <Button
-              className="flex-1"
-              disabled={publishing}
-              onClick={() => void handlePublish()}
-            >
-              {publishing && <Loader2 className="size-4 animate-spin" />}
-              نشر المشروع
-            </Button>
-            <Button
-              variant="outline"
-              disabled={publishing}
-              onClick={() => setStep(1)}
-            >
-              رجوع
-            </Button>
-          </div>
-          <p className="mt-3 text-center text-[11px] text-muted-foreground">
-            الخروج الآن يحفظ المشروع كمسودة تلقائيًا.
-          </p>
+
+          {suggestedRepositories.length > 0 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                أو اختر من مستودعاتك المربوطة
+              </p>
+              <div className="mt-2 flex flex-col gap-2">
+                {suggestedRepositories.map((repo) => (
+                  <button
+                    key={repo.fullName}
+                    type="button"
+                    disabled={previewMutation.isPending}
+                    onClick={() => handlePreview(repo.fullName)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-input border border-border bg-background p-3 text-start transition-colors",
+                      "hover:border-primary/50",
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p
+                        dir="ltr"
+                        className="text-end font-mono text-[13px] font-bold tracking-[0.65px] text-foreground"
+                      >
+                        {repo.fullName}
+                      </p>
+                      {repo.description && (
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {repo.description}
+                        </p>
+                      )}
+                    </div>
+                    {repo.isPrivate && (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <Lock className="size-3.5" />
+                        خاص
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {suggestedRepositoriesLoading && (
+            <p className="mt-4 text-xs text-muted-foreground">
+              جارٍ تحميل مستودعاتك المربوطة...
+            </p>
+          )}
+          {suggestedRepositoriesError && (
+            <p className="mt-4 text-xs text-muted-foreground">
+              {suggestedRepositoriesError}
+            </p>
+          )}
         </Card>
       )}
 
-      {published && draft !== null && (
-        <Card className="border-evidence-teal/40 bg-evidence-teal/5">
-          <p className="flex items-center gap-2 font-mono text-[13px] tracking-[0.65px] text-evidence-teal">
-            <CircleCheck className="size-4" />
-            منشور
-          </p>
-          <h2 className="mt-2 text-xl font-bold text-foreground">
-            مشروعك الآن في الاستكشاف
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            الخطوة التالية: أنشئ أول طلب مساهمة ليبدأ المؤهلون بالتقديم.
-          </p>
-          <div className="mt-4 flex gap-2.5">
-            {publishedProjectId && (
-              <Button asChild size="sm">
-                <a href={ROUTES.newContributionRequest(publishedProjectId)}>
-                  إنشاء طلب مساهمة
-                </a>
-              </Button>
+      {step === 1 && preview !== null && (
+        <>
+          <Card>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-bold text-foreground">
+                بيانات المستودع
+              </h2>
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-xs font-medium",
+                  preview.evidence.completeness === "complete"
+                    ? "bg-evidence-teal/10 text-evidence-teal"
+                    : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+                )}
+              >
+                {preview.evidence.completeness === "complete"
+                  ? "بيانات كاملة"
+                  : "بيانات جزئية"}
+              </span>
+            </div>
+            <p
+              dir="ltr"
+              className="mt-2 text-end font-mono text-sm tracking-[0.65px] text-foreground"
+            >
+              {preview.source.fullName}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {preview.source.visibility === "private" ? "خاص" : "عام"} ·{" "}
+              {getOwnerTypeLabel(preview.source.ownerType)}
+              {preview.source.defaultBranch && (
+                <>
+                  {" "}
+                  · الفرع الافتراضي{" "}
+                  <bdi dir="ltr">{preview.source.defaultBranch}</bdi>
+                </>
+              )}
+            </p>
+
+            {preview.evidence.unavailableAreas.length > 0 && (
+              <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                تعذّر جلب بعض البيانات حالياً (
+                {preview.evidence.unavailableAreas.join("، ")}) — يمكنك
+                إكمالها لاحقاً بالتحديث.
+              </p>
             )}
-            <Button asChild size="sm" variant="outline">
-              <a href={myProjectsHref}>العودة إلى مشاريعي</a>
-            </Button>
-          </div>
-        </Card>
+          </Card>
+
+          <Card>
+            <h2 className="text-lg font-bold text-foreground">راجع بيانات المشروع</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              عدّل القيم المقترحة من GitHub كما تريد قبل الحفظ كمسودة.
+            </p>
+
+            <div className="mt-4 flex flex-col gap-4">
+              <FieldLabel label="العنوان">
+                <Input
+                  dir="ltr"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </FieldLabel>
+
+              <FieldLabel label="الوصف">
+                <textarea
+                  dir="rtl"
+                  rows={3}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-right text-sm text-foreground outline-none"
+                />
+              </FieldLabel>
+
+              <FieldLabel label="الوسوم" hint="مفصولة بفواصل">
+                <Input
+                  dir="ltr"
+                  value={tags}
+                  onChange={(event) => setTags(event.target.value)}
+                  placeholder="collaboration, education"
+                />
+              </FieldLabel>
+
+              <FieldLabel label="التقنيات" hint="مفصولة بفواصل">
+                <Input
+                  dir="ltr"
+                  value={technologies}
+                  onChange={(event) => setTechnologies(event.target.value)}
+                  placeholder="TypeScript, NestJS"
+                />
+              </FieldLabel>
+
+              <FieldLabel label="التصنيف" hint="مطلوب قبل النشر">
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((item) => (
+                    <PillOption
+                      key={item}
+                      label={CATEGORY_LABELS[item]}
+                      selected={category === item}
+                      onSelect={() => setCategory(item)}
+                    />
+                  ))}
+                </div>
+              </FieldLabel>
+
+              <FieldLabel label="مستوى الصعوبة" hint="مطلوب قبل النشر">
+                <div className="flex flex-wrap gap-2">
+                  {DIFFICULTIES.map((item) => (
+                    <PillOption
+                      key={item}
+                      label={DIFFICULTY_LABELS[item]}
+                      selected={difficulty === item}
+                      onSelect={() => setDifficulty(item)}
+                    />
+                  ))}
+                </div>
+              </FieldLabel>
+            </div>
+
+            {createDraftMutation.isError && (
+              <p className="mt-4 text-sm leading-6 text-destructive">
+                {getProjectApiErrorMessage(createDraftMutation.error)}
+              </p>
+            )}
+
+            <div className="mt-5 flex gap-2.5 border-t border-border pt-4">
+              <Button
+                className="flex-1"
+                disabled={createDraftMutation.isPending || title.trim() === ""}
+                onClick={handleSaveDraft}
+              >
+                {createDraftMutation.isPending && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
+                حفظ كمسودة
+              </Button>
+              <Button
+                variant="outline"
+                disabled={createDraftMutation.isPending}
+                onClick={() => setStep(0)}
+              >
+                رجوع
+              </Button>
+            </div>
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              الحفظ الآن يُنشئ مسودة خاصة — النشر خطوة منفصلة لاحقاً.
+            </p>
+          </Card>
+        </>
       )}
     </div>
   );
 }
 
-function getRepositoryLoadErrorMessage(error: unknown): string {
-  if (
-    isAxiosError(error) &&
-    error.response?.data?.code === "GITHUB_ACCOUNT_NOT_CONNECTED"
-  ) {
-    return "حساب GitHub غير مربوط بهذا المستخدم — اربطه أولاً أو استورد مستودعًا عامًا بالاسم.";
-  }
-
-  return getApiErrorMessage(
-    error,
-    "تعذر جلب مستودعات GitHub — تأكد من ربط حسابك وحاول مرة أخرى.",
-  );
-}
-
-function isGitHubNotConnectedMessage(message: string): boolean {
-  return message.includes("GitHub غير مربوط");
-}
-
 function FieldLabel({
   label,
-  fetched = false,
   hint,
   children,
 }: {
   label: string;
-  fetched?: boolean;
   hint?: string;
   children: React.ReactNode;
 }) {
@@ -427,11 +399,6 @@ function FieldLabel({
     <div className="flex flex-col gap-1.5">
       <span className="flex items-center gap-2 text-sm font-medium text-foreground">
         {label}
-        {fetched && (
-          <span className="rounded-full bg-border/50 px-2 py-0.5 font-mono text-[10px] tracking-[0.65px] text-muted-foreground">
-            من GitHub
-          </span>
-        )}
         {hint && (
           <span className="text-[11px] font-normal text-muted-foreground">
             — {hint}

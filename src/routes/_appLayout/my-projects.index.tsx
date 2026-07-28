@@ -1,21 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
-import { requireOwnerRoute } from "@/modules/auth";
-import { getMyProjects, MyProjectsList } from "@/modules/projects";
+import { requireMemberRoute } from "@/modules/auth";
+import { MyProjectsList, useMyProjectsQuery } from "@/modules/projects";
+import type { MyProjectSummaryDto } from "@/modules/projects";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 export const Route = createFileRoute("/_appLayout/my-projects/")({
-  beforeLoad: requireOwnerRoute,
+  beforeLoad: requireMemberRoute,
   head: () => ({ meta: [{ title: "مشاريعي | Sharek" }] }),
   component: MyProjectsPage,
 });
 
 function MyProjectsPage() {
-  const projectsQuery = useQuery({
-    queryKey: ["projects", "mine"],
-    queryFn: getMyProjects,
-  });
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [loadedProjects, setLoadedProjects] = useState<MyProjectSummaryDto[]>(
+    [],
+  );
+
+  const projectsQuery = useMyProjectsQuery({ cursor });
 
   if (projectsQuery.isError) {
     return (
@@ -38,11 +41,26 @@ function MyProjectsPage() {
     );
   }
 
+  const seenIds = new Set(loadedProjects.map((project) => project.id));
+  const projects = [
+    ...loadedProjects,
+    ...projectsQuery.data.projects.filter((project) => !seenIds.has(project.id)),
+  ];
+
   return (
     <MyProjectsList
-      projects={projectsQuery.data.projects}
+      projects={projects}
       quota={projectsQuery.data.quota}
+      pageInfo={projectsQuery.data.pageInfo}
       importHref="/my-projects/new"
+      onProjectHref={(projectId) => `/my-projects/${encodeURIComponent(projectId)}`}
+      isLoadingMore={projectsQuery.isFetching && cursor !== undefined}
+      onLoadMore={() => {
+        const nextCursor = projectsQuery.data.pageInfo.nextCursor;
+        if (!nextCursor) return;
+        setLoadedProjects(projects);
+        setCursor(nextCursor);
+      }}
     />
   );
 }

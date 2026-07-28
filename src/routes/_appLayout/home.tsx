@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, BriefcaseBusiness, Compass, MessageCircleQuestion, Plus } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -7,8 +6,8 @@ import { useCurrentUserQuery } from "@/modules/auth";
 import type { AuthUserDto } from "@/modules/auth";
 import {
   ExploreProjectCard,
-  getMyProjects,
   useExploreProjectsQuery,
+  useMyProjectsQuery,
 } from "@/modules/projects";
 import { useContributorProfileQuery } from "@/modules/contributors";
 import { DiscussionPostCard, useDiscussionPostsQuery } from "@/modules/discussions";
@@ -109,10 +108,7 @@ function MyWorksSection({
 }
 
 function OwnerWorksPreview() {
-  const projectsQuery = useQuery({
-    queryKey: ["projects", "mine"],
-    queryFn: getMyProjects,
-  });
+  const projectsQuery = useMyProjectsQuery();
   const projects = projectsQuery.data?.projects.slice(0, 3) ?? [];
 
   return (

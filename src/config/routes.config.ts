@@ -3,6 +3,7 @@ export const ROUTES = {
   home: "/home",
   dashboard: "/dashboard",
   explore: "/explore",
+  publicProjects: "/projects",
   onboarding: "/onboarding",
   tasks: "/tasks",
   notifications: "/notifications",
