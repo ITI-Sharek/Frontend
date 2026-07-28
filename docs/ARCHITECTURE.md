@@ -184,7 +184,9 @@ modules/projects/
 - **auth**: login/register/forgot-reset-password flows and session bootstrap orchestration.
 - **users**: public profiles, user search, reputation display.
 - **projects**: project CRUD, listing/filtering, project settings.
-- **contributors**: contribution requests, invitations, per-project role management.
+- **contribution-requests**: owner draft lifecycle, ordered Requirements, typed
+  transport, command idempotency, and request-specific form validation.
+- **contributors**: contributor profiles, invitations, and per-project role management.
 - **reviews**: ratings, reputation, review submission and aggregation.
 - **chat**: real-time project chat, message list, composer, socket hooks.
 - **notifications**: notification center; unread badge count is lifted to top-level global state.

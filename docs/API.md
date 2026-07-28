@@ -382,3 +382,68 @@ Authorization: Bearer {{ownerLogin.response.body.$.tokens.accessToken}}
 # After logout, protected requests using this session return 401.
 POST {{baseUrl}}/auth/logout
 Authorization: Bearer {{ownerRefresh.response.body.$.accessToken}}
+
+
+## Contribution Request private drafts — backend issue #48
+
+# Scope:
+# - Active owner sessions only.
+# - The Project must be owned and published.
+# - ownerId is never sent; the backend derives ownership from the session.
+# - Publication, public discovery, cancellation, and Applications are not
+#   implemented until backend issues #47 and #49 land.
+# - There is no owner draft-list endpoint. Do not invent one.
+
+@publishedProjectId = replace-with-published-project-uuid
+@contributionRequestId = replace-with-contribution-request-uuid
+
+
+### 18A - Create a private Contribution Request draft
+POST {{baseUrl}}/projects/{{publishedProjectId}}/contribution-requests
+Authorization: Bearer {{ownerLogin.response.body.$.tokens.accessToken}}
+Idempotency-Key: create-contribution-request-001
+Content-Type: application/json
+
+{
+  "title": "Build a webhook delivery viewer",
+  "description": "Implement the owner-facing viewer and focused tests.",
+  "requiredRequirements": [
+    { "text": "Deliver tested NestJS endpoints" }
+  ],
+  "preferredRequirements": [
+    { "text": "Document the HTTP contract" }
+  ],
+  "technologyTags": ["NestJS", "PostgreSQL"],
+  "applicationsCloseTime": "2030-03-10T12:00:00.000Z",
+  "targetCompletionDate": "2030-03-20",
+  "difficulty": "intermediate",
+  "reward": 150,
+  "rewardCurrency": "USD"
+}
+
+
+### 18B - Inspect a known owned Contribution Request
+GET {{baseUrl}}/contribution-requests/{{contributionRequestId}}
+Authorization: Bearer {{ownerLogin.response.body.$.tokens.accessToken}}
+
+
+### 18C - Update the private draft
+PATCH {{baseUrl}}/contribution-requests/{{contributionRequestId}}
+Authorization: Bearer {{ownerLogin.response.body.$.tokens.accessToken}}
+Idempotency-Key: update-contribution-request-001
+Content-Type: application/json
+
+{
+  "title": "Build and document a webhook delivery viewer"
+}
+
+
+### 18D - Terminal, idempotent discard (not deletion)
+POST {{baseUrl}}/contribution-requests/{{contributionRequestId}}/discard
+Authorization: Bearer {{ownerLogin.response.body.$.tokens.accessToken}}
+Idempotency-Key: discard-contribution-request-001
+Content-Type: application/json
+
+{
+  "reason": "The Project scope changed"
+}
