@@ -1,0 +1,34 @@
+import { z } from "zod";
+
+const requirementSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["required", "preferred"]),
+  position: z.number().int().nonnegative(),
+  text: z.string(),
+});
+
+export const contributionRequestSchema = z.object({
+  id: z.string(),
+  projectId: z.string(),
+  title: z.string(),
+  description: z.string(),
+  requiredRequirements: z.array(requirementSchema),
+  preferredRequirements: z.array(requirementSchema),
+  technologyTags: z.array(z.string()),
+  applicationsCloseTime: z.string().nullable(),
+  targetCompletionDate: z.string().nullable(),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).nullable(),
+  reward: z.string().nullable(),
+  rewardCurrency: z.string().nullable(),
+  status: z.enum([
+    "draft",
+    "published",
+    "assigned",
+    "completed",
+    "cancelled",
+    "discarded",
+  ]),
+  publishedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
