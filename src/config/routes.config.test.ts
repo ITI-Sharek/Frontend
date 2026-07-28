@@ -21,6 +21,15 @@ describe("route config", () => {
     expect(ROUTES.adminNotifications).toBe("/admin/notifications");
   });
 
+  it("builds encoded owner Contribution Request routes", () => {
+    expect(ROUTES.newContributionRequest("project 1")).toBe(
+      "/my-projects/project%201/contribution-requests/new",
+    );
+    expect(ROUTES.contributionRequest("request 1")).toBe(
+      "/contribution-requests/request%201",
+    );
+  });
+
   it("exposes distinct admin destinations for fields and published owners", () => {
     expect(ROUTES.adminProfileFields).toBe("/admin/profile-fields");
     expect(ROUTES.adminProjectOwners).toBe("/admin/project-owners");

@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
-import { requireMemberRoute } from "@/modules/auth";
+import { requireOwnerRoute } from "@/modules/auth";
 import { getMyProjects, MyProjectsList } from "@/modules/projects";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 export const Route = createFileRoute("/_appLayout/my-projects/")({
-  beforeLoad: requireMemberRoute,
+  beforeLoad: requireOwnerRoute,
   head: () => ({ meta: [{ title: "مشاريعي | Sharek" }] }),
   component: MyProjectsPage,
 });

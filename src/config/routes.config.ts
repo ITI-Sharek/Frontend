@@ -23,6 +23,12 @@ export const ROUTES = {
   authCallback: "/auth/callback",
   myProjects: "/my-projects",
   newProject: "/my-projects/new",
+  ownerProject: (projectId: string) =>
+    `/my-projects/${encodeURIComponent(projectId)}`,
+  newContributionRequest: (projectId: string) =>
+    `/my-projects/${encodeURIComponent(projectId)}/contribution-requests/new`,
+  contributionRequest: (requestId: string) =>
+    `/contribution-requests/${encodeURIComponent(requestId)}`,
   settings: "/settings",
   /** Optional GitHub App skill-analysis workspace (backend callback target). */
   githubSkillAnalysis: "/profile/github",

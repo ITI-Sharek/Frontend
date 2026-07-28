@@ -14,6 +14,7 @@ import { Card } from "@/shared/components/ui/card";
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/config/routes.config";
 
 import {
   getOwnerRepos,
@@ -59,6 +60,7 @@ export function ImportProjectStepper({
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
+  const [publishedProjectId, setPublishedProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     void getOwnerRepos()
@@ -81,6 +83,7 @@ export function ImportProjectStepper({
       setSelectedRepoFullName(fullName);
       setDraft(imported);
       setPublished(false);
+      setPublishedProjectId(null);
       setStep(1);
     } catch (error) {
       setImportError(
@@ -97,7 +100,7 @@ export function ImportProjectStepper({
     setPublishError(null);
     setPublishing(true);
     try {
-      await publishProject(selectedRepoFullName, {
+      const publishedProject = await publishProject(selectedRepoFullName, {
         title: draft.title,
         description: draft.description,
         technologies: draft.technologies,
@@ -105,6 +108,7 @@ export function ImportProjectStepper({
         difficulty: draft.difficulty,
       });
       setPublished(true);
+      setPublishedProjectId(publishedProject.id);
     } catch (error) {
       setPublishError(
         getApiErrorMessage(error, "تعذر نشر المشروع — حاول مرة أخرى."),
@@ -373,9 +377,13 @@ export function ImportProjectStepper({
             الخطوة التالية: أنشئ أول طلب مساهمة ليبدأ المؤهلون بالتقديم.
           </p>
           <div className="mt-4 flex gap-2.5">
-            <Button size="sm">
-              إنشاء طلب مساهمة (14 من 20 هذا الشهر)
-            </Button>
+            {publishedProjectId && (
+              <Button asChild size="sm">
+                <a href={ROUTES.newContributionRequest(publishedProjectId)}>
+                  إنشاء طلب مساهمة
+                </a>
+              </Button>
+            )}
             <Button asChild size="sm" variant="outline">
               <a href={myProjectsHref}>العودة إلى مشاريعي</a>
             </Button>
