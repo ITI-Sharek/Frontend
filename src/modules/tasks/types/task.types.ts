@@ -1,8 +1,9 @@
 /**
  * Contribution-task contracts (CJ-2/3/4 · WF-05/06/12 · state-model §4).
- * Mock-first; future endpoints: GET /tasks · GET /tasks/:id ·
- * POST /tasks/:id/applications (quota consumed when validation starts,
- * DEC-006; fit hints per DEC-010 — buckets, never percentages).
+ * Superseded by the canonical types in `@/modules/contribution-requests`
+ * (Sprint 4, S4-F01) — `ValidationResultDto`'s eligible/ineligible/
+ * review_needed outcomes and `TaskApplicationState`'s `quota_exhausted`
+ * describe the retired AI eligibility gate and must not be extended.
  */
 
 export type ProjectDifficulty = "beginner" | "intermediate" | "advanced";
