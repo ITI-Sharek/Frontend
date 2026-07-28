@@ -65,7 +65,7 @@ const BASE_MOCK: Omit<ContributorDashboardDto, "state"> = {
     successRate: 92,
     skillsVerifiedThisMonth: 2,
   },
-  applications: { eligibleCount: 1, waitingOwnerCount: 1 },
+  applications: { pendingOwnerReviewCount: 2 },
   onboardingSteps: [
     { id: "account", label: "إنشاء الحساب", status: "done", hint: null },
     { id: "github", label: "ربط GitHub", status: "done", hint: null },

@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 
@@ -7,7 +6,7 @@ import {
   getContributionRequestErrorMessage,
 } from "@/modules/contribution-requests";
 import { requireOwnerRoute } from "@/modules/auth";
-import { getMyProjects } from "@/modules/projects";
+import { useMyProjectsQuery } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { PageContainer, PageFeedback } from "@/shared/components/layout/page-layout";
@@ -23,11 +22,7 @@ export const Route = createFileRoute(
 function NewContributionRequestPage() {
   const { projectId } = Route.useParams();
   const navigate = useNavigate();
-  const projectsQuery = useQuery({
-    queryKey: ["projects", "mine"],
-    queryFn: getMyProjects,
-    retry: false,
-  });
+  const projectsQuery = useMyProjectsQuery();
 
   if (projectsQuery.isPending) {
     return (

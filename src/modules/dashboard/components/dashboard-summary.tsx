@@ -65,15 +65,9 @@ export function DashboardSummary({
         </div>
         <dl className="mt-3 flex flex-col gap-2 text-sm">
           <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground">مؤهلة</dt>
-            <dd className="font-bold text-foreground">
-              {applications.eligibleCount}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between">
             <dt className="text-muted-foreground">بانتظار صاحب المشروع</dt>
             <dd className="font-bold text-foreground">
-              {applications.waitingOwnerCount}
+              {applications.pendingOwnerReviewCount}
             </dd>
           </div>
         </dl>

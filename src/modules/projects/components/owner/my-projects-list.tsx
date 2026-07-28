@@ -1,9 +1,13 @@
-import { Archive, CircleCheck, FileText, FolderGit2, Plus } from "lucide-react";
+import { Archive, CircleCheck, FileText, FolderGit2, Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 
-import type { MyProjectDto, OwnerQuotaDto } from "../../types/my-projects.types";
+import type {
+  CursorPageInfoDto,
+  MyProjectSummaryDto,
+  OwnerQuotaDto,
+} from "../../types/my-projects.types";
 
 const STATUS_META = {
   draft: { tone: "neutral" as const, icon: FileText, label: "مسودة" },
@@ -13,16 +17,25 @@ const STATUS_META = {
 
 /**
  * OJ-1 owner portfolio (screen-inventory §4.2): rows with status + pipeline
- * counts; empty state is the first-import hero.
+ * counts; empty state is the first-import hero. Backed by cursor-paginated
+ * `GET /projects/me`.
  */
 export function MyProjectsList({
   projects,
   quota,
+  pageInfo,
   importHref,
+  onProjectHref,
+  onLoadMore,
+  isLoadingMore = false,
 }: {
-  projects: MyProjectDto[];
+  projects: MyProjectSummaryDto[];
   quota: OwnerQuotaDto;
+  pageInfo: CursorPageInfoDto;
   importHref: string;
+  onProjectHref: (projectId: string) => string;
+  onLoadMore?: () => void;
+  isLoadingMore?: boolean;
 }) {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6">
@@ -59,36 +72,50 @@ export function MyProjectsList({
           </Button>
         </div>
       ) : (
-        <div className="mt-5 divide-y divide-border rounded-card border border-border bg-card">
-          {projects.map((project) => {
-            const meta = STATUS_META[project.status];
-            return (
-              <div
-                key={project.id}
-                className="flex flex-wrap items-center gap-3 p-4"
-              >
-                <div className="min-w-0 flex-1">
-                  <p dir="ltr" className="text-end font-mono text-[14px] font-bold tracking-[0.65px] text-foreground">
-                    {project.title}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {project.openRequestsCount} طلبات مساهمة مفتوحة ·{" "}
-                    {project.pendingApplicationsCount} طلبات انضمام معلقة · آخر
-                    نشاط {project.lastActivityLabel}
-                  </p>
+        <>
+          <div className="mt-5 divide-y divide-border rounded-card border border-border bg-card">
+            {projects.map((project) => {
+              const meta = STATUS_META[project.status];
+              return (
+                <div
+                  key={project.id}
+                  className="flex flex-wrap items-center gap-3 p-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p dir="ltr" className="text-end font-mono text-[14px] font-bold tracking-[0.65px] text-foreground">
+                      {project.title}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {project.openRequestsCount} طلبات مساهمة مفتوحة ·{" "}
+                      {project.pendingApplicationsCount} طلبات بانتظار قرارك · آخر
+                      نشاط {project.lastActivityLabel}
+                    </p>
+                  </div>
+                  <StatusChip tone={meta.tone} icon={meta.icon}>
+                    {meta.label}
+                  </StatusChip>
+                  <Button asChild size="sm" variant="outline">
+                    <a href={onProjectHref(project.id)}>إدارة</a>
+                  </Button>
                 </div>
-                <StatusChip tone={meta.tone} icon={meta.icon}>
-                  {meta.label}
-                </StatusChip>
-                <Button asChild size="sm" variant="outline">
-                  <a href={`/my-projects/${encodeURIComponent(project.id)}`}>
-                    إدارة
-                  </a>
-                </Button>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {pageInfo.hasNextPage && onLoadMore && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoadingMore}
+                onClick={onLoadMore}
+              >
+                {isLoadingMore && <Loader2 className="size-4 animate-spin" />}
+                تحميل المزيد
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

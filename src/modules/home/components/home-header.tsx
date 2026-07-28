@@ -9,6 +9,7 @@ import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
 
 const NAV_LINKS = [
+  { href: ROUTES.publicProjects, label: "المشاريع المنشورة" },
   { href: "#journey", label: "رحلة المساهمة" },
   { href: "#evidence", label: "سجل الأدلة" },
   { href: "#for-who", label: "لمن صُممت" },
