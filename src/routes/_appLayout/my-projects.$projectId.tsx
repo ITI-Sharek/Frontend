@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Archive, CircleCheck, FileText, Plus } from "lucide-react";
 
-import { requireMemberRoute } from "@/modules/auth";
+import { requireOwnerRoute } from "@/modules/auth";
 import { getMyProjects } from "@/modules/projects";
 import type { MyProjectDto } from "@/modules/projects";
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
@@ -17,7 +18,7 @@ const STATUS_META = {
 };
 
 export const Route = createFileRoute("/_appLayout/my-projects/$projectId")({
-  beforeLoad: requireMemberRoute,
+  beforeLoad: requireOwnerRoute,
   head: () => ({ meta: [{ title: "إدارة المشروع | Sharek" }] }),
   component: OwnerProjectManagementPage,
 });
@@ -115,10 +116,23 @@ function OwnerProjectManagementView({ project }: { project: MyProjectDto }) {
               سيُربط هنا عند اكتمال واجهة طلبات المساهمة.
             </p>
           </div>
-          <Button size="sm" disabled>
-            <Plus className="size-4" />
-            إنشاء طلب مساهمة
-          </Button>
+          {project.status === "published" ? (
+            <Button asChild size="sm">
+              <a href={ROUTES.newContributionRequest(project.id)}>
+                <Plus className="size-4" />
+                إنشاء طلب مساهمة
+              </a>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              disabled
+              title="انشر المشروع أولًا لإنشاء طلب مساهمة"
+            >
+              <Plus className="size-4" />
+              إنشاء طلب مساهمة
+            </Button>
+          )}
         </div>
       </Card>
     </div>
