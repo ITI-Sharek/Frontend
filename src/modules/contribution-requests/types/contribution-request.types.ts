@@ -1,14 +1,31 @@
+/**
+ * Canonical Contribution Request and Requirement contracts
+ * (`docs/architecture/domain-model/CONTRIBUTION_REQUEST.md`,
+ * `docs/architecture/contracts/api-contract-additions.md` §5). Deliberately
+ * excludes application-attempt quotas, automatic validation, eligibility
+ * verdicts, and admin-review concepts carried by the superseded task mock.
+ */
+
 export type ContributionRequestDifficulty =
   | "beginner"
   | "intermediate"
   | "advanced";
 
+/**
+ * `discarded` is a private, pre-publish-only terminal state owned by the
+ * draft lifecycle (backend issue #48); it is additive to the published
+ * lifecycle enum in the domain model, not a replacement for `cancelled`.
+ */
 export type ContributionRequestStatus =
   | "draft"
   | "published"
   | "assigned"
+  | "in_progress"
+  | "awaiting_delivery"
+  | "delivery_submitted"
   | "completed"
   | "cancelled"
+  | "expired"
   | "discarded";
 
 export type ContributionRequestRequirementKind = "required" | "preferred";
@@ -90,3 +107,49 @@ export type ContributionRequestFormErrors = Partial<
 >;
 
 export type ContributionRequestLocale = "ar" | "en";
+
+export type RequirementClassification = "required" | "preferred";
+
+export interface RequirementDto {
+  id: string;
+  text: string;
+  classification: RequirementClassification;
+}
+
+export interface ContributionRequestRewardDto {
+  amount: number;
+  currency: string;
+}
+
+export interface ContributionRequestListItemDto {
+  id: string;
+  projectId: string;
+  projectName: string;
+  projectSlug: string;
+  title: string;
+  technologyTags: string[];
+  difficulty: ContributionRequestDifficulty | null;
+  applicationsCloseAt: string | null;
+  targetCompletionDate: string | null;
+  reward: ContributionRequestRewardDto | null;
+}
+
+export interface ContributionRequestDetailDto
+  extends ContributionRequestListItemDto {
+  description: string;
+  status: ContributionRequestStatus;
+  requirements: RequirementDto[];
+}
+
+export interface ContributionRequestFeedFiltersDto {
+  q?: string;
+  technologies?: string[];
+  difficulty?: ContributionRequestDifficulty;
+  hasReward?: boolean;
+}
+
+export interface ContributionRequestFeedResponseDto {
+  items: ContributionRequestListItemDto[];
+  totalCount: number;
+  technologyFacets: string[];
+}

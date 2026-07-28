@@ -6,9 +6,15 @@ import {
   createContributionRequestDraft,
   discardContributionRequestDraft,
   getContributionRequest,
+  getContributionRequestById,
+  listContributionRequests,
   updateContributionRequestDraft,
 } from "./contribution-requests.service";
-import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
+import type {
+  ContributionRequestDetailDto,
+  ContributionRequestDraftPayload,
+  ContributionRequestFeedResponseDto,
+} from "../types/contribution-request.types";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
   axiosInstance: {
@@ -20,7 +26,7 @@ vi.mock("@/lib/axios/axios-instance", () => ({
 
 const mockedAxios = vi.mocked(axiosInstance);
 
-describe("Contribution Request service", () => {
+describe("Contribution Request draft service", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("creates a private draft without sending ownerId", async () => {
@@ -83,6 +89,64 @@ describe("Contribution Request service", () => {
       { reason: "Scope changed" },
       { headers: { "Idempotency-Key": "discard-request-001" } },
     );
+  });
+});
+
+describe("contribution requests service", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("lists Contribution Requests with feed filters", async () => {
+    const response: ContributionRequestFeedResponseDto = {
+      items: [
+        {
+          id: "cr-1",
+          projectId: "project-1",
+          projectName: "sharek-backend",
+          projectSlug: "sharek-backend",
+          title: "Build a real-time notifications panel",
+          technologyTags: ["React", "Node.js", "WebSocket"],
+          difficulty: "intermediate",
+          applicationsCloseAt: "2026-08-10T00:00:00.000Z",
+          targetCompletionDate: "2026-08-20",
+          reward: { amount: 120, currency: "USD" },
+        },
+      ],
+      totalCount: 1,
+      technologyFacets: ["React", "Node.js"],
+    };
+    mockedAxios.get.mockResolvedValueOnce({ data: response });
+
+    await expect(
+      listContributionRequests({ technologies: ["React"] }),
+    ).resolves.toEqual(response);
+    expect(mockedAxios.get).toHaveBeenCalledWith("/tasks", {
+      params: { technologies: ["React"] },
+    });
+  });
+
+  it("gets one Contribution Request by id, with Required and Preferred Requirements", async () => {
+    const detail: ContributionRequestDetailDto = {
+      id: "cr-1",
+      projectId: "project-1",
+      projectName: "sharek-backend",
+      projectSlug: "sharek-backend",
+      title: "Build a real-time notifications panel",
+      technologyTags: ["React", "Node.js", "WebSocket"],
+      difficulty: "intermediate",
+      applicationsCloseAt: "2026-08-10T00:00:00.000Z",
+      targetCompletionDate: "2026-08-20",
+      reward: { amount: 120, currency: "USD" },
+      description: "Ship an in-app notification panel with a live counter.",
+      status: "published",
+      requirements: [
+        { id: "req-1", text: "React", classification: "required" },
+        { id: "req-2", text: "WebSocket", classification: "preferred" },
+      ],
+    };
+    mockedAxios.get.mockResolvedValueOnce({ data: detail });
+
+    await expect(getContributionRequestById("cr-1")).resolves.toEqual(detail);
+    expect(mockedAxios.get).toHaveBeenCalledWith("/tasks/cr-1");
   });
 });
 

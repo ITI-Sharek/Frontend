@@ -6,9 +6,12 @@ import type {
 } from "../types/task.types";
 
 /**
- * MOCK SERVICE — no tasks endpoints yet. Validation outcomes are
- * deterministic per task id so all three WF-06/12 screens are demoable:
- * t-notify → eligible · t-jwt → ineligible · t-perf → review_needed.
+ * MOCK SERVICE — superseded by the canonical Contribution Request and
+ * Application contracts in `@/modules/contribution-requests` (Sprint 4,
+ * S4-F01). Kept only so existing routes stay green until each is replaced by
+ * its own Sprint 4 ticket; the eligible/ineligible/review_needed validation
+ * outcomes and quota below describe the retired AI eligibility gate and must
+ * not be extended.
  */
 
 const MOCK_TASKS: TaskCardDto[] = [
