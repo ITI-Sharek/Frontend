@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
+  cancelContributionRequest,
   createContributionRequestDraft,
   discardContributionRequestDraft,
+  publishContributionRequest,
   updateContributionRequestDraft,
 } from "../../services/contribution-requests.service";
 import type {
+  CancelContributionRequestPayload,
   ContributionRequestDraftPayload,
   DiscardContributionRequestPayload,
 } from "../../types/contribution-request.types";
@@ -40,6 +43,9 @@ export function useUpdateContributionRequestMutation(requestId: string) {
       ),
     onSuccess: (request) => {
       queryClient.setQueryData(contributionRequestKeys.detail(requestId), request);
+      void queryClient.invalidateQueries({
+        queryKey: contributionRequestKeys.ownerProjectList(request.projectId),
+      });
     },
   });
 }
@@ -58,6 +64,40 @@ export function useDiscardContributionRequestMutation(requestId: string) {
       ),
     onSuccess: (request) => {
       queryClient.setQueryData(contributionRequestKeys.detail(requestId), request);
+      void queryClient.invalidateQueries({
+        queryKey: contributionRequestKeys.ownerProjectList(request.projectId),
+      });
+    },
+  });
+}
+
+export function usePublishContributionRequestMutation(requestId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { idempotencyKey: string }) =>
+      publishContributionRequest(requestId, input.idempotencyKey),
+    onSuccess: (request) => {
+      queryClient.setQueryData(contributionRequestKeys.detail(requestId), request);
+      void queryClient.invalidateQueries({
+        queryKey: contributionRequestKeys.ownerProjectList(request.projectId),
+      });
+    },
+  });
+}
+
+export function useCancelContributionRequestMutation(requestId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      payload: CancelContributionRequestPayload;
+      idempotencyKey: string;
+    }) =>
+      cancelContributionRequest(requestId, input.payload, input.idempotencyKey),
+    onSuccess: (request) => {
+      queryClient.setQueryData(contributionRequestKeys.detail(requestId), request);
+      void queryClient.invalidateQueries({
+        queryKey: contributionRequestKeys.ownerProjectList(request.projectId),
+      });
     },
   });
 }

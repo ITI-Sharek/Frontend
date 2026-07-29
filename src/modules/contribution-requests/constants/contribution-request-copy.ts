@@ -34,6 +34,12 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
       "تعذر تأمين إعادة المحاولة. غيّر البيانات وحاول مرة أخرى.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT:
       "تعارضت محاولة سابقة مع هذه البيانات. راجع الحقول ثم أعد الإرسال.",
+    CONTRIBUTION_REQUEST_DRAFT_NOT_PUBLISHABLE:
+      "أكمل عقد العمل (العنوان والوصف ومتطلب مطلوب واحد على الأقل ووقت إغلاق تقديم مستقبلي) قبل النشر.",
+    CONTRIBUTION_REQUEST_LIMIT_REACHED:
+      "بلغت الحد الشهري لنشر طلبات المساهمة الخاص بباقتك.",
+    CONTRIBUTION_REQUEST_NOT_CANCELLABLE:
+      "لا يمكن إلغاء هذا الطلب في حالته الحالية.",
   },
   en: {
     CONTRIBUTION_REQUEST_OWNER_ACCESS_REQUIRED:
@@ -64,6 +70,12 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
       "The retry could not be secured. Change the command and try again.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT:
       "A previous attempt conflicts with this command. Review the fields and submit again.",
+    CONTRIBUTION_REQUEST_DRAFT_NOT_PUBLISHABLE:
+      "Complete the work contract (title, description, at least one Required Requirement, and a future Applications Close Time) before publishing.",
+    CONTRIBUTION_REQUEST_LIMIT_REACHED:
+      "You reached your plan's monthly Contribution Request publication limit.",
+    CONTRIBUTION_REQUEST_NOT_CANCELLABLE:
+      "This Contribution Request cannot be cancelled in its current state.",
   },
 };
 

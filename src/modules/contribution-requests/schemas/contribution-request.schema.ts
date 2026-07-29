@@ -36,3 +36,16 @@ export const contributionRequestSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
 });
+
+export const ownerProjectContributionRequestsSchema = z.object({
+  projectId: z.string(),
+  totalCount: z.number().int().nonnegative(),
+  byStatus: z.object({
+    draft: z.array(contributionRequestSchema),
+    published: z.array(contributionRequestSchema),
+    assigned: z.array(contributionRequestSchema),
+    completed: z.array(contributionRequestSchema),
+    cancelled: z.array(contributionRequestSchema),
+    discarded: z.array(contributionRequestSchema),
+  }),
+});

@@ -1,4 +1,4 @@
-import { CircleAlert, FileText, Loader2, Trash2 } from "lucide-react";
+import { CircleAlert, Loader2, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -12,17 +12,22 @@ import {
 
 import { ContributionRequestForm } from "./contribution-request-form";
 import { DiscardContributionRequestDialog } from "./discard-contribution-request-dialog";
+import { PublishContributionRequestDialog } from "./publish-contribution-request-dialog";
+import { CancelContributionRequestDialog } from "./cancel-contribution-request-dialog";
 import {
   getContributionRequestErrorMessage,
   isContributionRequestError,
 } from "../constants/contribution-request-copy";
 import {
+  useCancelContributionRequestMutation,
   useDiscardContributionRequestMutation,
+  usePublishContributionRequestMutation,
   useUpdateContributionRequestMutation,
 } from "../api/mutations/use-contribution-request-mutations";
 import { useContributionRequestQuery } from "../api/queries/use-contribution-request-query";
 import { toContributionRequestForm } from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
+import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
 import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
 
 export function ContributionRequestDetailView({
@@ -35,11 +40,27 @@ export function ContributionRequestDetailView({
   const query = useContributionRequestQuery(requestId);
   const updateMutation = useUpdateContributionRequestMutation(requestId);
   const discardMutation = useDiscardContributionRequestMutation(requestId);
-  const updateIdempotency = useRef(new ContributionRequestIdempotencyKeyStore());
-  const discardIdempotency = useRef(new ContributionRequestIdempotencyKeyStore());
+  const publishMutation = usePublishContributionRequestMutation(requestId);
+  const cancelMutation = useCancelContributionRequestMutation(requestId);
+  const updateIdempotency = useRef(
+    new ContributionRequestIdempotencyKeyStore(),
+  );
+  const discardIdempotency = useRef(
+    new ContributionRequestIdempotencyKeyStore(),
+  );
+  const publishIdempotency = useRef(
+    new ContributionRequestIdempotencyKeyStore(),
+  );
+  const cancelIdempotency = useRef(
+    new ContributionRequestIdempotencyKeyStore(),
+  );
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [discardError, setDiscardError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
   const [saved, setSaved] = useState(false);
 
   if (query.isPending) {
@@ -78,27 +99,26 @@ export function ContributionRequestDetailView({
 
   const request = query.data;
   const editable = request.status === "draft";
-  const statusMeta =
-    request.status === "discarded"
-      ? { tone: "negative" as const, icon: Trash2, label: "تم التجاهل" }
-      : request.status === "draft"
-        ? { tone: "neutral" as const, icon: FileText, label: "مسودة" }
-        : {
-            tone: "attention" as const,
-            icon: CircleAlert,
-            label: "غير قابل للتعديل",
-          };
+  const statusMeta = getContributionRequestStatusMeta(request.status);
 
   async function update(payload: ContributionRequestDraftPayload) {
     setSaved(false);
     setUpdateError(null);
-    const idempotencyKey = updateIdempotency.current.getFor({ requestId, payload });
+    const idempotencyKey = updateIdempotency.current.getFor({
+      requestId,
+      payload,
+    });
     try {
       await updateMutation.mutateAsync({ payload, idempotencyKey });
       updateIdempotency.current.clear();
       setSaved(true);
     } catch (error) {
-      if (isContributionRequestError(error, "CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION")) {
+      if (
+        isContributionRequestError(
+          error,
+          "CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION",
+        )
+      ) {
         await query.refetch();
       }
       setUpdateError(getContributionRequestErrorMessage(error));
@@ -108,7 +128,10 @@ export function ContributionRequestDetailView({
   async function discard(reason: string) {
     setDiscardError(null);
     const payload = reason ? { reason } : {};
-    const idempotencyKey = discardIdempotency.current.getFor({ requestId, payload });
+    const idempotencyKey = discardIdempotency.current.getFor({
+      requestId,
+      payload,
+    });
     try {
       await discardMutation.mutateAsync({ payload, idempotencyKey });
       discardIdempotency.current.clear();
@@ -119,16 +142,59 @@ export function ContributionRequestDetailView({
     }
   }
 
+  async function publish() {
+    setPublishError(null);
+    const idempotencyKey = publishIdempotency.current.getFor({
+      requestId,
+      action: "publish",
+    });
+    try {
+      await publishMutation.mutateAsync({ idempotencyKey });
+      publishIdempotency.current.clear();
+      setPublishOpen(false);
+      document.getElementById("publish-request-trigger")?.focus();
+    } catch (error) {
+      setPublishError(getContributionRequestErrorMessage(error));
+    }
+  }
+
+  async function cancel(reason: string) {
+    setCancelError(null);
+    const payload = reason ? { reason } : {};
+    const idempotencyKey = cancelIdempotency.current.getFor({
+      requestId,
+      payload,
+    });
+    try {
+      await cancelMutation.mutateAsync({ payload, idempotencyKey });
+      cancelIdempotency.current.clear();
+      setCancelOpen(false);
+      document.getElementById("cancel-request-trigger")?.focus();
+    } catch (error) {
+      setCancelError(getContributionRequestErrorMessage(error));
+    }
+  }
+
+  const descriptionByStatus: Record<typeof request.status, string> = {
+    draft: "مسودة خاصة بصاحب المشروع. لا تظهر للمساهمين قبل النشر.",
+    published: "منشور ومرئي للمساهمين حتى وقت إغلاق التقديم.",
+    assigned: "أُسنِد هذا الطلب لمساهم. لم تعد إجراءات النشر أو الإلغاء متاحة.",
+    in_progress: "قيد التنفيذ حاليًا.",
+    awaiting_delivery: "بانتظار تسليم العمل.",
+    delivery_submitted: "تم تقديم التسليم للمراجعة.",
+    completed: "أُنجز هذا الطلب.",
+    cancelled: "أُلغي هذا الطلب المنشور. يبقى سجل الطلبات والقرارات محفوظًا.",
+    expired: "انتهت صلاحية هذا الطلب.",
+    discarded: "تم تجاهل هذه المسودة قبل نشرها. يبقى سجلها محفوظًا للعرض فقط.",
+  };
+
   return (
     <PageContainer className="max-w-4xl">
       <PageHeader
         title={request.title}
-        description="مسودة طلب مساهمة خاصة بصاحب المشروع. النشر والاكتشاف العام غير متاحين في هذه المرحلة."
+        description={descriptionByStatus[request.status]}
         actions={
-          <StatusChip
-            tone={statusMeta.tone}
-            icon={statusMeta.icon}
-          >
+          <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
             {statusMeta.label}
           </StatusChip>
         }
@@ -136,9 +202,26 @@ export function ContributionRequestDetailView({
 
       {request.status === "discarded" ? (
         <Card className="mt-6 border-destructive/25 bg-destructive/5">
-          <h2 className="text-lg font-bold text-foreground">مسودة متجاهلة — للعرض فقط</h2>
+          <h2 className="text-lg font-bold text-foreground">
+            مسودة متجاهلة — للعرض فقط
+          </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من هذه الواجهة.
+            تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من
+            هذه الواجهة.
+          </p>
+          <ReadOnlyRequest request={request} />
+          <Button asChild variant="outline" className="mt-5">
+            <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+          </Button>
+        </Card>
+      ) : request.status === "cancelled" ? (
+        <Card className="mt-6 border-destructive/25 bg-destructive/5">
+          <h2 className="text-lg font-bold text-foreground">
+            طلب ملغى — للعرض فقط
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            تم إلغاء هذا الطلب المنشور. طلبات التقديم والتقييمات والقرارات
+            السابقة محفوظة ولم تُحذف.
           </p>
           <ReadOnlyRequest request={request} />
           <Button asChild variant="outline" className="mt-5">
@@ -148,7 +231,11 @@ export function ContributionRequestDetailView({
       ) : editable ? (
         <Card className="mt-6">
           {saved && (
-            <p role="status" aria-live="polite" className="mb-4 text-sm text-evidence-teal">
+            <p
+              role="status"
+              aria-live="polite"
+              className="mb-4 text-sm text-evidence-teal"
+            >
               حُفظت أحدث تغييرات المسودة.
             </p>
           )}
@@ -161,6 +248,25 @@ export function ContributionRequestDetailView({
             cancelHref={projectHref(request.projectId)}
             onSubmit={update}
           />
+          <div className="mt-6 border-t border-border pt-5">
+            <h2 className="font-bold text-foreground">نشر الطلب</h2>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              يصبح الطلب مرئيًا للمساهمين فورًا ويخضع لحد النشر الشهري المرتبط
+              بباقتك.
+            </p>
+            <Button
+              id="publish-request-trigger"
+              type="button"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setPublishError(null);
+                setPublishOpen(true);
+              }}
+            >
+              نشر الطلب
+            </Button>
+          </div>
           <div className="mt-6 border-t border-destructive/25 pt-5">
             <h2 className="font-bold text-foreground">إنهاء المسودة</h2>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -182,12 +288,40 @@ export function ContributionRequestDetailView({
             </Button>
           </div>
         </Card>
+      ) : request.status === "published" ? (
+        <Card className="mt-6">
+          <ReadOnlyRequest request={request} />
+          <div className="mt-6 border-t border-destructive/25 pt-5">
+            <h2 className="font-bold text-foreground">إلغاء الطلب</h2>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              الإلغاء نهائي، يوقف استقبال طلبات تقديم جديدة، ويحافظ على سجل
+              الطلبات والقرارات السابقة.
+            </p>
+            <Button
+              id="cancel-request-trigger"
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setCancelError(null);
+                setCancelOpen(true);
+              }}
+            >
+              إلغاء الطلب
+            </Button>
+          </div>
+        </Card>
       ) : (
         <Card className="mt-6">
-          <h2 className="text-lg font-bold text-foreground">طلب غير قابل للتعديل</h2>
+          <h2 className="text-lg font-bold text-foreground">
+            طلب غير قابل للتعديل
+          </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            حالة هذا السجل ليست مسودة. لا تعرض واجهة #48 إجراءات نشر أو إلغاء أو تقديم.
+            حالة هذا السجل ({statusMeta.label}) لا تتيح إجراءات نشر أو إلغاء أو
+            تعديل من هذه الواجهة.
           </p>
+          <ReadOnlyRequest request={request} />
           <Button asChild variant="outline" className="mt-5">
             <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
           </Button>
@@ -204,6 +338,28 @@ export function ContributionRequestDetailView({
         }}
         onConfirm={discard}
       />
+
+      <PublishContributionRequestDialog
+        isOpen={publishOpen}
+        isPublishing={publishMutation.isPending}
+        error={publishError}
+        onCancel={() => {
+          setPublishOpen(false);
+          document.getElementById("publish-request-trigger")?.focus();
+        }}
+        onConfirm={publish}
+      />
+
+      <CancelContributionRequestDialog
+        isOpen={cancelOpen}
+        isCancelling={cancelMutation.isPending}
+        error={cancelError}
+        onCancel={() => {
+          setCancelOpen(false);
+          document.getElementById("cancel-request-trigger")?.focus();
+        }}
+        onConfirm={cancel}
+      />
     </PageContainer>
   );
 }
@@ -215,17 +371,30 @@ function ReadOnlyRequest({
 }) {
   return (
     <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-      <ReadOnlyField label="الوصف" value={request.description} className="sm:col-span-2" />
+      <ReadOnlyField
+        label="الوصف"
+        value={request.description}
+        className="sm:col-span-2"
+      />
       <ReadOnlyField
         label="المتطلبات المطلوبة"
         value={request.requiredRequirements.map((item) => item.text).join("، ")}
       />
       <ReadOnlyField
         label="المتطلبات المفضلة"
-        value={request.preferredRequirements.map((item) => item.text).join("، ") || "—"}
+        value={
+          request.preferredRequirements.map((item) => item.text).join("، ") ||
+          "—"
+        }
       />
-      <ReadOnlyField label="وقت إغلاق التقديم" value={request.applicationsCloseTime ?? "—"} />
-      <ReadOnlyField label="تاريخ الإنجاز المستهدف" value={request.targetCompletionDate ?? "—"} />
+      <ReadOnlyField
+        label="وقت إغلاق التقديم"
+        value={request.applicationsCloseTime ?? "—"}
+      />
+      <ReadOnlyField
+        label="تاريخ الإنجاز المستهدف"
+        value={request.targetCompletionDate ?? "—"}
+      />
     </dl>
   );
 }

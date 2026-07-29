@@ -77,6 +77,29 @@ export interface DiscardContributionRequestPayload {
   reason?: string;
 }
 
+export interface CancelContributionRequestPayload {
+  reason?: string;
+}
+
+/**
+ * The backend Prisma enum currently persists only these six statuses;
+ * `in_progress`, `awaiting_delivery`, and `expired` above are not yet
+ * reachable and are excluded from the owner workspace grouping.
+ */
+export type ContributionRequestsByStatusDto = Record<
+  Exclude<
+    ContributionRequestStatus,
+    "in_progress" | "awaiting_delivery" | "delivery_submitted" | "expired"
+  >,
+  ContributionRequestDto[]
+>;
+
+export interface OwnerProjectContributionRequestsDto {
+  projectId: string;
+  totalCount: number;
+  byStatus: ContributionRequestsByStatusDto;
+}
+
 export interface ContributionRequestFormState {
   title: string;
   description: string;

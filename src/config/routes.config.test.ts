@@ -22,6 +22,9 @@ describe("route config", () => {
   });
 
   it("builds encoded owner Contribution Request routes", () => {
+    expect(ROUTES.ownerContributionRequests("project 1")).toBe(
+      "/my-projects/project%201/contribution-requests",
+    );
     expect(ROUTES.newContributionRequest("project 1")).toBe(
       "/my-projects/project%201/contribution-requests/new",
     );
