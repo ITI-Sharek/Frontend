@@ -26,6 +26,8 @@ export const ROUTES = {
   newProject: "/my-projects/new",
   ownerProject: (projectId: string) =>
     `/my-projects/${encodeURIComponent(projectId)}`,
+  ownerContributionRequests: (projectId: string) =>
+    `/my-projects/${encodeURIComponent(projectId)}/contribution-requests`,
   newContributionRequest: (projectId: string) =>
     `/my-projects/${encodeURIComponent(projectId)}/contribution-requests/new`,
   contributionRequest: (requestId: string) =>

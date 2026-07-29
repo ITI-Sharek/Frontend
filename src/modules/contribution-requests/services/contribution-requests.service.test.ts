@@ -3,11 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import {
+  cancelContributionRequest,
   createContributionRequestDraft,
   discardContributionRequestDraft,
   getContributionRequest,
   getContributionRequestById,
   listContributionRequests,
+  listOwnerContributionRequestsForProject,
+  publishContributionRequest,
   updateContributionRequestDraft,
 } from "./contribution-requests.service";
 import type {
@@ -88,6 +91,63 @@ describe("Contribution Request draft service", () => {
       "/contribution-requests/request-1/discard",
       { reason: "Scope changed" },
       { headers: { "Idempotency-Key": "discard-request-001" } },
+    );
+  });
+
+  it("publishes a draft through the publish command endpoint", async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: responseDto({ status: "published", publishedAt: "2026-07-28T00:00:00.000Z" }),
+    });
+
+    const result = await publishContributionRequest("request-1", "publish-request-001");
+
+    expect(result.status).toBe("published");
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/contribution-requests/request-1/publish",
+      undefined,
+      { headers: { "Idempotency-Key": "publish-request-001" } },
+    );
+  });
+
+  it("cancels a published request with an optional reason", async () => {
+    mockedAxios.post.mockResolvedValueOnce({
+      data: responseDto({ status: "cancelled" }),
+    });
+
+    const result = await cancelContributionRequest(
+      "request-1",
+      { reason: "No longer needed" },
+      "cancel-request-001",
+    );
+
+    expect(result.status).toBe("cancelled");
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/contribution-requests/request-1/cancel",
+      { reason: "No longer needed" },
+      { headers: { "Idempotency-Key": "cancel-request-001" } },
+    );
+  });
+
+  it("lists an owned Project's Contribution Requests grouped by lifecycle state", async () => {
+    const listResponse = {
+      projectId: "project-1",
+      totalCount: 2,
+      byStatus: {
+        draft: [responseDto()],
+        published: [],
+        assigned: [],
+        completed: [],
+        cancelled: [responseDto({ id: "request-2", status: "cancelled" })],
+        discarded: [],
+      },
+    };
+    mockedAxios.get.mockResolvedValueOnce({ data: listResponse });
+
+    await expect(
+      listOwnerContributionRequestsForProject("project 1"),
+    ).resolves.toEqual(listResponse);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/projects/project%201/contribution-requests",
     );
   });
 });

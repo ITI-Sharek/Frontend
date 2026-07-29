@@ -23,6 +23,7 @@ import {
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
 import type { ProjectManualOverrideField } from "@/modules/projects";
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
@@ -65,7 +66,9 @@ function OwnerProjectManagementPage() {
     );
   }
 
-  return <OwnerProjectManagement projectId={projectId} project={projectQuery.data} />;
+  return (
+    <OwnerProjectManagement projectId={projectId} project={projectQuery.data} />
+  );
 }
 
 function OwnerProjectManagement({
@@ -93,79 +96,93 @@ function OwnerProjectManagement({
   );
 
   return (
-    <ProjectOwnerDetailView
-      project={project}
-      myProjectsHref="/my-projects"
-      publicProjectHref={`/projects/${encodeURIComponent(project.slug)}`}
-      onSaveEdit={(payload) => {
-        editMutation.mutate({ projectId, idempotencyKey: editKey, ...payload });
-      }}
-      isSavingEdit={editMutation.isPending}
-      editError={
-        editMutation.isError ? getProjectApiErrorMessage(editMutation.error) : null
-      }
-      onRestoreField={(field) => {
-        setRestoringField(field);
-        editMutation.mutate(
-          {
+    <>
+      <div className="mx-auto w-full max-w-3xl px-4 pt-6 md:px-6">
+        <a
+          href={ROUTES.ownerContributionRequests(projectId)}
+          className="inline-flex items-center gap-2 rounded-card border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/40"
+        >
+          طلبات المساهمة لهذا المشروع
+        </a>
+      </div>
+      <ProjectOwnerDetailView
+        project={project}
+        myProjectsHref="/my-projects"
+        publicProjectHref={`/projects/${encodeURIComponent(project.slug)}`}
+        onSaveEdit={(payload) => {
+          editMutation.mutate({
             projectId,
-            idempotencyKey: getRestoreFieldIdempotencyKey(
-              restoreKeysRef.current,
-              project.revision,
-              field,
-            ),
+            idempotencyKey: editKey,
+            ...payload,
+          });
+        }}
+        isSavingEdit={editMutation.isPending}
+        editError={
+          editMutation.isError
+            ? getProjectApiErrorMessage(editMutation.error)
+            : null
+        }
+        onRestoreField={(field) => {
+          setRestoringField(field);
+          editMutation.mutate(
+            {
+              projectId,
+              idempotencyKey: getRestoreFieldIdempotencyKey(
+                restoreKeysRef.current,
+                project.revision,
+                field,
+              ),
+              expectedRevision: project.revision,
+              restoreFromSource: [field],
+            },
+            { onSettled: () => setRestoringField(null) },
+          );
+        }}
+        restoringField={restoringField}
+        onRefresh={() => {
+          refreshMutation.mutate({
+            projectId,
+            idempotencyKey: refreshKey,
             expectedRevision: project.revision,
-            restoreFromSource: [field],
-          },
-          { onSettled: () => setRestoringField(null) },
-        );
-      }}
-      restoringField={restoringField}
-      onRefresh={() => {
-        refreshMutation.mutate({
-          projectId,
-          idempotencyKey: refreshKey,
-          expectedRevision: project.revision,
-        });
-      }}
-      isRefreshing={refreshMutation.isPending}
-      refreshError={
-        refreshMutation.isError
-          ? getProjectApiErrorMessage(refreshMutation.error)
-          : null
-      }
-      onPublish={() => {
-        publishMutation.mutate({
-          projectId,
-          idempotencyKey: publishKey,
-          expectedRevision: project.revision,
-          confirm: true,
-        });
-      }}
-      isPublishing={publishMutation.isPending}
-      publishError={
-        publishMutation.isError
-          ? getProjectApiErrorMessage(publishMutation.error)
-          : null
-      }
-      onArchive={() => {
-        archiveMutation.mutate({
-          projectId,
-          idempotencyKey: archiveKey,
-          expectedRevision: project.revision,
-          confirm: true,
-        });
-      }}
-      isArchiving={archiveMutation.isPending}
-      archiveError={
-        archiveMutation.isError
-          ? getProjectApiErrorMessage(archiveMutation.error)
-          : null
-      }
-      recoverySlot={
-        showRecovery ? <RepositoryControlRecovery /> : null
-      }
-    />
+          });
+        }}
+        isRefreshing={refreshMutation.isPending}
+        refreshError={
+          refreshMutation.isError
+            ? getProjectApiErrorMessage(refreshMutation.error)
+            : null
+        }
+        onPublish={() => {
+          publishMutation.mutate({
+            projectId,
+            idempotencyKey: publishKey,
+            expectedRevision: project.revision,
+            confirm: true,
+          });
+        }}
+        isPublishing={publishMutation.isPending}
+        publishError={
+          publishMutation.isError
+            ? getProjectApiErrorMessage(publishMutation.error)
+            : null
+        }
+        onArchive={() => {
+          archiveMutation.mutate({
+            projectId,
+            idempotencyKey: archiveKey,
+            expectedRevision: project.revision,
+            confirm: true,
+          });
+        }}
+        isArchiving={archiveMutation.isPending}
+        archiveError={
+          archiveMutation.isError
+            ? getProjectApiErrorMessage(archiveMutation.error)
+            : null
+        }
+        recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
+      />
+    </>
   );
 }
 
@@ -203,10 +220,9 @@ function RepositoryControlRecovery() {
         يلزم التحقق من التحكم بالمستودع
       </h3>
       <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-        مستودع منظمة أو مستودع مشترك يتطلب تثبيتاً نشطاً لتطبيق GitHub مع
-        اختيار صريح لهذا المستودع. مستودع شخصي يتطلب أن تطابق هوية GitHub
-        الموثقة مالك المستودع. أعد الربط أو الاختيار أدناه ثم حدّث بيانات
-        المصدر.
+        مستودع منظمة أو مستودع مشترك يتطلب تثبيتاً نشطاً لتطبيق GitHub مع اختيار
+        صريح لهذا المستودع. مستودع شخصي يتطلب أن تطابق هوية GitHub الموثقة مالك
+        المستودع. أعد الربط أو الاختيار أدناه ثم حدّث بيانات المصدر.
       </p>
 
       {installationsQuery.isPending && (
@@ -235,7 +251,9 @@ function RepositoryControlRecovery() {
               // Selection here is informational only; publish/refresh
               // revalidate control server-side against the saved selection.
             }}
-            onReauthorize={(installationLinkId) => startConnection(installationLinkId)}
+            onReauthorize={(installationLinkId) =>
+              startConnection(installationLinkId)
+            }
             onDisconnect={setDisconnectTarget}
           />
         </div>

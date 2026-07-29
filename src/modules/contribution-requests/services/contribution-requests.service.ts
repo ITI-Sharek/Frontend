@@ -1,13 +1,18 @@
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
-import { contributionRequestSchema } from "../schemas/contribution-request.schema";
+import {
+  contributionRequestSchema,
+  ownerProjectContributionRequestsSchema,
+} from "../schemas/contribution-request.schema";
 import type {
+  CancelContributionRequestPayload,
   ContributionRequestDetailDto,
   ContributionRequestDraftPayload,
   ContributionRequestDto,
   ContributionRequestFeedFiltersDto,
   ContributionRequestFeedResponseDto,
   DiscardContributionRequestPayload,
+  OwnerProjectContributionRequestsDto,
 } from "../types/contribution-request.types";
 
 function idempotencyHeaders(idempotencyKey: string) {
@@ -60,6 +65,40 @@ export async function discardContributionRequestDraft(
     { headers: idempotencyHeaders(idempotencyKey) },
   );
   return contributionRequestSchema.parse(data);
+}
+
+export async function publishContributionRequest(
+  requestId: string,
+  idempotencyKey: string,
+): Promise<ContributionRequestDto> {
+  const { data } = await axiosInstance.post(
+    `/contribution-requests/${encodeURIComponent(requestId)}/publish`,
+    undefined,
+    { headers: idempotencyHeaders(idempotencyKey) },
+  );
+  return contributionRequestSchema.parse(data);
+}
+
+export async function cancelContributionRequest(
+  requestId: string,
+  payload: CancelContributionRequestPayload,
+  idempotencyKey: string,
+): Promise<ContributionRequestDto> {
+  const { data } = await axiosInstance.post(
+    `/contribution-requests/${encodeURIComponent(requestId)}/cancel`,
+    payload,
+    { headers: idempotencyHeaders(idempotencyKey) },
+  );
+  return contributionRequestSchema.parse(data);
+}
+
+export async function listOwnerContributionRequestsForProject(
+  projectId: string,
+): Promise<OwnerProjectContributionRequestsDto> {
+  const { data } = await axiosInstance.get(
+    `/projects/${encodeURIComponent(projectId)}/contribution-requests`,
+  );
+  return ownerProjectContributionRequestsSchema.parse(data);
 }
 
 /**

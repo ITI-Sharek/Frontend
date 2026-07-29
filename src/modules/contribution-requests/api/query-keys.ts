@@ -5,6 +5,8 @@ export const contributionRequestKeys = {
   all: ["contribution-requests"] as const,
   detail: (requestId: string) =>
     [...contributionRequestKeys.all, "detail", requestId] as const,
+  ownerProjectList: (projectId: string) =>
+    [...contributionRequestKeys.all, "owner-project-list", projectId] as const,
 };
 
 const CONTRIBUTION_REQUESTS_ROOT = ["contribution-requests"] as const;
