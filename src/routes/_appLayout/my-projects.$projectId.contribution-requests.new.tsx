@@ -77,9 +77,6 @@ function NewContributionRequestPage() {
       onCreated={(request) => {
         void navigate({ to: ROUTES.contributionRequest(request.id) });
       }}
-      onProjectUnavailable={() => {
-        void navigate({ to: ROUTES.ownerProject(project.id) });
-      }}
     />
   );
 }
