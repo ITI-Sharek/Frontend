@@ -5,7 +5,7 @@ import {
   FolderGit2,
   Loader2,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   getApiErrorCode,
@@ -19,8 +19,10 @@ import {
 } from "@/shared/components/layout/page-layout";
 
 import { useSubmitApplicationMutation } from "../api/mutations/use-submit-application-mutation";
+import { useApplicationQuery } from "../api/queries/use-application-query";
 import { useContributionRequestDetailsQuery } from "../api/queries/use-contribution-request-details-query";
 import {
+  APPLICATION_STATUS_COPY,
   APPLICATION_SUBMISSION_ERROR_META,
   getApplicationSubmissionErrorMessage,
   isApplicationApiErrorCode,
@@ -99,7 +101,7 @@ export function ContributorContributionRequestDetailView({
       <RequestOverview request={request} projectHref={projectHref} />
       <RequirementSections requirements={request.requirements} />
       <RequestMetadata request={request} />
-      <ApplicationSubmissionForm
+      <ApplicationSubmissionGate
         requestId={request.id}
         tasksHref={tasksHref}
         dashboardHref={dashboardHref}
@@ -107,6 +109,121 @@ export function ContributorContributionRequestDetailView({
         onSubmitted={onApplicationSubmitted}
       />
     </PageContainer>
+  );
+}
+
+function ApplicationSubmissionGate({
+  requestId,
+  tasksHref,
+  dashboardHref,
+  applicationHref,
+  onSubmitted,
+}: {
+  requestId: string;
+  tasksHref: string;
+  dashboardHref: string;
+  applicationHref: (applicationId: string) => string;
+  onSubmitted: (application: ApplicationDto) => void;
+}) {
+  const [existingApplicationId, setExistingApplicationId] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    setExistingApplicationId(getRememberedApplicationId(requestId));
+  }, [requestId]);
+
+  if (existingApplicationId) {
+    return (
+      <ExistingApplicationNotice
+        applicationId={existingApplicationId}
+        requestId={requestId}
+        applicationHref={applicationHref}
+      />
+    );
+  }
+
+  return (
+    <ApplicationSubmissionForm
+      requestId={requestId}
+      tasksHref={tasksHref}
+      dashboardHref={dashboardHref}
+      applicationHref={applicationHref}
+      onSubmitted={onSubmitted}
+      onExistingApplication={setExistingApplicationId}
+    />
+  );
+}
+
+function ExistingApplicationNotice({
+  applicationId,
+  requestId,
+  applicationHref,
+}: {
+  applicationId: string;
+  requestId: string;
+  applicationHref: (applicationId: string) => string;
+}) {
+  const applicationQuery = useApplicationQuery(applicationId);
+
+  if (applicationQuery.isPending) {
+    return (
+      <Card className="mt-5 flex items-center gap-3 p-5 text-sm text-muted-foreground shadow-none">
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        جارٍ التحقق من حالة طلب التقديم السابق...
+      </Card>
+    );
+  }
+
+  if (
+    applicationQuery.isError ||
+    applicationQuery.data.contributionRequestId !== requestId
+  ) {
+    return (
+      <Card className="mt-5 p-5 shadow-none">
+        <h2 className="text-lg font-bold text-foreground">
+          لديك طلب تقديم سابق
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          يمكن إرسال طلب تقديم واحد فقط لكل طلب مساهمة. افتح طلبك السابق
+          لمتابعة حالته.
+        </p>
+        <Button asChild className="mt-4">
+          <a href={applicationHref(applicationId)}>
+            فتح حالة طلب التقديم
+          </a>
+        </Button>
+      </Card>
+    );
+  }
+
+  const application = applicationQuery.data;
+  const statusCopy = APPLICATION_STATUS_COPY[application.status];
+
+  return (
+    <Card className="mt-5 p-5 shadow-none">
+      <p className="text-xs font-semibold text-muted-foreground">
+        حالة طلب التقديم
+      </p>
+      <h2 className="mt-1 text-lg font-bold text-foreground">
+        {statusCopy.label}
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        {statusCopy.description}
+      </p>
+      {application.status === "WITHDRAWN" ? (
+        <p className="mt-4 rounded-input border border-border bg-border/20 p-3 text-sm font-medium text-foreground">
+          لا يمكنك إرسال طلب تقديم جديد لهذا الطلب بعد السحب.
+        </p>
+      ) : (
+        <p className="mt-4 text-sm text-muted-foreground">
+          يمكنك إرسال طلب تقديم واحد فقط لكل طلب مساهمة.
+        </p>
+      )}
+      <Button asChild className="mt-4">
+        <a href={applicationHref(application.id)}>فتح حالة طلب التقديم</a>
+      </Button>
+    </Card>
   );
 }
 
@@ -245,12 +362,14 @@ function ApplicationSubmissionForm({
   dashboardHref,
   applicationHref,
   onSubmitted,
+  onExistingApplication,
 }: {
   requestId: string;
   tasksHref: string;
   dashboardHref: string;
   applicationHref: (applicationId: string) => string;
   onSubmitted: (application: ApplicationDto) => void;
+  onExistingApplication: (applicationId: string) => void;
 }) {
   const submitMutation = useSubmitApplicationMutation();
   const approachRef = useRef<HTMLTextAreaElement>(null);
@@ -323,10 +442,14 @@ function ApplicationSubmissionForm({
       const code = getApiErrorCode(error);
       setSubmitErrorCode(code);
       if (code === "ALREADY_APPLIED") {
-        setExistingApplicationId(
+        const applicationId =
           getApiErrorMetadataString(error, "applicationId") ??
-            getRememberedApplicationId(requestId),
-        );
+          getRememberedApplicationId(requestId);
+        setExistingApplicationId(applicationId);
+        if (applicationId) {
+          rememberApplicationStatus(requestId, applicationId);
+          onExistingApplication(applicationId);
+        }
       }
       setSubmitError(getApplicationSubmissionErrorMessage(error));
     }

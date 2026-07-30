@@ -13,6 +13,7 @@ import type { ApplicationDto } from "../types/application.types";
 
 const mocks = vi.hoisted(() => ({
   query: vi.fn(),
+  applicationQuery: vi.fn(),
   submit: {
     isPending: false,
     mutateAsync: vi.fn(),
@@ -21,6 +22,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("../api/queries/use-contribution-request-details-query", () => ({
   useContributionRequestDetailsQuery: mocks.query,
+}));
+
+vi.mock("../api/queries/use-application-query", () => ({
+  useApplicationQuery: mocks.applicationQuery,
 }));
 
 vi.mock("../api/mutations/use-submit-application-mutation", () => ({
@@ -41,6 +46,11 @@ describe("Contribution Request Application interactions", () => {
       isPending: false,
       isError: false,
       data: makeRequest(),
+    });
+    mocks.applicationQuery.mockReturnValue({
+      isPending: false,
+      isError: true,
+      error: new Error("Application status unavailable"),
     });
   });
 
@@ -104,7 +114,6 @@ describe("Contribution Request Application interactions", () => {
   });
 
   it.each([
-    ["ALREADY_APPLIED", "طلب تقديم سابق", "/applications/existing-1"],
     ["APPLICATIONS_CLOSED", "أُغلق التقديم", "/tasks"],
     ["REQUEST_CANCELLED", "ألغى صاحب المشروع", "/tasks"],
     ["REQUEST_TERMINAL", "حالة نهائية", "/tasks"],
@@ -155,6 +164,43 @@ describe("Contribution Request Application interactions", () => {
     },
   );
 
+  it("replaces the form with the prior Application when the API reports ALREADY_APPLIED", async () => {
+    mocks.submit.mutateAsync.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: {
+          code: "ALREADY_APPLIED",
+          message: "Unstable backend copy",
+          metadata: { applicationId: "existing-1" },
+        },
+      },
+    });
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          tasksHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+        />,
+      );
+    });
+
+    await fillApproachAndSubmit();
+
+    expect(container.querySelector("form")).toBeNull();
+    expect(container.textContent).toContain("لديك طلب تقديم سابق");
+    expect(
+      container.querySelector('a[href="/applications/existing-1"]'),
+    ).not.toBeNull();
+    expect(
+      sessionStorage.getItem("sharek:application-status:request-1"),
+    ).toBe("existing-1");
+  });
+
   it("associates client validation with the invalid field and moves focus", async () => {
     await act(async () => {
       root.render(
@@ -187,6 +233,39 @@ describe("Contribution Request Application interactions", () => {
       "contribution-approach-error",
     );
     expect(document.activeElement).toBe(approach);
+    expect(mocks.submit.mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("replaces the form with the final withdrawn status for a remembered Application", async () => {
+    sessionStorage.setItem(
+      "sharek:application-status:request-1",
+      "application-1",
+    );
+    mocks.applicationQuery.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { ...makeApplication(), status: "WITHDRAWN" },
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          tasksHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+        />,
+      );
+    });
+
+    expect(container.querySelector("form")).toBeNull();
+    expect(container.textContent).toContain("سحبت طلب التقديم");
+    expect(container.textContent).toContain("لا يمكنك إرسال طلب تقديم جديد");
+    expect(
+      container.querySelector('a[href="/applications/application-1"]'),
+    ).not.toBeNull();
     expect(mocks.submit.mutateAsync).not.toHaveBeenCalled();
   });
 
