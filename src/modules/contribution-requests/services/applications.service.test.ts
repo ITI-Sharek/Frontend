@@ -5,13 +5,12 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 import {
   acceptApplication,
   declineApplication,
-  getMyApplications,
+  getApplication,
   getOwnerApplications,
-  submitApplication,
-  withdrawApplication,
+  reportDecisionFeedback,
 } from "./applications.service";
 import type { ApplicationDto } from "../types/application.types";
-import type { AcceptApplicationResultDto } from "../types/assignment.types";
+import type { OwnerDecisionResultDto } from "../types/assignment.types";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
   axiosInstance: { get: vi.fn(), post: vi.fn() },
@@ -19,107 +18,173 @@ vi.mock("@/lib/axios/axios-instance", () => ({
 
 const mockedAxios = vi.mocked(axiosInstance);
 
-const pendingApplication: ApplicationDto = {
-  id: "app-1",
-  contributionRequestId: "cr-1",
-  contributorId: "user-1",
-  contributionApproach: "I will build the panel with the existing WS gateway.",
-  proposedDeliveryDurationDays: 5,
-  requirementSnapshotId: "req-snap-1",
-  evidenceSnapshotId: "evi-snap-1",
-  status: "PENDING_OWNER_REVIEW",
-  submittedAt: "2026-07-28T10:00:00.000Z",
-  reviewDueAt: "2026-08-04T10:00:00.000Z",
-  expiresAt: "2026-08-04T10:00:00.000Z",
-  expiredAt: null,
-};
-
 describe("applications service", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("submits an Application that enters PENDING_OWNER_REVIEW immediately — no AI or quota copy", async () => {
-    mockedAxios.post.mockResolvedValueOnce({ data: pendingApplication });
-
-    await expect(
-      submitApplication("cr-1", {
-        contributionApproach: pendingApplication.contributionApproach ?? "",
-        proposedDeliveryDurationDays: 5,
-        idempotencyKey: "idem-1",
-      }),
-    ).resolves.toEqual(pendingApplication);
-    expect(mockedAxios.post).toHaveBeenCalledWith("/tasks/cr-1/applications", {
-      contributionApproach: pendingApplication.contributionApproach,
-      proposedDeliveryDurationDays: 5,
-      idempotencyKey: "idem-1",
+  it("unwraps the owner queue returned oldest-first by the backend", async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { applications: [pendingApplication] },
     });
-  });
 
-  it("lists my Applications, optionally scoped by status", async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: [pendingApplication] });
-
-    await expect(getMyApplications("PENDING_OWNER_REVIEW")).resolves.toEqual([
+    await expect(getOwnerApplications("request 1")).resolves.toEqual([
       pendingApplication,
     ]);
-    expect(mockedAxios.get).toHaveBeenCalledWith("/me/applications", {
-      params: { status: "PENDING_OWNER_REVIEW" },
-    });
-  });
-
-  it("withdraws an Application before an Owner Decision", async () => {
-    const withdrawn: ApplicationDto = {
-      ...pendingApplication,
-      status: "WITHDRAWN",
-    };
-    mockedAxios.post.mockResolvedValueOnce({ data: withdrawn });
-
-    await expect(withdrawApplication("app-1")).resolves.toEqual(withdrawn);
-    expect(mockedAxios.post).toHaveBeenCalledWith(
-      "/applications/app-1/withdraw",
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/tasks/request%201/applications",
     );
   });
 
-  it("lists every PENDING_OWNER_REVIEW Application for the owner, unconditioned on assessment state", async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: [pendingApplication] });
+  it("loads one contextually authorized Application detail", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: pendingApplication });
 
-    await expect(getOwnerApplications("cr-1")).resolves.toEqual([
+    await expect(getApplication("application 1")).resolves.toEqual(
       pendingApplication,
-    ]);
-    expect(mockedAxios.get).toHaveBeenCalledWith("/tasks/cr-1/applications");
+    );
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/applications/application%201",
+    );
   });
 
-  it("accepts an Application, creating an Assignment", async () => {
-    const result: AcceptApplicationResultDto = {
-      application: { ...pendingApplication, status: "ACCEPTED" },
-      assignment: {
-        id: "assign-1",
-        contributionRequestId: "cr-1",
-        applicationId: "app-1",
-        contributorId: "user-1",
-        assignedAt: "2026-07-29T09:00:00.000Z",
-        agreedDeliveryDueDate: "2026-08-03",
-      },
-    };
+  it("accepts with an Idempotency-Key header and no body", async () => {
+    const result = decisionResult("ACCEPTED");
     mockedAxios.post.mockResolvedValueOnce({ data: result });
 
-    await expect(acceptApplication("app-1")).resolves.toEqual(result);
+    await expect(
+      acceptApplication({
+        applicationId: "application 1",
+        idempotencyKey: "idem-accept",
+      }),
+    ).resolves.toEqual(result);
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      "/applications/app-1/accept",
+      "/applications/application%201/accept",
+      undefined,
+      { headers: { "Idempotency-Key": "idem-accept" } },
     );
   });
 
-  it("declines an Application with a human reason, separate from any AI finding", async () => {
-    const declined: ApplicationDto = {
-      ...pendingApplication,
-      status: "DECLINED_BY_OWNER",
-    };
-    mockedAxios.post.mockResolvedValueOnce({ data: declined });
+  it("declines with human feedback and an Idempotency-Key header", async () => {
+    const result = decisionResult("DECLINED_BY_OWNER");
+    mockedAxios.post.mockResolvedValueOnce({ data: result });
 
     await expect(
-      declineApplication({ applicationId: "app-1", reason: "Scope mismatch" }),
-    ).resolves.toEqual(declined);
+      declineApplication({
+        applicationId: "application 1",
+        feedback: "The test strategy needs more detail.",
+        idempotencyKey: "idem-decline",
+      }),
+    ).resolves.toEqual(result);
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      "/applications/app-1/decline",
-      { reason: "Scope mismatch" },
+      "/applications/application%201/decline",
+      { feedback: "The test strategy needs more detail." },
+      { headers: { "Idempotency-Key": "idem-decline" } },
+    );
+  });
+
+  it("creates a moderation report without changing the Application", async () => {
+    const report = {
+      id: "report-1",
+      ownerDecisionId: "decision-1",
+      reason: "harassment" as const,
+      description: "The feedback contains inappropriate language.",
+      status: "open" as const,
+      createdAt: "2026-07-30T12:00:00.000Z",
+    };
+    mockedAxios.post.mockResolvedValueOnce({ data: report });
+
+    await expect(
+      reportDecisionFeedback({
+        ownerDecisionId: "decision 1",
+        reason: "harassment",
+        description: report.description,
+      }),
+    ).resolves.toEqual(report);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/owner-decisions/decision%201/reports",
+      {
+        reason: "harassment",
+        description: report.description,
+      },
     );
   });
 });
+
+export const pendingApplication: ApplicationDto = {
+  id: "application-1",
+  contributionRequestId: "request-1",
+  contributor: {
+    id: "contributor-1",
+    username: "sara",
+    displayName: "سارة أحمد",
+  },
+  profileContext: {
+    bio: "مساهمة Backend",
+    availability: "10 ساعات أسبوعيًا",
+    experienceLevel: {
+      key: "intermediate",
+      labelEn: "Intermediate",
+      labelAr: "متوسط",
+    },
+    fields: [{ key: "backend", labelEn: "Backend", labelAr: "الخلفية" }],
+    declaredSkills: ["NestJS"],
+  },
+  contributionApproach: "سأنفذ التدفق وأضيف اختبارات عقد وتكامل.",
+  proposedDeliveryDurationDays: 5,
+  status: "PENDING_OWNER_REVIEW",
+  requirementSnapshot: {
+    required: [{ id: "req-1", position: 0, text: "تدفق مُختبر" }],
+    preferred: [],
+  },
+  evidenceSummary: [
+    {
+      skillProfileId: "skill-1",
+      name: "NestJS",
+      proficiencyLevel: "intermediate",
+      evidenceSummary: "نفذت واجهات API مختبرة.",
+      limitations: ["لا يوجد دليل حديث على معالجة الطوابير."],
+    },
+  ],
+  submittedAt: "2026-07-28T10:00:00.000Z",
+  reviewDueAt: "2026-07-31T10:00:00.000Z",
+  expiresAt: "2026-08-04T10:00:00.000Z",
+  expiredAt: null,
+  overdue: false,
+  ownerDecision: null,
+  assignment: null,
+};
+
+function decisionResult(
+  status: "ACCEPTED" | "DECLINED_BY_OWNER",
+): OwnerDecisionResultDto {
+  const application: ApplicationDto = {
+    ...pendingApplication,
+    status,
+    ownerDecision: {
+      id: "decision-1",
+      applicationId: pendingApplication.id,
+      contributionRequestId: pendingApplication.contributionRequestId,
+      decisionType: status === "ACCEPTED" ? "ACCEPTED" : "DECLINED",
+      feedback:
+        status === "ACCEPTED"
+          ? null
+          : "The test strategy needs more detail.",
+      decidedAt: "2026-07-30T12:00:00.000Z",
+    },
+  };
+  return {
+    application,
+    ownerDecision: application.ownerDecision!,
+    assignment:
+      status === "ACCEPTED"
+        ? {
+            id: "assignment-1",
+            contributionRequestId: pendingApplication.contributionRequestId,
+            applicationId: pendingApplication.id,
+            ownerDecisionId: "decision-1",
+            contributorId: pendingApplication.contributor.id,
+            agreedDeliveryDurationDays: 5,
+            agreedDeliveryDueDate: "2026-08-04T12:00:00.000Z",
+            assignedAt: "2026-07-30T12:00:00.000Z",
+          }
+        : null,
+  };
+}

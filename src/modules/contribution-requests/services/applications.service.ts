@@ -1,19 +1,15 @@
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import type {
+  AcceptApplicationParams,
   ApplicationDto,
-  ApplicationStatus,
+  DecisionFeedbackReportDto,
   DeclineApplicationParams,
+  OwnerApplicationsDto,
+  ReportDecisionFeedbackParams,
   SubmitApplicationParams,
 } from "../types/application.types";
-import type { AcceptApplicationResultDto } from "../types/assignment.types";
-
-/**
- * Application and Owner Decision contracts
- * (`docs/architecture/contracts/api-contract-additions.md` §5). Submission
- * enters `PENDING_OWNER_REVIEW` immediately; no AI call or contributor-attempt
- * quota is involved on this seam.
- */
+import type { OwnerDecisionResultDto } from "../types/assignment.types";
 
 export async function submitApplication(
   contributionRequestId: string,
@@ -25,54 +21,76 @@ export async function submitApplication(
   );
   return data;
 }
-
-export async function getMyApplications(
-  status?: ApplicationStatus,
+/** Every pending Application for one owned Contribution Request, oldest first. */
+export async function getOwnerApplications(
+  contributionRequestId: string,
 ): Promise<ApplicationDto[]> {
-  const { data } = await axiosInstance.get<ApplicationDto[]>(
-    "/me/applications",
-    { params: status !== undefined ? { status } : undefined },
+  const { data } = await axiosInstance.get<OwnerApplicationsDto>(
+    `/tasks/${encodeURIComponent(contributionRequestId)}/applications`,
+  );
+  return data.applications;
+}
+
+/** Contextually authorized for the applying contributor or current Project owner. */
+export async function getApplication(
+  applicationId: string,
+): Promise<ApplicationDto> {
+  const { data } = await axiosInstance.get<ApplicationDto>(
+    `/applications/${encodeURIComponent(applicationId)}`,
   );
   return data;
 }
 
 export async function withdrawApplication(
   applicationId: string,
+  idempotencyKey?: string,
 ): Promise<ApplicationDto> {
   const { data } = await axiosInstance.post<ApplicationDto>(
     `/applications/${encodeURIComponent(applicationId)}/withdraw`,
+    undefined,
+    idempotencyKey
+      ? { headers: { "Idempotency-Key": idempotencyKey } }
+      : undefined,
   );
   return data;
 }
 
-/** Every `PENDING_OWNER_REVIEW` Application for one Contribution Request. */
-export async function getOwnerApplications(
-  contributionRequestId: string,
-): Promise<ApplicationDto[]> {
-  const { data } = await axiosInstance.get<ApplicationDto[]>(
-    `/tasks/${encodeURIComponent(contributionRequestId)}/applications`,
-  );
-  return data;
-}
-
-/** Explicit human Owner Decision: acceptance creates an Assignment. */
-export async function acceptApplication(
-  applicationId: string,
-): Promise<AcceptApplicationResultDto> {
-  const { data } = await axiosInstance.post<AcceptApplicationResultDto>(
+/** Explicit human acceptance; assessment is not an input or prerequisite. */
+export async function acceptApplication({
+  applicationId,
+  idempotencyKey,
+}: AcceptApplicationParams): Promise<OwnerDecisionResultDto> {
+  const { data } = await axiosInstance.post<OwnerDecisionResultDto>(
     `/applications/${encodeURIComponent(applicationId)}/accept`,
+    undefined,
+    { headers: { "Idempotency-Key": idempotencyKey } },
   );
   return data;
 }
 
-/** Explicit human Owner Decision: decline with an optional reason. */
+/** Explicit human decline feedback, kept separate from any AI finding. */
 export async function declineApplication({
   applicationId,
-  reason,
-}: DeclineApplicationParams): Promise<ApplicationDto> {
-  const { data } = await axiosInstance.post<ApplicationDto>(
+  feedback,
+  idempotencyKey,
+}: DeclineApplicationParams): Promise<OwnerDecisionResultDto> {
+  const { data } = await axiosInstance.post<OwnerDecisionResultDto>(
     `/applications/${encodeURIComponent(applicationId)}/decline`,
-    reason !== undefined ? { reason } : {},
+    { feedback },
+    { headers: { "Idempotency-Key": idempotencyKey } },
+  );
+  return data;
+}
+
+/** Moderation report only: this never reopens or changes the Application. */
+export async function reportDecisionFeedback({
+  ownerDecisionId,
+  reason,
+  description,
+}: ReportDecisionFeedbackParams): Promise<DecisionFeedbackReportDto> {
+  const { data } = await axiosInstance.post<DecisionFeedbackReportDto>(
+    `/owner-decisions/${encodeURIComponent(ownerDecisionId)}/reports`,
+    { reason, description },
   );
   return data;
 }

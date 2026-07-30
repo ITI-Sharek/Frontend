@@ -42,6 +42,10 @@ vi.mock("../api/mutations/use-contribution-request-mutations", () => ({
   useCancelContributionRequestMutation: () => mocks.cancel,
 }));
 
+vi.mock("./owner-application-review", () => ({
+  OwnerApplicationReview: () => null,
+}));
+
 describe("Contribution Request owner lifecycle interactions", () => {
   let container: HTMLDivElement;
   let root: Root;

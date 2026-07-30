@@ -14,6 +14,7 @@ import { ContributionRequestForm } from "./contribution-request-form";
 import { DiscardContributionRequestDialog } from "./discard-contribution-request-dialog";
 import { PublishContributionRequestDialog } from "./publish-contribution-request-dialog";
 import { CancelContributionRequestDialog } from "./cancel-contribution-request-dialog";
+import { OwnerApplicationReview } from "./owner-application-review";
 import {
   getContributionRequestErrorMessage,
 } from "../constants/contribution-request-copy";
@@ -333,6 +334,10 @@ export function ContributionRequestDetailView({
             <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
           </Button>
         </Card>
+      )}
+
+      {request.status !== "draft" && request.status !== "discarded" && (
+        <OwnerApplicationReview contributionRequestId={request.id} />
       )}
 
       {discardOpen && (
