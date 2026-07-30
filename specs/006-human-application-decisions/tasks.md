@@ -133,7 +133,7 @@ does not imply appeal or reopen the Application.
 - [x] T029 Regenerate `src/routeTree.gen.ts`, then run focused tests, full lint, full tests, and production build
 - [x] T030 Exercise `specs/006-human-application-decisions/quickstart.md` at mobile, tablet, desktop, 200% zoom, RTL, dark theme, keyboard, and reduced motion where the local runtime permits
 - [x] T031 Review the complete intended diff, confirm `package-lock.json` remains unrelated/uncommitted, and verify no prohibited AI-gating or private-data leakage was introduced
-- [ ] T032 Commit semantically, push `006-human-decisions`, verify the remote SHA, and open a pull request targeting `master`
+- [x] T032 Commit semantically, push `006-human-decisions`, verify the remote SHA, and open a pull request targeting `master`
 
 ---
 
