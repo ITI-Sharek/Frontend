@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { ROUTES } from "@/config/routes.config";
 import { requireContributorRoute } from "@/modules/auth";
 import { ApplicationStatusView } from "@/modules/contribution-requests";
-import { ROUTES } from "@/config/routes.config";
 
 export const Route = createFileRoute(
   "/_appLayout/applications/$applicationId",
@@ -17,7 +17,10 @@ function ApplicationStatusPage() {
   return (
     <ApplicationStatusView
       applicationId={applicationId}
-      backHref={ROUTES.tasks}
+      requestHref={(requestId) =>
+        `${ROUTES.tasks}/${encodeURIComponent(requestId)}`
+      }
+      requestsHref={ROUTES.tasks}
     />
   );
 }

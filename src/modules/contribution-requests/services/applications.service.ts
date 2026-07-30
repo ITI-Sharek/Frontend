@@ -21,6 +21,7 @@ export async function submitApplication(
   );
   return data;
 }
+
 /** Every pending Application for one owned Contribution Request, oldest first. */
 export async function getOwnerApplications(
   contributionRequestId: string,
@@ -43,14 +44,12 @@ export async function getApplication(
 
 export async function withdrawApplication(
   applicationId: string,
-  idempotencyKey?: string,
+  idempotencyKey: string,
 ): Promise<ApplicationDto> {
   const { data } = await axiosInstance.post<ApplicationDto>(
     `/applications/${encodeURIComponent(applicationId)}/withdraw`,
     undefined,
-    idempotencyKey
-      ? { headers: { "Idempotency-Key": idempotencyKey } }
-      : undefined,
+    { headers: { "Idempotency-Key": idempotencyKey } },
   );
   return data;
 }

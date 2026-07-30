@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { CircleAlert, FilePlus2, Loader2 } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -83,10 +84,10 @@ export function OwnerContributionRequestsWorkspace({
         actions={
           canCreate ? (
             <Button asChild size="sm">
-              <a href={newRequestHref}>
+              <Link to={newRequestHref}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
                 طلب مساهمة جديد
-              </a>
+              </Link>
             </Button>
           ) : undefined
         }
@@ -105,7 +106,7 @@ export function OwnerContributionRequestsWorkspace({
           action={
             canCreate ? (
               <Button asChild size="sm">
-                <a href={newRequestHref}>إنشاء طلب مساهمة</a>
+                <Link to={newRequestHref}>إنشاء طلب مساهمة</Link>
               </Button>
             ) : undefined
           }
@@ -176,8 +177,8 @@ function ContributionRequestRow({
 }) {
   const statusMeta = getContributionRequestStatusMeta(request.status);
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-card p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/40 dark:shadow-[0_8px_16px_rgba(0,0,0,0.37)]"
     >
       <div className="min-w-0">
@@ -193,6 +194,6 @@ function ContributionRequestRow({
       <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
         {statusMeta.label}
       </StatusChip>
-    </a>
+    </Link>
   );
 }

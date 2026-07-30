@@ -8,6 +8,8 @@ import {
   getApplication,
   getOwnerApplications,
   reportDecisionFeedback,
+  submitApplication,
+  withdrawApplication,
 } from "./applications.service";
 import type { ApplicationDto } from "../types/application.types";
 import type { OwnerDecisionResultDto } from "../types/assignment.types";
@@ -20,6 +22,26 @@ const mockedAxios = vi.mocked(axiosInstance);
 
 describe("applications service", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("submits directly to pending owner review without an AI or quota request", async () => {
+    mockedAxios.post.mockResolvedValueOnce({ data: pendingApplication });
+
+    await expect(
+      submitApplication("request 1", {
+        contributionApproach: pendingApplication.contributionApproach ?? "",
+        proposedDeliveryDurationDays: 5,
+        idempotencyKey: "idem-submit",
+      }),
+    ).resolves.toEqual(pendingApplication);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/tasks/request%201/applications",
+      {
+        contributionApproach: pendingApplication.contributionApproach,
+        proposedDeliveryDurationDays: 5,
+        idempotencyKey: "idem-submit",
+      },
+    );
+  });
 
   it("unwraps the owner queue returned oldest-first by the backend", async () => {
     mockedAxios.get.mockResolvedValueOnce({
@@ -42,6 +64,23 @@ describe("applications service", () => {
     );
     expect(mockedAxios.get).toHaveBeenCalledWith(
       "/applications/application%201",
+    );
+  });
+
+  it("withdraws with a retry-safe Idempotency-Key header", async () => {
+    const withdrawn = {
+      ...pendingApplication,
+      status: "WITHDRAWN" as const,
+    };
+    mockedAxios.post.mockResolvedValueOnce({ data: withdrawn });
+
+    await expect(
+      withdrawApplication("application 1", "idem-withdraw"),
+    ).resolves.toEqual(withdrawn);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/applications/application%201/withdraw",
+      undefined,
+      { headers: { "Idempotency-Key": "idem-withdraw" } },
     );
   });
 

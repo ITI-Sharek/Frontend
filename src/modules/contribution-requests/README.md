@@ -3,9 +3,10 @@
 This module integrates the owner Contribution Request lifecycle delivered by
 backend issues #48 (private draft) and #49 (publish/discover/cancel), plus the
 owner Project workspace list (Frontend issue #4), Application owner decisions
-(backend #51), and the review window (backend #52 / Frontend #6). New code uses
-the canonical terms **Contribution Request**, **Application**, **Owner
-Decision**, and **Assignment**.
+(backend #51), the review window (backend #52 / Frontend #6), and contributor
+discovery and Application management (Frontend issue #5). New code uses the
+canonical terms **Contribution Request**, **Application**, **Owner Decision**,
+and **Assignment**.
 
 Implemented routes:
 
@@ -13,6 +14,8 @@ Implemented routes:
 /my-projects/:projectId/contribution-requests
 /my-projects/:projectId/contribution-requests/new
 /contribution-requests/:requestId
+/tasks
+/tasks/:requestId
 /applications/:applicationId
 ```
 
@@ -49,13 +52,24 @@ groups every lifecycle state — including drafts, published, assigned,
 completed, cancelled, and discarded — and remains readable for an owned
 archived Project so history is never hidden.
 
-Application submission/withdrawal, Advisory Fit Assessment presentation, and
-Contribution Proposal UI remain separate Sprint 4 tickets (see
-`specs/005-sprint-4-contribution-experience`). Assessment data must never become
-a predicate for the human decisions implemented here.
+The contributor `/tasks` transport routes now consume the live public
+Contribution Request contract. They show only server-returned actionable
+Requests, keep Required and Preferred Requirements distinct, submit an
+Application directly to the Project owner, and navigate to the actor-authorized
+Application status route. Pending Applications can be withdrawn after explicit
+confirmation. Stable backend codes drive duplicate, closed, cancelled,
+terminal, and unauthorized copy. The retired mock task module, automatic AI
+validation, eligibility verdicts, and contributor-attempt quota UI were
+removed.
+
+Advisory Fit Assessment and Contribution Proposal UI remain separate later
+Sprint 4 tickets (see `specs/005-sprint-4-contribution-experience`).
+Assessment data must never become a predicate for the human decisions
+implemented here.
 
 Focused verification:
 
 ```bash
-npx vitest run src/modules/contribution-requests src/config/routes.config.test.ts
+pnpm exec vitest run src/modules/contribution-requests src/routes/_appLayout/contribution-request-owner-routes.test.ts
+pnpm exec tsc --noEmit
 ```

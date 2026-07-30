@@ -106,6 +106,11 @@ export interface AcceptApplicationParams {
   idempotencyKey: string;
 }
 
+export interface WithdrawApplicationParams {
+  applicationId: string;
+  idempotencyKey: string;
+}
+
 export interface DeclineApplicationParams {
   applicationId: string;
   feedback: string;
