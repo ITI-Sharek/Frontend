@@ -5,10 +5,7 @@ import { Card } from "@/shared/components/ui/card";
 import { PageContainer, PageHeader } from "@/shared/components/layout/page-layout";
 
 import { ContributionRequestForm } from "./contribution-request-form";
-import {
-  getContributionRequestErrorMessage,
-  isContributionRequestError,
-} from "../constants/contribution-request-copy";
+import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
 import { useCreateContributionRequestMutation } from "../api/mutations/use-contribution-request-mutations";
 import { createEmptyContributionRequestForm } from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
@@ -22,13 +19,11 @@ export function ContributionRequestCreateView({
   projectTitle,
   cancelHref,
   onCreated,
-  onProjectUnavailable,
 }: {
   projectId: string;
   projectTitle: string;
   cancelHref: string;
   onCreated: (request: ContributionRequestDto) => void;
-  onProjectUnavailable: () => void;
 }) {
   const mutation = useCreateContributionRequestMutation();
   const idempotency = useRef(new ContributionRequestIdempotencyKeyStore());
@@ -43,18 +38,6 @@ export function ContributionRequestCreateView({
       onCreated(request);
     } catch (requestError) {
       setError(getContributionRequestErrorMessage(requestError));
-      if (
-        isContributionRequestError(
-          requestError,
-          "CONTRIBUTION_REQUEST_PROJECT_NOT_PUBLISHED",
-        ) ||
-        isContributionRequestError(
-          requestError,
-          "CONTRIBUTION_REQUEST_PROJECT_NOT_FOUND",
-        )
-      ) {
-        onProjectUnavailable();
-      }
     }
   }
 
@@ -62,7 +45,7 @@ export function ContributionRequestCreateView({
     <PageContainer className="max-w-4xl">
       <PageHeader
         title="إنشاء طلب مساهمة"
-        description={`أنشئ مسودة خاصة داخل مشروع «${projectTitle}». لن تظهر للمساهمين قبل إضافة مسار النشر في مرحلة لاحقة.`}
+        description={`أنشئ مسودة خاصة داخل مشروع «${projectTitle}». بعد حفظ المسودة يمكنك مراجعتها ثم نشرها للمساهمين بإجراء منفصل.`}
       />
       <Card className="mt-6">
         <div className="mb-6 flex items-center gap-3 border-b border-border pb-5">

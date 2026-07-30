@@ -21,6 +21,8 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
       "أضف متطلبًا مطلوبًا واحدًا على الأقل.",
     CONTRIBUTION_REQUEST_REQUIREMENT_DUPLICATE:
       "لا يمكن تكرار المتطلب أو وضعه كمطلوب ومفضل معًا.",
+    CONTRIBUTION_REQUEST_REQUIREMENT_INPUT_INVALID:
+      "صيغة المتطلبات غير صالحة. راجع كل متطلب وحاول مرة أخرى.",
     CONTRIBUTION_REQUEST_CLOSE_TIME_REQUIRED: "حدد وقت إغلاق التقديم.",
     CONTRIBUTION_REQUEST_CLOSE_TIME_INVALID:
       "يجب أن يكون وقت إغلاق التقديم في المستقبل.",
@@ -29,7 +31,7 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
     CONTRIBUTION_REQUEST_REWARD_INVALID:
       "تحقق من قيمة المكافأة ورمز العملة.",
     CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION:
-      "تغيرت المسودة أثناء التعديل. حمّلنا أحدث نسخة؛ راجعها ثم حاول مجددًا.",
+      "تغيرت المسودة أثناء التعديل. احتفظنا بمدخلاتك؛ افتح أحدث نسخة في نافذة أخرى وقارنها قبل إعادة المحاولة.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_KEY_INVALID:
       "تعذر تأمين إعادة المحاولة. غيّر البيانات وحاول مرة أخرى.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT:
@@ -57,6 +59,8 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
       "Add at least one Required Requirement.",
     CONTRIBUTION_REQUEST_REQUIREMENT_DUPLICATE:
       "A Requirement cannot be duplicated or be both Required and Preferred.",
+    CONTRIBUTION_REQUEST_REQUIREMENT_INPUT_INVALID:
+      "The Requirement format is invalid. Review each Requirement and try again.",
     CONTRIBUTION_REQUEST_CLOSE_TIME_REQUIRED: "Choose an Applications Close Time.",
     CONTRIBUTION_REQUEST_CLOSE_TIME_INVALID:
       "Applications Close Time must be in the future.",
@@ -65,7 +69,7 @@ const ERROR_COPY: Record<ContributionRequestLocale, Record<string, string>> = {
     CONTRIBUTION_REQUEST_REWARD_INVALID:
       "Check the reward amount and currency code.",
     CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION:
-      "The draft changed while you were editing. The latest version was loaded; review it and try again.",
+      "The draft changed while you were editing. Your input was preserved; open the latest version in another tab and compare it before retrying.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_KEY_INVALID:
       "The retry could not be secured. Change the command and try again.",
     CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT:

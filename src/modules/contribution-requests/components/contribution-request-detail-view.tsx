@@ -1,5 +1,5 @@
 import { CircleAlert, Loader2, Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -16,7 +16,6 @@ import { PublishContributionRequestDialog } from "./publish-contribution-request
 import { CancelContributionRequestDialog } from "./cancel-contribution-request-dialog";
 import {
   getContributionRequestErrorMessage,
-  isContributionRequestError,
 } from "../constants/contribution-request-copy";
 import {
   useCancelContributionRequestMutation,
@@ -54,6 +53,7 @@ export function ContributionRequestDetailView({
   const cancelIdempotency = useRef(
     new ContributionRequestIdempotencyKeyStore(),
   );
+  const lifecycleFocusRef = useRef<HTMLDivElement>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [discardError, setDiscardError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -61,7 +61,12 @@ export function ContributionRequestDetailView({
   const [publishOpen, setPublishOpen] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [focusLifecycle, setFocusLifecycle] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (focusLifecycle) lifecycleFocusRef.current?.focus();
+  }, [focusLifecycle, query.data?.status]);
 
   if (query.isPending) {
     return (
@@ -113,14 +118,6 @@ export function ContributionRequestDetailView({
       updateIdempotency.current.clear();
       setSaved(true);
     } catch (error) {
-      if (
-        isContributionRequestError(
-          error,
-          "CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION",
-        )
-      ) {
-        await query.refetch();
-      }
       setUpdateError(getContributionRequestErrorMessage(error));
     }
   }
@@ -136,7 +133,7 @@ export function ContributionRequestDetailView({
       await discardMutation.mutateAsync({ payload, idempotencyKey });
       discardIdempotency.current.clear();
       setDiscardOpen(false);
-      document.getElementById("discard-request-trigger")?.focus();
+      setFocusLifecycle(true);
     } catch (error) {
       setDiscardError(getContributionRequestErrorMessage(error));
     }
@@ -152,7 +149,7 @@ export function ContributionRequestDetailView({
       await publishMutation.mutateAsync({ idempotencyKey });
       publishIdempotency.current.clear();
       setPublishOpen(false);
-      document.getElementById("publish-request-trigger")?.focus();
+      setFocusLifecycle(true);
     } catch (error) {
       setPublishError(getContributionRequestErrorMessage(error));
     }
@@ -169,7 +166,7 @@ export function ContributionRequestDetailView({
       await cancelMutation.mutateAsync({ payload, idempotencyKey });
       cancelIdempotency.current.clear();
       setCancelOpen(false);
-      document.getElementById("cancel-request-trigger")?.focus();
+      setFocusLifecycle(true);
     } catch (error) {
       setCancelError(getContributionRequestErrorMessage(error));
     }
@@ -190,15 +187,22 @@ export function ContributionRequestDetailView({
 
   return (
     <PageContainer className="max-w-4xl">
-      <PageHeader
-        title={request.title}
-        description={descriptionByStatus[request.status]}
-        actions={
-          <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
-            {statusMeta.label}
-          </StatusChip>
-        }
-      />
+      <div
+        id="contribution-request-lifecycle-focus"
+        ref={lifecycleFocusRef}
+        tabIndex={-1}
+        className="outline-none"
+      >
+        <PageHeader
+          title={request.title}
+          description={descriptionByStatus[request.status]}
+          actions={
+            <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
+              {statusMeta.label}
+            </StatusChip>
+          }
+        />
+      </div>
 
       {request.status === "discarded" ? (
         <Card className="mt-6 border-destructive/25 bg-destructive/5">
@@ -260,6 +264,7 @@ export function ContributionRequestDetailView({
               size="sm"
               className="mt-3"
               onClick={() => {
+                setFocusLifecycle(false);
                 setPublishError(null);
                 setPublishOpen(true);
               }}
@@ -279,6 +284,7 @@ export function ContributionRequestDetailView({
               size="sm"
               className="mt-3"
               onClick={() => {
+                setFocusLifecycle(false);
                 setDiscardError(null);
                 setDiscardOpen(true);
               }}
@@ -304,6 +310,7 @@ export function ContributionRequestDetailView({
               size="sm"
               className="mt-3"
               onClick={() => {
+                setFocusLifecycle(false);
                 setCancelError(null);
                 setCancelOpen(true);
               }}
@@ -328,38 +335,44 @@ export function ContributionRequestDetailView({
         </Card>
       )}
 
-      <DiscardContributionRequestDialog
-        isOpen={discardOpen}
-        isDiscarding={discardMutation.isPending}
-        error={discardError}
-        onCancel={() => {
-          setDiscardOpen(false);
-          document.getElementById("discard-request-trigger")?.focus();
-        }}
-        onConfirm={discard}
-      />
+      {discardOpen && (
+        <DiscardContributionRequestDialog
+          isOpen
+          isDiscarding={discardMutation.isPending}
+          error={discardError}
+          onCancel={() => {
+            setDiscardOpen(false);
+            document.getElementById("discard-request-trigger")?.focus();
+          }}
+          onConfirm={discard}
+        />
+      )}
 
-      <PublishContributionRequestDialog
-        isOpen={publishOpen}
-        isPublishing={publishMutation.isPending}
-        error={publishError}
-        onCancel={() => {
-          setPublishOpen(false);
-          document.getElementById("publish-request-trigger")?.focus();
-        }}
-        onConfirm={publish}
-      />
+      {publishOpen && (
+        <PublishContributionRequestDialog
+          isOpen
+          isPublishing={publishMutation.isPending}
+          error={publishError}
+          onCancel={() => {
+            setPublishOpen(false);
+            document.getElementById("publish-request-trigger")?.focus();
+          }}
+          onConfirm={publish}
+        />
+      )}
 
-      <CancelContributionRequestDialog
-        isOpen={cancelOpen}
-        isCancelling={cancelMutation.isPending}
-        error={cancelError}
-        onCancel={() => {
-          setCancelOpen(false);
-          document.getElementById("cancel-request-trigger")?.focus();
-        }}
-        onConfirm={cancel}
-      />
+      {cancelOpen && (
+        <CancelContributionRequestDialog
+          isOpen
+          isCancelling={cancelMutation.isPending}
+          error={cancelError}
+          onCancel={() => {
+            setCancelOpen(false);
+            document.getElementById("cancel-request-trigger")?.focus();
+          }}
+          onConfirm={cancel}
+        />
+      )}
     </PageContainer>
   );
 }

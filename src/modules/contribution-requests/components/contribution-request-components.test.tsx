@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { ContributionRequestForm } from "./contribution-request-form";
+import { ContributionRequestCreateView } from "./contribution-request-create-view";
 import { DiscardContributionRequestDialog } from "./discard-contribution-request-dialog";
 import { PublishContributionRequestDialog } from "./publish-contribution-request-dialog";
 import { CancelContributionRequestDialog } from "./cancel-contribution-request-dialog";
@@ -11,6 +12,13 @@ import { useOwnerProjectContributionRequestsQuery } from "../api/queries/use-own
 
 vi.mock("../api/queries/use-owner-project-contribution-requests-query", () => ({
   useOwnerProjectContributionRequestsQuery: vi.fn(),
+}));
+
+vi.mock("../api/mutations/use-contribution-request-mutations", () => ({
+  useCreateContributionRequestMutation: () => ({
+    isPending: false,
+    mutateAsync: vi.fn(),
+  }),
 }));
 
 describe("Contribution Request private draft UI", () => {
@@ -34,6 +42,12 @@ describe("Contribution Request private draft UI", () => {
     expect(html).toContain("المتطلبات المفضلة");
     expect(html.indexOf("First")).toBeLessThan(html.indexOf("Second"));
     expect(html).toContain("aria-label=\"تحريك لأعلى\"");
+    expect(html).toContain('id="contribution-request-title" dir="rtl"');
+    expect(html).toMatch(
+      /type="datetime-local"[^>]*id="applications-close-time"[^>]*dir="ltr"/,
+    );
+    expect(html).toContain("md:grid-cols-2");
+    expect(html).toContain("flex flex-wrap gap-3");
     expect(html).not.toContain("ownerId");
     expect(html).not.toContain("نشر الطلب");
     expect(html).not.toContain("إلغاء الطلب");
@@ -66,6 +80,21 @@ describe("Contribution Request private draft UI", () => {
     );
     expect(html).toContain("مرئيًا للمساهمين");
     expect(html).toContain("aria-modal=\"true\"");
+  });
+
+  it("describes the current save-then-publish lifecycle during creation", () => {
+    const html = renderToStaticMarkup(
+      <ContributionRequestCreateView
+        projectId="project-1"
+        projectTitle="Sharek"
+        cancelHref="/my-projects/project-1"
+        onCreated={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("بعد حفظ المسودة");
+    expect(html).toContain("نشرها");
+    expect(html).not.toContain("مرحلة لاحقة");
   });
 
   it("explains cancellation preserves Application and decision history", () => {
