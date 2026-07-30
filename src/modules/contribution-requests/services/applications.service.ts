@@ -2,7 +2,6 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import type {
   ApplicationDto,
-  ApplicationStatus,
   DeclineApplicationParams,
   SubmitApplicationParams,
 } from "../types/application.types";
@@ -26,21 +25,23 @@ export async function submitApplication(
   return data;
 }
 
-export async function getMyApplications(
-  status?: ApplicationStatus,
-): Promise<ApplicationDto[]> {
-  const { data } = await axiosInstance.get<ApplicationDto[]>(
-    "/me/applications",
-    { params: status !== undefined ? { status } : undefined },
+export async function getApplication(
+  applicationId: string,
+): Promise<ApplicationDto> {
+  const { data } = await axiosInstance.get<ApplicationDto>(
+    `/applications/${encodeURIComponent(applicationId)}`,
   );
   return data;
 }
 
 export async function withdrawApplication(
   applicationId: string,
+  idempotencyKey: string,
 ): Promise<ApplicationDto> {
   const { data } = await axiosInstance.post<ApplicationDto>(
     `/applications/${encodeURIComponent(applicationId)}/withdraw`,
+    undefined,
+    { headers: { "Idempotency-Key": idempotencyKey } },
   );
   return data;
 }
@@ -49,10 +50,10 @@ export async function withdrawApplication(
 export async function getOwnerApplications(
   contributionRequestId: string,
 ): Promise<ApplicationDto[]> {
-  const { data } = await axiosInstance.get<ApplicationDto[]>(
+  const { data } = await axiosInstance.get<{ applications: ApplicationDto[] }>(
     `/tasks/${encodeURIComponent(contributionRequestId)}/applications`,
   );
-  return data;
+  return data.applications;
 }
 
 /** Explicit human Owner Decision: acceptance creates an Assignment. */

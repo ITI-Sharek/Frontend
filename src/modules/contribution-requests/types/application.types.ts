@@ -6,6 +6,8 @@
  * AI gate, quota, or automatic validation state exists on this contract.
  */
 
+import type { AssignmentDto } from "./assignment.types";
+
 export type ApplicationStatus =
   | "PENDING_OWNER_REVIEW"
   | "ACCEPTED"
@@ -15,26 +17,77 @@ export type ApplicationStatus =
   | "WITHDRAWN"
   | "REQUEST_CANCELLED";
 
+export interface ApplicationContributorDto {
+  id: string;
+  username: string | null;
+  displayName: string;
+}
+
+export interface ApplicationProfileContextDto {
+  bio: string | null;
+  availability: string | null;
+  experienceLevel: {
+    key: string;
+    labelEn: string;
+    labelAr: string;
+  } | null;
+  fields: Array<{
+    key: string;
+    labelEn: string;
+    labelAr: string;
+  }>;
+  declaredSkills: string[];
+}
+
+export interface ApplicationRequirementSnapshotDto {
+  required: Array<{ id: string; position: number; text: string }>;
+  preferred: Array<{ id: string; position: number; text: string }>;
+}
+
+export interface ApplicationEvidenceSummaryDto {
+  skillProfileId: string;
+  name: string;
+  proficiencyLevel: string;
+  evidenceSummary: string | null;
+  limitations: string[];
+}
+
+export interface OwnerDecisionDto {
+  id: string;
+  applicationId: string;
+  contributionRequestId: string;
+  decisionType: "ACCEPTED" | "DECLINED";
+  feedback: string | null;
+  decidedAt: string;
+}
+
 export interface ApplicationDto {
   id: string;
   contributionRequestId: string;
-  contributorId: string;
+  contributor: ApplicationContributorDto;
+  profileContext: ApplicationProfileContextDto;
   contributionApproach: string | null;
-  proposedDeliveryDurationDays: number;
-  /** Fixed Requirement Snapshot at submission (business rule 6, "Fixed Basis"). */
-  requirementSnapshotId: string;
-  /** Fixed authorized Evidence Snapshot at submission (business rule 6). */
-  evidenceSnapshotId: string;
+  proposedDeliveryDurationDays: number | null;
   status: ApplicationStatus;
+  requirementSnapshot: ApplicationRequirementSnapshotDto;
+  evidenceSummary: ApplicationEvidenceSummaryDto[];
   submittedAt: string;
   reviewDueAt: string | null;
   expiresAt: string | null;
   expiredAt: string | null;
+  overdue: boolean;
+  ownerDecision: OwnerDecisionDto | null;
+  assignment: AssignmentDto | null;
 }
 
 export interface SubmitApplicationParams {
-  contributionApproach?: string;
+  contributionApproach: string;
   proposedDeliveryDurationDays: number;
+  idempotencyKey: string;
+}
+
+export interface WithdrawApplicationParams {
+  applicationId: string;
   idempotencyKey: string;
 }
 
@@ -42,8 +95,10 @@ export interface SubmitApplicationParams {
 export type ApplicationApiErrorCode =
   | "ALREADY_APPLIED"
   | "APPLICATIONS_CLOSED"
+  | "REQUEST_CANCELLED"
   | "REQUEST_TERMINAL"
-  | "APPLICATION_NOT_AUTHORIZED";
+  | "APPLICATION_NOT_AUTHORIZED"
+  | "APPLICATION_IDEMPOTENCY_CONFLICT";
 
 /** The owner's explicit accept/decline action — never an AI verdict. */
 export type OwnerDecisionAction = "accept" | "decline";

@@ -32,6 +32,8 @@ export const ROUTES = {
     `/my-projects/${encodeURIComponent(projectId)}/contribution-requests/new`,
   contributionRequest: (requestId: string) =>
     `/contribution-requests/${encodeURIComponent(requestId)}`,
+  application: (applicationId: string) =>
+    `/applications/${encodeURIComponent(applicationId)}`,
   settings: "/settings",
   /** Optional GitHub App skill-analysis workspace (backend callback target). */
   githubSkillAnalysis: "/profile/github",

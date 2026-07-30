@@ -40,6 +40,9 @@ describe("workspace navigation", () => {
     expect(
       navigation.some((item) => item.to === ROUTES.contributorProfile("sara")),
     ).toBe(true);
+    expect(navigation.find((item) => item.to === ROUTES.tasks)?.label).toBe(
+      "طلبات المساهمة",
+    );
   });
 
   it("keeps admin notifications inside the admin shell", () => {
