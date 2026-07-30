@@ -369,7 +369,8 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
       {!confirmWithdrawal ? (
         <>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            يمكنك سحب طلب التقديم قبل صدور قرار صاحب المشروع. السحب نهائي.
+            يمكنك سحب طلب التقديم قبل صدور قرار صاحب المشروع. السحب نهائي،
+            ولن تتمكن من التقديم على طلب المساهمة نفسه مرة أخرى.
           </p>
           <Button
             id="withdrawal-trigger"
@@ -398,7 +399,8 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
             id="withdrawal-confirmation-description"
             className="mt-1 text-sm text-muted-foreground"
           >
-            هل تريد سحب طلب التقديم نهائيًا؟
+            هل تريد سحب طلب التقديم نهائيًا؟ لن تتمكن من إرسال طلب تقديم جديد
+            لهذا الطلب.
           </p>
           {withdrawError && (
             <p role="alert" className="mt-2 text-sm text-destructive">
