@@ -69,7 +69,7 @@ export const APPLICATION_SUBMISSION_ERROR_META: Record<
 > = {
   ALREADY_APPLIED: {
     message:
-      "لديك طلب تقديم سابق لهذا الطلب. افتح حالة الطلب السابق بدلًا من إرسال نسخة أخرى.",
+      "لديك طلب تقديم سابق لهذا الطلب. يُسمح بطلب واحد فقط، ولا يتيح سحب الطلب إرسال طلب جديد.",
     recovery: "existing_application",
   },
   APPLICATIONS_CLOSED: {
@@ -127,7 +127,7 @@ export const APPLICATION_STATUS_COPY: Record<
   WITHDRAWN: {
     label: "سحبت طلب التقديم",
     description:
-      "انتهى طلب التقديم بناءً على اختيارك، ولا يمكن لصاحب المشروع اتخاذ قرار عليه الآن.",
+      "انتهى طلب التقديم بناءً على اختيارك. السحب نهائي، ولا يمكنك إرسال طلب تقديم جديد لهذا الطلب.",
   },
   REQUEST_CANCELLED: {
     label: "أُلغي طلب المساهمة",
