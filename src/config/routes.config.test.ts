@@ -31,6 +31,9 @@ describe("route config", () => {
     expect(ROUTES.contributionRequest("request 1")).toBe(
       "/contribution-requests/request%201",
     );
+    expect(ROUTES.application("application 1")).toBe(
+      "/applications/application%201",
+    );
   });
 
   it("builds encoded contributor Application routes", () => {

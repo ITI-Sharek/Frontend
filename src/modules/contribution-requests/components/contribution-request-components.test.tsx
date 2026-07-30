@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,6 +10,14 @@ import { CancelContributionRequestDialog } from "./cancel-contribution-request-d
 import { OwnerContributionRequestsWorkspace } from "./owner-contribution-requests-workspace";
 import { createEmptyContributionRequestForm } from "../utils/contribution-request-form";
 import { useOwnerProjectContributionRequestsQuery } from "../api/queries/use-owner-project-contribution-requests-query";
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a data-router-link="true" href={to}>
+      {children}
+    </a>
+  ),
+}));
 
 vi.mock("../api/queries/use-owner-project-contribution-requests-query", () => ({
   useOwnerProjectContributionRequestsQuery: vi.fn(),

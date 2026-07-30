@@ -384,18 +384,20 @@ POST {{baseUrl}}/auth/logout
 Authorization: Bearer {{ownerRefresh.response.body.$.accessToken}}
 
 
-## Contribution Request private drafts — backend issue #48
+## Contribution Requests and Applications — backend issues #48–50
 
 # Scope:
 # - Active owner sessions only.
 # - The Project must be owned and published.
 # - ownerId is never sent; the backend derives ownership from the session.
-# - Publication, public discovery, cancellation, and Applications are not
-#   implemented until backend issues #47 and #49 land.
-# - There is no owner draft-list endpoint. Do not invent one.
+# - Public discovery returns only published Requests whose Applications Close
+#   Time is still in the future.
+# - Application submission enters PENDING_OWNER_REVIEW immediately.
+# - Application state contains no automatic AI decision or contributor quota.
 
 @publishedProjectId = replace-with-published-project-uuid
 @contributionRequestId = replace-with-contribution-request-uuid
+@applicationId = replace-with-application-uuid
 
 
 ### 18A - Create a private Contribution Request draft
@@ -447,3 +449,34 @@ Content-Type: application/json
 {
   "reason": "The Project scope changed"
 }
+
+
+### 19A - Discover actionable Contribution Requests
+GET {{baseUrl}}/tasks?q=notifications&technologies=React&difficulty=intermediate&hasReward=true
+
+
+### 19B - Inspect an actionable Contribution Request
+GET {{baseUrl}}/tasks/{{contributionRequestId}}
+
+
+### 19C - Submit an Application directly to the owner
+POST {{baseUrl}}/tasks/{{contributionRequestId}}/applications
+Authorization: Bearer {{contributorLogin.response.body.$.tokens.accessToken}}
+Content-Type: application/json
+
+{
+  "contributionApproach": "I will deliver the accessible workflow with focused tests.",
+  "proposedDeliveryDurationDays": 7,
+  "idempotencyKey": "11111111-1111-4111-8111-111111111111"
+}
+
+
+### 19D - Inspect one actor-authorized Application
+GET {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{contributorLogin.response.body.$.tokens.accessToken}}
+
+
+### 19E - Withdraw a pending Application
+POST {{baseUrl}}/applications/{{applicationId}}/withdraw
+Authorization: Bearer {{contributorLogin.response.body.$.tokens.accessToken}}
+Idempotency-Key: 22222222-2222-4222-8222-222222222222

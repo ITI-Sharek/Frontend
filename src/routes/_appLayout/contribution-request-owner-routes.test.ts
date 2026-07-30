@@ -1,3 +1,4 @@
+import { Outlet } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
 import { requireOwnerRoute } from "@/modules/auth";
@@ -5,6 +6,10 @@ import { requireOwnerRoute } from "@/modules/auth";
 import { Route as detailRoute } from "./contribution-requests.$requestId";
 import { Route as listRoute } from "./my-projects.$projectId.contribution-requests.index";
 import { Route as createRoute } from "./my-projects.$projectId.contribution-requests.new";
+import {
+  ProjectRouteLayout,
+  Route as projectLayoutRoute,
+} from "./my-projects.$projectId";
 
 describe("owner Contribution Request routes", () => {
   it("guards list, create, and lifecycle detail routes as owner-only", () => {
@@ -18,5 +23,10 @@ describe("owner Contribution Request routes", () => {
     expect(createRoute.options.component).not.toBe(
       detailRoute.options.component,
     );
+  });
+
+  it("renders nested Contribution Request screens through the Project layout", () => {
+    expect(projectLayoutRoute.options.component).toBe(ProjectRouteLayout);
+    expect(ProjectRouteLayout().type).toBe(Outlet);
   });
 });

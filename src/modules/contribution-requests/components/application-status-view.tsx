@@ -8,8 +8,9 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
@@ -21,8 +22,12 @@ import {
 
 import { ReportDecisionFeedbackDialog } from "./report-decision-feedback-dialog";
 import { useReportDecisionFeedbackMutation } from "../api/mutations/use-report-decision-feedback-mutation";
+import { useWithdrawApplicationMutation } from "../api/mutations/use-withdraw-application-mutation";
 import { useApplicationQuery } from "../api/queries/use-application-query";
-import { getApplicationErrorMessage } from "../constants/application-copy";
+import {
+  APPLICATION_STATUS_COPY,
+  getApplicationErrorMessage,
+} from "../constants/application-copy";
 import {
   formatApplicationDate,
   getApplicationStatusMeta,
@@ -31,10 +36,12 @@ import type { DecisionFeedbackReportReason } from "../types/application.types";
 
 export function ApplicationStatusView({
   applicationId,
-  backHref,
+  requestHref,
+  requestsHref,
 }: {
   applicationId: string;
-  backHref: string;
+  requestHref: (requestId: string) => string;
+  requestsHref: string;
 }) {
   const query = useApplicationQuery(applicationId);
   const reportMutation = useReportDecisionFeedbackMutation();
@@ -67,7 +74,7 @@ export function ApplicationStatusView({
                 إعادة المحاولة
               </Button>
               <Button asChild size="sm" variant="outline">
-                <a href={backHref}>العودة إلى طلبات المساهمة</a>
+                <a href={requestsHref}>العودة إلى طلبات المساهمة</a>
               </Button>
             </div>
           }
@@ -78,6 +85,7 @@ export function ApplicationStatusView({
 
   const application = query.data;
   const status = getApplicationStatusMeta(application.status);
+  const copy = APPLICATION_STATUS_COPY[application.status];
   const canReport =
     application.status === "DECLINED_BY_OWNER" &&
     application.ownerDecision?.decisionType === "DECLINED" &&
@@ -107,13 +115,17 @@ export function ApplicationStatusView({
     <PageContainer className="max-w-4xl">
       <PageHeader
         title={status.title}
-        description={status.description}
+        description={copy.description}
         actions={
           <StatusChip tone={status.tone} icon={status.icon}>
-            {status.label}
+            {copy.label}
           </StatusChip>
         }
       />
+
+      <p role="status" aria-live="polite" className="sr-only">
+        {copy.label}: {copy.description}
+      </p>
 
       {status.neutralEffect && (
         <div className="mt-6 flex items-start gap-3 rounded-input border border-border bg-border/20 p-4">
@@ -145,7 +157,8 @@ export function ApplicationStatusView({
             نهج المساهمة
           </h2>
           <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-foreground">
-            {application.contributionApproach || "لا يوجد نهج محفوظ في هذا السجل."}
+            {application.contributionApproach ||
+              "لا يوجد نهج محفوظ في هذا السجل."}
           </p>
 
           <dl className="mt-6 grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
@@ -207,6 +220,10 @@ export function ApplicationStatusView({
         </Card>
       </div>
 
+      {application.status === "PENDING_OWNER_REVIEW" && (
+        <WithdrawalControls applicationId={application.id} />
+      )}
+
       {application.status === "ACCEPTED" && application.assignment && (
         <section
           aria-labelledby="assignment-heading"
@@ -251,7 +268,10 @@ export function ApplicationStatusView({
                   ملاحظات بشرية مرتبطة بقرار المالك، وليست نتيجة تقييم استشاري.
                 </p>
               </div>
-              <UserRound className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <UserRound
+                className="size-5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
             </div>
             <blockquote className="mt-4 whitespace-pre-wrap break-words rounded-input bg-border/20 p-4 text-sm leading-7 text-foreground">
               {application.ownerDecision.feedback}
@@ -284,7 +304,9 @@ export function ApplicationStatusView({
 
       <div className="mt-6">
         <Button asChild variant="outline">
-          <a href={backHref}>العودة إلى طلبات المساهمة</a>
+          <a href={requestHref(application.contributionRequestId)}>
+            العودة إلى طلب المساهمة
+          </a>
         </Button>
       </div>
 
@@ -302,6 +324,116 @@ export function ApplicationStatusView({
         />
       )}
     </PageContainer>
+  );
+}
+
+function WithdrawalControls({ applicationId }: { applicationId: string }) {
+  const withdrawMutation = useWithdrawApplicationMutation();
+  const withdrawalKey = useRef<string | null>(null);
+  const [confirmWithdrawal, setConfirmWithdrawal] = useState(false);
+  const [restoreFocus, setRestoreFocus] = useState(false);
+  const [withdrawError, setWithdrawError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (confirmWithdrawal) {
+      document.getElementById("withdrawal-confirm")?.focus();
+    } else if (restoreFocus) {
+      document.getElementById("withdrawal-trigger")?.focus();
+      setRestoreFocus(false);
+    }
+  }, [confirmWithdrawal, restoreFocus]);
+
+  async function withdraw() {
+    setWithdrawError(null);
+    withdrawalKey.current ??= crypto.randomUUID();
+    try {
+      await withdrawMutation.mutateAsync({
+        applicationId,
+        idempotencyKey: withdrawalKey.current,
+      });
+      withdrawalKey.current = null;
+      setConfirmWithdrawal(false);
+    } catch (error) {
+      const code = getApiErrorCode(error);
+      setWithdrawError(
+        code === "APPLICATION_TERMINAL"
+          ? "لم يعد طلب التقديم بانتظار المراجعة، لذلك لا يمكن سحبه."
+          : "تعذر سحب طلب التقديم الآن. حاول مرة أخرى.",
+      );
+    }
+  }
+
+  return (
+    <Card className="mt-6 border-destructive/25 p-5 shadow-none">
+      <h2 className="font-bold text-foreground">التحكم في الطلب</h2>
+      {!confirmWithdrawal ? (
+        <>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            يمكنك سحب طلب التقديم قبل صدور قرار صاحب المشروع. السحب نهائي.
+          </p>
+          <Button
+            id="withdrawal-trigger"
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="mt-4"
+            onClick={() => setConfirmWithdrawal(true)}
+          >
+            سحب طلب التقديم
+          </Button>
+        </>
+      ) : (
+        <div
+          role="group"
+          aria-labelledby="withdrawal-confirmation-title"
+          aria-describedby="withdrawal-confirmation-description"
+        >
+          <h3
+            id="withdrawal-confirmation-title"
+            className="mt-2 font-semibold text-foreground"
+          >
+            تأكيد سحب طلب التقديم
+          </h3>
+          <p
+            id="withdrawal-confirmation-description"
+            className="mt-1 text-sm text-muted-foreground"
+          >
+            هل تريد سحب طلب التقديم نهائيًا؟
+          </p>
+          {withdrawError && (
+            <p role="alert" className="mt-2 text-sm text-destructive">
+              {withdrawError}
+            </p>
+          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              id="withdrawal-confirm"
+              type="button"
+              variant="destructive"
+              size="sm"
+              disabled={withdrawMutation.isPending}
+              onClick={() => void withdraw()}
+            >
+              {withdrawMutation.isPending ? "جارٍ السحب..." : "تأكيد السحب"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={withdrawMutation.isPending}
+              onClick={() => {
+                withdrawalKey.current = null;
+                setWithdrawError(null);
+                setRestoreFocus(true);
+                setConfirmWithdrawal(false);
+              }}
+            >
+              تراجع
+            </Button>
+          </div>
+        </div>
+      )}
+    </Card>
   );
 }
 
