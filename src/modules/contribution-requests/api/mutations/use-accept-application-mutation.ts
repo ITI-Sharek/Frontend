@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { acceptApplication } from "../../services/applications.service";
-import { applicationsQueryKeys, contributionRequestsQueryKeys } from "../query-keys";
+import {
+  applicationsQueryKeys,
+  contributionRequestKeys,
+  contributionRequestsQueryKeys,
+} from "../query-keys";
 
 /**
  * Explicit human Owner Decision: acceptance creates an Assignment and moves
@@ -12,6 +16,10 @@ export function useAcceptApplicationMutation() {
   return useMutation({
     mutationFn: acceptApplication,
     onSuccess: ({ application }) => {
+      queryClient.setQueryData(
+        applicationsQueryKeys.detail(application.id),
+        application,
+      );
       void queryClient.invalidateQueries({
         queryKey: contributionRequestsQueryKeys.ownerApplications(
           application.contributionRequestId,
@@ -19,6 +27,11 @@ export function useAcceptApplicationMutation() {
       });
       void queryClient.invalidateQueries({
         queryKey: contributionRequestsQueryKeys.details(
+          application.contributionRequestId,
+        ),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: contributionRequestKeys.detail(
           application.contributionRequestId,
         ),
       });

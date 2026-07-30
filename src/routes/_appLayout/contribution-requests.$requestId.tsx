@@ -8,7 +8,7 @@ export const Route = createFileRoute(
   "/_appLayout/contribution-requests/$requestId",
 )({
   beforeLoad: requireOwnerRoute,
-  head: () => ({ meta: [{ title: "مسودة طلب مساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "تفاصيل طلب المساهمة | Sharek" }] }),
   component: ContributionRequestPage,
 });
 

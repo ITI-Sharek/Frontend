@@ -6,7 +6,8 @@ import { applicationsQueryKeys, contributionRequestsQueryKeys } from "../query-k
 export function useWithdrawApplicationMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: withdrawApplication,
+    mutationFn: (applicationId: string) =>
+      withdrawApplication(applicationId),
     onSuccess: (application) => {
       void queryClient.invalidateQueries({
         queryKey: applicationsQueryKeys.all,

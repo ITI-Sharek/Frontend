@@ -2,6 +2,11 @@ export { ContributionRequestCreateView } from "./components/contribution-request
 export { ContributionRequestDetailView } from "./components/contribution-request-detail-view";
 export { ContributionRequestForm } from "./components/contribution-request-form";
 export { OwnerContributionRequestsWorkspace } from "./components/owner-contribution-requests-workspace";
+export { OwnerApplicationReview } from "./components/owner-application-review";
+export { ApplicationStatusView } from "./components/application-status-view";
+export { AcceptApplicationDialog } from "./components/accept-application-dialog";
+export { DeclineApplicationDialog } from "./components/decline-application-dialog";
+export { ReportDecisionFeedbackDialog } from "./components/report-decision-feedback-dialog";
 
 export { useContributionRequestQuery } from "./api/queries/use-contribution-request-query";
 export { useOwnerProjectContributionRequestsQuery } from "./api/queries/use-owner-project-contribution-requests-query";
@@ -15,12 +20,13 @@ export {
 
 export { useContributionRequestsQuery } from "./api/queries/use-contribution-requests-query";
 export { useContributionRequestDetailsQuery } from "./api/queries/use-contribution-request-details-query";
-export { useMyApplicationsQuery } from "./api/queries/use-my-applications-query";
+export { useApplicationQuery } from "./api/queries/use-application-query";
 export { useOwnerApplicationsQuery } from "./api/queries/use-owner-applications-query";
 export { useSubmitApplicationMutation } from "./api/mutations/use-submit-application-mutation";
 export { useWithdrawApplicationMutation } from "./api/mutations/use-withdraw-application-mutation";
 export { useAcceptApplicationMutation } from "./api/mutations/use-accept-application-mutation";
 export { useDeclineApplicationMutation } from "./api/mutations/use-decline-application-mutation";
+export { useReportDecisionFeedbackMutation } from "./api/mutations/use-report-decision-feedback-mutation";
 
 export {
   contributionRequestKeys,
@@ -41,11 +47,12 @@ export {
 } from "./services/contribution-requests.service";
 export {
   submitApplication,
-  getMyApplications,
+  getApplication,
   withdrawApplication,
   getOwnerApplications,
   acceptApplication,
   declineApplication,
+  reportDecisionFeedback,
 } from "./services/applications.service";
 
 export {
@@ -60,6 +67,15 @@ export {
   isContributionRequestError,
 } from "./constants/contribution-request-copy";
 export { getContributionRequestStatusMeta } from "./utils/contribution-request-status";
+export {
+  formatApplicationDate,
+  getApplicationReviewTiming,
+  getApplicationStatusMeta,
+} from "./utils/application-presenter";
+export {
+  getApplicationErrorMessage,
+  shouldRefreshApplicationAfterError,
+} from "./constants/application-copy";
 
 export type {
   ContributionRequestDifficulty,
@@ -85,12 +101,24 @@ export type {
 export type {
   ApplicationStatus,
   ApplicationDto,
+  ApplicationContributorDto,
+  ApplicationProfileContextDto,
+  ApplicationRequirementSnapshotDto,
+  ApplicationEvidenceSummaryDto,
+  OwnerDecisionDto,
+  OwnerApplicationsDto,
   SubmitApplicationParams,
+  AcceptApplicationParams,
   ApplicationApiErrorCode,
   OwnerDecisionAction,
   DeclineApplicationParams,
+  DecisionFeedbackReportReason,
+  DecisionFeedbackReportStatus,
+  DecisionFeedbackReportDto,
+  ReportDecisionFeedbackParams,
 } from "./types/application.types";
 export type {
   AssignmentDto,
   AcceptApplicationResultDto,
+  OwnerDecisionResultDto,
 } from "./types/assignment.types";
