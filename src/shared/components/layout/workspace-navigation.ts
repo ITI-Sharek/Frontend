@@ -108,7 +108,7 @@ export function getMemberNavigation({
       active: isActivePath(pathname, ROUTES.explore),
     },
     {
-      label: "المهام",
+      label: "طلبات المساهمة",
       to: ROUTES.tasks,
       icon: ListTodo,
       active: isActivePath(pathname, ROUTES.tasks),

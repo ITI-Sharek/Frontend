@@ -1,18 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { ROUTES } from "@/config/routes.config";
 import { requireContributorRoute } from "@/modules/auth";
-import { TasksFeedView } from "@/modules/tasks";
-import type { ProjectDifficulty, TaskFeedFiltersDto } from "@/modules/tasks";
+import { ContributionRequestFeedView } from "@/modules/contribution-requests";
+import type {
+  ContributionRequestDifficulty,
+  ContributionRequestFeedFiltersDto,
+} from "@/modules/contribution-requests";
 
-const DIFFICULTIES: ProjectDifficulty[] = [
+const DIFFICULTIES: ContributionRequestDifficulty[] = [
   "beginner",
   "intermediate",
   "advanced",
 ];
 
 /** Filters live in the URL (shareable, back-navigable) — same as /explore. */
-function validateSearch(search: Record<string, unknown>): TaskFeedFiltersDto {
-  const filters: TaskFeedFiltersDto = {};
+function validateSearch(
+  search: Record<string, unknown>,
+): ContributionRequestFeedFiltersDto {
+  const filters: ContributionRequestFeedFiltersDto = {};
   if (typeof search.q === "string" && search.q.trim() !== "") {
     filters.q = search.q;
   }
@@ -26,8 +32,12 @@ function validateSearch(search: Record<string, unknown>): TaskFeedFiltersDto {
   ) {
     filters.technologies = tech;
   }
-  if (DIFFICULTIES.includes(search.difficulty as ProjectDifficulty)) {
-    filters.difficulty = search.difficulty as ProjectDifficulty;
+  if (
+    DIFFICULTIES.includes(
+      search.difficulty as ContributionRequestDifficulty,
+    )
+  ) {
+    filters.difficulty = search.difficulty as ContributionRequestDifficulty;
   }
   if (search.hasReward === true || search.hasReward === "true") {
     filters.hasReward = true;
@@ -37,7 +47,7 @@ function validateSearch(search: Record<string, unknown>): TaskFeedFiltersDto {
 
 export const Route = createFileRoute("/_appLayout/tasks/")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "المهام | Sharek" }] }),
+  head: () => ({ meta: [{ title: "طلبات المساهمة | Sharek" }] }),
   validateSearch,
   component: TasksPage,
 });
@@ -47,7 +57,7 @@ function TasksPage() {
   const navigate = Route.useNavigate();
 
   return (
-    <TasksFeedView
+    <ContributionRequestFeedView
       filters={filters}
       onFiltersChange={(partial) =>
         void navigate({
@@ -56,6 +66,9 @@ function TasksPage() {
         })
       }
       onReset={() => void navigate({ search: {}, replace: true })}
+      requestHref={(requestId) =>
+        `${ROUTES.tasks}/${encodeURIComponent(requestId)}`
+      }
     />
   );
 }

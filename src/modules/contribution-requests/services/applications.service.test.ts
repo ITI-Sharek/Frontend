@@ -5,7 +5,7 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 import {
   acceptApplication,
   declineApplication,
-  getMyApplications,
+  getApplication,
   getOwnerApplications,
   submitApplication,
   withdrawApplication,
@@ -22,16 +22,39 @@ const mockedAxios = vi.mocked(axiosInstance);
 const pendingApplication: ApplicationDto = {
   id: "app-1",
   contributionRequestId: "cr-1",
-  contributorId: "user-1",
+  contributor: {
+    id: "user-1",
+    username: "sara",
+    displayName: "Sara Ahmed",
+  },
+  profileContext: {
+    bio: "Frontend contributor",
+    availability: "10 hours/week",
+    experienceLevel: {
+      key: "intermediate",
+      labelEn: "Intermediate",
+      labelAr: "متوسط",
+    },
+    fields: [],
+    declaredSkills: ["React"],
+  },
   contributionApproach: "I will build the panel with the existing WS gateway.",
   proposedDeliveryDurationDays: 5,
-  requirementSnapshotId: "req-snap-1",
-  evidenceSnapshotId: "evi-snap-1",
+  requirementSnapshot: {
+    required: [
+      { id: "requirement-1", position: 0, text: "Ship tested behavior" },
+    ],
+    preferred: [],
+  },
+  evidenceSummary: [],
   status: "PENDING_OWNER_REVIEW",
   submittedAt: "2026-07-28T10:00:00.000Z",
   reviewDueAt: "2026-08-04T10:00:00.000Z",
   expiresAt: "2026-08-04T10:00:00.000Z",
   expiredAt: null,
+  overdue: false,
+  ownerDecision: null,
+  assignment: null,
 };
 
 describe("applications service", () => {
@@ -54,15 +77,11 @@ describe("applications service", () => {
     });
   });
 
-  it("lists my Applications, optionally scoped by status", async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: [pendingApplication] });
+  it("loads one Application status through the actor-authorized endpoint", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: pendingApplication });
 
-    await expect(getMyApplications("PENDING_OWNER_REVIEW")).resolves.toEqual([
-      pendingApplication,
-    ]);
-    expect(mockedAxios.get).toHaveBeenCalledWith("/me/applications", {
-      params: { status: "PENDING_OWNER_REVIEW" },
-    });
+    await expect(getApplication("app-1")).resolves.toEqual(pendingApplication);
+    expect(mockedAxios.get).toHaveBeenCalledWith("/applications/app-1");
   });
 
   it("withdraws an Application before an Owner Decision", async () => {
@@ -72,14 +91,20 @@ describe("applications service", () => {
     };
     mockedAxios.post.mockResolvedValueOnce({ data: withdrawn });
 
-    await expect(withdrawApplication("app-1")).resolves.toEqual(withdrawn);
+    await expect(
+      withdrawApplication("app-1", "withdraw-idem-1"),
+    ).resolves.toEqual(withdrawn);
     expect(mockedAxios.post).toHaveBeenCalledWith(
       "/applications/app-1/withdraw",
+      undefined,
+      { headers: { "Idempotency-Key": "withdraw-idem-1" } },
     );
   });
 
   it("lists every PENDING_OWNER_REVIEW Application for the owner, unconditioned on assessment state", async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: [pendingApplication] });
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { applications: [pendingApplication] },
+    });
 
     await expect(getOwnerApplications("cr-1")).resolves.toEqual([
       pendingApplication,
@@ -90,11 +115,21 @@ describe("applications service", () => {
   it("accepts an Application, creating an Assignment", async () => {
     const result: AcceptApplicationResultDto = {
       application: { ...pendingApplication, status: "ACCEPTED" },
+      ownerDecision: {
+        id: "decision-1",
+        applicationId: "app-1",
+        contributionRequestId: "cr-1",
+        decisionType: "ACCEPTED",
+        feedback: null,
+        decidedAt: "2026-07-29T09:00:00.000Z",
+      },
       assignment: {
         id: "assign-1",
         contributionRequestId: "cr-1",
         applicationId: "app-1",
+        ownerDecisionId: "decision-1",
         contributorId: "user-1",
+        agreedDeliveryDurationDays: 5,
         assignedAt: "2026-07-29T09:00:00.000Z",
         agreedDeliveryDueDate: "2026-08-03",
       },

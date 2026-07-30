@@ -2,8 +2,9 @@
 
 This module integrates the owner Contribution Request lifecycle delivered by
 backend issues #48 (private draft) and #49 (publish/discover/cancel), plus the
-owner Project workspace list (Frontend issue #4). New code uses the canonical
-term **Contribution Request**.
+owner Project workspace list (Frontend issue #4) and contributor discovery and
+Application management (Frontend issue #5). New code uses the canonical term
+**Contribution Request**.
 
 Implemented routes:
 
@@ -11,6 +12,9 @@ Implemented routes:
 /my-projects/:projectId/contribution-requests
 /my-projects/:projectId/contribution-requests/new
 /contribution-requests/:requestId
+/tasks
+/tasks/:requestId
+/applications/:applicationId
 ```
 
 The feature owns typed DTO parsing, service calls, query/mutation hooks, form
@@ -28,12 +32,22 @@ groups every lifecycle state — including drafts, published, assigned,
 completed, cancelled, and discarded — and remains readable for an owned
 archived Project so history is never hidden.
 
-Application, Advisory Fit Assessment, and Contribution Proposal UI are
-separate, later Sprint 4 tickets (see `specs/005-sprint-4-contribution-experience`)
-and are out of scope for this module today.
+The contributor `/tasks` transport routes now consume the live public
+Contribution Request contract. They show only server-returned actionable
+Requests, keep Required and Preferred Requirements distinct, submit an
+Application directly to the Project owner, and navigate to the actor-authorized
+Application status route. Pending Applications can be withdrawn after explicit
+confirmation. Stable backend codes drive duplicate, closed, cancelled,
+terminal, and unauthorized copy. The retired mock task module, automatic AI
+validation, eligibility verdicts, and contributor-attempt quota UI were
+removed.
+
+Advisory Fit Assessment and Contribution Proposal UI remain separate later
+Sprint 4 tickets (see `specs/005-sprint-4-contribution-experience`).
 
 Focused verification:
 
 ```bash
-npm test -- --run src/modules/contribution-requests src/routes/_appLayout/contribution-request-owner-routes.test.ts
+pnpm exec vitest run src/modules/contribution-requests src/routes/_appLayout/contribution-request-owner-routes.test.ts
+pnpm exec tsc --noEmit
 ```
