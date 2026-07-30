@@ -1,4 +1,3 @@
-import type { ApplicationStatus } from "../types/application.types";
 import type { ContributionRequestFeedFiltersDto } from "../types/contribution-request.types";
 
 export const contributionRequestKeys = {
@@ -28,6 +27,6 @@ export const contributionRequestsQueryKeys = {
 
 export const applicationsQueryKeys = {
   all: APPLICATIONS_ROOT,
-  mine: (status?: ApplicationStatus) =>
-    [...APPLICATIONS_ROOT, "mine", status ?? null] as const,
+  detail: (applicationId: string) =>
+    [...APPLICATIONS_ROOT, "detail", applicationId] as const,
 };

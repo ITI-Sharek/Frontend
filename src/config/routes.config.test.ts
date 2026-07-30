@@ -33,6 +33,12 @@ describe("route config", () => {
     );
   });
 
+  it("builds encoded contributor Application routes", () => {
+    expect(ROUTES.application("application 1")).toBe(
+      "/applications/application%201",
+    );
+  });
+
   it("exposes distinct admin destinations for fields and published owners", () => {
     expect(ROUTES.adminProfileFields).toBe("/admin/profile-fields");
     expect(ROUTES.adminProjectOwners).toBe("/admin/project-owners");
