@@ -36,6 +36,20 @@ describe("Contribution Request localized stable errors", () => {
       "session expired",
     );
   });
+
+  it("maps malformed Requirement payloads at the triggering form action", () => {
+    const error = apiError(
+      400,
+      "CONTRIBUTION_REQUEST_REQUIREMENT_INPUT_INVALID",
+    );
+
+    expect(getContributionRequestErrorMessage(error, "ar")).toContain(
+      "صيغة المتطلبات",
+    );
+    expect(getContributionRequestErrorMessage(error, "en")).toContain(
+      "Requirement format",
+    );
+  });
 });
 
 function apiError(status: number, code?: string) {

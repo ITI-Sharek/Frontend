@@ -17,7 +17,9 @@ The feature owns typed DTO parsing, service calls, query/mutation hooks, form
 validation, command idempotency, localized stable-error copy, create/edit UI,
 and explicit publish/discard/cancel confirmation. Owner identity is never
 included in a request payload; the backend derives it from the authenticated
-session.
+session. Recoverable API failures keep draft input mounted, while lifecycle
+dialogs trap keyboard focus, close with Escape, and move focus to the updated
+server-authoritative lifecycle summary after a successful command.
 
 The Project management route supplies the known Project context. Creation is
 available only for an owned Project whose `GET /projects/me` status is
@@ -29,3 +31,9 @@ archived Project so history is never hidden.
 Application, Advisory Fit Assessment, and Contribution Proposal UI are
 separate, later Sprint 4 tickets (see `specs/005-sprint-4-contribution-experience`)
 and are out of scope for this module today.
+
+Focused verification:
+
+```bash
+npm test -- --run src/modules/contribution-requests src/routes/_appLayout/contribution-request-owner-routes.test.ts
+```
