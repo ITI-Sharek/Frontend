@@ -38,6 +38,15 @@ siblings become `NOT_SELECTED`; decline requires human feedback and keeps it
 visually separate from AI findings. Both commands send an `Idempotency-Key` and
 refresh server state after terminal or concurrent races.
 
+The owner queue also integrates the optional Advisory Fit Assessment contract:
+it reads `GET /applications/:applicationId/assessment`, explicitly requests
+`POST /applications/:applicationId/assessment-requests` with a retry-safe
+idempotency key, and presents the backend-derived Fit Band plus separate
+Required and Preferred findings. Findings show categorical confidence,
+authorized evidence identifiers, explanation, and uncertainty. Technical,
+missing-evidence, and unavailable states remain decision-neutral; assessment
+state never disables accept or decline.
+
 The contributor Application detail route distinguishes `ACCEPTED`,
 `DECLINED_BY_OWNER`, `NOT_SELECTED`, `EXPIRED`, `WITHDRAWN`, and
 `REQUEST_CANCELLED`, including neutral profile/eligibility/reputation effects.
@@ -62,10 +71,9 @@ terminal, and unauthorized copy. The retired mock task module, automatic AI
 validation, eligibility verdicts, and contributor-attempt quota UI were
 removed.
 
-Advisory Fit Assessment and Contribution Proposal UI remain separate later
-Sprint 4 tickets (see `specs/005-sprint-4-contribution-experience`).
-Assessment data must never become a predicate for the human decisions
-implemented here.
+Contribution Proposal UI remains a separate later Sprint 4 ticket (see
+`specs/005-sprint-4-contribution-experience`). Assessment data must never
+become a predicate for the human decisions implemented here.
 
 Focused verification:
 
