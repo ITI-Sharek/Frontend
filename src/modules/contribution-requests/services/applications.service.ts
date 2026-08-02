@@ -9,6 +9,10 @@ import type {
   ReportDecisionFeedbackParams,
   SubmitApplicationParams,
 } from "../types/application.types";
+import type {
+  AdvisoryFitAssessmentDto,
+  RequestAdvisoryFitParams,
+} from "../types/advisory-fit.types";
 import type { OwnerDecisionResultDto } from "../types/assignment.types";
 
 export async function submitApplication(
@@ -38,6 +42,28 @@ export async function getApplication(
 ): Promise<ApplicationDto> {
   const { data } = await axiosInstance.get<ApplicationDto>(
     `/applications/${encodeURIComponent(applicationId)}`,
+  );
+  return data;
+}
+
+/** Explicit owner action; assessment remains optional and decision-neutral. */
+export async function requestAdvisoryFit({
+  applicationId,
+  idempotencyKey,
+}: RequestAdvisoryFitParams): Promise<AdvisoryFitAssessmentDto> {
+  const { data } = await axiosInstance.post<AdvisoryFitAssessmentDto>(
+    `/applications/${encodeURIComponent(applicationId)}/assessment-requests`,
+    { idempotencyKey },
+  );
+  return data;
+}
+
+/** Owner-only assessment presentation; the backend records first presentation. */
+export async function getAdvisoryFit(
+  applicationId: string,
+): Promise<AdvisoryFitAssessmentDto> {
+  const { data } = await axiosInstance.get<AdvisoryFitAssessmentDto>(
+    `/applications/${encodeURIComponent(applicationId)}/assessment`,
   );
   return data;
 }
