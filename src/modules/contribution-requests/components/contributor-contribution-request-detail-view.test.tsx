@@ -51,7 +51,7 @@ describe("Contribution Request contributor details", () => {
     const html = renderToStaticMarkup(
       <ContributorContributionRequestDetailView
         requestId="request-1"
-        tasksHref="/tasks"
+        requestsHref="/tasks"
         dashboardHref="/dashboard"
         applicationHref={(applicationId) => `/applications/${applicationId}`}
         projectHref={(slug) => `/projects/${slug}`}
