@@ -240,6 +240,7 @@ const completedAssessment: AdvisoryFitAssessmentDto = {
   requestedAt: "2026-08-02T12:00:00.000Z",
   completedAt: "2026-08-02T12:00:05.000Z",
   attempts: 1,
+  retryAvailable: false,
 };
 
 function decisionResult(

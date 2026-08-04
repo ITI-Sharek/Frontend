@@ -42,6 +42,7 @@ export interface AdvisoryFitAssessmentDto {
   requestedAt: string | null;
   completedAt: string | null;
   attempts: number;
+  retryAvailable: boolean;
 }
 
 export interface RequestAdvisoryFitParams {

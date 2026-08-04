@@ -45,7 +45,10 @@ idempotency key, and presents the backend-derived Fit Band plus separate
 Required and Preferred findings. Findings show categorical confidence,
 authorized evidence identifiers, explanation, and uncertainty. Technical,
 missing-evidence, and unavailable states remain decision-neutral; assessment
-state never disables accept or decline.
+state never disables accept or decline. Retry controls follow the backend's
+`retryAvailable` projection: one provider retry is shown after the first
+unavailable attempt, exhausted retries are not offered, and an ambiguous POST
+failure refreshes the assessment read model before the owner tries again.
 
 The contributor Application detail route distinguishes `ACCEPTED`,
 `DECLINED_BY_OWNER`, `NOT_SELECTED`, `EXPIRED`, `WITHDRAWN`, and
