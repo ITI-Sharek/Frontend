@@ -65,6 +65,7 @@ describe("owner Application review queue", () => {
         requestedAt: null,
         completedAt: null,
         attempts: 0,
+        retryAvailable: false,
       },
       refetch: vi.fn(),
     });

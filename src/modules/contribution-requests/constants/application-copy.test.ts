@@ -30,6 +30,15 @@ describe("Application stable error presentation", () => {
     expect(message).toContain("أُرسل بلاغ");
     expect(message).not.toContain("استئناف");
   });
+
+  it("explains an exhausted Advisory Fit retry with stable error-code copy", () => {
+    const message = getApplicationErrorMessage(
+      apiError("ASSESSMENT_RETRY_LIMIT_REACHED"),
+    );
+
+    expect(message).toContain("محاولة إعادة التقييم");
+    expect(message).toContain("دون تقييم");
+  });
 });
 
 function apiError(code: string) {

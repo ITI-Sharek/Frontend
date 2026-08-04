@@ -85,6 +85,30 @@ describe("owner Advisory Fit presentation", () => {
     expect(html).not.toMatch(/مؤهل|غير مؤهل|فشل|راسب/);
   });
 
+  it("offers the single provider retry after the first unavailable attempt", () => {
+    mocks.query.mockReturnValue(
+      queryResult({
+        ...assessment("UNAVAILABLE"),
+        attempts: 1,
+        retryAvailable: true,
+      }),
+    );
+
+    expect(render()).toContain("إعادة طلب التقييم");
+  });
+
+  it("does not offer a third provider attempt after the retry is exhausted", () => {
+    mocks.query.mockReturnValue(
+      queryResult({
+        ...assessment("UNAVAILABLE"),
+        attempts: 2,
+        retryAvailable: false,
+      }),
+    );
+
+    expect(render()).not.toContain("إعادة طلب التقييم");
+  });
+
   it("requests an assessment with an idempotency key", async () => {
     const container = document.createElement("div");
     document.body.append(container);
@@ -103,6 +127,30 @@ describe("owner Advisory Fit presentation", () => {
       applicationId: "application-1",
       idempotencyKey: "assessment-idempotency-key",
     });
+
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  it("refreshes server state when the request response fails", async () => {
+    const refetch = vi.fn().mockResolvedValue(undefined);
+    mocks.query.mockReturnValue({
+      ...queryResult(assessment("NOT_REQUESTED")),
+      refetch,
+    });
+    mocks.request.mutateAsync.mockRejectedValueOnce(new Error("network failed"));
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root: Root = createRoot(container);
+
+    await act(async () => {
+      root.render(<AdvisoryFitAssessment application={application()} />);
+    });
+    await act(async () => {
+      findButton(container, "طلب تقييم استشاري")?.click();
+    });
+
+    expect(refetch).toHaveBeenCalledOnce();
 
     await act(async () => root.unmount());
     container.remove();
@@ -160,6 +208,8 @@ function assessment(
     requestedAt: completed ? "2026-08-02T12:00:00.000Z" : null,
     completedAt: completed ? "2026-08-02T12:00:05.000Z" : null,
     attempts: completed ? 1 : 0,
+    retryAvailable:
+      status === "NOT_STARTED_SYSTEM_LIMIT" || status === "UNAVAILABLE",
   };
 }
 

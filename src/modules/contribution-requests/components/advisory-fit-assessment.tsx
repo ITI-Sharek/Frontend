@@ -43,6 +43,7 @@ export function AdvisoryFitAssessment({
       idempotencyKey.current = null;
     } catch (error) {
       setRequestError(getApplicationErrorMessage(error));
+      await query.refetch();
     }
   }
 
@@ -161,10 +162,12 @@ function AssessmentContent({
   }
 
   const statusCopy = ASSESSMENT_STATUS_COPY[assessment.requestStatus];
+  const statusDescription =
+    assessment.requestStatus === "UNAVAILABLE" && !assessment.retryAvailable
+      ? "لا يؤثر عدم اكتمال التقييم في قرارك ولا يصف قدرة المساهم. استُخدمت محاولة إعادة التقييم المتاحة، ويمكنك متابعة قرارك دون تقييم."
+      : statusCopy.description;
   const canRequest =
-    assessment.requestStatus === "NOT_REQUESTED" ||
-    assessment.requestStatus === "NOT_STARTED_SYSTEM_LIMIT" ||
-    assessment.requestStatus === "UNAVAILABLE";
+    assessment.requestStatus === "NOT_REQUESTED" || assessment.retryAvailable;
 
   return (
     <div className="mt-4">
@@ -176,7 +179,7 @@ function AssessmentContent({
         {statusCopy.title}
       </p>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
-        {statusCopy.description}
+        {statusDescription}
       </p>
       {requestError && (
         <p role="alert" className="mt-3 text-xs leading-5 text-destructive">
