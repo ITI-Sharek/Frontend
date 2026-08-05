@@ -33,6 +33,11 @@ describe("Contribution Request contributor details", () => {
         targetCompletionDate: "2030-08-20",
         reward: { amount: 250, currency: "USD" },
         status: "published",
+        attribution: {
+          contributorId: "contributor-1",
+          contributorName: "Sara Ahmed",
+          contributorUsername: "sara",
+        },
         requirements: [
           {
             id: "required-1",
@@ -67,6 +72,9 @@ describe("Contribution Request contributor details", () => {
     expect(html).toContain("نهج المساهمة");
     expect(html).toContain("مدة التسليم المقترحة");
     expect(html).toContain("يُرسل طلب التقديم مباشرة إلى صاحب المشروع");
+    expect(html).toContain("اقترحه");
+    expect(html).toContain("@sara");
+    expect(html).toContain("ولا يعني ملكية العمل أو إسناده أو أولوية الاختيار");
     expect(html).not.toMatch(/محاولات|فحص أهلية|اجتياز|قيد التحقق/);
   });
 });

@@ -32,6 +32,11 @@ export const ROUTES = {
     `/my-projects/${encodeURIComponent(projectId)}/contribution-requests/new`,
   contributionRequest: (requestId: string) =>
     `/contribution-requests/${encodeURIComponent(requestId)}`,
+  proposals: "/proposals",
+  newProposal: (projectId: string) =>
+    `/proposals/new?projectId=${encodeURIComponent(projectId)}`,
+  proposal: (proposalId: string) =>
+    `/proposals/${encodeURIComponent(proposalId)}`,
   application: (applicationId: string) =>
     `/applications/${encodeURIComponent(applicationId)}`,
   settings: "/settings",

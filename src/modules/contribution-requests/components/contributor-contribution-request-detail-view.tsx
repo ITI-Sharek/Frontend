@@ -249,6 +249,21 @@ function RequestOverview({
       <p className="mt-5 whitespace-pre-wrap leading-8 text-muted-foreground">
         {request.description}
       </p>
+      {request.attribution && (
+        <div className="mt-4 rounded-input border border-primary/20 bg-primary/5 p-3 text-sm">
+          <p className="font-semibold text-foreground">
+            اقترحه{" "}
+            <span dir="ltr">
+              {request.attribution.contributorUsername
+                ? `@${request.attribution.contributorUsername}`
+                : request.attribution.contributorName}
+            </span>
+          </p>
+          <p className="mt-1 text-xs leading-6 text-muted-foreground">
+            الإسناد المعنوي يحفظ مصدر الاقتراح، ولا يعني ملكية العمل أو إسناده أو أولوية الاختيار.
+          </p>
+        </div>
+      )}
       <div className="mt-4 flex flex-wrap gap-1.5">
         <span className="text-xs font-semibold text-muted-foreground">
           التقنيات:

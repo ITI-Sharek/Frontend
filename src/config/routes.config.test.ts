@@ -42,6 +42,13 @@ describe("route config", () => {
     );
   });
 
+  it("builds encoded Contribution Proposal routes", () => {
+    expect(ROUTES.newProposal("project 1")).toBe(
+      "/proposals/new?projectId=project%201",
+    );
+    expect(ROUTES.proposal("proposal 1")).toBe("/proposals/proposal%201");
+  });
+
   it("exposes distinct admin destinations for fields and published owners", () => {
     expect(ROUTES.adminProfileFields).toBe("/admin/profile-fields");
     expect(ROUTES.adminProjectOwners).toBe("/admin/project-owners");
