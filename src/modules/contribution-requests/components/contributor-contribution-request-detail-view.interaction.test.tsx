@@ -42,6 +42,7 @@ describe("Contribution Request Application interactions", () => {
     root = createRoot(container);
     vi.clearAllMocks();
     sessionStorage.clear();
+    localStorage.clear();
     mocks.query.mockReturnValue({
       isPending: false,
       isError: false,
@@ -70,7 +71,7 @@ describe("Contribution Request Application interactions", () => {
       root.render(
         <ContributorContributionRequestDetailView
           requestId="request-1"
-          tasksHref="/tasks"
+          requestsHref="/tasks"
           dashboardHref="/dashboard"
           applicationHref={(applicationId) => `/applications/${applicationId}`}
           projectHref={(slug) => `/projects/${slug}`}
@@ -109,7 +110,7 @@ describe("Contribution Request Application interactions", () => {
     expect(secondParams.idempotencyKey).toBe(firstParams.idempotencyKey);
     expect(onApplicationSubmitted).toHaveBeenCalledWith(submitted);
     expect(
-      sessionStorage.getItem("sharek:application-status:request-1"),
+      localStorage.getItem("sharek:application-status:request-1"),
     ).toBe("application-1");
   });
 
@@ -129,9 +130,6 @@ describe("Contribution Request Application interactions", () => {
           data: {
             code,
             message: "Unstable backend copy",
-            ...(code === "ALREADY_APPLIED"
-              ? { metadata: { applicationId: "existing-1" } }
-              : {}),
           },
         },
       });
@@ -139,7 +137,7 @@ describe("Contribution Request Application interactions", () => {
         root.render(
           <ContributorContributionRequestDetailView
             requestId="request-1"
-            tasksHref="/tasks"
+            requestsHref="/tasks"
             dashboardHref="/dashboard"
             applicationHref={(applicationId) =>
               `/applications/${applicationId}`
@@ -164,7 +162,7 @@ describe("Contribution Request Application interactions", () => {
     },
   );
 
-  it("replaces the form with the prior Application when the API reports ALREADY_APPLIED", async () => {
+  it("uses the delivered duplicate error without expecting unsupported metadata", async () => {
     mocks.submit.mutateAsync.mockRejectedValueOnce({
       isAxiosError: true,
       response: {
@@ -172,7 +170,6 @@ describe("Contribution Request Application interactions", () => {
         data: {
           code: "ALREADY_APPLIED",
           message: "Unstable backend copy",
-          metadata: { applicationId: "existing-1" },
         },
       },
     });
@@ -180,7 +177,7 @@ describe("Contribution Request Application interactions", () => {
       root.render(
         <ContributorContributionRequestDetailView
           requestId="request-1"
-          tasksHref="/tasks"
+          requestsHref="/tasks"
           dashboardHref="/dashboard"
           applicationHref={(applicationId) => `/applications/${applicationId}`}
           projectHref={(slug) => `/projects/${slug}`}
@@ -191,14 +188,70 @@ describe("Contribution Request Application interactions", () => {
 
     await fillApproachAndSubmit();
 
-    expect(container.querySelector("form")).toBeNull();
+    expect(container.querySelector("form")).not.toBeNull();
     expect(container.textContent).toContain("لديك طلب تقديم سابق");
+    expect(container.textContent).not.toContain("Unstable backend copy");
+  });
+
+  it("recovers a remembered Application after session storage is cleared", async () => {
+    localStorage.setItem(
+      "sharek:application-status:request-1",
+      "existing-1",
+    );
+    sessionStorage.clear();
+    mocks.applicationQuery.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { ...makeApplication(), id: "existing-1" },
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          requestsHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+        />,
+      );
+    });
+
+    expect(container.querySelector("form")).toBeNull();
     expect(
       container.querySelector('a[href="/applications/existing-1"]'),
     ).not.toBeNull();
+  });
+
+  it("discards a remembered Application that is not authorized for this contributor", async () => {
+    localStorage.setItem(
+      "sharek:application-status:request-1",
+      "another-contributor-application",
+    );
+    mocks.applicationQuery.mockReturnValue({
+      isPending: false,
+      isError: true,
+      error: new Error("Application status unavailable"),
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          requestsHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+        />,
+      );
+    });
+
+    expect(container.querySelector("form")).not.toBeNull();
     expect(
-      sessionStorage.getItem("sharek:application-status:request-1"),
-    ).toBe("existing-1");
+      localStorage.getItem("sharek:application-status:request-1"),
+    ).toBeNull();
   });
 
   it("associates client validation with the invalid field and moves focus", async () => {
@@ -206,7 +259,7 @@ describe("Contribution Request Application interactions", () => {
       root.render(
         <ContributorContributionRequestDetailView
           requestId="request-1"
-          tasksHref="/tasks"
+          requestsHref="/tasks"
           dashboardHref="/dashboard"
           applicationHref={(applicationId) => `/applications/${applicationId}`}
           projectHref={(slug) => `/projects/${slug}`}
@@ -237,7 +290,7 @@ describe("Contribution Request Application interactions", () => {
   });
 
   it("replaces the form with the final withdrawn status for a remembered Application", async () => {
-    sessionStorage.setItem(
+    localStorage.setItem(
       "sharek:application-status:request-1",
       "application-1",
     );
@@ -251,7 +304,7 @@ describe("Contribution Request Application interactions", () => {
       root.render(
         <ContributorContributionRequestDetailView
           requestId="request-1"
-          tasksHref="/tasks"
+          requestsHref="/tasks"
           dashboardHref="/dashboard"
           applicationHref={(applicationId) => `/applications/${applicationId}`}
           projectHref={(slug) => `/projects/${slug}`}

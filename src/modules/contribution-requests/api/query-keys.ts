@@ -29,4 +29,6 @@ export const applicationsQueryKeys = {
   all: APPLICATIONS_ROOT,
   detail: (applicationId: string) =>
     [...APPLICATIONS_ROOT, "detail", applicationId] as const,
+  assessment: (applicationId: string) =>
+    [...APPLICATIONS_ROOT, "assessment", applicationId] as const,
 };

@@ -5,12 +5,11 @@ import {
   FolderGit2,
   Loader2,
 } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
 
-import {
-  getApiErrorCode,
-  getApiErrorMetadataString,
-} from "@/shared/utils/get-api-error-code";
+import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import {
@@ -21,16 +20,18 @@ import {
 import { useSubmitApplicationMutation } from "../api/mutations/use-submit-application-mutation";
 import { useApplicationQuery } from "../api/queries/use-application-query";
 import { useContributionRequestDetailsQuery } from "../api/queries/use-contribution-request-details-query";
+import { useRememberedApplicationId } from "../hooks/use-remembered-application-id";
+import { applicationSubmissionSchema } from "../schemas/application-submission.schema";
+import type {
+  ApplicationSubmissionInput,
+  ApplicationSubmissionValues,
+} from "../schemas/application-submission.schema";
 import {
   APPLICATION_STATUS_COPY,
   APPLICATION_SUBMISSION_ERROR_META,
   getApplicationSubmissionErrorMessage,
   isApplicationApiErrorCode,
 } from "../constants/application-copy";
-import {
-  getRememberedApplicationId,
-  rememberApplicationStatus,
-} from "../utils/application-status-link";
 import {
   CONTRIBUTION_REQUEST_DIFFICULTY_LABELS,
   formatContributionDate,
@@ -45,14 +46,14 @@ import type { ApplicationDto } from "../types/application.types";
 
 export function ContributorContributionRequestDetailView({
   requestId,
-  tasksHref,
+  requestsHref,
   dashboardHref,
   applicationHref,
   projectHref,
   onApplicationSubmitted,
 }: {
   requestId: string;
-  tasksHref: string;
+  requestsHref: string;
   dashboardHref: string;
   applicationHref: (applicationId: string) => string;
   projectHref: (projectSlug: string) => string;
@@ -80,7 +81,7 @@ export function ContributorContributionRequestDetailView({
           description="قد يكون التقديم أُغلق أو أُلغي، أو لم يعد المشروع منشورًا."
           action={
             <Button asChild size="sm">
-              <a href={tasksHref}>عرض الطلبات المتاحة</a>
+              <a href={requestsHref}>عرض الطلبات المتاحة</a>
             </Button>
           }
         />
@@ -92,7 +93,7 @@ export function ContributorContributionRequestDetailView({
   return (
     <PageContainer className="max-w-5xl">
       <a
-        href={tasksHref}
+        href={requestsHref}
         className="inline-flex min-h-8 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowRight className="size-4" aria-hidden="true" />
@@ -103,7 +104,7 @@ export function ContributorContributionRequestDetailView({
       <RequestMetadata request={request} />
       <ApplicationSubmissionGate
         requestId={request.id}
-        tasksHref={tasksHref}
+        requestsHref={requestsHref}
         dashboardHref={dashboardHref}
         applicationHref={applicationHref}
         onSubmitted={onApplicationSubmitted}
@@ -114,24 +115,22 @@ export function ContributorContributionRequestDetailView({
 
 function ApplicationSubmissionGate({
   requestId,
-  tasksHref,
+  requestsHref,
   dashboardHref,
   applicationHref,
   onSubmitted,
 }: {
   requestId: string;
-  tasksHref: string;
+  requestsHref: string;
   dashboardHref: string;
   applicationHref: (applicationId: string) => string;
   onSubmitted: (application: ApplicationDto) => void;
 }) {
-  const [existingApplicationId, setExistingApplicationId] = useState<
-    string | null
-  >(null);
-
-  useEffect(() => {
-    setExistingApplicationId(getRememberedApplicationId(requestId));
-  }, [requestId]);
+  const {
+    applicationId: existingApplicationId,
+    rememberApplicationId,
+    forgetApplicationId,
+  } = useRememberedApplicationId(requestId);
 
   if (existingApplicationId) {
     return (
@@ -139,6 +138,7 @@ function ApplicationSubmissionGate({
         applicationId={existingApplicationId}
         requestId={requestId}
         applicationHref={applicationHref}
+        onInvalidApplication={forgetApplicationId}
       />
     );
   }
@@ -146,11 +146,10 @@ function ApplicationSubmissionGate({
   return (
     <ApplicationSubmissionForm
       requestId={requestId}
-      tasksHref={tasksHref}
+      requestsHref={requestsHref}
       dashboardHref={dashboardHref}
-      applicationHref={applicationHref}
       onSubmitted={onSubmitted}
-      onExistingApplication={setExistingApplicationId}
+      onApplicationRemembered={rememberApplicationId}
     />
   );
 }
@@ -159,12 +158,24 @@ function ExistingApplicationNotice({
   applicationId,
   requestId,
   applicationHref,
+  onInvalidApplication,
 }: {
   applicationId: string;
   requestId: string;
   applicationHref: (applicationId: string) => string;
+  onInvalidApplication: () => void;
 }) {
   const applicationQuery = useApplicationQuery(applicationId);
+  const rememberedApplicationRequestId =
+    applicationQuery.data?.contributionRequestId;
+  const isInvalidApplication =
+    applicationQuery.isError ||
+    (rememberedApplicationRequestId !== undefined &&
+      rememberedApplicationRequestId !== requestId);
+
+  useEffect(() => {
+    if (isInvalidApplication) onInvalidApplication();
+  }, [isInvalidApplication, onInvalidApplication]);
 
   if (applicationQuery.isPending) {
     return (
@@ -175,27 +186,7 @@ function ExistingApplicationNotice({
     );
   }
 
-  if (
-    applicationQuery.isError ||
-    applicationQuery.data.contributionRequestId !== requestId
-  ) {
-    return (
-      <Card className="mt-5 p-5 shadow-none">
-        <h2 className="text-lg font-bold text-foreground">
-          لديك طلب تقديم سابق
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          يمكن إرسال طلب تقديم واحد فقط لكل طلب مساهمة. افتح طلبك السابق
-          لمتابعة حالته.
-        </p>
-        <Button asChild className="mt-4">
-          <a href={applicationHref(applicationId)}>
-            فتح حالة طلب التقديم
-          </a>
-        </Button>
-      </Card>
-    );
-  }
+  if (isInvalidApplication) return null;
 
   const application = applicationQuery.data;
   const statusCopy = APPLICATION_STATUS_COPY[application.status];
@@ -358,63 +349,45 @@ function RequestMetadata({ request }: { request: ContributionRequestDetailDto })
 
 function ApplicationSubmissionForm({
   requestId,
-  tasksHref,
+  requestsHref,
   dashboardHref,
-  applicationHref,
   onSubmitted,
-  onExistingApplication,
+  onApplicationRemembered,
 }: {
   requestId: string;
-  tasksHref: string;
+  requestsHref: string;
   dashboardHref: string;
-  applicationHref: (applicationId: string) => string;
   onSubmitted: (application: ApplicationDto) => void;
-  onExistingApplication: (applicationId: string) => void;
+  onApplicationRemembered: (applicationId: string) => void;
 }) {
   const submitMutation = useSubmitApplicationMutation();
-  const approachRef = useRef<HTMLTextAreaElement>(null);
-  const durationRef = useRef<HTMLInputElement>(null);
   const submissionCommand = useRef<{
     fingerprint: string;
     idempotencyKey: string;
   } | null>(null);
-  const [approach, setApproach] = useState("");
-  const [duration, setDuration] = useState("7");
-  const [approachError, setApproachError] = useState<string | null>(null);
-  const [durationError, setDurationError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ApplicationSubmissionInput, unknown, ApplicationSubmissionValues>(
+    {
+      resolver: zodResolver(applicationSubmissionSchema),
+      defaultValues: {
+        contributionApproach: "",
+        proposedDeliveryDurationDays: "7",
+      },
+      shouldFocusError: true,
+    },
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitErrorCode, setSubmitErrorCode] = useState<string | null>(null);
-  const [existingApplicationId, setExistingApplicationId] = useState<
-    string | null
-  >(null);
 
-  async function submit() {
-    const normalizedApproach = approach.trim();
-    const durationDays = Number(duration);
-    const nextApproachError =
-      normalizedApproach.length < 10 || normalizedApproach.length > 5000
-        ? "اكتب نهج مساهمة من 10 إلى 5000 حرف."
-        : null;
-    const nextDurationError =
-      !Number.isInteger(durationDays) ||
-      durationDays < 1 ||
-      durationDays > 365
-        ? "حدد مدة تسليم كاملة بين يوم واحد و365 يومًا."
-        : null;
-    setApproachError(nextApproachError);
-    setDurationError(nextDurationError);
-    if (nextApproachError) {
-      approachRef.current?.focus();
-      return;
-    }
-    if (nextDurationError) {
-      durationRef.current?.focus();
-      return;
-    }
-
+  async function submit({
+    contributionApproach: normalizedApproach,
+    proposedDeliveryDurationDays: durationDays,
+  }: ApplicationSubmissionValues) {
     setSubmitError(null);
     setSubmitErrorCode(null);
-    setExistingApplicationId(null);
     const fingerprint = JSON.stringify({
       requestId,
       contributionApproach: normalizedApproach,
@@ -436,21 +409,11 @@ function ApplicationSubmissionForm({
         },
       });
       submissionCommand.current = null;
-      rememberApplicationStatus(requestId, application.id);
+      onApplicationRemembered(application.id);
       onSubmitted(application);
     } catch (error) {
       const code = getApiErrorCode(error);
       setSubmitErrorCode(code);
-      if (code === "ALREADY_APPLIED") {
-        const applicationId =
-          getApiErrorMetadataString(error, "applicationId") ??
-          getRememberedApplicationId(requestId);
-        setExistingApplicationId(applicationId);
-        if (applicationId) {
-          rememberApplicationStatus(requestId, applicationId);
-          onExistingApplication(applicationId);
-        }
-      }
       setSubmitError(getApplicationSubmissionErrorMessage(error));
     }
   }
@@ -464,10 +427,7 @@ function ApplicationSubmissionForm({
       </p>
       <form
         className="mt-5 grid gap-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit();
-        }}
+        onSubmit={handleSubmit(submit)}
       >
         <div>
           <label
@@ -477,21 +437,16 @@ function ApplicationSubmissionForm({
             نهج المساهمة
           </label>
           <textarea
-            ref={approachRef}
             id="contribution-approach"
             rows={6}
             required
             minLength={10}
             maxLength={5000}
-            value={approach}
-            aria-invalid={Boolean(approachError)}
-            aria-describedby={`contribution-approach-help${approachError ? " contribution-approach-error" : ""}`}
+            aria-invalid={Boolean(errors.contributionApproach)}
+            aria-describedby={`contribution-approach-help${errors.contributionApproach ? " contribution-approach-error" : ""}`}
             className="mt-2 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             placeholder="اشرح كيف ستنفذ العمل وما الذي ستسلّمه."
-            onChange={(event) => {
-              setApproach(event.target.value);
-              setApproachError(null);
-            }}
+            {...register("contributionApproach")}
           />
           <p
             id="contribution-approach-help"
@@ -499,12 +454,12 @@ function ApplicationSubmissionForm({
           >
             هذا سياق يكتبه المساهم لصاحب المشروع، وليس دليل مهارة موثقًا.
           </p>
-          {approachError && (
+          {errors.contributionApproach && (
             <p
               id="contribution-approach-error"
               className="mt-1 text-sm text-destructive"
             >
-              {approachError}
+              {errors.contributionApproach.message}
             </p>
           )}
         </div>
@@ -516,30 +471,27 @@ function ApplicationSubmissionForm({
             مدة التسليم المقترحة (بالأيام)
           </label>
           <input
-            ref={durationRef}
             id="proposed-delivery-duration"
             type="number"
             inputMode="numeric"
             min={1}
             max={365}
             required
-            value={duration}
-            aria-invalid={Boolean(durationError)}
+            aria-invalid={Boolean(errors.proposedDeliveryDurationDays)}
             aria-describedby={
-              durationError ? "proposed-delivery-duration-error" : undefined
+              errors.proposedDeliveryDurationDays
+                ? "proposed-delivery-duration-error"
+                : undefined
             }
             className="mt-2 min-h-11 w-full rounded-input border border-border bg-input-bg px-4 text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            onChange={(event) => {
-              setDuration(event.target.value);
-              setDurationError(null);
-            }}
+            {...register("proposedDeliveryDurationDays")}
           />
-          {durationError && (
+          {errors.proposedDeliveryDurationDays && (
             <p
               id="proposed-delivery-duration-error"
               className="mt-1 text-sm text-destructive"
             >
-              {durationError}
+              {errors.proposedDeliveryDurationDays.message}
             </p>
           )}
         </div>
@@ -547,13 +499,8 @@ function ApplicationSubmissionForm({
           <SubmissionError
             code={submitErrorCode}
             message={submitError}
-            tasksHref={tasksHref}
+            requestsHref={requestsHref}
             dashboardHref={dashboardHref}
-            existingApplicationHref={
-              existingApplicationId
-                ? applicationHref(existingApplicationId)
-                : null
-            }
           />
         )}
         <div className="flex flex-wrap items-center gap-3">
@@ -574,15 +521,13 @@ function ApplicationSubmissionForm({
 function SubmissionError({
   code,
   message,
-  tasksHref,
+  requestsHref,
   dashboardHref,
-  existingApplicationHref,
 }: {
   code: string | null;
   message: string;
-  tasksHref: string;
+  requestsHref: string;
   dashboardHref: string;
-  existingApplicationHref: string | null;
 }) {
   const recovery = isApplicationApiErrorCode(code)
     ? APPLICATION_SUBMISSION_ERROR_META[code].recovery
@@ -594,19 +539,14 @@ function SubmissionError({
       className="rounded-input border border-destructive/25 bg-destructive/5 p-3"
     >
       <p className="text-sm text-destructive">{message}</p>
-      {recovery === "existing_application" && existingApplicationHref && (
-        <Button asChild variant="outline" size="sm" className="mt-3">
-          <a href={existingApplicationHref}>فتح حالة الطلب السابق</a>
-        </Button>
-      )}
-      {recovery === "existing_application" && !existingApplicationHref && (
+      {recovery === "existing_application" && (
         <p className="mt-2 text-xs text-muted-foreground">
           افتح رابط الحالة من إشعار تأكيد الإرسال السابق.
         </p>
       )}
       {recovery === "available_requests" && (
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <a href={tasksHref}>العودة إلى الطلبات المتاحة</a>
+          <a href={requestsHref}>العودة إلى الطلبات المتاحة</a>
         </Button>
       )}
       {recovery === "account" && (

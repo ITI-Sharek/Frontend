@@ -6,12 +6,15 @@ import {
   acceptApplication,
   declineApplication,
   getApplication,
+  getAdvisoryFit,
   getOwnerApplications,
+  requestAdvisoryFit,
   reportDecisionFeedback,
   submitApplication,
   withdrawApplication,
 } from "./applications.service";
 import type { ApplicationDto } from "../types/application.types";
+import type { AdvisoryFitAssessmentDto } from "../types/advisory-fit.types";
 import type { OwnerDecisionResultDto } from "../types/assignment.types";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
@@ -64,6 +67,32 @@ describe("applications service", () => {
     );
     expect(mockedAxios.get).toHaveBeenCalledWith(
       "/applications/application%201",
+    );
+  });
+
+  it("requests an owner-authorized Advisory Fit with a retry-safe body", async () => {
+    mockedAxios.post.mockResolvedValueOnce({ data: completedAssessment });
+
+    await expect(
+      requestAdvisoryFit({
+        applicationId: "application 1",
+        idempotencyKey: "idem-assessment",
+      }),
+    ).resolves.toEqual(completedAssessment);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/applications/application%201/assessment-requests",
+      { idempotencyKey: "idem-assessment" },
+    );
+  });
+
+  it("loads the owner-only Advisory Fit presentation", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: completedAssessment });
+
+    await expect(getAdvisoryFit("application 1")).resolves.toEqual(
+      completedAssessment,
+    );
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/applications/application%201/assessment",
     );
   });
 
@@ -189,6 +218,29 @@ export const pendingApplication: ApplicationDto = {
   overdue: false,
   ownerDecision: null,
   assignment: null,
+};
+
+const completedAssessment: AdvisoryFitAssessmentDto = {
+  id: "assessment-1",
+  applicationId: "application-1",
+  requestStatus: "COMPLETED",
+  fitBand: "PARTIAL",
+  findings: [
+    {
+      requirementId: "req-1",
+      requirementKind: "REQUIRED",
+      finding: "PARTIALLY_SUPPORTED",
+      confidence: "MEDIUM",
+      citations: ["github:evidence-1"],
+      uncertainty: ["الدليل لا يوضح اختبار معالجة الطوابير."],
+      explanation: "يدعم الدليل جزءًا من المتطلب.",
+    },
+  ],
+  presentedAt: null,
+  requestedAt: "2026-08-02T12:00:00.000Z",
+  completedAt: "2026-08-02T12:00:05.000Z",
+  attempts: 1,
+  retryAvailable: false,
 };
 
 function decisionResult(
