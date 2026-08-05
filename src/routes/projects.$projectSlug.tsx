@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
+import { useCurrentUserQuery } from "@/modules/auth";
 import {
   PublicProjectDetailView,
   getProjectApiErrorMessage,
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/projects/$projectSlug")({
 function PublicProjectDetailsPage() {
   const { projectSlug } = Route.useParams();
   const projectQuery = usePublicProjectBySlugQuery(projectSlug);
+  const currentUserQuery = useCurrentUserQuery();
 
   if (projectQuery.isPending) {
     return (
@@ -51,6 +53,27 @@ function PublicProjectDetailsPage() {
       <PublicProjectDetailView
         project={projectQuery.data}
         exploreHref={ROUTES.publicProjects}
+        proposalAction={
+          currentUserQuery.data?.role === "contributor" &&
+          currentUserQuery.data.status === "active" ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-foreground">
+                  لديك فكرة عمل جديدة لهذا المشروع؟
+                </h2>
+                <p className="mt-1 text-xs leading-6 text-muted-foreground">
+                  أرسلها كمقترح خاص منفصل عن التقديم على طلبات المساهمة المنشورة.
+                </p>
+              </div>
+              <a
+                href={ROUTES.newProposal(projectQuery.data.id)}
+                className="rounded-input bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+              >
+                إرسال مقترح مساهمة
+              </a>
+            </div>
+          ) : null
+        }
       />
     </PublicProjectsShell>
   );

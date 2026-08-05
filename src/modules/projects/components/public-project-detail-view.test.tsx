@@ -73,4 +73,17 @@ describe("PublicProjectDetailView", () => {
     expect(html).toContain("لا يوجد وصف لهذا المشروع بعد");
     expect(html).not.toContain("آخر جلب للبيانات");
   });
+
+  it("renders the route-composed proposal action without coupling project UI to proposals", () => {
+    const html = renderToStaticMarkup(
+      <PublicProjectDetailView
+        project={publicBackedProject}
+        exploreHref="/explore"
+        proposalAction={<a href="/proposals/new?projectId=project-1">إرسال مقترح مساهمة</a>}
+      />,
+    );
+
+    expect(html).toContain("إرسال مقترح مساهمة");
+    expect(html).toContain("/proposals/new?projectId=project-1");
+  });
 });

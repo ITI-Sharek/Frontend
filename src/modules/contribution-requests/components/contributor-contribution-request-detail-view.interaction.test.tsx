@@ -353,6 +353,7 @@ function makeRequest() {
     targetCompletionDate: null,
     reward: null,
     status: "published" as const,
+    attribution: null,
     requirements: [
       {
         id: "required-1",

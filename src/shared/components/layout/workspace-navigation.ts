@@ -9,6 +9,7 @@ import {
   ListTodo,
   MessageCircleQuestion,
   Newspaper,
+  NotebookPen,
   PanelsTopLeft,
   Settings,
   TrendingUp,
@@ -112,6 +113,12 @@ export function getMemberNavigation({
       to: ROUTES.tasks,
       icon: ListTodo,
       active: isActivePath(pathname, ROUTES.tasks),
+    },
+    {
+      label: "مقترحاتي",
+      to: ROUTES.proposals,
+      icon: NotebookPen,
+      active: isActivePath(pathname, ROUTES.proposals),
     },
     discussionsItem,
     {

@@ -162,6 +162,11 @@ export interface ContributionRequestDetailDto
   description: string;
   status: ContributionRequestStatus;
   requirements: RequirementDto[];
+  attribution: {
+    contributorId: string;
+    contributorName: string;
+    contributorUsername: string | null;
+  } | null;
 }
 
 export interface ContributionRequestFeedFiltersDto {
