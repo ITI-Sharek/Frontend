@@ -1,4 +1,5 @@
 import { ArrowRight, ExternalLink } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
@@ -14,6 +15,7 @@ function formatPublishedDate(publishedAt: string): string {
 interface PublicProjectDetailViewProps {
   project: PublicProjectDetailDto;
   exploreHref: string;
+  proposalAction?: ReactNode;
 }
 
 /**
@@ -26,6 +28,7 @@ interface PublicProjectDetailViewProps {
 export function PublicProjectDetailView({
   project,
   exploreHref,
+  proposalAction,
 }: PublicProjectDetailViewProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
@@ -95,6 +98,12 @@ export function PublicProjectDetailView({
           </div>
         )}
       </header>
+
+      {proposalAction && (
+        <section className="rounded-card border border-primary/25 bg-primary/5 p-5">
+          {proposalAction}
+        </section>
+      )}
 
       <section className="rounded-card border border-border bg-card p-6">
         <h2 className="text-lg font-bold text-foreground">نظرة عامة</h2>

@@ -43,6 +43,9 @@ describe("workspace navigation", () => {
     expect(navigation.find((item) => item.to === ROUTES.tasks)?.label).toBe(
       "طلبات المساهمة",
     );
+    expect(navigation.find((item) => item.to === ROUTES.proposals)?.label).toBe(
+      "مقترحاتي",
+    );
   });
 
   it("keeps admin notifications inside the admin shell", () => {

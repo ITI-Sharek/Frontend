@@ -21,6 +21,7 @@ import {
   usePublishProjectMutation,
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
+import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
 import type { ProjectManualOverrideField } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -180,6 +181,9 @@ function OwnerProjectManagement({
         }
         recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
       />
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 md:px-6">
+        <OwnerProposalWorkspace projectId={projectId} />
+      </div>
     </>
   );
 }

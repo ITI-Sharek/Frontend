@@ -198,6 +198,11 @@ describe("contribution requests service", () => {
       reward: { amount: 120, currency: "USD" },
       description: "Ship an in-app notification panel with a live counter.",
       status: "published",
+      attribution: {
+        contributorId: "contributor-1",
+        contributorName: "Sara Ahmed",
+        contributorUsername: "sara",
+      },
       requirements: [
         { id: "req-1", text: "React", classification: "required" },
         { id: "req-2", text: "WebSocket", classification: "preferred" },
