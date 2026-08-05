@@ -15,6 +15,8 @@ const mocks = vi.hoisted(() => ({
   query: vi.fn(),
   accept: { isPending: false, mutateAsync: vi.fn() },
   decline: { isPending: false, mutateAsync: vi.fn() },
+  assessmentQuery: vi.fn(),
+  assessmentRequest: { isPending: false, mutateAsync: vi.fn() },
 }));
 
 vi.mock("../api/queries/use-owner-applications-query", () => ({
@@ -29,6 +31,14 @@ vi.mock("../api/mutations/use-decline-application-mutation", () => ({
   useDeclineApplicationMutation: () => mocks.decline,
 }));
 
+vi.mock("../api/queries/use-advisory-fit-query", () => ({
+  useAdvisoryFitQuery: mocks.assessmentQuery,
+}));
+
+vi.mock("../api/mutations/use-request-advisory-fit-mutation", () => ({
+  useRequestAdvisoryFitMutation: () => mocks.assessmentRequest,
+}));
+
 vi.mock("@/shared/utils/idempotency-key", () => ({
   createIdempotencyKey: () => "decision-idempotency-key",
 }));
@@ -40,6 +50,23 @@ describe("owner Application review queue", () => {
       isPending: false,
       isError: false,
       data: [application("first", false), application("second", true)],
+      refetch: vi.fn(),
+    });
+    mocks.assessmentQuery.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: {
+        id: null,
+        applicationId: "application-1",
+        requestStatus: "NOT_REQUESTED",
+        fitBand: null,
+        findings: [],
+        presentedAt: null,
+        requestedAt: null,
+        completedAt: null,
+        attempts: 0,
+        retryAvailable: false,
+      },
       refetch: vi.fn(),
     });
   });
@@ -58,6 +85,7 @@ describe("owner Application review queue", () => {
     expect(html).toContain("ملخص الأدلة المثبت وقت التقديم");
     expect(html).toContain("حدود الدليل");
     expect(html).toContain("تحتاج قرارًا الآن");
+    expect(html).toContain("طلب تقييم استشاري");
   });
 
   it("keeps both human decisions available without assessment data", () => {

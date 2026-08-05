@@ -13,6 +13,7 @@ import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
 import { AcceptApplicationDialog } from "./accept-application-dialog";
+import { AdvisoryFitAssessment } from "./advisory-fit-assessment";
 import { DeclineApplicationDialog } from "./decline-application-dialog";
 import { useAcceptApplicationMutation } from "../api/mutations/use-accept-application-mutation";
 import { useDeclineApplicationMutation } from "../api/mutations/use-decline-application-mutation";
@@ -364,6 +365,8 @@ function ApplicationReviewRecord({
           </ul>
         )}
       </div>
+
+      <AdvisoryFitAssessment application={application} />
 
       <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-xl text-xs leading-5 text-muted-foreground">

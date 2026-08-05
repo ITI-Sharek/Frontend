@@ -15,7 +15,7 @@ const DIFFICULTIES: ContributionRequestDifficulty[] = [
 ];
 
 /** Filters live in the URL (shareable, back-navigable) — same as /explore. */
-function validateSearch(
+export function validateContributionRequestSearch(
   search: Record<string, unknown>,
 ): ContributionRequestFeedFiltersDto {
   const filters: ContributionRequestFeedFiltersDto = {};
@@ -39,8 +39,14 @@ function validateSearch(
   ) {
     filters.difficulty = search.difficulty as ContributionRequestDifficulty;
   }
-  if (search.hasReward === true || search.hasReward === "true") {
-    filters.hasReward = true;
+  if (
+    search.hasReward === true ||
+    search.hasReward === "true" ||
+    search.hasReward === false ||
+    search.hasReward === "false"
+  ) {
+    filters.hasReward =
+      search.hasReward === true || search.hasReward === "true";
   }
   return filters;
 }
@@ -48,11 +54,11 @@ function validateSearch(
 export const Route = createFileRoute("/_appLayout/tasks/")({
   beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "طلبات المساهمة | Sharek" }] }),
-  validateSearch,
-  component: TasksPage,
+  validateSearch: validateContributionRequestSearch,
+  component: ContributionRequestsPage,
 });
 
-function TasksPage() {
+function ContributionRequestsPage() {
   const filters = Route.useSearch();
   const navigate = Route.useNavigate();
 

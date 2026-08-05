@@ -209,18 +209,37 @@ function ContributionRequestFilters({
           )}
         </div>
       </fieldset>
-      <label className="mt-4 flex min-h-8 items-center gap-2 border-t border-border pt-4 text-sm text-muted-foreground">
-        <input
-          type="checkbox"
-          checked={filters.hasReward === true}
-          onChange={(event) =>
-            onChange({
-              hasReward: event.target.checked ? true : undefined,
-            })
+      <fieldset className="mt-4 border-t border-border pt-4">
+        <legend className="text-sm font-semibold text-foreground">
+          المكافأة
+        </legend>
+        <select
+          aria-label="المكافأة"
+          value={
+            filters.hasReward === undefined
+              ? ""
+              : filters.hasReward
+                ? "with-reward"
+                : "without-reward"
           }
-        />
-        بمكافأة معلنة فقط
-      </label>
+          className="mt-2 min-h-11 w-full rounded-input border border-border bg-background px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          onChange={(event) => {
+            const value = event.target.value;
+            onChange({
+              hasReward:
+                value === "with-reward"
+                  ? true
+                  : value === "without-reward"
+                    ? false
+                    : undefined,
+            });
+          }}
+        >
+          <option value="">كل الطلبات</option>
+          <option value="with-reward">بمكافأة معلنة</option>
+          <option value="without-reward">بدون مكافأة معلنة</option>
+        </select>
+      </fieldset>
       <Button
         type="button"
         variant="outline"

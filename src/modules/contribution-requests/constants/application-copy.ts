@@ -24,6 +24,12 @@ const ERROR_COPY: Record<string, string> = {
     "تعذر تأمين القرار لإعادة المحاولة. أعد فتح الإجراء وحاول مرة أخرى.",
   APPLICATION_IDEMPOTENCY_CONFLICT:
     "تعارض هذا القرار مع محاولة سابقة. راجع الحالة الحالية قبل المحاولة.",
+  ASSESSMENT_ALREADY_ACTIVE:
+    "يوجد تقييم قيد المعالجة بالفعل. حدّث الحالة الحالية.",
+  ASSESSMENT_RETRY_IN_PROGRESS:
+    "بدأت إعادة التقييم بالفعل. حدّث الحالة الحالية.",
+  ASSESSMENT_RETRY_LIMIT_REACHED:
+    "استُخدمت محاولة إعادة التقييم المتاحة. يمكنك متابعة قرارك دون تقييم.",
   OWNER_DECISION_REPORT_ALREADY_EXISTS:
     "أُرسل بلاغ عن هذه الملاحظات من قبل، وهو محفوظ للمراجعة.",
 };
