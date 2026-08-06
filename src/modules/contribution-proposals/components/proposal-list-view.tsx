@@ -1,4 +1,4 @@
-import { FilePlus2, RotateCcw } from "lucide-react";
+import { FilePlus2, Loader2, RotateCcw } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -17,12 +17,20 @@ export function ProposalListView({
   isLoading,
   error,
   onRetry,
+  hasNextPage = false,
+  isLoadingMore = false,
+  onLoadMore,
+  loadMoreError = null,
 }: {
   proposals: ContributionProposalSummaryDto[];
   role: "owner" | "contributor";
   isLoading: boolean;
   error: string | null;
   onRetry: () => void;
+  hasNextPage?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  loadMoreError?: string | null;
 }) {
   if (isLoading) {
     return <p role="status" className="text-sm text-muted-foreground">جارٍ تحميل المقترحات…</p>;
@@ -82,6 +90,25 @@ export function ProposalListView({
           </a>
         );
       })}
+
+      {loadMoreError && (
+        <p role="alert" className="text-sm text-destructive">{loadMoreError}</p>
+      )}
+
+      {hasNextPage && onLoadMore && (
+        <div className="mt-4 flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isLoadingMore}
+            onClick={onLoadMore}
+          >
+            {isLoadingMore && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+            تحميل المزيد
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,7 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { ProposalDetailView } from "./proposal-detail-view";
 import { ProposalEditor } from "./proposal-editor";
 import { ProposalActionDialog } from "./proposal-action-dialog";
-import type { ContributionProposalDto } from "../types/contribution-proposal.types";
+import { ProposalListView } from "./proposal-list-view";
+import type {
+  ContributionProposalDto,
+  ContributionProposalSummaryDto,
+} from "../types/contribution-proposal.types";
 
 describe("Contribution Proposal UI contract", () => {
   it("requires the attribution and assignment disclosure without application quota language", () => {
@@ -116,7 +120,70 @@ describe("Contribution Proposal UI contract", () => {
     expect(html).toContain('minLength="5"');
     expect(html).toContain('maxLength="500"');
   });
+
+  it("offers a load-more control only while the keyset cursor has another page", () => {
+    const withMore = renderToStaticMarkup(
+      <ProposalListView
+        proposals={[makeProposalSummary()]}
+        role="owner"
+        isLoading={false}
+        error={null}
+        onRetry={vi.fn()}
+        hasNextPage
+        isLoadingMore={false}
+        onLoadMore={vi.fn()}
+      />,
+    );
+    const lastPage = renderToStaticMarkup(
+      <ProposalListView
+        proposals={[makeProposalSummary()]}
+        role="owner"
+        isLoading={false}
+        error={null}
+        onRetry={vi.fn()}
+        hasNextPage={false}
+        isLoadingMore={false}
+        onLoadMore={vi.fn()}
+      />,
+    );
+
+    expect(withMore).toContain("تحميل المزيد");
+    expect(lastPage).not.toContain("تحميل المزيد");
+  });
+
+  it("keeps the loaded list visible when only the next page fails", () => {
+    const html = renderToStaticMarkup(
+      <ProposalListView
+        proposals={[makeProposalSummary()]}
+        role="contributor"
+        isLoading={false}
+        error={null}
+        loadMoreError="تعذر تحميل المزيد."
+        onRetry={vi.fn()}
+        hasNextPage
+        isLoadingMore={false}
+        onLoadMore={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("تعذر تحميل المزيد.");
+    expect(html).toContain("مقترح منشور");
+  });
 });
+
+function makeProposalSummary(): ContributionProposalSummaryDto {
+  return {
+    id: "proposal-1",
+    projectId: "project-1",
+    proposerId: "contributor-1",
+    status: "PENDING",
+    currentVersion: 1,
+    title: "مقترح منشور",
+    revisionRequestedAt: null,
+    createdAt: "2026-08-01T10:00:00.000Z",
+    updatedAt: "2026-08-01T10:00:00.000Z",
+  };
+}
 
 function makeProposal(): ContributionProposalDto {
   return {

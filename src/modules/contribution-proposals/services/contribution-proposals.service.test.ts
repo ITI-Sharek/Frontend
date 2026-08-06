@@ -52,14 +52,39 @@ describe("Contribution Proposal service contract", () => {
     await listProjectContributionProposals("project 1");
     await getContributionProposal("proposal 1");
 
-    expect(mockedAxios.get).toHaveBeenNthCalledWith(1, "/contribution-proposals/mine");
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      1,
+      "/contribution-proposals/mine",
+      { params: {} },
+    );
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       2,
       "/contribution-proposals/for-project/project%201",
+      { params: {} },
     );
     expect(mockedAxios.get).toHaveBeenNthCalledWith(
       3,
       "/contribution-proposals/proposal%201",
+    );
+  });
+
+  it("forwards the keyset cursor to both paginated list endpoints", async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: { proposals: [], pageInfo: { nextCursor: null, hasNextPage: false } },
+    });
+
+    await listMyContributionProposals({ cursor: "cursor-token" });
+    await listProjectContributionProposals("project 1", { cursor: "cursor-token" });
+
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      1,
+      "/contribution-proposals/mine",
+      { params: { cursor: "cursor-token" } },
+    );
+    expect(mockedAxios.get).toHaveBeenNthCalledWith(
+      2,
+      "/contribution-proposals/for-project/project%201",
+      { params: { cursor: "cursor-token" } },
     );
   });
 
