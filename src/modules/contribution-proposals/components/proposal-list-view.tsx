@@ -9,6 +9,7 @@ import { StatusChip } from "@/shared/components/data-display/status-chip";
 import type { ContributionProposalSummaryDto } from "../types/contribution-proposal.types";
 import {
   formatProposalDate,
+  formatProposerLabel,
   PROPOSAL_STATUS_META,
 } from "../utils/proposal-presenter";
 
@@ -77,6 +78,11 @@ export function ProposalListView({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-foreground">{proposal.title}</h3>
+                {role === "owner" && (
+                  <p className="mt-1 truncate text-xs font-medium text-foreground">
+                    من {formatProposerLabel(proposal.proposerName, proposal.proposerUsername)}
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   النسخة {proposal.currentVersion} · {formatProposalDate(proposal.updatedAt)}
                 </p>

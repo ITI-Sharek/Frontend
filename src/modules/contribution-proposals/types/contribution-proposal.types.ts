@@ -31,6 +31,10 @@ export interface ContributionProposalDto {
   id: string;
   projectId: string;
   proposerId: string;
+  /** `firstName lastName`, trimmed. */
+  proposerName: string;
+  /** Null until the contributor has chosen a username. */
+  proposerUsername: string | null;
   status: ContributionProposalStatus;
   currentVersion: number;
   disclosure: {
@@ -54,6 +58,10 @@ export interface ContributionProposalSummaryDto {
   id: string;
   projectId: string;
   proposerId: string;
+  /** `firstName lastName`, trimmed. */
+  proposerName: string;
+  /** Null until the contributor has chosen a username. */
+  proposerUsername: string | null;
   status: ContributionProposalStatus;
   currentVersion: number;
   title: string;
