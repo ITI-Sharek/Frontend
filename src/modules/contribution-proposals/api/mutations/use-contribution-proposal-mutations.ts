@@ -74,10 +74,14 @@ export function useSetContributionProposalIntakeMutation() {
   return useMutation({
     mutationFn: ({ projectId, enabled }: { projectId: string; enabled: boolean }) =>
       setContributionProposalIntake(projectId, enabled),
-    onSuccess: ({ projectId }) => {
-      void queryClient.invalidateQueries({
-        queryKey: contributionProposalKeys.project(projectId),
-      });
+    // The PUT returns the new state, so seed it directly. Invalidating the
+    // proposals list instead -- as this did -- refetches every loaded page of
+    // an infinite query on a toggle click, for data the toggle never changes.
+    onSuccess: (intake) => {
+      queryClient.setQueryData(
+        contributionProposalKeys.intake(intake.projectId),
+        intake,
+      );
     },
   });
 }

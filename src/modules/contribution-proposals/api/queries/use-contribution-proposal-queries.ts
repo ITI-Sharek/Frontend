@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import {
   getContributionProposal,
+  getContributionProposalIntake,
   listMyContributionProposals,
   listProjectContributionProposals,
 } from "../../services/contribution-proposals.service";
@@ -37,5 +38,14 @@ export function useContributionProposalQuery(proposalId: string) {
     queryKey: contributionProposalKeys.detail(proposalId),
     queryFn: () => getContributionProposal(proposalId),
     enabled: proposalId.length > 0,
+  });
+}
+
+/** Owner-only intake state, so the toggle renders the server's position. */
+export function useContributionProposalIntakeQuery(projectId: string) {
+  return useQuery({
+    queryKey: contributionProposalKeys.intake(projectId),
+    queryFn: () => getContributionProposalIntake(projectId),
+    enabled: projectId.length > 0,
   });
 }
