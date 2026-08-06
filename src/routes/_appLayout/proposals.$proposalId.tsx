@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { CircleAlert, RotateCcw } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
@@ -18,6 +19,11 @@ import type {
   ContributionProposalFields,
   ProposalDetailAction,
 } from "@/modules/contribution-proposals";
+import { Button } from "@/shared/components/ui/button";
+import {
+  PageContainer,
+  PageFeedback,
+} from "@/shared/components/layout/page-layout";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
 import { invalidateProposalAcceptanceSideEffects } from "./proposals.helpers";
@@ -58,12 +64,32 @@ function ProposalDetailsPage() {
     return <p role="status" className="p-8 text-center text-sm text-muted-foreground">جارٍ تحميل المقترح…</p>;
   }
 
-  if (query.isError || !currentUser || currentUser.role === "admin") {
+  // A failed load and "you are not a party to this proposal" used to share one
+  // dead-end screen. Only the first is recoverable, and it was the one with no
+  // way out short of reloading the page.
+  if (query.isError) {
+    return (
+      <PageContainer>
+        <PageFeedback
+          icon={CircleAlert}
+          title="تعذر تحميل المقترح"
+          description={getProposalErrorMessage(query.error)}
+          action={
+            <Button size="sm" onClick={() => void query.refetch()}>
+              <RotateCcw className="size-4" aria-hidden="true" /> إعادة المحاولة
+            </Button>
+          }
+        />
+      </PageContainer>
+    );
+  }
+
+  if (!currentUser || currentUser.role === "admin") {
     return (
       <div className="mx-auto max-w-xl px-4 py-12 text-center">
         <h1 className="text-xl font-bold text-foreground">المقترح غير متاح</h1>
         <p role="alert" className="mt-3 text-sm text-destructive">
-          {query.isError ? getProposalErrorMessage(query.error) : "هذا المسار مخصص لأطراف المقترح."}
+          هذا المسار مخصص لأطراف المقترح.
         </p>
       </div>
     );
