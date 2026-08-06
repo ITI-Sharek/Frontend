@@ -58,12 +58,26 @@ export async function requestAdvisoryFit({
   return data;
 }
 
-/** Owner-only assessment presentation; the backend records first presentation. */
+/** Owner-only assessment read. Pure: safe to prefetch, retry, and poll. */
 export async function getAdvisoryFit(
   applicationId: string,
 ): Promise<AdvisoryFitAssessmentDto> {
   const { data } = await axiosInstance.get<AdvisoryFitAssessmentDto>(
     `/applications/${encodeURIComponent(applicationId)}/assessment`,
+  );
+  return data;
+}
+
+/**
+ * Records the owner's first presentation of a completed assessment. Separate
+ * from the read above on purpose, so that a prefetch or a poll cannot claim the
+ * owner has seen the result. Safe to replay.
+ */
+export async function presentAdvisoryFit(
+  applicationId: string,
+): Promise<AdvisoryFitAssessmentDto> {
+  const { data } = await axiosInstance.post<AdvisoryFitAssessmentDto>(
+    `/applications/${encodeURIComponent(applicationId)}/assessment/presentations`,
   );
   return data;
 }

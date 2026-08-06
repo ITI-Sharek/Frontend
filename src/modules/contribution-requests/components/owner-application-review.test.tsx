@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   accept: { isPending: false, mutateAsync: vi.fn() },
   decline: { isPending: false, mutateAsync: vi.fn() },
   assessmentQuery: vi.fn(),
+  assessmentPresent: { mutate: vi.fn(), isPending: false },
   assessmentRequest: { isPending: false, mutateAsync: vi.fn() },
 }));
 
@@ -37,6 +38,10 @@ vi.mock("../api/queries/use-advisory-fit-query", () => ({
 
 vi.mock("../api/mutations/use-request-advisory-fit-mutation", () => ({
   useRequestAdvisoryFitMutation: () => mocks.assessmentRequest,
+}));
+
+vi.mock("../api/mutations/use-present-advisory-fit-mutation", () => ({
+  usePresentAdvisoryFitMutation: () => mocks.assessmentPresent,
 }));
 
 vi.mock("@/shared/utils/idempotency-key", () => ({
