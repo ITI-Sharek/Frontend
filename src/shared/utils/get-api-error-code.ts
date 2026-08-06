@@ -27,3 +27,16 @@ export function getApiErrorMetadataString(
   const value = getApiErrorMetadata(error)?.[key];
   return typeof value === "string" && value !== "" ? value : null;
 }
+
+/**
+ * Numeric sibling of `getApiErrorMetadataString`. Needed because the backend
+ * sends numeric metadata as numbers, not strings — the string getter returns
+ * null for those, so reaching for it silently drops the detail.
+ */
+export function getApiErrorMetadataNumber(
+  error: unknown,
+  key: string,
+): number | null {
+  const value = getApiErrorMetadata(error)?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}

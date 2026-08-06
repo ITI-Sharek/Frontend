@@ -34,12 +34,29 @@ export function ProposalActionDialog({
   const descriptionId = useId();
   const fieldId = useId();
 
+  // Moving focus and restoring it belongs in its own effect. The keydown
+  // effect below depends on `isSubmitting` and `onCancel`, and at the call site
+  // `onCancel` is a fresh arrow and `field` a fresh object on every parent
+  // render — so a combined effect re-ran constantly and re-fired focus(),
+  // yanking the caret out of the textarea mid-submit.
+  const hasField = field !== undefined;
   useEffect(() => {
     if (!isOpen) return;
-    const focusTarget = field
+    const opener = document.activeElement as HTMLElement | null;
+    const focusTarget = hasField
       ? document.getElementById(fieldId)
       : dialogRef.current?.querySelector<HTMLElement>("button");
     focusTarget?.focus();
+
+    // The dialog is conditionally mounted, so it closes by unmounting rather
+    // than by isOpen flipping — cleanup is the only place restore can happen.
+    return () => {
+      if (opener?.isConnected) opener.focus();
+    };
+  }, [fieldId, hasField, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !isSubmitting) onCancel();
@@ -61,7 +78,7 @@ export function ProposalActionDialog({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [field, fieldId, isOpen, isSubmitting, onCancel]);
+  }, [isOpen, isSubmitting, onCancel]);
 
   if (!isOpen) return null;
 
