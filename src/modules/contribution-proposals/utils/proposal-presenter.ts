@@ -65,3 +65,17 @@ export function formatProposalDate(value: string): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Owner-facing label for whoever sent a proposal. The username is optional on
+ * the contract, so it is appended only when present rather than rendering a
+ * bare "@".
+ */
+export function formatProposerLabel(
+  proposerName: string,
+  proposerUsername: string | null,
+): string {
+  return proposerUsername
+    ? `${proposerName} · @${proposerUsername}`
+    : proposerName;
+}

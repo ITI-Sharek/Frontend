@@ -15,6 +15,7 @@ import type {
 } from "../types/contribution-proposal.types";
 import {
   formatProposalDate,
+  formatProposerLabel,
   PROPOSAL_STATUS_META,
   RESULTING_REQUEST_COPY,
 } from "../utils/proposal-presenter";
@@ -78,6 +79,11 @@ export function ProposalDetailView({
             <h1 className="mt-1 text-xl font-bold text-foreground">
               {latest?.title ?? "مقترح بدون نسخة متاحة"}
             </h1>
+            {role === "owner" && (
+              <p className="mt-1 text-xs font-medium text-foreground">
+                من {formatProposerLabel(proposal.proposerName, proposal.proposerUsername)}
+              </p>
+            )}
             <p className="mt-1 text-xs text-muted-foreground">
               النسخة الحالية {proposal.currentVersion} · أُنشئ {formatProposalDate(proposal.createdAt)}
             </p>
