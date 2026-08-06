@@ -3,6 +3,7 @@ import type {
   ContributorFieldDto,
   ContributorProfileDto,
 } from "../types/contributor-profile.types";
+import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
 export interface UpdateProfileDetailsPayload {
@@ -17,11 +18,7 @@ function normalizeProfileAssetUrls(
   profile: ContributorProfileDto,
 ): ContributorProfileDto {
   if (!profile.avatarUrl?.startsWith("/")) return profile;
-  const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:3000").replace(
-    /\/+$/,
-    "",
-  );
-  return { ...profile, avatarUrl: `${apiUrl}${profile.avatarUrl}` };
+  return { ...profile, avatarUrl: `${API_BASE_URL}${profile.avatarUrl}` };
 }
 
 export async function updateContributorProfileDetails(

@@ -3,6 +3,7 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 import type {
   ContributionProposalDto,
   ContributionProposalListDto,
+  ContributionProposalListParams,
   ContributionProposalMisuseReportDto,
   ProposalCommandPayload,
   ProposalIntakeDto,
@@ -21,18 +22,23 @@ export async function submitContributionProposal(
   return data;
 }
 
-export async function listMyContributionProposals(): Promise<ContributionProposalListDto> {
+export async function listMyContributionProposals(
+  params: ContributionProposalListParams = {},
+): Promise<ContributionProposalListDto> {
   const { data } = await axiosInstance.get<ContributionProposalListDto>(
     "/contribution-proposals/mine",
+    { params },
   );
   return data;
 }
 
 export async function listProjectContributionProposals(
   projectId: string,
+  params: ContributionProposalListParams = {},
 ): Promise<ContributionProposalListDto> {
   const { data } = await axiosInstance.get<ContributionProposalListDto>(
     `/contribution-proposals/for-project/${encodeURIComponent(projectId)}`,
+    { params },
   );
   return data;
 }

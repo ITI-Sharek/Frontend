@@ -8,6 +8,12 @@ import { ProposalListView } from "./proposal-list-view";
 
 export function OwnerProposalWorkspace({ projectId }: { projectId: string }) {
   const query = useProjectContributionProposalsQuery(projectId);
+  const proposals = query.data?.pages.flatMap((page) => page.proposals) ?? [];
+  // A failed *next* page keeps `data` populated, so route it to the inline
+  // load-more error instead of the terminal state that replaces the whole list.
+  const hasLoadedAnyPage = query.data !== undefined;
+  const message = query.isError ? getProposalErrorMessage(query.error) : null;
+
   return (
     <Card>
       <div className="mb-4 flex items-start gap-3">
@@ -22,11 +28,15 @@ export function OwnerProposalWorkspace({ projectId }: { projectId: string }) {
         </div>
       </div>
       <ProposalListView
-        proposals={query.data?.proposals ?? []}
+        proposals={proposals}
         role="owner"
         isLoading={query.isPending}
-        error={query.isError ? getProposalErrorMessage(query.error) : null}
+        error={hasLoadedAnyPage ? null : message}
+        loadMoreError={hasLoadedAnyPage ? message : null}
         onRetry={() => void query.refetch()}
+        hasNextPage={query.hasNextPage}
+        isLoadingMore={query.isFetchingNextPage}
+        onLoadMore={() => void query.fetchNextPage()}
       />
     </Card>
   );

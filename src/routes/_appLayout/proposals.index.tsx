@@ -15,6 +15,11 @@ export const Route = createFileRoute("/_appLayout/proposals/")({
 
 function MyProposalsPage() {
   const query = useMyContributionProposalsQuery();
+  const proposals = query.data?.pages.flatMap((page) => page.proposals) ?? [];
+  // A failed *next* page keeps `data` populated, so route it to the inline
+  // load-more error instead of the terminal state that replaces the whole list.
+  const hasLoadedAnyPage = query.data !== undefined;
+  const message = query.isError ? getProposalErrorMessage(query.error) : null;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 md:px-6">
@@ -25,11 +30,15 @@ function MyProposalsPage() {
         </p>
       </header>
       <ProposalListView
-        proposals={query.data?.proposals ?? []}
+        proposals={proposals}
         role="contributor"
         isLoading={query.isPending}
-        error={query.isError ? getProposalErrorMessage(query.error) : null}
+        error={hasLoadedAnyPage ? null : message}
+        loadMoreError={hasLoadedAnyPage ? message : null}
         onRetry={() => void query.refetch()}
+        hasNextPage={query.hasNextPage}
+        isLoadingMore={query.isFetchingNextPage}
+        onLoadMore={() => void query.fetchNextPage()}
       />
     </div>
   );
