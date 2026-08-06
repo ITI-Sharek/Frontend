@@ -6,6 +6,7 @@ export const ROUTES = {
   publicProjects: "/projects",
   onboarding: "/onboarding",
   tasks: "/tasks",
+  task: (taskId: string) => `/tasks/${encodeURIComponent(taskId)}`,
   notifications: "/notifications",
   discussions: "/discussions",
   discussion: (postId: string) => `/discussions/${encodeURIComponent(postId)}`,
@@ -33,8 +34,13 @@ export const ROUTES = {
   contributionRequest: (requestId: string) =>
     `/contribution-requests/${encodeURIComponent(requestId)}`,
   proposals: "/proposals",
-  newProposal: (projectId: string) =>
-    `/proposals/new?projectId=${encodeURIComponent(projectId)}`,
+  /**
+   * Pathname only. `/proposals/new` takes `projectId` as a validated search
+   * param, which a `<Link>` must pass via `search={{ projectId }}` — a query
+   * string embedded in `to` is treated as part of the path and never reaches
+   * the route's search validation.
+   */
+  newProposal: "/proposals/new",
   proposal: (proposalId: string) =>
     `/proposals/${encodeURIComponent(proposalId)}`,
   application: (applicationId: string) =>

@@ -43,10 +43,14 @@ describe("route config", () => {
   });
 
   it("builds encoded Contribution Proposal routes", () => {
-    expect(ROUTES.newProposal("project 1")).toBe(
-      "/proposals/new?projectId=project%201",
-    );
+    // newProposal is a bare pathname: /proposals/new validates projectId as a
+    // search param, which a Link must pass via `search`, not inside `to`.
+    expect(ROUTES.newProposal).toBe("/proposals/new");
     expect(ROUTES.proposal("proposal 1")).toBe("/proposals/proposal%201");
+  });
+
+  it("builds an encoded public Contribution Request route", () => {
+    expect(ROUTES.task("request 1")).toBe("/tasks/request%201");
   });
 
   it("exposes distinct admin destinations for fields and published owners", () => {
