@@ -1,6 +1,9 @@
 import { isAxiosError } from "axios";
 
-import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
+import {
+  getApiErrorCode,
+  getApiErrorMetadataNumber,
+} from "@/shared/utils/get-api-error-code";
 
 const ERROR_COPY: Record<string, string> = {
   PROPOSAL_PROJECT_NOT_PUBLISHED:
@@ -28,6 +31,15 @@ const ERROR_COPY: Record<string, string> = {
 
 export function getProposalErrorMessage(error: unknown): string {
   const code = getApiErrorCode(error);
+  // The backend sends the limit it enforced; telling the contributor the
+  // number is more useful than telling them a limit exists. Falls through to
+  // the static copy when the server does not supply it.
+  if (code === "PROPOSAL_RATE_LIMITED") {
+    const dailyLimit = getApiErrorMetadataNumber(error, "dailyLimit");
+    if (dailyLimit !== null) {
+      return `وصلت إلى الحد اليومي لمقترحات المساهمة (${dailyLimit} مقترحات في اليوم). حاول في يوم آخر.`;
+    }
+  }
   if (code && ERROR_COPY[code]) return ERROR_COPY[code];
   if (isAxiosError(error) && error.response?.status === 401) {
     return "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.";
