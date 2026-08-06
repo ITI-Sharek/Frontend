@@ -1,5 +1,7 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowRight, Lightbulb } from "lucide-react";
 
+import { ROUTES } from "@/config/routes.config";
 import { Card } from "@/shared/components/ui/card";
 
 import { ProposalEditor } from "./proposal-editor";
@@ -18,9 +20,9 @@ export function ProposalSubmissionView({
 }) {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6">
-      <a href={`/projects`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <Link to={ROUTES.publicProjects} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowRight className="size-4" /> العودة إلى المشاريع
-      </a>
+      </Link>
       <header className="mt-5">
         <div className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">

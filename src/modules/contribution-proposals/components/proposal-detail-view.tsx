@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Flag, History, Send, UserRoundCheck } from "lucide-react";
 import { useState } from "react";
 
@@ -106,16 +107,16 @@ export function ProposalDetailView({
               </p>
               {proposal.resultingContributionRequestId &&
                 (role === "owner" || proposal.resultingContributionRequestStatus === "PUBLISHED") && (
-                  <a
+                  <Link
                     className="mt-3 inline-flex text-sm font-semibold text-primary"
-                    href={
+                    to={
                       role === "owner"
                         ? ROUTES.contributionRequest(proposal.resultingContributionRequestId)
-                        : `${ROUTES.tasks}/${encodeURIComponent(proposal.resultingContributionRequestId)}`
+                        : ROUTES.task(proposal.resultingContributionRequestId)
                     }
                   >
                     فتح طلب المساهمة
-                  </a>
+                  </Link>
                 )}
             </div>
           </div>
