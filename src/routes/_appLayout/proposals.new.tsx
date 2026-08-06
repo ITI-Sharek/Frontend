@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -36,9 +36,9 @@ function NewProposalPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           يبدأ المقترح من الصفحة العامة لمشروع منشور يقبل المقترحات.
         </p>
-        <a className="mt-4 inline-flex text-sm font-semibold text-primary" href={ROUTES.publicProjects}>
+        <Link className="mt-4 inline-flex text-sm font-semibold text-primary" to={ROUTES.publicProjects}>
           استعراض المشاريع
-        </a>
+        </Link>
       </div>
     );
   }

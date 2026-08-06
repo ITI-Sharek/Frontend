@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,6 +10,17 @@ import type {
   ContributionProposalDto,
   ContributionProposalSummaryDto,
 } from "../types/contribution-proposal.types";
+
+// These render through renderToStaticMarkup with no router, so a real <Link>
+// would throw for want of router context. `data-router-link` lets the
+// assertions below prove a client-side link is used rather than a raw anchor.
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a data-router-link="true" href={to}>
+      {children}
+    </a>
+  ),
+}));
 
 describe("Contribution Proposal UI contract", () => {
   it("requires the attribution and assignment disclosure without application quota language", () => {
@@ -168,6 +180,58 @@ describe("Contribution Proposal UI contract", () => {
 
     expect(html).toContain("تعذر تحميل المزيد.");
     expect(html).toContain("مقترح منشور");
+  });
+
+  it("navigates client-side so the query cache survives a proposal click", () => {
+    const listHtml = renderToStaticMarkup(
+      <ProposalListView
+        proposals={[makeProposalSummary()]}
+        role="contributor"
+        isLoading={false}
+        error={null}
+        onRetry={vi.fn()}
+      />,
+    );
+
+    expect(listHtml).toContain('data-router-link="true"');
+    expect(listHtml).toContain('href="/proposals/proposal-1"');
+  });
+
+  it("links an accepted proposal to the resulting request without a full reload", () => {
+    const accepted = {
+      ...makeProposal(),
+      status: "ACCEPTED" as const,
+      resultingContributionRequestId: "request-1",
+      resultingContributionRequestStatus: "PUBLISHED" as const,
+    };
+
+    const ownerHtml = renderToStaticMarkup(
+      <ProposalDetailView
+        proposal={accepted}
+        role="owner"
+        busyAction={null}
+        actionError={null}
+        reportSuccess={null}
+        onAction={vi.fn()}
+        onSubmitVersion={vi.fn()}
+      />,
+    );
+    const contributorHtml = renderToStaticMarkup(
+      <ProposalDetailView
+        proposal={accepted}
+        role="contributor"
+        busyAction={null}
+        actionError={null}
+        reportSuccess={null}
+        onAction={vi.fn()}
+        onSubmitVersion={vi.fn()}
+      />,
+    );
+
+    expect(ownerHtml).toContain('href="/contribution-requests/request-1"');
+    expect(contributorHtml).toContain('href="/tasks/request-1"');
+    expect(ownerHtml).toContain('data-router-link="true"');
+    expect(contributorHtml).toContain('data-router-link="true"');
   });
 });
 
