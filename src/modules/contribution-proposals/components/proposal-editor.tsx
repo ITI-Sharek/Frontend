@@ -7,19 +7,13 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 
 import type { ContributionProposalFields } from "../types/contribution-proposal.types";
+import { toProposalFields } from "../utils/proposal-fields";
 
 type ProposalField = keyof ContributionProposalFields;
 type ProposalFieldErrors = Partial<Record<ProposalField | "disclosure", string>>;
 
-const EMPTY_FIELDS: ContributionProposalFields = {
-  title: "",
-  problemOrOpportunity: "",
-  proposedOutcome: "",
-  projectBenefit: "",
-};
-
 export function ProposalEditor({
-  initialValue = EMPTY_FIELDS,
+  initialValue,
   requiresDisclosure,
   isSubmitting,
   submitLabel,
@@ -33,9 +27,10 @@ export function ProposalEditor({
   error: string | null;
   onSubmit: (fields: ContributionProposalFields) => Promise<void>;
 }) {
-  const [fields, setFields] = useState(initialValue);
+  const [fields, setFields] = useState(() => toProposalFields(initialValue));
   const [acknowledged, setAcknowledged] = useState(false);
   const [errors, setErrors] = useState<ProposalFieldErrors>({});
+  const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
   const formId = useId();
 
   function update(field: ProposalField, value: string) {
@@ -47,9 +42,7 @@ export function ProposalEditor({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalized = Object.fromEntries(
-      Object.entries(fields).map(([key, value]) => [key, value.trim()]),
-    ) as unknown as ContributionProposalFields;
+    const normalized = toProposalFields(fields);
     const nextErrors = validateProposalFields(normalized);
     if (requiresDisclosure && !acknowledged) {
       nextErrors.disclosure = "يلزم تأكيد الإفصاح قبل إرسال المقترح.";
@@ -60,7 +53,18 @@ export function ProposalEditor({
   }
 
   return (
-    <form noValidate onSubmit={(event) => void submit(event)} className="space-y-5">
+    <form
+      noValidate
+      onSubmit={(event) => {
+        setUnexpectedError(null);
+        void submit(event).catch(() => {
+          setUnexpectedError(
+            "تعذر إرسال النموذج الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى.",
+          );
+        });
+      }}
+      className="space-y-5"
+    >
       <ProposalTextField
         id={`${formId}-title`}
         label="عنوان المقترح"
@@ -132,9 +136,9 @@ export function ProposalEditor({
         </div>
       )}
 
-      {error && (
+      {(error ?? unexpectedError) && (
         <p role="alert" aria-live="assertive" className="text-sm leading-6 text-destructive">
-          {error}
+          {error ?? unexpectedError}
         </p>
       )}
 
