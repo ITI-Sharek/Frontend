@@ -70,6 +70,11 @@ export interface ContributionProposalListDto {
   };
 }
 
+export interface ContributionProposalListParams {
+  cursor?: string;
+  limit?: number;
+}
+
 export interface ContributionProposalFields {
   title: string;
   problemOrOpportunity: string;
