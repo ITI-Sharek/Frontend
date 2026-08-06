@@ -3,11 +3,13 @@ export {
   useDeclineContributionProposalMutation,
   useReportContributionProposalMisuseMutation,
   useRequestContributionProposalRevisionMutation,
+  useSetContributionProposalIntakeMutation,
   useSubmitContributionProposalMutation,
   useSubmitContributionProposalVersionMutation,
   useWithdrawContributionProposalMutation,
 } from "./api/mutations/use-contribution-proposal-mutations";
 export {
+  useContributionProposalIntakeQuery,
   useContributionProposalQuery,
   useMyContributionProposalsQuery,
 } from "./api/queries/use-contribution-proposal-queries";

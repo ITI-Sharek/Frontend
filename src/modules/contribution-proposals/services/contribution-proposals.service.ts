@@ -120,6 +120,16 @@ export async function withdrawContributionProposal({
   return data;
 }
 
+/** Owner-only. A Project with no stored intake row is accepting proposals. */
+export async function getContributionProposalIntake(
+  projectId: string,
+): Promise<ProposalIntakeDto> {
+  const { data } = await axiosInstance.get<ProposalIntakeDto>(
+    `/contribution-proposals/for-project/${encodeURIComponent(projectId)}/intake`,
+  );
+  return data;
+}
+
 export async function setContributionProposalIntake(
   projectId: string,
   enabled: boolean,
