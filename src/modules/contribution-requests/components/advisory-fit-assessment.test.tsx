@@ -16,6 +16,7 @@ import type { AdvisoryFitAssessmentDto } from "../types/advisory-fit.types";
 const mocks = vi.hoisted(() => ({
   query: vi.fn(),
   request: { isPending: false, mutateAsync: vi.fn() },
+  present: { isPending: false, mutate: vi.fn() },
 }));
 
 vi.mock("../api/queries/use-advisory-fit-query", () => ({
@@ -24,6 +25,10 @@ vi.mock("../api/queries/use-advisory-fit-query", () => ({
 
 vi.mock("../api/mutations/use-request-advisory-fit-mutation", () => ({
   useRequestAdvisoryFitMutation: () => mocks.request,
+}));
+
+vi.mock("../api/mutations/use-present-advisory-fit-mutation", () => ({
+  usePresentAdvisoryFitMutation: () => mocks.present,
 }));
 
 vi.mock("@/shared/utils/idempotency-key", () => ({
@@ -154,6 +159,50 @@ describe("owner Advisory Fit presentation", () => {
 
     await act(async () => root.unmount());
     container.remove();
+  });
+
+  it("claims presentation once a completed assessment is on screen, and only once", async () => {
+    const unpresented = { ...assessment("COMPLETED"), presentedAt: null };
+    mocks.query.mockReturnValue(queryResult(unpresented));
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root: Root = createRoot(container);
+
+    await act(async () => {
+      root.render(<AdvisoryFitAssessment application={application()} />);
+    });
+    expect(mocks.present.mutate).toHaveBeenCalledWith("application-1");
+
+    // A poll tick re-renders with the same assessment; it must not re-claim.
+    await act(async () => {
+      root.render(<AdvisoryFitAssessment application={application()} />);
+    });
+    expect(mocks.present.mutate).toHaveBeenCalledTimes(1);
+
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  it("does not claim presentation for a pending assessment or one already presented", async () => {
+    for (const data of [
+      assessment("REQUESTED"),
+      assessment("NOT_REQUESTED"),
+      assessment("COMPLETED"), // fixture already carries presentedAt
+    ]) {
+      mocks.present.mutate.mockClear();
+      mocks.query.mockReturnValue(queryResult(data));
+      const container = document.createElement("div");
+      document.body.append(container);
+      const root: Root = createRoot(container);
+
+      await act(async () => {
+        root.render(<AdvisoryFitAssessment application={application()} />);
+      });
+      expect(mocks.present.mutate).not.toHaveBeenCalled();
+
+      await act(async () => root.unmount());
+      container.remove();
+    }
   });
 });
 
