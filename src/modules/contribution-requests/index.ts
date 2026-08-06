@@ -30,6 +30,7 @@ export { useSubmitApplicationMutation } from "./api/mutations/use-submit-applica
 export { useWithdrawApplicationMutation } from "./api/mutations/use-withdraw-application-mutation";
 export { useAcceptApplicationMutation } from "./api/mutations/use-accept-application-mutation";
 export { useDeclineApplicationMutation } from "./api/mutations/use-decline-application-mutation";
+export { usePresentAdvisoryFitMutation } from "./api/mutations/use-present-advisory-fit-mutation";
 export { useRequestAdvisoryFitMutation } from "./api/mutations/use-request-advisory-fit-mutation";
 export { useReportDecisionFeedbackMutation } from "./api/mutations/use-report-decision-feedback-mutation";
 
@@ -56,6 +57,7 @@ export {
   getAdvisoryFit,
   withdrawApplication,
   getOwnerApplications,
+  presentAdvisoryFit,
   requestAdvisoryFit,
   acceptApplication,
   declineApplication,

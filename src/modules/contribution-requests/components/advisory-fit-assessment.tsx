@@ -6,12 +6,13 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
+import { usePresentAdvisoryFitMutation } from "../api/mutations/use-present-advisory-fit-mutation";
 import { useRequestAdvisoryFitMutation } from "../api/mutations/use-request-advisory-fit-mutation";
 import { useAdvisoryFitQuery } from "../api/queries/use-advisory-fit-query";
 import { getApplicationErrorMessage } from "../constants/application-copy";
@@ -29,8 +30,25 @@ export function AdvisoryFitAssessment({
 }) {
   const query = useAdvisoryFitQuery(application.id);
   const requestMutation = useRequestAdvisoryFitMutation();
+  const presentMutation = usePresentAdvisoryFitMutation();
   const idempotencyKey = useRef<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+
+  // The read no longer records presentation, so claim it once the completed
+  // result is actually on screen. Keyed by assessment id and guarded by a ref
+  // so a poll tick, a refetch or a re-render cannot fire it twice; a failure is
+  // deliberately silent, because it must never disturb the owner's decision.
+  const presentedFor = useRef<string | null>(null);
+  const assessment = query.data;
+  const presentAssessment = presentMutation.mutate;
+  useEffect(() => {
+    if (!assessment) return;
+    if (assessment.requestStatus !== "COMPLETED") return;
+    if (assessment.presentedAt !== null) return;
+    if (presentedFor.current === assessment.id) return;
+    presentedFor.current = assessment.id;
+    presentAssessment(application.id);
+  }, [assessment, application.id, presentAssessment]);
 
   async function requestAssessment() {
     idempotencyKey.current ??= createIdempotencyKey();
