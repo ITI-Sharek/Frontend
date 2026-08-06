@@ -1,0 +1,50 @@
+name: Frontend CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # src/routeTree.gen.ts is gitignored, so it does not exist on a fresh
+      # checkout. src/router.tsx imports it and every createFileRoute call
+      # depends on its module augmentation, so lint, typecheck and test all
+      # fail without this step.
+      - name: Generate route tree
+        run: pnpm generate-routes
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test

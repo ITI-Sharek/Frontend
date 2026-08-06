@@ -20,6 +20,7 @@ pnpm build               # vite build
 pnpm start                # vite preview (serve production build)
 pnpm generate-routes    # tsr generate -> regenerates src/routeTree.gen.ts; never hand-edit that file
 pnpm lint                # eslint (TanStack shared config, see eslint.config.js)
+pnpm typecheck           # tsc --noEmit
 pnpm test                 # vitest run
 pnpm test -- <pattern>   # run a single test file, e.g. pnpm test -- login.test.tsx
 ```
