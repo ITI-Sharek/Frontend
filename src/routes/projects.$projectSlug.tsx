@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -40,9 +40,9 @@ function PublicProjectDetailsPage() {
           <p className="text-sm text-muted-foreground">
             {getProjectApiErrorMessage(projectQuery.error)}
           </p>
-          <a href={ROUTES.publicProjects} className="rounded-input bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+          <Link to={ROUTES.publicProjects} className="rounded-input bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
             العودة إلى المشاريع
-          </a>
+          </Link>
         </div>
       </PublicProjectsShell>
     );
@@ -65,12 +65,13 @@ function PublicProjectDetailsPage() {
                   أرسلها كمقترح خاص منفصل عن التقديم على طلبات المساهمة المنشورة.
                 </p>
               </div>
-              <a
-                href={ROUTES.newProposal(projectQuery.data.id)}
+              <Link
+                to={ROUTES.newProposal}
+                search={{ projectId: projectQuery.data.id }}
                 className="rounded-input bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
               >
                 إرسال مقترح مساهمة
-              </a>
+              </Link>
             </div>
           ) : null
         }

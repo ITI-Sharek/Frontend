@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { FilePlus2, Loader2, RotateCcw } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -68,9 +69,9 @@ export function ProposalListView({
       {proposals.map((proposal) => {
         const status = PROPOSAL_STATUS_META[proposal.status];
         return (
-          <a
+          <Link
             key={proposal.id}
-            href={ROUTES.proposal(proposal.id)}
+            to={ROUTES.proposal(proposal.id)}
             className="block rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -87,7 +88,7 @@ export function ProposalListView({
                 يوجد طلب مراجعة ينتظر نسخة جديدة من المساهم.
               </p>
             )}
-          </a>
+          </Link>
         );
       })}
 
