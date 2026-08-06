@@ -9,6 +9,7 @@
     "start": "vite preview",
     "generate-routes": "tsr generate",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
