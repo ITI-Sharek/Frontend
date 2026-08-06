@@ -1,5 +1,6 @@
 import { isAxiosError } from "axios";
 
+import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import { ContributorProfileError } from "../types/contributor-profile.types";
@@ -58,11 +59,7 @@ type RawContributorProfileResponse = Omit<
 
 function resolveAvatarUrl(avatarUrl: string | null): string | null {
   if (!avatarUrl || !avatarUrl.startsWith("/")) return avatarUrl;
-  const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:3000").replace(
-    /\/+$/,
-    "",
-  );
-  return `${apiUrl}${avatarUrl}`;
+  return `${API_BASE_URL}${avatarUrl}`;
 }
 
 function normalizeContributorProfile(

@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
@@ -19,6 +20,8 @@ import type {
 } from "@/modules/contribution-proposals";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
+import { invalidateProposalAcceptanceSideEffects } from "./proposals.helpers";
+
 export const Route = createFileRoute("/_appLayout/proposals/$proposalId")({
   head: () => ({ meta: [{ title: "تفاصيل مقترح المساهمة | Sharek" }] }),
   component: ProposalDetailsPage,
@@ -39,6 +42,7 @@ function ProposalDetailsPage() {
   const { proposalId } = Route.useParams();
   const { currentUser } = Route.useRouteContext();
   const query = useContributionProposalQuery(proposalId);
+  const queryClient = useQueryClient();
   const acceptMutation = useAcceptContributionProposalMutation();
   const declineMutation = useDeclineContributionProposalMutation();
   const revisionMutation = useRequestContributionProposalRevisionMutation();
@@ -84,7 +88,10 @@ function ProposalDetailsPage() {
     };
 
     try {
-      if (action === "accept") await acceptMutation.mutateAsync(command);
+      if (action === "accept") {
+        const accepted = await acceptMutation.mutateAsync(command);
+        await invalidateProposalAcceptanceSideEffects(queryClient, accepted);
+      }
       if (action === "decline") await declineMutation.mutateAsync({ ...command, reason });
       if (action === "request-revision") await revisionMutation.mutateAsync({ ...command, reason });
       if (action === "withdraw") await withdrawMutation.mutateAsync(command);

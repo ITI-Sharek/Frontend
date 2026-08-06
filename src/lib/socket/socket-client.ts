@@ -1,11 +1,10 @@
 import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
 
-export function createNotificationSocket(accessToken: string): Socket {
-  const apiUrl = (import.meta.env.VITE_API_URL ?? "http://localhost:3000")
-    .replace(/\/+$/, "");
+import { API_BASE_URL } from "@/config/env";
 
-  return io(`${apiUrl}/notifications`, {
+export function createNotificationSocket(accessToken: string): Socket {
+  return io(`${API_BASE_URL}/notifications`, {
     auth: { token: accessToken },
     transports: ["websocket", "polling"],
     autoConnect: false,

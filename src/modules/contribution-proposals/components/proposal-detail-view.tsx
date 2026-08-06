@@ -17,6 +17,7 @@ import {
   PROPOSAL_STATUS_META,
   RESULTING_REQUEST_COPY,
 } from "../utils/proposal-presenter";
+import { toProposalFields } from "../utils/proposal-fields";
 
 export type ProposalDetailAction =
   | "accept"
@@ -152,7 +153,7 @@ export function ProposalDetailView({
             ستبقى النسخ السابقة كما هي. تأكد أن النسخة الجديدة تعبّر عن كلماتك أنت قبل الإرسال.
           </p>
           <ProposalEditor
-            initialValue={latest}
+            initialValue={toProposalFields(latest)}
             requiresDisclosure={false}
             isSubmitting={busyAction === "version"}
             submitLabel="تأكيد وإرسال نسخة جديدة"
