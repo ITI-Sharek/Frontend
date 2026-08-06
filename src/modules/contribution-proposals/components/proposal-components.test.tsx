@@ -182,6 +182,58 @@ describe("Contribution Proposal UI contract", () => {
     expect(html).toContain("مقترح منشور");
   });
 
+  it("shows the owner who sent each proposal, but does not tell a contributor about themselves", () => {
+    const props = {
+      proposals: [makeProposalSummary()],
+      isLoading: false,
+      error: null,
+      onRetry: vi.fn(),
+    };
+
+    const ownerHtml = renderToStaticMarkup(
+      <ProposalListView {...props} role="owner" />,
+    );
+    const contributorHtml = renderToStaticMarkup(
+      <ProposalListView {...props} role="contributor" />,
+    );
+
+    expect(ownerHtml).toContain("Nour Hassan");
+    expect(ownerHtml).toContain("@nour");
+    expect(contributorHtml).not.toContain("Nour Hassan");
+  });
+
+  it("omits the handle rather than rendering a bare @ when the proposer has no username", () => {
+    const html = renderToStaticMarkup(
+      <ProposalListView
+        proposals={[{ ...makeProposalSummary(), proposerUsername: null }]}
+        role="owner"
+        isLoading={false}
+        error={null}
+        onRetry={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("Nour Hassan");
+    expect(html).not.toContain("@");
+  });
+
+  it("identifies the proposer in the owner detail header", () => {
+    const html = renderToStaticMarkup(
+      <ProposalDetailView
+        proposal={makeProposal()}
+        role="owner"
+        busyAction={null}
+        actionError={null}
+        reportSuccess={null}
+        onAction={vi.fn()}
+        onSubmitVersion={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("Nour Hassan");
+    expect(html).toContain("@nour");
+  });
+
   it("navigates client-side so the query cache survives a proposal click", () => {
     const listHtml = renderToStaticMarkup(
       <ProposalListView
@@ -240,6 +292,8 @@ function makeProposalSummary(): ContributionProposalSummaryDto {
     id: "proposal-1",
     projectId: "project-1",
     proposerId: "contributor-1",
+    proposerName: "Nour Hassan",
+    proposerUsername: "nour",
     status: "PENDING",
     currentVersion: 1,
     title: "مقترح منشور",
@@ -254,6 +308,8 @@ function makeProposal(): ContributionProposalDto {
     id: "proposal-1",
     projectId: "project-1",
     proposerId: "contributor-1",
+    proposerName: "Nour Hassan",
+    proposerUsername: "nour",
     status: "PENDING",
     currentVersion: 1,
     disclosure: { version: "v1", acknowledgedAt: "2026-08-01T10:00:00.000Z" },
