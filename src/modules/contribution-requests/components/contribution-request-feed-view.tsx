@@ -18,6 +18,7 @@ import {
   formatContributionReward,
 } from "../utils/contributor-presentation";
 import type {
+  ContributionRequestTechnologyFacetDto,
   ContributionRequestDifficulty,
   ContributionRequestFeedFiltersDto,
   ContributionRequestListItemDto,
@@ -137,7 +138,7 @@ function ContributionRequestFilters({
   onReset,
 }: {
   filters: ContributionRequestFeedFiltersDto;
-  technologyFacets: string[];
+  technologyFacets: ContributionRequestTechnologyFacetDto[];
   onChange: FeedViewProps["onFiltersChange"];
   onReset: () => void;
 }) {
@@ -178,7 +179,7 @@ function ContributionRequestFilters({
           التقنيات
         </legend>
         <div className="mt-2 flex max-h-52 flex-col gap-2 overflow-y-auto">
-          {technologyFacets.map((technology) => (
+          {technologyFacets.map(({ technology, count }) => (
             <label
               key={technology}
               className="flex min-h-8 items-center gap-2 text-sm text-muted-foreground"
@@ -200,6 +201,10 @@ function ContributionRequestFilters({
               <bdi dir="ltr" className="font-mono text-xs">
                 {technology}
               </bdi>
+              {/* Says how far the filter narrows the list before it is
+                  clicked, so an empty result reads as an honest zero rather
+                  than a broken filter. */}
+              <span className="text-xs text-muted-foreground/80">({count})</span>
             </label>
           ))}
           {technologyFacets.length === 0 && (

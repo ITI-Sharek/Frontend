@@ -242,6 +242,7 @@ function makeRequest(
     preferredRequirements: [],
     technologyTags: ["React"],
     applicationsCloseTime: "2030-08-10T12:00:00.000Z",
+  attribution: null,
     targetCompletionDate: "2030-08-20",
     difficulty: "intermediate",
     reward: null,

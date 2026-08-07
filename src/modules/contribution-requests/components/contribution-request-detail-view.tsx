@@ -28,6 +28,10 @@ import { useContributionRequestQuery } from "../api/queries/use-contribution-req
 import { toContributionRequestForm } from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
 import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
+import {
+  formatContributionDate,
+  formatContributionDateTime,
+} from "../utils/contributor-presentation";
 import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
 
 export function ContributionRequestDetailView({
@@ -389,6 +393,29 @@ function ReadOnlyRequest({
 }) {
   return (
     <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+      {/*
+        A draft generated from an accepted Proposal is what the owner edits and
+        publishes. Without this the credit lived only on the proposal and
+        vanished at the moment the work became public.
+      */}
+      {request.attribution && (
+        <div className="sm:col-span-2 rounded-lg border border-border/60 bg-muted/30 p-3">
+          <dt className="text-xs text-muted-foreground">
+            مقترح مقبول من مساهم
+          </dt>
+          <dd className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-sm font-semibold text-foreground">
+            <span>{request.attribution.contributorName}</span>
+            {request.attribution.contributorUsername !== null && (
+              <span dir="ltr" className="text-xs font-normal text-muted-foreground">
+                @{request.attribution.contributorUsername}
+              </span>
+            )}
+          </dd>
+          <p className="mt-1 text-xs text-muted-foreground">
+            الإسناد اعتراف بالفكرة، ولا يمنح إسناد عمل ولا أولوية اختيار.
+          </p>
+        </div>
+      )}
       <ReadOnlyField
         label="الوصف"
         value={request.description}
@@ -405,13 +432,19 @@ function ReadOnlyRequest({
           "—"
         }
       />
+      {/*
+        Owner pages were printing the raw ISO string, so an owner who entered
+        12:00 read back 2030-06-15T09:00:00.000Z -- the right instant, but it
+        looks like the deadline moved. The contributor pages already used these
+        formatters, which render in the reader's own timezone.
+      */}
       <ReadOnlyField
         label="وقت إغلاق التقديم"
-        value={request.applicationsCloseTime ?? "—"}
+        value={formatContributionDateTime(request.applicationsCloseTime)}
       />
       <ReadOnlyField
         label="تاريخ الإنجاز المستهدف"
-        value={request.targetCompletionDate ?? "—"}
+        value={formatContributionDate(request.targetCompletionDate)}
       />
     </dl>
   );
