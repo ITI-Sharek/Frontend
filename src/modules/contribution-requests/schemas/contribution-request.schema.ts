@@ -32,6 +32,14 @@ export const contributionRequestSchema = z.object({
     "expired",
     "discarded",
   ]),
+  attribution: z
+    .object({
+      proposalId: z.string(),
+      contributorId: z.string(),
+      contributorName: z.string(),
+      contributorUsername: z.string().nullable(),
+    })
+    .nullable(),
   publishedAt: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),

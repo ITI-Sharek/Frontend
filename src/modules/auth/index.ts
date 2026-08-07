@@ -5,6 +5,7 @@ export { LoginForm } from "./components/login-form";
 export { ForgotPasswordForm } from "./components/forgot-password-form";
 export { useLogoutMutation } from "./api/mutations/use-logout-mutation";
 export { useCurrentUserQuery } from "./api/queries/use-current-user-query";
+export { useResolvedCurrentUser } from "./hooks/use-resolved-current-user";
 export {
   requireAdminRoute,
   requireContributorRoute,

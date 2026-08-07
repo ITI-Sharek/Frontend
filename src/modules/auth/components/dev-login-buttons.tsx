@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { useState } from "react";
 
 import { storageService } from "@/services/storage.service";
@@ -57,11 +58,17 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
       storageService.setRefreshToken(session.tokens.refreshToken);
       await onLoginSuccess?.(session);
     } catch (err) {
+      // An unreachable API and a missing seed are different faults with
+      // different fixes. Blaming the seed for a dead backend sent a tester off
+      // to re-seed a database that was perfectly fine.
+      const apiIsUnreachable = isAxiosError(err) && err.response === undefined;
       setError(
-        getApiErrorMessage(
-          err,
-          "تعذر الدخول بحساب التطوير، تأكد من تشغيل seed في السيرفر.",
-        ),
+        apiIsUnreachable
+          ? "تعذر الاتصال بالخادم على المنفذ 4000. تأكد من تشغيل الواجهة الخلفية ثم أعد المحاولة."
+          : getApiErrorMessage(
+              err,
+              "تعذر الدخول بحساب التطوير. تأكد من تشغيل seed في السيرفر.",
+            ),
       );
     } finally {
       setPendingRole(null);
