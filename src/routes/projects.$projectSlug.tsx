@@ -67,7 +67,10 @@ function PublicProjectDetailsPage() {
               </div>
               <Link
                 to={ROUTES.newProposal}
-                search={{ projectId: projectQuery.data.id }}
+                search={{
+                  projectId: projectQuery.data.id,
+                  projectName: projectQuery.data.title,
+                }}
                 className="rounded-input bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
               >
                 إرسال مقترح مساهمة

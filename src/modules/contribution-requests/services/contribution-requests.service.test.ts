@@ -172,7 +172,10 @@ describe("contribution requests service", () => {
         },
       ],
       totalCount: 1,
-      technologyFacets: ["React", "Node.js"],
+      technologyFacets: [
+        { technology: "React", count: 1 },
+        { technology: "Node.js", count: 1 },
+      ],
     };
     mockedAxios.get.mockResolvedValueOnce({ data: response });
 
@@ -249,6 +252,10 @@ function responseDto(overrides: Record<string, unknown> = {}) {
     reward: "150.00",
     rewardCurrency: "USD",
     status: "draft",
+    // Always present on the wire -- null for an ordinary draft, an object for
+    // one generated from an accepted Proposal -- so the schema requires it
+    // rather than treating a missing field as "no credit".
+    attribution: null,
     publishedAt: null,
     createdAt: "2026-07-28T00:00:00.000Z",
     updatedAt: "2026-07-28T00:00:00.000Z",

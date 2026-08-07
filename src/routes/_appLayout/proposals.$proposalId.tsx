@@ -19,6 +19,7 @@ import type {
   ContributionProposalFields,
   ProposalDetailAction,
 } from "@/modules/contribution-proposals";
+import { useResolvedCurrentUser } from "@/modules/auth";
 import { Button } from "@/shared/components/ui/button";
 import {
   PageContainer,
@@ -46,7 +47,9 @@ function useProposalCommandKeys() {
 
 function ProposalDetailsPage() {
   const { proposalId } = Route.useParams();
-  const { currentUser } = Route.useRouteContext();
+  const { currentUser: contextUser } = Route.useRouteContext();
+  const { currentUser, isResolving: isResolvingUser } =
+    useResolvedCurrentUser(contextUser);
   const query = useContributionProposalQuery(proposalId);
   const queryClient = useQueryClient();
   const acceptMutation = useAcceptContributionProposalMutation();
@@ -81,6 +84,19 @@ function ProposalDetailsPage() {
           }
         />
       </PageContainer>
+    );
+  }
+
+  // "Not loaded yet" and "not allowed" are different answers and must not
+  // share a branch. Route context is empty during SSR -- the server cannot know
+  // who is asking -- so on a direct load or a refresh this page used to show
+  // its own author a denial, while working fine when reached by an in-app
+  // click. Refresh, bookmarks, and any link from a notification hit that.
+  if (isResolvingUser) {
+    return (
+      <p role="status" className="p-8 text-center text-sm text-muted-foreground">
+        جارٍ التحقق من الحساب…
+      </p>
     );
   }
 
