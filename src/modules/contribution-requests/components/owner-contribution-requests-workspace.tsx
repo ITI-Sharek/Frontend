@@ -12,6 +12,7 @@ import {
 import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
 import { useOwnerProjectContributionRequestsQuery } from "../api/queries/use-owner-project-contribution-requests-query";
 import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
+import { formatContributionDateTime } from "../utils/contributor-presentation";
 import type {
   ContributionRequestDto,
   ContributionRequestsByStatusDto,
@@ -187,7 +188,7 @@ function ContributionRequestRow({
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {request.applicationsCloseTime
-            ? `إغلاق التقديم: ${request.applicationsCloseTime}`
+            ? `إغلاق التقديم: ${formatContributionDateTime(request.applicationsCloseTime)}`
             : "لم يُحدَّد وقت إغلاق التقديم"}
         </p>
       </div>

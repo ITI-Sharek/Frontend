@@ -12,7 +12,14 @@ import type { ContributionProposalFields } from "@/modules/contribution-proposal
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
 function validateProposalSearch(search: Record<string, unknown>) {
-  return { projectId: typeof search.projectId === "string" ? search.projectId : "" };
+  return {
+    projectId: typeof search.projectId === "string" ? search.projectId : "",
+    // Carried from the project page the contributor just came from. The
+    // proposal intake endpoint is owner-only, so this page cannot look the
+    // name up for itself; when it is absent the project line is omitted
+    // rather than falling back to showing a UUID at someone.
+    projectName: typeof search.projectName === "string" ? search.projectName : "",
+  };
 }
 
 export const Route = createFileRoute("/_appLayout/proposals/new")({
@@ -23,7 +30,7 @@ export const Route = createFileRoute("/_appLayout/proposals/new")({
 });
 
 function NewProposalPage() {
-  const { projectId } = Route.useSearch();
+  const { projectId, projectName } = Route.useSearch();
   const navigate = Route.useNavigate();
   const mutation = useSubmitContributionProposalMutation();
   const idempotencyKeys = useRef(new Map<string, string>());
@@ -67,7 +74,7 @@ function NewProposalPage() {
 
   return (
     <ProposalSubmissionView
-      projectId={projectId}
+      projectName={projectName}
       isSubmitting={mutation.isPending}
       error={error}
       onSubmit={submit}

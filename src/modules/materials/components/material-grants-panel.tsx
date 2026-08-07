@@ -126,10 +126,14 @@ export function MaterialGrantsPanel({
               key={grant.granteeId}
               className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-background p-2"
             >
-              <span className="text-sm">
-                {grant.granteeName}
+              {/* An explicit space, not only a margin: the two spans render
+                  as one word ("Dev Contributor@dev-contributor") wherever the
+                  margin does not survive, and a username fused onto a name
+                  reads as neither. */}
+              <span className="flex flex-wrap items-baseline gap-x-1.5 text-sm">
+                <span>{grant.granteeName}</span>
                 {grant.granteeUsername !== null && (
-                  <span className="ms-1 text-xs text-muted-foreground" dir="ltr">
+                  <span className="text-xs text-muted-foreground" dir="ltr">
                     @{grant.granteeUsername}
                   </span>
                 )}

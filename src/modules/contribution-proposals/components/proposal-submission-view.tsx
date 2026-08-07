@@ -8,12 +8,13 @@ import { ProposalEditor } from "./proposal-editor";
 import type { ContributionProposalFields } from "../types/contribution-proposal.types";
 
 export function ProposalSubmissionView({
-  projectId,
+  projectName,
   isSubmitting,
   error,
   onSubmit,
 }: {
-  projectId: string;
+  /** Empty when the page was opened directly rather than from the project. */
+  projectName: string;
   isSubmitting: boolean;
   error: string | null;
   onSubmit: (fields: ContributionProposalFields) => Promise<void>;
@@ -37,9 +38,15 @@ export function ProposalSubmissionView({
         </div>
       </header>
       <Card className="mt-5">
-        <p className="mb-5 text-xs text-muted-foreground">
-          معرّف المشروع: <bdi dir="ltr" className="font-mono">{projectId}</bdi>
-        </p>
+        {/* A raw UUID told the contributor nothing about which project they
+            were proposing to. The name is carried from the page they came
+            from; without it the line is omitted entirely, because an
+            identifier is worse than saying nothing. */}
+        {projectName ? (
+          <p className="mb-5 text-xs text-muted-foreground">
+            المشروع: <span className="font-semibold text-foreground">{projectName}</span>
+          </p>
+        ) : null}
         <ProposalEditor
           requiresDisclosure
           isSubmitting={isSubmitting}
