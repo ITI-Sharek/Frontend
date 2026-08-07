@@ -22,6 +22,7 @@ import {
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
 import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
+import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
 import type { ProjectManualOverrideField } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -181,10 +182,30 @@ function OwnerProjectManagement({
         }
         recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
       />
-      <div className="mx-auto w-full max-w-5xl px-4 pb-8 md:px-6">
+      <div className="mx-auto w-full max-w-5xl space-y-8 px-4 pb-8 md:px-6">
+        {/* Composed at the route, not inside modules/projects: a module must
+            never import another module. */}
+        <OwnerProjectMaterials projectId={projectId} />
         <OwnerProposalWorkspace projectId={projectId} />
       </div>
     </>
+  );
+}
+
+/**
+ * Materials sit apart from the AI surfaces on this page, and deliberately
+ * offer nothing that starts analysis: uploading here is storage consent only.
+ */
+function OwnerProjectMaterials({ projectId }: { projectId: string }) {
+  const materialsQuery = useProjectMaterialsQuery(projectId);
+  return (
+    <MaterialsPanel
+      scope={{ kind: "project", id: projectId }}
+      isOwner
+      materials={materialsQuery.data}
+      isLoading={materialsQuery.isPending}
+      isError={materialsQuery.isError}
+    />
   );
 }
 
