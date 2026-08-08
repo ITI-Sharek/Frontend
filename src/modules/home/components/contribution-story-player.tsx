@@ -12,6 +12,7 @@ export default function ContributionStoryPlayer() {
       aria-describedby="contribution-story-description"
     >
       <Player
+        acknowledgeRemotionLicense
         component={ContributionStory}
         durationInFrames={400}
         compositionWidth={1280}

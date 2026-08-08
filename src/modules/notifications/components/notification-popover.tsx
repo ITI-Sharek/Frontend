@@ -6,7 +6,10 @@ import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/providers/notifications-provider";
 
-import { getNotificationTypeLabel } from "./notification-presenter";
+import {
+  getNotificationContent,
+  getNotificationTypeLabel,
+} from "./notification-presenter";
 
 export function NotificationPopover({
   allNotificationsHref = ROUTES.notifications,
@@ -71,7 +74,8 @@ export function NotificationPopover({
           id={popoverId}
           role="dialog"
           aria-label="آخر الإشعارات"
-          className="absolute start-0 top-12 z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-border bg-card text-right shadow-md"
+          dir="rtl"
+          className="absolute end-0 top-12 z-40 w-[min(22rem,calc(100vw-2rem))] origin-top-end overflow-hidden rounded-card border border-border bg-card text-right shadow-md"
         >
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div>
@@ -105,29 +109,11 @@ export function NotificationPopover({
             ) : (
               <div className="flex flex-col gap-1">
                 {latestNotifications.slice(0, 5).map((notification) => (
-                  <button
+                  <NotificationItem
                     key={notification.notificationId}
-                    type="button"
-                    onClick={() =>
-                      markNotificationRead(notification.notificationId)
-                    }
-                    className={cn(
-                      "rounded-input p-3 text-right transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                      notification.isRead
-                        ? "hover:bg-border/25"
-                        : "bg-primary/10 hover:bg-primary/15",
-                    )}
-                  >
-                    <span className="text-[11px] text-muted-foreground">
-                      {getNotificationTypeLabel(notification.type)}
-                    </span>
-                    <span className="mt-1 block truncate text-sm font-semibold text-foreground">
-                      {notification.title}
-                    </span>
-                    <span className="mt-1 line-clamp-2 block break-words text-xs leading-5 text-muted-foreground">
-                      {notification.message}
-                    </span>
-                  </button>
+                    notification={notification}
+                    onRead={() => markNotificationRead(notification.notificationId)}
+                  />
                 ))}
               </div>
             )}
@@ -143,6 +129,37 @@ export function NotificationPopover({
         </div>
       )}
     </div>
+  );
+}
+
+function NotificationItem({
+  notification,
+  onRead,
+}: {
+  notification: ReturnType<typeof useNotifications>["latestNotifications"][number];
+  onRead: () => void;
+}) {
+  const content = getNotificationContent(notification);
+
+  return (
+    <button
+      type="button"
+      onClick={onRead}
+      className={cn(
+        "w-full rounded-input p-3 text-right transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        notification.isRead ? "hover:bg-border/25" : "bg-primary/10 hover:bg-primary/15",
+      )}
+    >
+      <span className="text-[11px] text-muted-foreground">
+        {getNotificationTypeLabel(notification.type)}
+      </span>
+      <span className="mt-1 block truncate text-sm font-semibold text-foreground">
+        {content.title}
+      </span>
+      <span className="mt-1 line-clamp-2 block break-words text-xs leading-5 text-muted-foreground">
+        {content.message}
+      </span>
+    </button>
   );
 }
 
