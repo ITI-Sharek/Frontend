@@ -27,7 +27,10 @@ import {
 import { useContributionRequestQuery } from "../api/queries/use-contribution-request-query";
 import { toContributionRequestForm } from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
-import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
+import {
+  getOwnerContributionRequestStatusMeta,
+  isContributionRequestApplicationsClosed,
+} from "../utils/contribution-request-status";
 import {
   formatContributionDate,
   formatContributionDateTime,
@@ -109,7 +112,12 @@ export function ContributionRequestDetailView({
 
   const request = query.data;
   const editable = request.status === "draft";
-  const statusMeta = getContributionRequestStatusMeta(request.status);
+  const now = new Date();
+  const applicationsClosed = isContributionRequestApplicationsClosed(
+    request,
+    now,
+  );
+  const statusMeta = getOwnerContributionRequestStatusMeta(request, now);
 
   async function update(payload: ContributionRequestDraftPayload) {
     setSaved(false);
@@ -200,7 +208,11 @@ export function ContributionRequestDetailView({
       >
         <PageHeader
           title={request.title}
-          description={descriptionByStatus[request.status]}
+          description={
+            applicationsClosed
+              ? `منشور، لكن التقديم مغلق منذ ${formatContributionDateTime(request.applicationsCloseTime)}.`
+              : descriptionByStatus[request.status]
+          }
           actions={
             <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
               {statusMeta.label}
@@ -302,6 +314,18 @@ export function ContributionRequestDetailView({
       ) : request.status === "published" ? (
         <Card className="mt-6">
           <ReadOnlyRequest request={request} />
+          {applicationsClosed && (
+            <div
+              role="status"
+              className="mt-6 rounded-input border border-amber-500/30 bg-amber-500/5 p-4"
+            >
+              <h2 className="font-bold text-foreground">التقديم مغلق</h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                لا يستقبل طلبات تقديم جديدة بعد انتهاء مهلة التقديم. تظل
+                الطلبات السابقة محفوظة ويمكنك مراجعتها واتخاذ القرار بشأنها.
+              </p>
+            </div>
+          )}
           <div className="mt-6 border-t border-destructive/25 pt-5">
             <h2 className="font-bold text-foreground">إلغاء الطلب</h2>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">

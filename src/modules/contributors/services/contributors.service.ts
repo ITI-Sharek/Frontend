@@ -3,8 +3,11 @@ import { isAxiosError } from "axios";
 import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
+import type {
+  ContributorGithubInstallationDto,
+  ContributorProfileDto,
+} from "../types/contributor-profile.types";
 import { ContributorProfileError } from "../types/contributor-profile.types";
-import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
 function normalizeContributorProfileError(error: unknown): never {
   if (isAxiosError(error)) {
@@ -46,16 +49,21 @@ function normalizeContributorProfileError(error: unknown): never {
 }
 
 /** Normalize older responses defensively while all environments migrate. */
+type RawContributorProfileInstallation = Omit<
+  ContributorGithubInstallationDto,
+  "repositories"
+> &
+  Partial<Pick<ContributorGithubInstallationDto, "repositories">>;
+
 type RawContributorProfileResponse = Omit<
   ContributorProfileDto,
-  "experienceLevel" | "fields" | "declaredSkills"
+  "experienceLevel" | "fields" | "declaredSkills" | "githubInstallations"
 > &
   Partial<
-    Pick<
-      ContributorProfileDto,
-      "experienceLevel" | "fields" | "declaredSkills"
-    >
-  >;
+    Pick<ContributorProfileDto, "experienceLevel" | "fields" | "declaredSkills">
+  > & {
+    githubInstallations?: RawContributorProfileInstallation[];
+  };
 
 function resolveAvatarUrl(avatarUrl: string | null): string | null {
   if (!avatarUrl || !avatarUrl.startsWith("/")) return avatarUrl;
@@ -71,6 +79,12 @@ function normalizeContributorProfile(
     experienceLevel: data.experienceLevel ?? null,
     fields: data.fields ?? [],
     declaredSkills: data.declaredSkills ?? [],
+    githubInstallations: (data.githubInstallations ?? []).map(
+      (installation) => ({
+        ...installation,
+        repositories: installation.repositories ?? [],
+      }),
+    ),
   };
 }
 

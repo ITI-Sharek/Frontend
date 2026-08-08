@@ -7,16 +7,12 @@
 export type GitHubAppAccountType = "user" | "organization";
 
 export type GitHubAppInstallationStatus =
-  | "active"
-  | "disconnected"
-  | "reauthorization_required"
-  | "revoked";
+  "active" | "disconnected" | "reauthorization_required" | "revoked";
 
 export type GitHubAppRepositorySelection = "selected" | "all";
 
 export type GitHubAppInstallationFlowType =
-  | "install_and_authorize"
-  | "authorize_existing_installation";
+  "install_and_authorize" | "authorize_existing_installation";
 
 export interface StartGitHubAppInstallationPayload {
   flowType: GitHubAppInstallationFlowType;
@@ -57,6 +53,7 @@ export interface GitHubAppInstallationLinkDto {
   installedAt: string;
   verifiedAt: string | null;
   manageUrl: string | null;
+  repositories?: GitHubAppRepositoryDto[];
 }
 
 export interface GitHubAppRepositoryDto {
