@@ -39,6 +39,7 @@ export function AdminContributorFieldsPanel() {
       </div>
 
       <form
+        dir="rtl"
         className="grid gap-4 border-b border-border p-5 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-6"
         onSubmit={(event) => {
           event.preventDefault();
@@ -56,33 +57,16 @@ export function AdminContributorFieldsPanel() {
         }}
       >
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          المفتاح البرمجي
-          <input
-            dir="ltr"
-            name="fieldKey"
-            required
-            maxLength={50}
-            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-            title="استخدم حروفاً إنجليزية صغيرة وأرقاماً وشرطات فقط"
-            placeholder="web-development"
-            value={key}
-            onChange={(event) => setKey(event.target.value)}
-            className={INPUT_CLASS_NAME}
-          />
-          <span className="text-xs font-normal text-muted-foreground">
-            حروف صغيرة وأرقام وشرطات فقط
-          </span>
-        </label>
-        <label className="grid gap-1.5 text-sm font-semibold text-foreground">
           الاسم العربي
           <input
+            dir="rtl"
             name="labelAr"
             required
             maxLength={100}
             placeholder="تطوير الويب"
             value={labelAr}
             onChange={(event) => setLabelAr(event.target.value)}
-            className={INPUT_CLASS_NAME}
+            className={`${INPUT_CLASS_NAME} text-right`}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
@@ -95,8 +79,26 @@ export function AdminContributorFieldsPanel() {
             placeholder="Web development"
             value={labelEn}
             onChange={(event) => setLabelEn(event.target.value)}
-            className={INPUT_CLASS_NAME}
+            className={`${INPUT_CLASS_NAME} text-left`}
           />
+        </label>
+        <label className="grid gap-1.5 text-sm font-semibold text-foreground">
+          المفتاح البرمجي
+          <input
+            dir="ltr"
+            name="fieldKey"
+            required
+            maxLength={50}
+            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+            title="استخدم حروفاً إنجليزية صغيرة وأرقاماً وشرطات فقط"
+            placeholder="web-development"
+            value={key}
+            onChange={(event) => setKey(event.target.value)}
+            className={`${INPUT_CLASS_NAME} text-left`}
+          />
+          <span className="text-xs font-normal text-muted-foreground">
+            حروف صغيرة وأرقام وشرطات فقط
+          </span>
         </label>
         <Button type="submit" disabled={createField.isPending}>
           {createField.isPending ? (
