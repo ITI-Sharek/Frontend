@@ -1,12 +1,22 @@
 const ACCESS_TOKEN_KEY = "sharek_access_token";
 const REFRESH_TOKEN_KEY = "sharek_refresh_token";
 const USERNAME_KEY = "sharek_username";
+export const AUTH_CHANGED_EVENT = "sharek:auth-changed";
+
+function notifyAuthChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  }
+}
 
 // TODO: move accessToken to an in-memory auth store (docs/ARCHITECTURE.md §5/§6)
 // once the axios interceptors + refresh flow land — localStorage is a stopgap.
 export const storageService = {
   getAccessToken: () => localStorage.getItem(ACCESS_TOKEN_KEY),
-  setAccessToken: (token: string) => localStorage.setItem(ACCESS_TOKEN_KEY, token),
+  setAccessToken: (token: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    notifyAuthChanged();
+  },
   getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
   setRefreshToken: (token: string) => localStorage.setItem(REFRESH_TOKEN_KEY, token),
   getUsername: () => localStorage.getItem(USERNAME_KEY),
@@ -15,5 +25,6 @@ export const storageService = {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);
+    notifyAuthChanged();
   },
 };
