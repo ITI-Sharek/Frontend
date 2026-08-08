@@ -1,6 +1,8 @@
 export type NotificationType =
   | "application_status"
+  | "proposal_status"
   | "skill_review"
+  | "skill_profile_generation"
   | "delivery_update"
   | "match_found"
   | "task_recommendation"
@@ -17,6 +19,11 @@ export interface RealtimeNotificationDto {
   isRead: boolean;
   readAt: string | null;
   createdAt: string;
+}
+
+export interface NotificationsInboxDto {
+  items: RealtimeNotificationDto[];
+  unreadCount: number;
 }
 
 export type NotificationConnectionStatus =
