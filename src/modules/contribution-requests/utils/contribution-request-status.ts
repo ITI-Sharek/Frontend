@@ -11,6 +11,7 @@ import type { ComponentType } from "react";
 import type { StatusChipTone } from "@/shared/components/data-display/status-chip";
 
 import type {
+  ContributionRequestDto,
   ContributionRequestStatus,
   ContributionRequestsByStatusDto,
 } from "../types/contribution-request.types";
@@ -40,4 +41,34 @@ export function getContributionRequestStatusMeta(
     return STATUS_META[status as keyof typeof STATUS_META];
   }
   return { tone: "neutral", icon: CircleAlert, label: status };
+}
+
+/**
+ * Applications Close Time is a time-based condition, not a persisted Request
+ * lifecycle transition. Owners still need to see that a published Request no
+ * longer accepts new Applications while retaining access to existing ones.
+ */
+export function isContributionRequestApplicationsClosed(
+  request: Pick<ContributionRequestDto, "status" | "applicationsCloseTime">,
+  now: Date = new Date(),
+): boolean {
+  if (request.status !== "published" || !request.applicationsCloseTime) {
+    return false;
+  }
+
+  const closeTime = new Date(request.applicationsCloseTime);
+  return (
+    !Number.isNaN(closeTime.getTime()) && closeTime.getTime() <= now.getTime()
+  );
+}
+
+export function getOwnerContributionRequestStatusMeta(
+  request: Pick<ContributionRequestDto, "status" | "applicationsCloseTime">,
+  now?: Date,
+): ContributionRequestStatusMeta {
+  if (isContributionRequestApplicationsClosed(request, now)) {
+    return { tone: "neutral", icon: CircleAlert, label: "التقديم مغلق" };
+  }
+
+  return getContributionRequestStatusMeta(request.status);
 }

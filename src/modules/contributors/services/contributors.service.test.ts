@@ -62,9 +62,9 @@ describe("contributors service", () => {
   it("loads contributor profiles from the canonical username endpoint", async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: profile });
 
-    await expect(getContributorProfileByUsername("sara ahmed")).resolves.toEqual(
-      profile,
-    );
+    await expect(
+      getContributorProfileByUsername("sara ahmed"),
+    ).resolves.toEqual(profile);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       "/contributors/profiles/sara%20ahmed",
     );
@@ -79,6 +79,29 @@ describe("contributors service", () => {
     );
   });
 
+  it("normalizes installation summaries from older profile responses", async () => {
+    const legacyInstallation = {
+      installationLinkId: "link-1",
+      accountLogin: "sharek-org",
+      accountType: "organization" as const,
+      status: "active" as const,
+      verifiedAt: "2026-07-26T10:00:00.000Z",
+      manageUrl: null,
+    };
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        ...profile,
+        githubInstallations: [legacyInstallation],
+      },
+    });
+
+    await expect(
+      getContributorProfileByUsername("sara"),
+    ).resolves.toMatchObject({
+      githubInstallations: [{ accountLogin: "sharek-org", repositories: [] }],
+    });
+  });
+
   it.each([
     [401, "unauthenticated"],
     [403, "forbidden"],
@@ -86,20 +109,27 @@ describe("contributors service", () => {
     [409, "duplicate-username"],
     [422, "invalid-username"],
     [400, "invalid-username"],
-  ] as const)("maps HTTP %s to contributor profile error %s", async (status, code) => {
-    mockedAxios.get.mockRejectedValueOnce(axiosError(status));
+  ] as const)(
+    "maps HTTP %s to contributor profile error %s",
+    async (status, code) => {
+      mockedAxios.get.mockRejectedValueOnce(axiosError(status));
 
-    await expect(getContributorProfileByUsername("sara")).rejects.toMatchObject({
-      code,
-      message: "Mapped backend message",
-    });
-  });
+      await expect(
+        getContributorProfileByUsername("sara"),
+      ).rejects.toMatchObject({
+        code,
+        message: "Mapped backend message",
+      });
+    },
+  );
 
   it("maps network or unknown errors to unavailable", async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error("Network down"));
 
-    await expect(getContributorProfileByUsername("sara")).rejects.toMatchObject({
-      code: "unavailable",
-    });
+    await expect(getContributorProfileByUsername("sara")).rejects.toMatchObject(
+      {
+        code: "unavailable",
+      },
+    );
   });
 });

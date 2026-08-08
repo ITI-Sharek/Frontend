@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, FilePlus2, Loader2 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import {
@@ -11,19 +12,27 @@ import {
 
 import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
 import { useOwnerProjectContributionRequestsQuery } from "../api/queries/use-owner-project-contribution-requests-query";
-import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
+import {
+  getOwnerContributionRequestStatusMeta,
+  isContributionRequestApplicationsClosed,
+} from "../utils/contribution-request-status";
 import { formatContributionDateTime } from "../utils/contributor-presentation";
 import type {
   ContributionRequestDto,
   ContributionRequestsByStatusDto,
 } from "../types/contribution-request.types";
 
+type OwnerSectionStatus =
+  | keyof ContributionRequestsByStatusDto
+  | "applicationsClosed";
+
 const SECTION_ORDER: Array<{
-  status: keyof ContributionRequestsByStatusDto;
+  status: OwnerSectionStatus;
   title: string;
   alwaysShown: boolean;
 }> = [
   { status: "published", title: "منشور", alwaysShown: true },
+  { status: "applicationsClosed", title: "التقديم مغلق", alwaysShown: false },
   { status: "draft", title: "مسودات", alwaysShown: true },
   { status: "assigned", title: "مُسنَد", alwaysShown: false },
   { status: "completed", title: "مكتمل", alwaysShown: false },
@@ -76,12 +85,13 @@ export function OwnerContributionRequestsWorkspace({
   }
 
   const { totalCount, byStatus } = query.data;
+  const now = new Date();
 
   return (
     <PageContainer className="max-w-4xl">
       <PageHeader
         title={`طلبات المساهمة — ${projectTitle}`}
-        description="كل طلبات المساهمة لهذا المشروع مجمّعة حسب حالتها المعتمدة من الخادم."
+        description="كل طلبات المساهمة لهذا المشروع مجمّعة حسب حالتها، مع توضيح الطلبات التي أُغلق التقديم عليها."
         actions={
           canCreate ? (
             <Button asChild size="sm">
@@ -115,7 +125,7 @@ export function OwnerContributionRequestsWorkspace({
       ) : (
         <div className="mt-6 flex flex-col gap-6">
           {SECTION_ORDER.map(({ status, title, alwaysShown }) => {
-            const items = byStatus[status];
+            const items = getSectionItems(status, byStatus, now);
             if (items.length === 0 && !alwaysShown) return null;
             return (
               <ContributionRequestSection
@@ -123,6 +133,7 @@ export function OwnerContributionRequestsWorkspace({
                 title={title}
                 items={items}
                 requestHref={requestHref}
+                now={now}
               />
             );
           })}
@@ -132,14 +143,36 @@ export function OwnerContributionRequestsWorkspace({
   );
 }
 
+function getSectionItems(
+  status: OwnerSectionStatus,
+  byStatus: ContributionRequestsByStatusDto,
+  now: Date,
+): ContributionRequestDto[] {
+  if (status === "applicationsClosed") {
+    return byStatus.published.filter((request) =>
+      isContributionRequestApplicationsClosed(request, now),
+    );
+  }
+
+  if (status === "published") {
+    return byStatus.published.filter(
+      (request) => !isContributionRequestApplicationsClosed(request, now),
+    );
+  }
+
+  return byStatus[status];
+}
+
 function ContributionRequestSection({
   title,
   items,
   requestHref,
+  now,
 }: {
   title: string;
   items: ContributionRequestDto[];
   requestHref: (requestId: string) => string;
+  now: Date;
 }) {
   return (
     <section>
@@ -160,6 +193,7 @@ function ContributionRequestSection({
               <ContributionRequestRow
                 request={request}
                 href={requestHref(request.id)}
+                now={now}
               />
             </li>
           ))}
@@ -172,15 +206,26 @@ function ContributionRequestSection({
 function ContributionRequestRow({
   request,
   href,
+  now,
 }: {
   request: ContributionRequestDto;
   href: string;
+  now: Date;
 }) {
-  const statusMeta = getContributionRequestStatusMeta(request.status);
+  const applicationsClosed = isContributionRequestApplicationsClosed(
+    request,
+    now,
+  );
+  const statusMeta = getOwnerContributionRequestStatusMeta(request, now);
   return (
     <Link
       to={href}
-      className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-card p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/40 dark:shadow-[0_8px_16px_rgba(0,0,0,0.37)]"
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 rounded-card border bg-card p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/40 dark:shadow-[0_8px_16px_rgba(0,0,0,0.37)]",
+        applicationsClosed
+          ? "border-amber-500/30 bg-amber-500/5"
+          : "border-border",
+      )}
     >
       <div className="min-w-0">
         <p className="truncate font-semibold text-foreground">
@@ -188,9 +233,14 @@ function ContributionRequestRow({
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {request.applicationsCloseTime
-            ? `إغلاق التقديم: ${formatContributionDateTime(request.applicationsCloseTime)}`
+            ? `${applicationsClosed ? "أُغلق التقديم" : "إغلاق التقديم"}: ${formatContributionDateTime(request.applicationsCloseTime)}`
             : "لم يُحدَّد وقت إغلاق التقديم"}
         </p>
+        {applicationsClosed && (
+          <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+            لا يستقبل طلبات تقديم جديدة، والطلبات السابقة محفوظة للمراجعة.
+          </p>
+        )}
       </div>
       <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
         {statusMeta.label}

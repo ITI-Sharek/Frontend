@@ -46,6 +46,7 @@ const installation = {
   status: "active" as const,
   verifiedAt: "2026-07-26T10:00:00.000Z",
   manageUrl: null,
+  repositories: [],
 };
 
 describe("optional github skills section", () => {
@@ -87,6 +88,30 @@ describe("optional github skills section", () => {
     expect(html).toContain("sharek-org");
     expect(html).toContain("sara-dev");
     expect(html).toContain("يحتاج إعادة تفويض");
+  });
+
+  it("shows the repositories selected in each GitHub App installation", () => {
+    const html = renderToStaticMarkup(
+      <ContributorGithubSkillsSection
+        profile={makeProfile({
+          githubInstallations: [
+            {
+              ...installation,
+              repositories: [
+                {
+                  repositoryId: "repo-1",
+                  fullName: "sharek-org/selected-project",
+                  visibility: "private",
+                  defaultBranch: "main",
+                },
+              ],
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(html).toContain("sharek-org/selected-project");
   });
 
   it("hides private installation information from other viewers", () => {

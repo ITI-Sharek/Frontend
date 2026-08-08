@@ -48,6 +48,14 @@ export interface ContributorGithubInstallationDto {
   status: "active" | "disconnected" | "reauthorization_required" | "revoked";
   verifiedAt: string | null;
   manageUrl: string | null;
+  repositories: ContributorGithubRepositoryDto[];
+}
+
+export interface ContributorGithubRepositoryDto {
+  repositoryId: string;
+  fullName: string;
+  visibility: string;
+  defaultBranch: string | null;
 }
 
 export interface ContributorFieldDto {
