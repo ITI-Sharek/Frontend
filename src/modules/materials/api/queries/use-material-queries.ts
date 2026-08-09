@@ -5,6 +5,9 @@ import {
   getMaterialGrants,
   getMaterialUploadConstraints,
   getProjectMaterials,
+  getMaterialAnalysisConstraints,
+  getMaterialAnalysisRun,
+  getMaterialAnalysisSets,
 } from "../../services/materials.service";
 import type { MaterialDto } from "../../types/material.types";
 import { materialKeys } from "../query-keys";
@@ -77,6 +80,44 @@ export function useMaterialGrantsQuery(materialId: string, enabled = true) {
     queryKey: materialKeys.grants(materialId),
     queryFn: () => getMaterialGrants(materialId),
     enabled: enabled && materialId !== "",
+    retry: false,
+  });
+}
+
+export function useMaterialAnalysisConstraintsQuery(
+  projectId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: materialKeys.analysisConstraints(projectId),
+    queryFn: () => getMaterialAnalysisConstraints(projectId),
+    enabled: enabled && projectId !== "",
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  });
+}
+
+export function useMaterialAnalysisSetsQuery(
+  projectId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: materialKeys.analysisSets(projectId),
+    queryFn: () => getMaterialAnalysisSets(projectId),
+    enabled: enabled && projectId !== "",
+    retry: false,
+  });
+}
+
+export function useMaterialAnalysisRunQuery(runId: string | null) {
+  return useQuery({
+    queryKey: materialKeys.analysisRun(runId ?? "none"),
+    queryFn: () => getMaterialAnalysisRun(runId as string),
+    enabled: Boolean(runId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "REQUESTED" || status === "RUNNING" ? 2500 : false;
+    },
     retry: false,
   });
 }

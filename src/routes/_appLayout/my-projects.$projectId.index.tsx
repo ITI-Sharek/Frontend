@@ -22,7 +22,11 @@ import {
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
 import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
-import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
+import {
+  MaterialAnalysisPanel,
+  MaterialsPanel,
+  useProjectMaterialsQuery,
+} from "@/modules/materials";
 import type { ProjectManualOverrideField } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -186,6 +190,11 @@ function OwnerProjectManagement({
         {/* Composed at the route, not inside modules/projects: a module must
             never import another module. */}
         <OwnerProjectMaterials projectId={projectId} />
+        <MaterialAnalysisPanel
+          projectId={projectId}
+          projectRevision={project.revision}
+          projectStatus={project.status}
+        />
         <OwnerProposalWorkspace projectId={projectId} />
       </div>
     </>
@@ -193,8 +202,8 @@ function OwnerProjectManagement({
 }
 
 /**
- * Materials sit apart from the AI surfaces on this page, and deliberately
- * offer nothing that starts analysis: uploading here is storage consent only.
+ * Uploading remains storage consent only. Analysis has its own route-level
+ * panel below so selecting source material is an explicit owner action.
  */
 function OwnerProjectMaterials({ projectId }: { projectId: string }) {
   const materialsQuery = useProjectMaterialsQuery(projectId);

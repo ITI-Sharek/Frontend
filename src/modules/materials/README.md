@@ -78,3 +78,12 @@ harmless elsewhere is rejected here.
 The list polls only while a version is genuinely waiting on the scan worker,
 which has no push channel. An abandoned scan is treated as settled: polling it
 can only ever return the same row.
+
+## Draft adoption
+
+Project update suggestions use the current Project revision and show the server
+error when a concurrent edit makes that revision stale. Contribution Request
+suggestions require a published Project and an owner-selected future application
+close time; the action stays disabled until both conditions are satisfied. A
+successful adoption invalidates the owning Project/Contribution Request views so
+the new state appears without a manual refresh.

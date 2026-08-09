@@ -1,5 +1,6 @@
 import { CircleAlert, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -40,9 +41,11 @@ import type { ContributionRequestDraftPayload } from "../types/contribution-requ
 export function ContributionRequestDetailView({
   requestId,
   projectHref,
+  materialsSlot,
 }: {
   requestId: string;
   projectHref: (projectId: string) => string;
+  materialsSlot?: ReactNode;
 }) {
   const query = useContributionRequestQuery(requestId);
   const updateMutation = useUpdateContributionRequestMutation(requestId);
@@ -366,6 +369,12 @@ export function ContributionRequestDetailView({
 
       {request.status !== "draft" && request.status !== "discarded" && (
         <OwnerApplicationReview contributionRequestId={request.id} />
+      )}
+
+      {materialsSlot && (
+        <div className="mt-5 rounded-card border border-border bg-card p-5">
+          {materialsSlot}
+        </div>
       )}
 
       {discardOpen && (
