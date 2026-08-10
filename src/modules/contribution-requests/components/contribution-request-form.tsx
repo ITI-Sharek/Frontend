@@ -36,13 +36,15 @@ export function ContributionRequestForm({
   submitError,
   submitLabel,
   cancelHref,
+  onCancel,
   onSubmit,
 }: {
   initialState: ContributionRequestFormState;
   isSubmitting: boolean;
   submitError: string | null;
   submitLabel: string;
-  cancelHref: string;
+  cancelHref?: string;
+  onCancel?: () => void;
   onSubmit: (payload: ContributionRequestDraftPayload) => Promise<void>;
 }) {
   const [form, setForm] = useState(initialState);
@@ -57,7 +59,8 @@ export function ContributionRequestForm({
       pendingTag !== "" &&
       form.technologyTags.length < 20 &&
       !form.technologyTags.some(
-        (existing) => existing.toLocaleLowerCase() === pendingTag.toLocaleLowerCase(),
+        (existing) =>
+          existing.toLocaleLowerCase() === pendingTag.toLocaleLowerCase(),
       )
         ? { ...form, technologyTags: [...form.technologyTags, pendingTag] }
         : form;
@@ -115,14 +118,20 @@ export function ContributionRequestForm({
       className="flex flex-col gap-6"
       onSubmit={(event) => void handleSubmit(event)}
     >
-      <FormField error={errors.title} id="contribution-request-title" label="العنوان">
+      <FormField
+        error={errors.title}
+        id="contribution-request-title"
+        label="العنوان"
+      >
         <Input
           id="contribution-request-title"
           dir="rtl"
           value={form.title}
           maxLength={255}
           aria-invalid={Boolean(errors.title)}
-          aria-describedby={errors.title ? "contribution-request-title-error" : undefined}
+          aria-describedby={
+            errors.title ? "contribution-request-title-error" : undefined
+          }
           onChange={(event) => setField("title", event.target.value)}
         />
       </FormField>
@@ -140,7 +149,9 @@ export function ContributionRequestForm({
           maxLength={5000}
           aria-invalid={Boolean(errors.description)}
           aria-describedby={
-            errors.description ? "contribution-request-description-error" : undefined
+            errors.description
+              ? "contribution-request-description-error"
+              : undefined
           }
           onChange={(event) => setField("description", event.target.value)}
           className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-sm leading-7 text-foreground outline-none transition-colors focus:border-primary"
@@ -172,9 +183,7 @@ export function ContributionRequestForm({
         <p className="text-xs leading-5 text-muted-foreground">
           اكتب التقنية واضغط Enter. الوسوم وصفية ولا تحل محل المتطلبات.
         </p>
-        <div
-          className="flex min-h-[50px] flex-wrap items-center gap-2 rounded-input border border-border bg-input-bg px-3 py-2 focus-within:border-primary"
-        >
+        <div className="flex min-h-[50px] flex-wrap items-center gap-2 rounded-input border border-border bg-input-bg px-3 py-2 focus-within:border-primary">
           {form.technologyTags.map((tag) => (
             <span
               key={tag.toLocaleLowerCase()}
@@ -202,15 +211,22 @@ export function ContributionRequestForm({
             maxLength={50}
             disabled={form.technologyTags.length >= 20}
             aria-invalid={Boolean(errors.technologyTags)}
-            aria-describedby={errors.technologyTags ? "technology-tag-input-error" : undefined}
-            placeholder={form.technologyTags.length === 0 ? "NestJS" : undefined}
+            aria-describedby={
+              errors.technologyTags ? "technology-tag-input-error" : undefined
+            }
+            placeholder={
+              form.technologyTags.length === 0 ? "NestJS" : undefined
+            }
             onChange={(event) => setTagDraft(event.target.value)}
             onKeyDown={handleTagKeyDown}
             onBlur={commitTag}
             className="min-w-28 flex-1 bg-transparent text-left text-sm text-foreground outline-none"
           />
         </div>
-        <FieldError id="technology-tag-input-error" message={errors.technologyTags} />
+        <FieldError
+          id="technology-tag-input-error"
+          message={errors.technologyTags}
+        />
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -226,9 +242,13 @@ export function ContributionRequestForm({
             value={form.applicationsCloseTime}
             aria-invalid={Boolean(errors.applicationsCloseTime)}
             aria-describedby={
-              errors.applicationsCloseTime ? "applications-close-time-error" : undefined
+              errors.applicationsCloseTime
+                ? "applications-close-time-error"
+                : undefined
             }
-            onChange={(event) => setField("applicationsCloseTime", event.target.value)}
+            onChange={(event) =>
+              setField("applicationsCloseTime", event.target.value)
+            }
           />
         </FormField>
 
@@ -244,14 +264,22 @@ export function ContributionRequestForm({
             value={form.targetCompletionDate}
             aria-invalid={Boolean(errors.targetCompletionDate)}
             aria-describedby={
-              errors.targetCompletionDate ? "target-completion-date-error" : undefined
+              errors.targetCompletionDate
+                ? "target-completion-date-error"
+                : undefined
             }
-            onChange={(event) => setField("targetCompletionDate", event.target.value)}
+            onChange={(event) =>
+              setField("targetCompletionDate", event.target.value)
+            }
           />
         </FormField>
       </div>
 
-      <FormField error={errors.difficulty} id="difficulty" label="مستوى الصعوبة (اختياري)">
+      <FormField
+        error={errors.difficulty}
+        id="difficulty"
+        label="مستوى الصعوبة (اختياري)"
+      >
         <select
           id="difficulty"
           value={form.difficulty}
@@ -274,7 +302,9 @@ export function ContributionRequestForm({
       </FormField>
 
       <fieldset className="rounded-card border border-border p-4">
-        <legend className="px-2 text-sm font-semibold text-foreground">المكافأة (اختياري)</legend>
+        <legend className="px-2 text-sm font-semibold text-foreground">
+          المكافأة (اختياري)
+        </legend>
         <p className="mb-3 text-xs leading-5 text-muted-foreground">
           أدخل القيمة والعملة معًا. لا تترك أحد الحقلين منفردًا.
         </p>
@@ -290,7 +320,11 @@ export function ContributionRequestForm({
               onChange={(event) => setField("reward", event.target.value)}
             />
           </FormField>
-          <FormField error={errors.rewardCurrency} id="reward-currency" label="العملة">
+          <FormField
+            error={errors.rewardCurrency}
+            id="reward-currency"
+            label="العملة"
+          >
             <Input
               id="reward-currency"
               dir="ltr"
@@ -298,14 +332,20 @@ export function ContributionRequestForm({
               maxLength={3}
               placeholder="USD"
               aria-invalid={Boolean(errors.rewardCurrency)}
-              onChange={(event) => setField("rewardCurrency", event.target.value.toUpperCase())}
+              onChange={(event) =>
+                setField("rewardCurrency", event.target.value.toUpperCase())
+              }
             />
           </FormField>
         </div>
       </fieldset>
 
       {submitError && (
-        <p role="alert" aria-live="assertive" className="text-sm leading-6 text-destructive">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="text-sm leading-6 text-destructive"
+        >
           {submitError}
         </p>
       )}
@@ -319,9 +359,25 @@ export function ContributionRequestForm({
           )}
           {submitLabel}
         </Button>
-        <Button asChild type="button" variant="outline" disabled={isSubmitting}>
-          <a href={cancelHref}>إلغاء</a>
-        </Button>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSubmitting}
+            onClick={onCancel}
+          >
+            إلغاء
+          </Button>
+        ) : cancelHref ? (
+          <Button
+            asChild
+            type="button"
+            variant="outline"
+            disabled={isSubmitting}
+          >
+            <a href={cancelHref}>إلغاء</a>
+          </Button>
+        ) : null}
       </div>
     </form>
   );
@@ -353,8 +409,13 @@ function RequirementEditor({
   }
 
   return (
-    <fieldset className="rounded-card border border-border p-4" aria-describedby={`${id}-hint ${id}-error`}>
-      <legend className="px-2 text-base font-bold text-foreground">{title}</legend>
+    <fieldset
+      className="rounded-card border border-border p-4"
+      aria-describedby={`${id}-hint ${id}-error`}
+    >
+      <legend className="px-2 text-base font-bold text-foreground">
+        {title}
+      </legend>
       <p id={`${id}-hint`} className="text-xs leading-5 text-muted-foreground">
         {description}
       </p>
@@ -393,7 +454,9 @@ function RequirementEditor({
               <IconButton
                 label="إزالة المتطلب"
                 disabled={values.length <= minimum}
-                onClick={() => onChange(values.filter((_, itemIndex) => itemIndex !== index))}
+                onClick={() =>
+                  onChange(values.filter((_, itemIndex) => itemIndex !== index))
+                }
               >
                 <Trash2 className="size-4" />
               </IconButton>
