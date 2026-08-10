@@ -3,7 +3,9 @@ export { RegisterForm } from "./components/register-form";
 export type { ContributorSignupDetails } from "./components/register-form";
 export { LoginForm } from "./components/login-form";
 export { ForgotPasswordForm } from "./components/forgot-password-form";
+export { LanguageSettingsSection } from "./components/language-settings-section";
 export { useLogoutMutation } from "./api/mutations/use-logout-mutation";
+export { useUpdateCurrentUserPreferencesMutation } from "./api/mutations/use-current-user-preferences-mutation";
 export { useCurrentUserQuery } from "./api/queries/use-current-user-query";
 export { useResolvedCurrentUser } from "./hooks/use-resolved-current-user";
 export {
@@ -21,6 +23,7 @@ export {
   logoutUser,
   refreshSession,
   registerUser,
+  updateCurrentUserPreferences,
 } from "./services/auth.service";
 export type {
   AuthSessionDto,
@@ -28,5 +31,6 @@ export type {
   AuthUserDto,
   LoginPayload,
   RegisterPayload,
+  UpdateCurrentUserPreferencesDto,
   UserRole,
 } from "./types/auth.types";

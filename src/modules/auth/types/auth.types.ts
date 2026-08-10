@@ -42,6 +42,10 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdateCurrentUserPreferencesDto {
+  preferredLanguage: "en" | "ar";
+}
+
 /**
  * Returned by POST /auth/register (backend docs/api-contracts.md): a pending
  * user plus OTP metadata — tokens arrive only after email verification.

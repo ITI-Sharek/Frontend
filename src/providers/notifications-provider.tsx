@@ -1,96 +1,180 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { ReactNode } from "react";
 
-import { createNotificationSocket } from "@/lib/socket/socket-client";
-import type {
-  NotificationConnectionStatus,
-  RealtimeNotificationDto,
+import {
+  createRealtimeSocket,
+  disconnectRealtimeSocket,
+} from "@/lib/socket/socket-client";
+import { RecentEventIds } from "@/lib/socket/recent-event-ids";
+import { playNotificationSound } from "@/lib/notification-sound";
+import {
+  applyNotificationEventToCache,
+  clearNotificationQueries,
+  isRealtimeEventEnvelope,
+  reconcileNotificationQueries,
+  shouldPlayNotificationSound,
 } from "@/modules/notifications";
-import { storageService } from "@/services/storage.service";
+import type { NotificationConnectionStatus } from "@/modules/notifications";
+import { accessTokenStore } from "@/services/storage.service";
+import {
+  applyConversationMessageEventToCache,
+  clearAssignmentConversationQueries,
+  reconcileAssignmentConversationQueries,
+} from "@/modules/assignment-conversations";
 
 interface NotificationsContextValue {
-  latestNotifications: RealtimeNotificationDto[];
-  unreadCount: number;
   connectionStatus: NotificationConnectionStatus;
-  markNotificationRead: (notificationId: string) => void;
-  markAllNotificationsRead: () => void;
 }
 
 const NotificationsContext = createContext<NotificationsContextValue | null>(
   null,
 );
 
+function getRealtimeErrorCode(value: unknown): string | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const code = (value as { code?: unknown }).code;
+  return typeof code === "string" ? code : null;
+}
+
 export function NotificationsProvider({ children }: { children: ReactNode }) {
-  const [latestNotifications, setLatestNotifications] = useState<
-    RealtimeNotificationDto[]
-  >([]);
+  const accessToken = useSyncExternalStore(
+    accessTokenStore.subscribe,
+    accessTokenStore.getSnapshot,
+    accessTokenStore.getServerSnapshot,
+  );
+  const queryClient = useQueryClient();
+  const recentEventIdsRef = useRef(new RecentEventIds());
   const [connectionStatus, setConnectionStatus] =
     useState<NotificationConnectionStatus>("idle");
 
   useEffect(() => {
-    const token = storageService.getAccessToken();
-    if (!token) {
-      setConnectionStatus("idle");
-      return;
+    let active = true;
+    let unauthorized = false;
+
+    function setStatusIfActive(status: NotificationConnectionStatus) {
+      if (!active) return;
+      setConnectionStatus(status);
     }
 
-    const socket = createNotificationSocket(token);
+    async function reconcile() {
+      if (!active) return;
+      setConnectionStatus("synchronizing");
 
+      try {
+        await Promise.all([
+          reconcileNotificationQueries(queryClient),
+          reconcileAssignmentConversationQueries(queryClient),
+        ]);
+        setStatusIfActive("connected");
+      } catch {
+        setStatusIfActive("delayed");
+      }
+    }
+
+    function handleNetworkRecovery() {
+      void reconcile();
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") void reconcile();
+    }
+
+    window.addEventListener("online", handleNetworkRecovery);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    if (!accessToken) {
+      clearNotificationQueries(queryClient);
+      clearAssignmentConversationQueries(queryClient);
+      setConnectionStatus("idle");
+      return () => {
+        window.removeEventListener("online", handleNetworkRecovery);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }
+
+    const socket = createRealtimeSocket(accessToken);
     setConnectionStatus("connecting");
-    socket.on("connect", () => setConnectionStatus("connected"));
-    socket.on("disconnect", () => setConnectionStatus("disconnected"));
-    socket.on("connect_error", () => setConnectionStatus("disconnected"));
-    socket.on("notifications.error", () => setConnectionStatus("unauthorized"));
-    socket.on("notification.created", (notification: RealtimeNotificationDto) => {
-      setLatestNotifications((current) => {
-        const withoutDuplicate = current.filter(
-          (item) => item.notificationId !== notification.notificationId,
-        );
-        return [notification, ...withoutDuplicate].slice(0, 50);
-      });
+
+    socket.on("connect", () => {
+      void reconcile();
+    });
+    socket.on("disconnect", () => {
+      if (active) setConnectionStatus("delayed");
+    });
+    socket.on("connect_error", () => {
+      if (!unauthorized) setStatusIfActive("delayed");
+    });
+    socket.on("realtime.error", (error: unknown) => {
+      if (getRealtimeErrorCode(error) === "REALTIME_UNAUTHORIZED") {
+        unauthorized = true;
+        socket.io.opts.reconnection = false;
+        socket.disconnect();
+        setStatusIfActive("unauthorized");
+        return;
+      }
+      setStatusIfActive("delayed");
     });
 
+    const handleRealtimeEvent = (event: unknown) => {
+      if (!isRealtimeEventEnvelope(event)) {
+        void reconcile();
+        return;
+      }
+
+      if (
+        event.type === "notification.created" &&
+        shouldPlayNotificationSound(queryClient, event.payload.notification)
+      ) {
+        playNotificationSound();
+      }
+
+      const outcome = applyNotificationEventToCache(
+        queryClient,
+        event,
+        recentEventIdsRef.current,
+      );
+      if (outcome === "reconcile" || outcome === "invalid") {
+        void reconcile();
+      }
+    };
+
+    socket.on("notification.created", handleRealtimeEvent);
+    socket.on("notification.read_state_changed", handleRealtimeEvent);
+    socket.on("conversation.message.created", (event: unknown) => {
+      const outcome = applyConversationMessageEventToCache(
+        queryClient,
+        event,
+        recentEventIdsRef.current,
+      );
+      if (outcome === "reconcile" || outcome === "invalid") {
+        void reconcile();
+      }
+    });
     socket.connect();
 
     return () => {
-      socket.disconnect();
+      active = false;
+      window.removeEventListener("online", handleNetworkRecovery);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      disconnectRealtimeSocket(socket);
     };
-  }, []);
+  }, [accessToken, queryClient]);
 
-  const value = useMemo<NotificationsContextValue>(() => {
-    const unreadCount = latestNotifications.filter(
-      (notification) => !notification.isRead,
-    ).length;
-
-    return {
-      latestNotifications,
-      unreadCount,
-      connectionStatus,
-      markNotificationRead: (notificationId) => {
-        setLatestNotifications((current) =>
-          current.map((notification) =>
-            notification.notificationId === notificationId
-              ? {
-                  ...notification,
-                  isRead: true,
-                  readAt: notification.readAt ?? new Date().toISOString(),
-                }
-              : notification,
-          ),
-        );
-      },
-      markAllNotificationsRead: () => {
-        const readAt = new Date().toISOString();
-        setLatestNotifications((current) =>
-          current.map((notification) => ({
-            ...notification,
-            isRead: true,
-            readAt: notification.readAt ?? readAt,
-          })),
-        );
-      },
-    };
-  }, [connectionStatus, latestNotifications]);
+  const value = useMemo<NotificationsContextValue>(
+    () => ({ connectionStatus }),
+    [connectionStatus],
+  );
 
   return (
     <NotificationsContext.Provider value={value}>
