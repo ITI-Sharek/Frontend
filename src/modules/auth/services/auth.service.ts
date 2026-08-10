@@ -7,6 +7,7 @@ import type {
   EmailVerificationRequiredDto,
   LoginPayload,
   RegisterPayload,
+  UpdateCurrentUserPreferencesDto,
   UserRole,
   VerifyEmailPayload,
 } from "../types/auth.types";
@@ -59,6 +60,16 @@ export async function refreshSession(
 
 export async function logoutUser(): Promise<void> {
   await axiosInstance.post("/auth/logout");
+}
+
+export async function updateCurrentUserPreferences(
+  input: UpdateCurrentUserPreferencesDto,
+): Promise<AuthUserDto> {
+  const { data } = await axiosInstance.patch<AuthUserDto>(
+    "/auth/me/preferences",
+    input,
+  );
+  return data;
 }
 
 export async function assignUserRole(

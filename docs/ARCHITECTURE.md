@@ -57,7 +57,7 @@ sharek-frontend/
 │   │   ├── projects/
 │   │   ├── contributors/
 │   │   ├── reviews/
-│   │   ├── chat/
+│   │   ├── assignment-conversations/
 │   │   ├── notifications/
 │   │   ├── roadmaps/
 │   │   ├── dashboard/
@@ -179,7 +179,11 @@ modules/projects/
 
 ### Module Responsibilities
 
-> **MVP scope note (2026-07-12, DEC-017)**: `chat`, `kanban`, `discussion`, `roadmaps`, and the socket client (`lib/socket/`) are **architecture intent only — outside current MVP scope**. Do not implement them during the MVP. The MVP feature set is defined by the PRD and `../docs/product/governance/decision-log.md`. (A generated Gold learning roadmap is AI guidance content, not the roadmaps module.)
+> **MVP scope note (updated by DEC-041/054/072)**: general Project chat,
+> kanban, discussion, and standalone roadmaps remain outside the approved MVP.
+> Sprint 9 specifically permits one Assignment-scoped conversation per active
+> Assignment plus one authenticated shared `/realtime` channel. This exception
+> does not authorize general direct messages, Project rooms, or a PM workspace.
 
 - **auth**: login/register/forgot-reset-password flows and session bootstrap orchestration.
 - **users**: public profiles, user search, reputation display.
@@ -188,8 +192,10 @@ modules/projects/
   transport, command idempotency, and request-specific form validation.
 - **contributors**: contributor profiles, invitations, and per-project role management.
 - **reviews**: ratings, reputation, review submission and aggregation.
-- **chat**: real-time project chat, message list, composer, socket hooks.
-- **notifications**: notification center; unread badge count is lifted to top-level global state.
+- **assignment-conversations**: authorized Assignment conversation list,
+  Message history/commands, and feature-owned realtime cache reconciliation.
+- **notifications**: durable inbox, server-owned unread count/preferences, and
+  feature-owned realtime cache reconciliation through TanStack Query.
 - **roadmaps**: roadmap builder/viewer, milestones, structured tasks.
 - **dashboard**: thin aggregation components; most composition belongs in routes.
 - **kanban**: per-project board, drag/drop, optimistic ordering.
@@ -251,12 +257,14 @@ Route loaders can create or access the route-scoped query client, call `prefetch
 
 ```text
 lib/socket/socket-client.ts
-  -> feature socket hook
-    -> ephemeral UI state in local/Zustand state
-    -> persisted server data reconciled into TanStack Query cache
+  -> app-level realtime provider
+    -> feature-owned envelope/cache adapters
+      -> persisted server data reconciled into TanStack Query cache
 ```
 
-Real-time events and REST responses must converge into the same TanStack Query cache.
+One session-aware `/realtime` socket accelerates committed events for all
+approved features. Real-time events and REST responses must converge into the
+same TanStack Query cache; durable HTTP remains authoritative.
 
 ---
 

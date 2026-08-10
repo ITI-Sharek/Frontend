@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
-import { useCurrentUserQuery } from "@/modules/auth";
+import {
+  LanguageSettingsSection,
+  useCurrentUserQuery,
+} from "@/modules/auth";
 import {
   ContributorGithubSettingsSection,
   ContributorProfileSettingsSection,
@@ -11,14 +14,16 @@ import {
   disconnectGitHubAccount,
   startGitHubConnect,
 } from "@/modules/github";
-import {
-  LanguageSettingsSection,
-  SettingsShell,
-  SubscriptionSettingsSection,
-} from "@/modules/settings";
+import { SettingsShell, SubscriptionSettingsSection } from "@/modules/settings";
+import { NotificationPreferencesPanel } from "@/modules/notifications";
 import type { SettingsSectionItem } from "@/modules/settings";
 
-type SettingsSectionId = "profile" | "github" | "language" | "subscription";
+type SettingsSectionId =
+  | "profile"
+  | "github"
+  | "language"
+  | "subscription"
+  | "notifications";
 
 interface SettingsSearch {
   section?: SettingsSectionId;
@@ -32,7 +37,8 @@ export const Route = createFileRoute("/_appLayout/settings")({
       section === "profile" ||
       section === "github" ||
       section === "language" ||
-      section === "subscription";
+      section === "subscription" ||
+      section === "notifications";
     return isValid ? { section } : {};
   },
   component: SettingsPage,
@@ -56,6 +62,7 @@ function SettingsPage() {
         ]
       : []),
     { id: "language", label: "اللغة" },
+    { id: "notifications", label: "الإشعارات" },
     { id: "subscription", label: "الاشتراك" },
   ];
 
@@ -108,6 +115,7 @@ function SettingsPage() {
       )}
 
       {activeSectionId === "language" && <LanguageSettingsSection />}
+      {activeSectionId === "notifications" && <NotificationPreferencesPanel />}
       {activeSectionId === "subscription" && <SubscriptionSettingsSection />}
     </SettingsShell>
   );
