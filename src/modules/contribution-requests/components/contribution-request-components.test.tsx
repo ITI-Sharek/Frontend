@@ -50,7 +50,7 @@ describe("Contribution Request private draft UI", () => {
     expect(html).toContain("المتطلبات المطلوبة");
     expect(html).toContain("المتطلبات المفضلة");
     expect(html.indexOf("First")).toBeLessThan(html.indexOf("Second"));
-    expect(html).toContain("aria-label=\"تحريك لأعلى\"");
+    expect(html).toContain('aria-label="تحريك لأعلى"');
     expect(html).toContain('id="contribution-request-title" dir="rtl"');
     expect(html).toMatch(
       /type="datetime-local"[^>]*id="applications-close-time"[^>]*dir="ltr"/,
@@ -74,7 +74,7 @@ describe("Contribution Request private draft UI", () => {
     );
     expect(html).toContain("إجراء نهائي");
     expect(html).toContain("لا يحذف السجل");
-    expect(html).toContain("aria-modal=\"true\"");
+    expect(html).toContain('aria-modal="true"');
   });
 
   it("confirms publication makes the Request visible to contributors", () => {
@@ -88,7 +88,7 @@ describe("Contribution Request private draft UI", () => {
       />,
     );
     expect(html).toContain("مرئيًا للمساهمين");
-    expect(html).toContain("aria-modal=\"true\"");
+    expect(html).toContain('aria-modal="true"');
   });
 
   it("describes the current save-then-publish lifecycle during creation", () => {
@@ -118,10 +118,10 @@ describe("Contribution Request private draft UI", () => {
     );
     expect(html).toContain("إجراء نهائي");
     expect(html).toContain("يحافظ على سجل");
-    expect(html).toContain("aria-modal=\"true\"");
+    expect(html).toContain('aria-modal="true"');
   });
 
-  it("groups the owner workspace list by lifecycle state, actionable first", () => {
+  it("separates owner requests into lifecycle tabs and renders the active tab", () => {
     vi.mocked(useOwnerProjectContributionRequestsQuery).mockReturnValue({
       isPending: false,
       isError: false,
@@ -130,14 +130,18 @@ describe("Contribution Request private draft UI", () => {
         totalCount: 2,
         byStatus: {
           draft: [makeRequest({ id: "draft-1", title: "Draft request" })],
-          published: [makeRequest({ id: "published-1", title: "Published request" })],
+          published: [
+            makeRequest({ id: "published-1", title: "Published request" }),
+          ],
           assigned: [],
           completed: [],
           cancelled: [],
           discarded: [],
         },
       },
-    } as unknown as ReturnType<typeof useOwnerProjectContributionRequestsQuery>);
+    } as unknown as ReturnType<
+      typeof useOwnerProjectContributionRequestsQuery
+    >);
 
     const html = renderToStaticMarkup(
       <OwnerContributionRequestsWorkspace
@@ -149,9 +153,10 @@ describe("Contribution Request private draft UI", () => {
       />,
     );
 
+    expect(html).toContain('role="tablist"');
     expect(html).toContain("Published request");
-    expect(html).toContain("Draft request");
-    expect(html.indexOf("Published request")).toBeLessThan(html.indexOf("Draft request"));
+    expect(html).toContain("مسودات");
+    expect(html).not.toContain("Draft request");
     expect(html).not.toContain("assigned-1");
   });
 
@@ -171,7 +176,9 @@ describe("Contribution Request private draft UI", () => {
           discarded: [],
         },
       },
-    } as unknown as ReturnType<typeof useOwnerProjectContributionRequestsQuery>);
+    } as unknown as ReturnType<
+      typeof useOwnerProjectContributionRequestsQuery
+    >);
 
     const html = renderToStaticMarkup(
       <OwnerContributionRequestsWorkspace

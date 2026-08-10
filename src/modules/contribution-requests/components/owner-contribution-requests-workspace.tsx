@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, FilePlus2, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -23,8 +24,7 @@ import type {
 } from "../types/contribution-request.types";
 
 type OwnerSectionStatus =
-  | keyof ContributionRequestsByStatusDto
-  | "applicationsClosed";
+  keyof ContributionRequestsByStatusDto | "applicationsClosed";
 
 const SECTION_ORDER: Array<{
   status: OwnerSectionStatus;
@@ -46,14 +46,18 @@ export function OwnerContributionRequestsWorkspace({
   canCreate,
   requestHref,
   newRequestHref,
+  onCreateRequest,
 }: {
   projectId: string;
   projectTitle: string;
   canCreate: boolean;
   requestHref: (requestId: string) => string;
   newRequestHref: string;
+  onCreateRequest?: () => void;
 }) {
   const query = useOwnerProjectContributionRequestsQuery(projectId);
+  const [activeStatus, setActiveStatus] =
+    useState<OwnerSectionStatus>("published");
 
   if (query.isPending) {
     return (
@@ -94,12 +98,19 @@ export function OwnerContributionRequestsWorkspace({
         description="كل طلبات المساهمة لهذا المشروع مجمّعة حسب حالتها، مع توضيح الطلبات التي أُغلق التقديم عليها."
         actions={
           canCreate ? (
-            <Button asChild size="sm">
-              <Link to={newRequestHref}>
+            onCreateRequest ? (
+              <Button size="sm" onClick={onCreateRequest}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
                 طلب مساهمة جديد
-              </Link>
-            </Button>
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <Link to={newRequestHref}>
+                  <FilePlus2 className="size-4" aria-hidden="true" />
+                  طلب مساهمة جديد
+                </Link>
+              </Button>
+            )
           ) : undefined
         }
       />
@@ -116,27 +127,65 @@ export function OwnerContributionRequestsWorkspace({
           }
           action={
             canCreate ? (
-              <Button asChild size="sm">
-                <Link to={newRequestHref}>إنشاء طلب مساهمة</Link>
-              </Button>
+              onCreateRequest ? (
+                <Button size="sm" onClick={onCreateRequest}>
+                  إنشاء طلب مساهمة
+                </Button>
+              ) : (
+                <Button asChild size="sm">
+                  <Link to={newRequestHref}>إنشاء طلب مساهمة</Link>
+                </Button>
+              )
             ) : undefined
           }
         />
       ) : (
-        <div className="mt-6 flex flex-col gap-6">
-          {SECTION_ORDER.map(({ status, title, alwaysShown }) => {
-            const items = getSectionItems(status, byStatus, now);
-            if (items.length === 0 && !alwaysShown) return null;
-            return (
-              <ContributionRequestSection
-                key={status}
-                title={title}
-                items={items}
-                requestHref={requestHref}
-                now={now}
-              />
-            );
-          })}
+        <div className="mt-6">
+          <div
+            role="tablist"
+            aria-label="حالات طلبات المساهمة"
+            className="flex gap-1 overflow-x-auto border-b border-border pb-px"
+          >
+            {SECTION_ORDER.map(({ status, title, alwaysShown }) => {
+              const count = getSectionItems(status, byStatus, now).length;
+              if (count === 0 && !alwaysShown) return null;
+              const selected = activeStatus === status;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setActiveStatus(status)}
+                  className={cn(
+                    "flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-sm transition-colors",
+                    selected
+                      ? "border-primary font-semibold text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {title}
+                  <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div
+            role="tabpanel"
+            className="max-h-[calc(100dvh-19rem)] min-h-72 overflow-y-auto overscroll-contain pt-5 pe-1"
+          >
+            <ContributionRequestSection
+              title={
+                SECTION_ORDER.find((section) => section.status === activeStatus)
+                  ?.title ?? "الطلبات"
+              }
+              items={getSectionItems(activeStatus, byStatus, now)}
+              requestHref={requestHref}
+              now={now}
+            />
+          </div>
         </div>
       )}
     </PageContainer>
