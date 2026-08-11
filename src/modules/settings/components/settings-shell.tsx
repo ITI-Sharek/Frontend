@@ -24,10 +24,13 @@ export function SettingsShell({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto flex w-full flex-col gap-8 px-4 py-8 md:flex-row md:px-8">
-      <aside className="w-full shrink-0 md:w-56">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:flex-row md:items-start md:px-8">
+      <aside className="w-full shrink-0 md:sticky md:top-24 md:w-56">
         <h1 className="mb-4 text-2xl font-bold text-foreground">الإعدادات</h1>
-        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col md:overflow-visible" aria-label="أقسام الإعدادات">
+        <nav
+          className="flex flex-row gap-1 overflow-x-auto md:flex-col md:overflow-visible"
+          aria-label="أقسام الإعدادات"
+        >
           {sections.map((section) => {
             const isActive = section.id === activeSectionId;
             return (
@@ -50,7 +53,7 @@ export function SettingsShell({
         </nav>
       </aside>
 
-      <div className="min-w-0 flex-1 rounded-card border border-border bg-card p-6">
+      <div className="min-h-[28rem] min-w-0 flex-1 rounded-card border border-border bg-card p-6 md:max-h-[calc(100dvh-7rem)] md:overflow-y-auto md:overscroll-contain">
         {children}
       </div>
     </div>

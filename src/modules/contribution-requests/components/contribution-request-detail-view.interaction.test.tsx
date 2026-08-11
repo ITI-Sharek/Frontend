@@ -177,6 +177,31 @@ describe("Contribution Request owner lifecycle interactions", () => {
     expect(document.activeElement).toBe(lifecycleFocusTarget);
   });
 
+  it("explains that a published request no longer accepts applications after close time", async () => {
+    const request = makeRequest({
+      status: "published",
+      applicationsCloseTime: "2020-08-05T12:00:00.000Z",
+    });
+    mocks.query.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: request,
+      refetch: vi.fn(),
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributionRequestDetailView
+          requestId="request-1"
+          projectHref={(projectId) => `/my-projects/${projectId}`}
+        />,
+      );
+    });
+
+    expect(container.textContent).toContain("التقديم مغلق");
+    expect(container.textContent).toContain("لا يستقبل طلبات تقديم جديدة");
+  });
+
   it("closes a destructive dialog with Escape, restores focus, and resets its draft", async () => {
     const request = makeRequest();
     mocks.query.mockReturnValue({
@@ -220,6 +245,32 @@ describe("Contribution Request owner lifecycle interactions", () => {
     expect(
       document.querySelector<HTMLTextAreaElement>("#discard-reason")?.value,
     ).toBe("");
+  });
+
+  it("composes the delivery workspace behind its own owner tab", async () => {
+    mocks.query.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: makeRequest({ status: "assigned" }),
+      refetch: vi.fn(),
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributionRequestDetailView
+          requestId="request-1"
+          projectHref={(projectId) => `/my-projects/${projectId}`}
+          deliverySlot={<section>مساحة مراجعة التسليم</section>}
+        />,
+      );
+    });
+
+    expect(container.textContent).not.toContain("مساحة مراجعة التسليم");
+    const deliveryTab = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent.trim() === "التسليم",
+    );
+    await act(async () => deliveryTab?.click());
+    expect(container.textContent).toContain("مساحة مراجعة التسليم");
   });
 });
 

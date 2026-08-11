@@ -8,6 +8,7 @@ export const ROUTES = {
   tasks: "/tasks",
   task: (taskId: string) => `/tasks/${encodeURIComponent(taskId)}`,
   notifications: "/notifications",
+  messages: "/messages",
   discussions: "/discussions",
   discussion: (postId: string) => `/discussions/${encodeURIComponent(postId)}`,
   support: "/support",

@@ -8,6 +8,12 @@ import {
   materialSchema,
   materialUploadConstraintsSchema,
 } from "../schemas/material.schema";
+import {
+  materialAnalysisConstraintsSchema,
+  materialAnalysisRunSchema,
+  materialAnalysisSetListSchema,
+  materialAnalysisSetSchema,
+} from "../schemas/material-analysis.schema";
 import type {
   MaterialDeletionDto,
   MaterialDto,
@@ -16,10 +22,99 @@ import type {
   MaterialVisibility,
   UploadMaterialPayload,
 } from "../types/material.types";
+import type {
+  MaterialAnalysisConstraints,
+  MaterialAnalysisRun,
+  MaterialAnalysisSet,
+} from "../types/material-analysis.types";
 
 export async function getMaterialUploadConstraints(): Promise<MaterialUploadConstraintsDto> {
   const { data } = await axiosInstance.get("/material-upload-constraints");
   return materialUploadConstraintsSchema.parse(data);
+}
+
+export async function getMaterialAnalysisConstraints(
+  projectId: string,
+): Promise<MaterialAnalysisConstraints> {
+  const { data } = await axiosInstance.get(
+    `/projects/${encodeURIComponent(projectId)}/material-analysis/constraints`,
+  );
+  return materialAnalysisConstraintsSchema.parse(data);
+}
+
+export async function getMaterialAnalysisSets(
+  projectId: string,
+): Promise<MaterialAnalysisSet[]> {
+  const { data } = await axiosInstance.get(
+    `/projects/${encodeURIComponent(projectId)}/material-analysis/sets`,
+  );
+  return materialAnalysisSetListSchema.parse(data);
+}
+
+export async function createMaterialAnalysisSet(
+  projectId: string,
+  materialVersions: Array<{ materialId: string; version: number }>,
+): Promise<MaterialAnalysisSet> {
+  const { data } = await axiosInstance.post(
+    `/projects/${encodeURIComponent(projectId)}/material-analysis/sets`,
+    { materialVersions },
+  );
+  return materialAnalysisSetSchema.parse(data);
+}
+
+export async function startMaterialAnalysisRun(
+  analysisSetId: string,
+): Promise<MaterialAnalysisRun> {
+  const { data } = await axiosInstance.post(
+    `/material-analysis/sets/${encodeURIComponent(analysisSetId)}/runs`,
+  );
+  return materialAnalysisRunSchema.parse(data);
+}
+
+export async function getMaterialAnalysisRun(
+  runId: string,
+): Promise<MaterialAnalysisRun> {
+  const { data } = await axiosInstance.get(
+    `/material-analysis/runs/${encodeURIComponent(runId)}`,
+  );
+  return materialAnalysisRunSchema.parse(data);
+}
+
+export async function rejectMaterialDraftSuggestion(
+  suggestionId: string,
+): Promise<MaterialAnalysisRun["suggestions"][number]> {
+  const { data } = await axiosInstance.post(
+    `/material-analysis/suggestions/${encodeURIComponent(suggestionId)}/reject`,
+  );
+  return materialAnalysisRunSchema.shape.suggestions.element.parse(data);
+}
+
+export async function adoptProjectMaterialSuggestion(
+  suggestionId: string,
+  input: { expectedRevision: number; idempotencyKey: string },
+) {
+  const { data } = await axiosInstance.post(
+    `/material-analysis/suggestions/${encodeURIComponent(suggestionId)}/adopt-project`,
+    input,
+  );
+  return data;
+}
+
+export async function adoptContributionRequestMaterialSuggestion(
+  suggestionId: string,
+  input: {
+    applicationsCloseTime: string;
+    targetCompletionDate?: string | null;
+    rewardCents?: number | null;
+    rewardCurrency?: string | null;
+    idempotencyKey: string;
+  },
+) {
+  const { data } = await axiosInstance.post(
+    `/material-analysis/suggestions/${encodeURIComponent(suggestionId)}/adopt-contribution-request`,
+    input,
+  );
+  return data;
 }
 
 export async function getProjectMaterials(

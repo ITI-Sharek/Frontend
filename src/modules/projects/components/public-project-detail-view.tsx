@@ -16,19 +16,21 @@ interface PublicProjectDetailViewProps {
   project: PublicProjectDetailDto;
   exploreHref: string;
   proposalAction?: ReactNode;
+  materialsSlot?: ReactNode;
 }
 
 /**
  * Minimal, honest public project presentation (SK-112 contract §10): renders
- * only `PublicProjectDetailDto`'s allowlisted fields. Contribution
- * requests/tasks, owner identity, stars, and fit hints are a separate,
- * not-yet-implemented discovery-detail feature and must never be fabricated
- * here — the public contract does not return them.
+ * only `PublicProjectDetailDto`'s allowlisted fields plus explicit route-level
+ * slots. Contribution requests/tasks, owner identity, stars, and fit hints are
+ * a separate, not-yet-implemented discovery-detail feature and must never be
+ * fabricated here — the public contract does not return them.
  */
 export function PublicProjectDetailView({
   project,
   exploreHref,
   proposalAction,
+  materialsSlot,
 }: PublicProjectDetailViewProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
@@ -135,6 +137,12 @@ export function PublicProjectDetailView({
           </p>
         )}
       </section>
+
+      {materialsSlot && (
+        <div className="rounded-card border border-border bg-card p-6">
+          {materialsSlot}
+        </div>
+      )}
     </div>
   );
 }
