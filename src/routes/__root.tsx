@@ -15,9 +15,14 @@ export const Route = createRootRoute({
         content:
           "Sharek ينظم التعاون في المشاريع مفتوحة المصدر ويحفظ سجلاً مهنياً موثوقاً للمساهمات المكتملة والأدلة التي تدعمها.",
       },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "theme-color", content: "#f4f6f9", media: "(prefers-color-scheme: light)" },
+      { name: "theme-color", content: "#0d1117", media: "(prefers-color-scheme: dark)" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/logo-1.png" },
+      { rel: "apple-touch-icon", href: "/logo-1.png" },
+    ],
   }),
   shellComponent: RootDocument,
 });

@@ -20,10 +20,12 @@ import {
 } from "@/modules/notifications";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
+import { PageTransition } from "@/shared/components/layout/page-transition";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { HeaderSearch } from "@/shared/components/navigation/header-search";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
+import { ThemeSwitcher } from "@/shared/components/navigation/theme-switcher";
 
 export const Route = createFileRoute("/_appLayout")({
   beforeLoad: requireMemberRoute,
@@ -123,6 +125,8 @@ function AppLayout() {
           search={<HeaderSearch />}
           actions={
             <>
+              <MessagesButton />
+              <ThemeSwitcher />
               <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
               <ProfileMenu
@@ -142,7 +146,9 @@ function AppLayout() {
         />
       }
     >
-      <Outlet />
+      <PageTransition routeKey={pathname}>
+        <Outlet />
+      </PageTransition>
     </AppShell>
   );
 }
