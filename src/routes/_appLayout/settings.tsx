@@ -14,8 +14,9 @@ import {
   disconnectGitHubAccount,
   startGitHubConnect,
 } from "@/modules/github";
-import { SettingsShell, SubscriptionSettingsSection } from "@/modules/settings";
+import { SettingsShell } from "@/modules/settings";
 import { NotificationPreferencesPanel } from "@/modules/notifications";
+import { SubscriptionSettingsSection } from "@/modules/subscriptions";
 import type { SettingsSectionItem } from "@/modules/settings";
 
 type SettingsSectionId =

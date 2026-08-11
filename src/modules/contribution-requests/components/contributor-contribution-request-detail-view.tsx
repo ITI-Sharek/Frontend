@@ -53,6 +53,7 @@ export function ContributorContributionRequestDetailView({
   projectHref,
   onApplicationSubmitted,
   materialsSlot,
+  guidanceSlot,
 }: {
   requestId: string;
   requestsHref: string;
@@ -61,6 +62,7 @@ export function ContributorContributionRequestDetailView({
   projectHref: (projectSlug: string) => string;
   onApplicationSubmitted: (application: ApplicationDto) => void;
   materialsSlot?: ReactNode;
+  guidanceSlot?: ReactNode;
 }) {
   const query = useContributionRequestDetailsQuery(requestId);
 
@@ -104,6 +106,7 @@ export function ContributorContributionRequestDetailView({
       </a>
       <RequestOverview request={request} projectHref={projectHref} />
       <RequirementSections requirements={request.requirements} />
+      {guidanceSlot}
       <RequestMetadata request={request} />
       {materialsSlot && (
         <div className="mt-5 rounded-card border border-border bg-card p-5">

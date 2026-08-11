@@ -1,8 +1,10 @@
 import {
   CircleAlert,
   FileText,
+  GitPullRequest,
   Loader2,
   Paperclip,
+  Sparkles,
   Trash2,
   Users,
 } from "lucide-react";
@@ -44,16 +46,25 @@ import {
 } from "../utils/contributor-presentation";
 import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
 
-type RequestWorkspaceTab = "details" | "applications" | "materials";
+type RequestWorkspaceTab =
+  | "details"
+  | "applications"
+  | "matches"
+  | "delivery"
+  | "materials";
 
 export function ContributionRequestDetailView({
   requestId,
   projectHref,
   materialsSlot,
+  deliverySlot,
+  matchingSlot,
 }: {
   requestId: string;
   projectHref: (projectId: string) => string;
   materialsSlot?: ReactNode;
+  deliverySlot?: ReactNode;
+  matchingSlot?: ReactNode;
 }) {
   const query = useContributionRequestQuery(requestId);
   const updateMutation = useUpdateContributionRequestMutation(requestId);
@@ -251,6 +262,22 @@ export function ContributionRequestDetailView({
             onClick={() => setActiveTab("applications")}
           />
         )}
+        {matchingSlot && request.status === "published" && (
+          <RequestTab
+            icon={Sparkles}
+            label="المطابقات"
+            selected={activeTab === "matches"}
+            onClick={() => setActiveTab("matches")}
+          />
+        )}
+        {deliverySlot && (
+          <RequestTab
+            icon={GitPullRequest}
+            label="التسليم"
+            selected={activeTab === "delivery"}
+            onClick={() => setActiveTab("delivery")}
+          />
+        )}
         {materialsSlot && (
           <RequestTab
             icon={Paperclip}
@@ -410,6 +437,10 @@ export function ContributionRequestDetailView({
         request.status !== "discarded" && (
           <OwnerApplicationReview contributionRequestId={request.id} />
         )}
+
+      {activeTab === "matches" && matchingSlot && request.status === "published" && matchingSlot}
+
+      {activeTab === "delivery" && deliverySlot && deliverySlot}
 
       {activeTab === "materials" && materialsSlot && (
         <div className="mt-5 max-h-[calc(100dvh-16rem)] overflow-y-auto rounded-card border border-border bg-card p-5">

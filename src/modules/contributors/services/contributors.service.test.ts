@@ -35,7 +35,14 @@ const profile: ContributorProfileDto = {
   availability: null,
   githubStatus: { connected: false, username: null },
   githubInstallations: [],
-  reputationSummary: { rating: null, reviewsCount: 0 },
+  reputationSummary: {
+    rating: null,
+    reviewsCount: 0,
+    completedContributions: 0,
+    totalAssignedTasks: 0,
+    successRate: 0,
+    topVerifiedSkills: [],
+  },
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",
@@ -100,6 +107,24 @@ describe("contributors service", () => {
     ).resolves.toMatchObject({
       githubInstallations: [{ accountLogin: "sharek-org", repositories: [] }],
     });
+  });
+
+  it("defaults reputation projection fields while older responses migrate", async () => {
+    const { reputationSummary: _legacySummary, ...legacyProfile } = profile;
+    mockedAxios.get.mockResolvedValueOnce({ data: legacyProfile });
+
+    await expect(getContributorProfileByUsername("sara")).resolves.toMatchObject(
+      {
+        reputationSummary: {
+          rating: null,
+          reviewsCount: 0,
+          completedContributions: 0,
+          totalAssignedTasks: 0,
+          successRate: 0,
+          topVerifiedSkills: [],
+        },
+      },
+    );
   });
 
   it.each([

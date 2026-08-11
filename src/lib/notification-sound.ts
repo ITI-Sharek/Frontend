@@ -28,13 +28,13 @@ export function playNotificationSound(): void {
     oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.12);
 
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+    gain.gain.exponentialRampToValueAtTime(0.5, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
 
     oscillator.connect(gain);
     gain.connect(context.destination);
     oscillator.start(now);
-    oscillator.stop(now + 0.15);
+    oscillator.stop(now + 0.2);
 
     if (context.state === "suspended") {
       void context.resume().catch(() => undefined);

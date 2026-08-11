@@ -1,5 +1,6 @@
 import { ArrowLeft, BadgeCheck, Compass, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -18,8 +19,10 @@ import type { ContributorDashboardDto } from "../types/dashboard.types";
  */
 export function ContributorDashboardView({
   dashboard,
+  recommendedSlot,
 }: {
   dashboard: ContributorDashboardDto;
+  recommendedSlot?: ReactNode;
 }) {
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
@@ -78,6 +81,7 @@ export function ContributorDashboardView({
             applications={dashboard.applications}
             showGrowthPath
           />
+          {recommendedSlot}
         </>
       )}
 
@@ -115,6 +119,7 @@ export function ContributorDashboardView({
             growth={dashboard.growth}
             applications={dashboard.applications}
           />
+          {recommendedSlot}
           <p className="flex items-start gap-2 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">
             <ShieldCheck
               className="mt-0.5 size-4 shrink-0 text-evidence-teal"
