@@ -125,7 +125,6 @@ function AppLayout() {
           search={<HeaderSearch />}
           actions={
             <>
-              <MessagesButton />
               <ThemeSwitcher />
               <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
