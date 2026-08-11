@@ -1,51 +1,104 @@
 :root {
-  --background: #f6f7f4;
-  --foreground: #14201c;
-  --muted-foreground: #60706a;
-  --border: #dde3df;
-  --card: #ffffff;
-  --header-bg: rgba(246, 247, 244, 0.92);
-  --input-bg: #ffffff;
-  --input-placeholder: #6b7280;
-  --footer-bg: #eef1ed;
-  --surface-fog: #eef1ed;
-  --surface-muted: #e7ece8;
-  --primary: #30348c;
-  --primary-foreground: #ffffff;
-  --destructive: #dc2626;
-  --brand-indigo: var(--primary);
-  --brand-indigo-foreground: var(--primary-foreground);
-  --evidence-teal: #2dd4bf;
-  --evidence-teal-foreground: #0e1513;
-  --review-amber: #d97706;
-  --advisory-violet: #6b5ca5;
-  --radius-card: 12px;
+  /*
+   * Light theme — layered warm-neutral surfaces (Linear / Stripe direction)
+   *
+   * Surface hierarchy (darkest → lightest as you go deeper):
+   *   page bg   → #f4f6f9  (cool-neutral wash, not pure white)
+   *   sidebar   → #ffffff  (white — clean, slightly elevated)
+   *   card      → #ffffff  (white surfaces on the neutral background)
+   *   header    → #ffffff  (matches sidebar for visual unity)
+   *   input-bg  → #f9fafb  (very slightly off-white, distinct from card)
+   *   footer    → #f4f6f9  (matches page bg)
+   */
+
+  /* ── Surfaces ── */
+  --background:   #f4f6f9;   /* page wash — cool-neutral, not pure white */
+  --card:         #ffffff;   /* cards sit as bright surfaces on the wash */
+  --header-bg:    #ffffff;   /* top bar — clean white, connects to sidebar */
+  --input-bg:     #f9fafb;   /* inputs slightly recessed inside white cards */
+  --footer-bg:    #f4f6f9;   /* matches page background */
+
+  /* ── Text ── */
+  --foreground:         #111827;   /* near-black, neutral grey-900 */
+  --muted-foreground:   #6b7280;   /* grey-500 — clear hierarchy, WCAG AA */
+
+  /* ── Borders ── */
+  --border:       #e5e7eb;   /* grey-200 — crisp but not loud */
+
+  /* ── Brand / Accent ── */
+  --primary:             #3b4fd8;   /* indigo-600-ish — vivid but not dark navy */
+  --primary-foreground:  #ffffff;
+
+  /* ── Status ── */
+  --destructive:   #dc2626;   /* red-600 — unchanged */
+
+  /* ── Semantic aliases ── */
+  --brand-indigo:             var(--primary);
+  --brand-indigo-foreground:  var(--primary-foreground);
+
+  --evidence-teal:            #0d9488;   /* teal-600 — deeper, more readable on light */
+  --evidence-teal-foreground: #ffffff;
+
+  --review-amber:    #d97706;   /* amber-600 — unchanged */
+  --advisory-violet: #6b5ca5;   /* violet — unchanged */
+
+  /* ── Placeholder ── */
+  --input-placeholder: #9ca3af;   /* grey-400 — clearly muted, readable enough */
+
+  /* ── Radii — comfortable SaaS sizing ── */
+  --radius-card:  10px;
   --radius-input: 8px;
   --radius-social: 4px;
 }
 
 .dark {
-  --background: #0e1513;
-  --foreground: #dde4e1;
-  --muted-foreground: #bacac5;
-  --border: #3c4a46;
-  --card: #1a211f;
-  --header-bg: #161d1b;
-  --input-bg: #09100e;
-  --input-placeholder: rgba(186, 202, 197, 0.4);
-  --footer-bg: #09100e;
-  --surface-fog: #161d1b;
-  --surface-muted: #222c28;
-  --primary: #9aa3f0;
-  --primary-foreground: #10132b;
-  --destructive: #f87171;
-  --brand-indigo: var(--primary);
-  --brand-indigo-foreground: var(--primary-foreground);
-  --evidence-teal: #57f1db;
-  --evidence-teal-foreground: #003731;
-  --review-amber: #fbbf24;
-  --advisory-violet: #a78bfa;
-  --radius-card: 8px;
-  --radius-input: 4px;
-  --radius-social: 2px;
+  /*
+   * Dark theme — layered neutral-blue surfaces (Linear / Vercel direction)
+   *
+   * Surface hierarchy (lightest → darkest as you go deeper):
+   *   base bg    → #0d1117  (GitHub-inspired dark, slightly blue-tinted neutral)
+   *   sidebar    → #111827  (slightly lighter, distinct layer)
+   *   card       → #161d2a  (panels, dropdowns, dialogs)
+   *   input-bg   → #0d1117  (same as bg — inputs sit flush in forms)
+   *   header-bg  → #111827  (matches sidebar for visual unity)
+   */
+
+  /* ── Surfaces ── */
+  --background:     #0d1117;   /* base page — near-black, blue undertone */
+  --card:           #161d2a;   /* cards, panels, dropdowns, modals */
+  --header-bg:      #111827;   /* top bar — connects sidebar to content */
+  --input-bg:       #0d1117;   /* inputs sit recessed at base level */
+  --footer-bg:      #0d1117;
+
+  /* ── Text ── */
+  --foreground:         #e6edf3;   /* primary text — high contrast, slight warm-cool */
+  --muted-foreground:   #7d8fa6;   /* secondary/muted — clear hierarchy gap */
+
+  /* ── Borders ── */
+  --border:         #21303f;   /* subtle separator — visible but never loud */
+
+  /* ── Brand / Accent ── */
+  --primary:             #7c92ff;   /* vivid but not neon — comfortable on dark */
+  --primary-foreground:  #06080f;   /* near-black text on primary bg */
+
+  /* ── Status ── */
+  --destructive:     #f87171;   /* red-400 — readable on dark surfaces */
+
+  /* ── Semantic aliases (unchanged names) ── */
+  --brand-indigo:             var(--primary);
+  --brand-indigo-foreground:  var(--primary-foreground);
+
+  --evidence-teal:            #34d399;   /* emerald-400 — softer teal, less neon */
+  --evidence-teal-foreground: #022c22;
+
+  --review-amber:    #fbbf24;   /* amber-400 — unchanged, already good */
+  --advisory-violet: #a78bfa;   /* violet-400 — unchanged, already good */
+
+  /* ── Placeholder ── */
+  --input-placeholder: rgba(125, 143, 166, 0.6);   /* muted-foreground @ 60% */
+
+  /* ── Radii — tighter in dark for crisp SaaS feel ── */
+  --radius-card:  8px;
+  --radius-input: 6px;
+  --radius-social: 3px;
 }

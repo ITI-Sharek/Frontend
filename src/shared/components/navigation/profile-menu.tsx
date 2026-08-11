@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { dropdownVariants } from "@/shared/lib/motion";
 import { Avatar } from "@/shared/components/ui/avatar";
 
 export interface ProfileMenuItem {
@@ -74,42 +76,49 @@ export function ProfileMenu({
         <ChevronDown
           aria-hidden="true"
           className={cn(
-            "size-4 text-muted-foreground transition-transform",
+            "size-4 text-muted-foreground transition-transform duration-150",
             open && "rotate-180",
           )}
         />
       </button>
 
-      {open && (
-        <div
-          role="menu"
-          className="absolute end-0 z-50 mt-2 w-48 rounded-input border border-border bg-card p-1 shadow-lg"
-        >
-          {items.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              role="menuitem"
-              onClick={() => setOpen(false)}
-              className="block min-h-10 rounded-md px-3 py-2 text-sm text-foreground transition-colors duration-150 hover:bg-border/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onLogout();
-            }}
-            className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors duration-150 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="menu"
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            style={{ originY: 0 }}
+            className="absolute end-0 z-50 mt-2 w-48 rounded-input border border-border bg-card p-1 shadow-lg"
           >
-            <LogOut className="size-4" aria-hidden="true" />
-            تسجيل الخروج
-          </button>
-        </div>
-      )}
+            {items.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block min-h-10 rounded-md px-3 py-2 text-sm text-foreground transition-colors duration-150 hover:bg-border/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors duration-150 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              تسجيل الخروج
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
