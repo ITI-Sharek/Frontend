@@ -7,6 +7,7 @@ import {
   MaterialsPanel,
   useContributionRequestMaterialsQuery,
 } from "@/modules/materials";
+import { SkillGapGuidancePanel } from "@/modules/skill-guidance";
 
 export const Route = createFileRoute("/_appLayout/tasks/$taskId")({
   beforeLoad: requireContributorRoute,
@@ -28,6 +29,7 @@ function ContributionRequestDetailsPage() {
       projectHref={(slug) =>
         `${ROUTES.publicProjects}/${encodeURIComponent(slug)}`
       }
+      guidanceSlot={<SkillGapGuidancePanel contributionRequestId={taskId} />}
       onApplicationSubmitted={(application) =>
         void navigate({
           href: ROUTES.application(application.id),

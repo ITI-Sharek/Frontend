@@ -7,6 +7,7 @@ import {
   ApplicationStatusView,
   useApplicationQuery,
 } from "@/modules/contribution-requests";
+import { ContributorDeliveryPanel } from "@/modules/delivery-reviews";
 
 export const Route = createFileRoute(
   "/_appLayout/applications/$applicationId",
@@ -81,6 +82,7 @@ function ApplicationStatusPage() {
         `${ROUTES.tasks}/${encodeURIComponent(requestId)}`
       }
       requestsHref={ROUTES.tasks}
+      deliverySlot={<ContributorDeliveryPanel applicationId={applicationId} />}
     />
   );
 }

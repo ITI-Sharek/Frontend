@@ -57,12 +57,21 @@ type RawContributorProfileInstallation = Omit<
 
 type RawContributorProfileResponse = Omit<
   ContributorProfileDto,
-  "experienceLevel" | "fields" | "declaredSkills" | "githubInstallations"
+  | "experienceLevel"
+  | "fields"
+  | "declaredSkills"
+  | "githubInstallations"
+  | "reputationSummary"
 > &
   Partial<
-    Pick<ContributorProfileDto, "experienceLevel" | "fields" | "declaredSkills">
+    Pick<
+      ContributorProfileDto,
+      "experienceLevel" | "fields" | "declaredSkills"
+    >
   > & {
     githubInstallations?: RawContributorProfileInstallation[];
+    reputationSummary?: Partial<ContributorProfileDto["reputationSummary"]> &
+      Pick<ContributorProfileDto["reputationSummary"], "rating" | "reviewsCount">;
   };
 
 function resolveAvatarUrl(avatarUrl: string | null): string | null {
@@ -73,6 +82,8 @@ function resolveAvatarUrl(avatarUrl: string | null): string | null {
 function normalizeContributorProfile(
   data: RawContributorProfileResponse,
 ): ContributorProfileDto {
+  const reputationSummary = data.reputationSummary;
+
   return {
     ...data,
     avatarUrl: resolveAvatarUrl(data.avatarUrl),
@@ -85,6 +96,14 @@ function normalizeContributorProfile(
         repositories: installation.repositories ?? [],
       }),
     ),
+    reputationSummary: {
+      rating: reputationSummary?.rating ?? null,
+      reviewsCount: reputationSummary?.reviewsCount ?? 0,
+      completedContributions: reputationSummary?.completedContributions ?? 0,
+      totalAssignedTasks: reputationSummary?.totalAssignedTasks ?? 0,
+      successRate: reputationSummary?.successRate ?? 0,
+      topVerifiedSkills: reputationSummary?.topVerifiedSkills ?? [],
+    },
   };
 }
 

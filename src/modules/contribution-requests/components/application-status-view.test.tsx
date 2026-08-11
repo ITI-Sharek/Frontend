@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApplicationStatusView } from "./application-status-view";
@@ -74,10 +75,11 @@ describe("contributor Application status", () => {
   it("shows the accepted Assignment and agreed delivery date", () => {
     mocks.query.mockReturnValue(queryResult(application("ACCEPTED")));
 
-    const html = render();
+    const html = render(<section>مساحة تسليم العمل</section>);
     expect(html).toContain("إسناد العمل");
     expect(html).toContain("مدة التسليم المتفق عليها");
     expect(html).toContain("موعد التسليم المتفق عليه");
+    expect(html).toContain("مساحة تسليم العمل");
   });
 
   it("keeps human decline feedback separate and reporting is not an appeal", () => {
@@ -103,12 +105,13 @@ describe("contributor Application status", () => {
   });
 });
 
-function render() {
+function render(deliverySlot?: ReactNode) {
   return renderToStaticMarkup(
     <ApplicationStatusView
       applicationId="application-1"
       requestHref={(requestId) => `/tasks/${requestId}`}
       requestsHref="/tasks"
+      deliverySlot={deliverySlot}
     />,
   );
 }

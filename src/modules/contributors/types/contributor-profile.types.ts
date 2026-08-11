@@ -26,6 +26,13 @@ export interface ContributorHistoryItemDto {
 export interface ContributorReputationSummaryDto {
   rating: number | null;
   reviewsCount: number;
+  completedContributions: number;
+  totalAssignedTasks: number;
+  successRate: number;
+  topVerifiedSkills: Array<{
+    name: string;
+    verifiedContributionCount: number;
+  }>;
 }
 
 /**

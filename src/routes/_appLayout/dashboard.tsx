@@ -6,6 +6,7 @@ import {
   useContributorDashboardQuery,
 } from "@/modules/dashboard";
 import type { DashboardLifecycleState } from "@/modules/dashboard";
+import { RecommendedTasksSection } from "@/modules/matching";
 
 interface DashboardSearch {
   /** Dev/demo affordance while the API is mocked: preview WF-02 states B/C. */
@@ -43,5 +44,10 @@ function DashboardPage() {
     );
   }
 
-  return <ContributorDashboardView dashboard={dashboardQuery.data} />;
+  return (
+    <ContributorDashboardView
+      dashboard={dashboardQuery.data}
+      recommendedSlot={<RecommendedTasksSection />}
+    />
+  );
 }
