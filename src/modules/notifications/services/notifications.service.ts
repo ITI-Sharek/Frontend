@@ -77,3 +77,21 @@ export async function updateNotificationPreferences(
   );
   return data;
 }
+
+export const notificationsService = {
+  async list(limit = 50) {
+    const page = await listNotifications({ limit });
+    return {
+      items: page.items,
+      unreadCount: page.unreadCount ?? 0,
+    };
+  },
+
+  async markRead(notificationId: string): Promise<void> {
+    await setNotificationReadState(notificationId, "read");
+  },
+
+  async markAllRead(): Promise<void> {
+    await markAllNotificationsRead();
+  },
+};

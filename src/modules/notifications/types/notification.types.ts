@@ -32,11 +32,15 @@ export type NotificationRetentionDays = 30 | 90 | 180 | 365;
 
 export interface NotificationPresentationDto {
   notificationId: string;
+  userId?: string;
   type: NotificationPresentationType;
   templateKey: string;
   templateVersion: number;
   title: string;
   body: string;
+  /** Compatibility fields for realtime/persisted notification presenters. */
+  message?: string;
+  metadata?: unknown;
   deepLink: string | null;
   priority: NotificationPriority;
   isRead: boolean;
@@ -48,6 +52,7 @@ export interface NotificationPresentationDto {
 export interface NotificationPageDto {
   items: NotificationPresentationDto[];
   nextCursor: string | null;
+  unreadCount?: number;
 }
 
 export interface NotificationFilters {
@@ -132,6 +137,23 @@ export interface RealtimeEventEnvelope<TPayload> {
 
 export interface NotificationEventPayload {
   notification: NotificationPresentationDto;
+}
+
+export interface RealtimeNotificationDto {
+  notificationId: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  metadata: unknown;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface NotificationsInboxDto {
+  items: NotificationPresentationDto[];
+  unreadCount: number;
 }
 
 export type NotificationConnectionStatus =
