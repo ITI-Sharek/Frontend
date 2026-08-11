@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
+import { useState } from "react";
 
 import {
+  ContributionRequestCreateView,
   OwnerContributionRequestsWorkspace,
   getContributionRequestErrorMessage,
 } from "@/modules/contribution-requests";
@@ -9,6 +11,7 @@ import { requireOwnerRoute } from "@/modules/auth";
 import { useOwnerProjectQuery } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
+import { SidePanel } from "@/shared/components/ui/side-panel";
 import {
   PageContainer,
   PageFeedback,
@@ -24,7 +27,9 @@ export const Route = createFileRoute(
 
 function OwnerContributionRequestsPage() {
   const { projectId } = Route.useParams();
+  const navigate = Route.useNavigate();
   const projectQuery = useOwnerProjectQuery(projectId);
+  const [createOpen, setCreateOpen] = useState(false);
 
   if (projectQuery.isPending) {
     return (
@@ -61,13 +66,36 @@ function OwnerContributionRequestsPage() {
 
   const project = projectQuery.data;
 
+  const projectTitle = project.project.title || "بلا عنوان";
+
   return (
-    <OwnerContributionRequestsWorkspace
-      projectId={projectId}
-      projectTitle={project.project.title || "بلا عنوان"}
-      canCreate={project.status === "published"}
-      requestHref={(requestId) => ROUTES.contributionRequest(requestId)}
-      newRequestHref={ROUTES.newContributionRequest(projectId)}
-    />
+    <>
+      <OwnerContributionRequestsWorkspace
+        projectId={projectId}
+        projectTitle={projectTitle}
+        canCreate={project.status === "published"}
+        requestHref={(requestId) => ROUTES.contributionRequest(requestId)}
+        newRequestHref={ROUTES.newContributionRequest(projectId)}
+        onCreateRequest={() => setCreateOpen(true)}
+      />
+      <SidePanel
+        open={createOpen}
+        title="طلب مساهمة جديد"
+        description={`أنشئ مسودة داخل مشروع «${projectTitle}» من دون مغادرة قائمة الطلبات.`}
+        onClose={() => setCreateOpen(false)}
+      >
+        <ContributionRequestCreateView
+          projectId={projectId}
+          projectTitle={projectTitle}
+          cancelHref={ROUTES.ownerContributionRequests(projectId)}
+          presentation="panel"
+          onCancel={() => setCreateOpen(false)}
+          onCreated={(request) => {
+            setCreateOpen(false);
+            void navigate({ to: ROUTES.contributionRequest(request.id) });
+          }}
+        />
+      </SidePanel>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
+import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
 import {
   PublicProjectDetailView,
   getProjectApiErrorMessage,
@@ -21,6 +22,11 @@ function PublicProjectDetailsPage() {
   const { projectSlug } = Route.useParams();
   const projectQuery = usePublicProjectBySlugQuery(projectSlug);
   const currentUserQuery = useCurrentUserQuery();
+  const canReadMaterials = currentUserQuery.data?.status === "active";
+  const materialsQuery = useProjectMaterialsQuery(
+    projectQuery.data?.id ?? "",
+    canReadMaterials,
+  );
 
   if (projectQuery.isPending) {
     return (
@@ -76,6 +82,17 @@ function PublicProjectDetailsPage() {
                 إرسال مقترح مساهمة
               </Link>
             </div>
+          ) : null
+        }
+        materialsSlot={
+          canReadMaterials ? (
+            <MaterialsPanel
+              scope={{ kind: "project", id: projectQuery.data.id }}
+              isOwner={false}
+              materials={materialsQuery.data}
+              isLoading={materialsQuery.isPending}
+              isError={materialsQuery.isError}
+            />
           ) : null
         }
       />

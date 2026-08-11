@@ -7,6 +7,7 @@ import {
   getVisibleCompletionPrompts,
 } from "./contributor-profile-sections";
 import { ContributorProfileView } from "./contributor-profile-view";
+import { ContributorReputationStrip } from "./contributor-reputation-strip";
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
 // `Link` needs a RouterProvider; these are markup-only assertions.
@@ -36,8 +37,17 @@ function makeProfile(
     ],
     availability: "10 hours/week",
     githubStatus: { connected: true, username: "sara-dev" },
-  githubInstallations: [],
-    reputationSummary: { rating: 4.8, reviewsCount: 6 },
+    githubInstallations: [],
+    reputationSummary: {
+      rating: 4.8,
+      reviewsCount: 6,
+      completedContributions: 1,
+      totalAssignedTasks: 1,
+      successRate: 100,
+      topVerifiedSkills: [
+        { name: "React", verifiedContributionCount: 1 },
+      ],
+    },
     contributionHistory: [
       {
         id: "history-1",
@@ -107,7 +117,14 @@ describe("contributor profile view helpers", () => {
           skills: [],
           availability: null,
           contributionHistory: [],
-          reputationSummary: { rating: null, reviewsCount: 0 },
+          reputationSummary: {
+            rating: null,
+            reviewsCount: 0,
+            completedContributions: 0,
+            totalAssignedTasks: 0,
+            successRate: 0,
+            topVerifiedSkills: [],
+          },
           githubStatus: { connected: false, username: null },
         })}
       />,
@@ -133,5 +150,39 @@ describe("contributor profile view helpers", () => {
     expect(html).toContain("عرض عام للمساهم");
     expect(html).not.toContain("Add private onboarding details");
     expect(html).not.toContain("أكمل ملفك");
+  });
+
+  it("renders backend-projected reputation metrics and verified skills", () => {
+    const html = renderToStaticMarkup(
+      <ContributorProfileView
+        profile={(
+          {
+            ...makeProfile(),
+            reputationSummary: {
+              rating: 4.7,
+              reviewsCount: 6,
+              completedContributions: 13,
+              totalAssignedTasks: 14,
+              successRate: 92.86,
+              topVerifiedSkills: [
+                { name: "React", verifiedContributionCount: 6 },
+                { name: "TypeScript", verifiedContributionCount: 5 },
+              ],
+            },
+          }
+        )}
+      />,
+    );
+
+    expect(html).toContain("92.9%");
+    expect(html).toContain("13");
+    expect(html).toContain("React");
+    expect(html).toContain("6 مساهمات موثقة");
+    expect(html).toContain("TypeScript");
+
+    const reputationHtml = renderToStaticMarkup(
+      <ContributorReputationStrip profile={makeProfile()} />,
+    );
+    expect(reputationHtml).not.toContain("Node.js");
   });
 });
