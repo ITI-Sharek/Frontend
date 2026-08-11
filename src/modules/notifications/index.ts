@@ -20,6 +20,7 @@ export {
 } from "./utils/notification-event-cache";
 export { isRealtimeEventEnvelope } from "./utils/notification-guards";
 export { shouldPlayNotificationSound } from "./utils/notification-interruption-policy";
+export { notificationsService } from "./services/notifications.service";
 export type {
   ListNotificationsInput,
   MarkAllNotificationsReadResponseDto,
@@ -32,9 +33,17 @@ export type {
   NotificationPresentationType,
   NotificationPriority,
   NotificationRetentionDays,
+  NotificationsInboxDto,
+  RealtimeNotificationDto,
   NotificationType,
   RealtimeEventEnvelope,
   RealtimeEventType,
   UpdateNotificationPreferencesDto,
 } from "./types/notification.types";
 export { NOTIFICATION_TYPES } from "./types/notification.types";
+export {
+  formatNotificationDate,
+  getNotificationContent,
+  getNotificationPriorityLabel,
+  getNotificationTypeLabel,
+} from "./components/notification-presenter";

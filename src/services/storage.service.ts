@@ -1,6 +1,13 @@
 const ACCESS_TOKEN_KEY = "sharek_access_token";
 const REFRESH_TOKEN_KEY = "sharek_refresh_token";
 const USERNAME_KEY = "sharek_username";
+export const AUTH_CHANGED_EVENT = "sharek:auth-changed";
+
+function notifyAuthChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  }
+}
 
 type StorageSubscriber = () => void;
 
@@ -64,6 +71,7 @@ export const storageService = {
   setAccessToken: (token: string) => {
     setStoredValue(ACCESS_TOKEN_KEY, token);
     publishAccessToken(token);
+    notifyAuthChanged();
   },
   getRefreshToken: () =>
     typeof window === "undefined"
@@ -80,5 +88,6 @@ export const storageService = {
     removeStoredValue(REFRESH_TOKEN_KEY);
     removeStoredValue(USERNAME_KEY);
     publishAccessToken(null);
+    notifyAuthChanged();
   },
 };

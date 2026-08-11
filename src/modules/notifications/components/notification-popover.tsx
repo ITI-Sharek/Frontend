@@ -16,6 +16,7 @@ import {
 } from "../api/mutations/use-notification-mutations";
 import { getSafeNotificationLink } from "../utils/safe-notification-link";
 import {
+  getNotificationContent,
   getNotificationPriorityLabel,
   getNotificationTypeLabel,
 } from "./notification-presenter";
@@ -150,6 +151,7 @@ export function NotificationPopover({
                 }
               : { visibility: "hidden" }
           }
+          dir="rtl"
           className="fixed z-40 w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-5rem)] overflow-hidden rounded-card border border-border bg-card text-right shadow-md"
         >
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
@@ -200,6 +202,7 @@ export function NotificationPopover({
             ) : (
               <div className="flex flex-col gap-1">
                 {latestNotifications.slice(0, 5).map((notification) => {
+                  const content = getNotificationContent(notification);
                   const deepLink = getSafeNotificationLink(
                     notification.deepLink,
                     safeOrigin,
@@ -219,10 +222,10 @@ export function NotificationPopover({
                         <span>{getNotificationPriorityLabel(notification.priority)}</span>
                       </div>
                       <span className="mt-1 block truncate text-sm font-semibold text-foreground">
-                        {notification.title}
+                        {content.title}
                       </span>
                       <span className="mt-1 line-clamp-2 block break-words text-xs leading-5 text-muted-foreground">
-                        {notification.body}
+                        {content.message}
                       </span>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {deepLink ? (

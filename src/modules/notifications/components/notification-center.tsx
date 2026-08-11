@@ -26,6 +26,7 @@ import { Button } from "@/shared/components/ui/button";
 
 import {
   formatNotificationDate,
+  getNotificationContent,
   getNotificationPriorityLabel,
   getNotificationTypeLabel,
 } from "./notification-presenter";
@@ -58,26 +59,27 @@ export function NotificationCenter() {
   const hasUnread = (unreadCountQuery.data?.unreadCount ?? 0) > 0;
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="الإشعارات"
-        description="تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <ConnectionStatus status={connectionStatus} />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!hasUnread || markAllMutation.isPending}
-              onClick={() => markAllMutation.mutate()}
-            >
-              <CheckCheck className="size-4" aria-hidden="true" />
-              تحديد الكل كمقروء
-            </Button>
-          </div>
-        }
-      />
+    <div dir="rtl">
+      <PageContainer>
+        <PageHeader
+          title="الإشعارات"
+          description="تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك."
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <ConnectionStatus status={connectionStatus} />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!hasUnread || markAllMutation.isPending}
+                onClick={() => markAllMutation.mutate()}
+              >
+                <CheckCheck className="size-4" aria-hidden="true" />
+                تحديد الكل كمقروء
+              </Button>
+            </div>
+          }
+        />
 
       <div
         aria-label="فلاتر الإشعارات"
@@ -216,7 +218,8 @@ export function NotificationCenter() {
           )}
         </>
       )}
-    </PageContainer>
+      </PageContainer>
+    </div>
   );
 }
 
@@ -229,6 +232,7 @@ function NotificationRow({
   isPending: boolean;
   onSetReadState: (state: "read" | "unread") => void;
 }) {
+  const content = getNotificationContent(notification);
   const deepLink = getSafeNotificationLink(
     notification.deepLink,
     typeof window === "undefined" ? "http://localhost" : window.location.origin,
@@ -267,10 +271,10 @@ function NotificationRow({
             </time>
           </div>
           <h2 className="mt-2 break-words text-base font-bold text-foreground">
-            {notification.title}
+            {content.title}
           </h2>
           <p className="mt-1 max-w-3xl break-words text-sm leading-6 text-muted-foreground">
-            {notification.body}
+            {content.message}
           </p>
           {deepLink ? (
             <a
