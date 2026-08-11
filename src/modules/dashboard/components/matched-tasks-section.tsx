@@ -1,5 +1,7 @@
-import { BadgeCheck, ChevronLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
+import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
 
 import type { MatchedTaskDto } from "../types/dashboard.types";
@@ -16,33 +18,43 @@ export function MatchedTasksSection({
   matchReason: string;
 }) {
   return (
-    <section aria-labelledby="matched-heading">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2
-          id="matched-heading"
-          className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
+    <section
+      id="matches"
+      className="scroll-mt-28"
+      aria-labelledby="matched-heading"
+    >
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold text-evidence-teal-foreground dark:text-evidence-teal">
+            مبني على سجل مهاراتك
+          </p>
+          <h2
+            id="matched-heading"
+            className="mt-1 text-xl font-bold text-foreground"
+          >
+            فرص مناسبة لك
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            السبب: {matchReason}
+          </p>
+        </div>
+        <Link
+          to={ROUTES.tasks}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-input px-2 text-sm font-semibold text-primary hover:bg-primary/[0.06]"
         >
-          مهام مطابقة لك
-          <span className="ms-2 font-sans text-xs normal-case tracking-normal">
-            (السبب: {matchReason})
-          </span>
-        </h2>
-        <a
-          href="#"
-          className="inline-flex items-center gap-1 text-sm text-primary transition-colors hover:opacity-80"
-        >
-          عرض الكل
-          <ChevronLeft className="size-4" />
-        </a>
+          عرض كل الطلبات
+          <ArrowLeft className="size-4" />
+        </Link>
       </div>
 
-      <div className="mt-3 flex snap-x gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-3 md:overflow-visible">
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
         {tasks.map((task) => {
           const fullMatch = task.matchedCount === task.requiredCount;
           return (
-            <article
+            <Link
               key={task.id}
-              className="min-w-[240px] snap-start rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 md:min-w-0"
+              to={ROUTES.task(task.id)}
+              className="group flex min-w-0 flex-col rounded-card border border-border bg-card p-5 transition-[border-color,background-color] hover:border-primary/40 hover:bg-primary/[0.018] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span
                 className={cn(
@@ -75,7 +87,14 @@ export function MatchedTasksSection({
                   </span>
                 ))}
               </div>
-            </article>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                راجع التفاصيل
+                <ArrowLeft
+                  className="size-4 transition-transform group-hover:-translate-x-1"
+                  aria-hidden
+                />
+              </span>
+            </Link>
           );
         })}
       </div>

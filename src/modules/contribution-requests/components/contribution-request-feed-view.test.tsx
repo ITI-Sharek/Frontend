@@ -30,7 +30,10 @@ describe("Contribution Request contributor feed", () => {
           },
         ],
         totalCount: 1,
-        technologyFacets: ["React", "WebSocket"],
+        technologyFacets: [
+          { technology: "React", count: 1 },
+          { technology: "WebSocket", count: 1 },
+        ],
       },
     } as unknown as ReturnType<typeof useContributionRequestsQuery>);
 

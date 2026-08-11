@@ -13,9 +13,11 @@ import {
   useCurrentUserQuery,
   useLogoutMutation,
 } from "@/modules/auth";
-import { NotificationPopover } from "@/modules/notifications";
+import {
+  NotificationPopover,
+  useUnreadNotificationCountQuery,
+} from "@/modules/notifications";
 import { useAdminPendingSkillReviewsQuery } from "@/modules/skill-profiles";
-import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
@@ -31,7 +33,8 @@ export const Route = createFileRoute("/_adminLayout")({
 });
 
 function AdminLayout() {
-  const { unreadCount } = useNotifications();
+  const unreadCountQuery = useUnreadNotificationCountQuery();
+  const unreadCount = unreadCountQuery.data?.unreadCount ?? 0;
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });

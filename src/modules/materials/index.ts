@@ -3,6 +3,7 @@ export { MaterialUploadForm } from "./components/material-upload-form";
 export { MaterialCard } from "./components/material-card";
 export { MaterialGrantsPanel } from "./components/material-grants-panel";
 export { MaterialVersionRow } from "./components/material-version-row";
+export { MaterialAnalysisPanel } from "./components/material-analysis-panel";
 
 export {
   useProjectMaterialsQuery,
@@ -10,7 +11,17 @@ export {
   useMaterialGrantsQuery,
   useMaterialUploadConstraintsQuery,
   materialsRefetchInterval,
+  useMaterialAnalysisConstraintsQuery,
+  useMaterialAnalysisSetsQuery,
+  useMaterialAnalysisRunQuery,
 } from "./api/queries/use-material-queries";
+export {
+  useCreateMaterialAnalysisSetMutation,
+  useStartMaterialAnalysisRunMutation,
+  useRejectMaterialDraftSuggestionMutation,
+  useAdoptProjectMaterialSuggestionMutation,
+  useAdoptContributionRequestMaterialSuggestionMutation,
+} from "./api/mutations/use-material-analysis-mutations";
 export { materialKeys } from "./api/query-keys";
 export type { MaterialScope } from "./api/mutations/use-material-mutations";
 

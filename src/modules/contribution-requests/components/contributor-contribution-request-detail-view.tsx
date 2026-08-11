@@ -8,6 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
@@ -51,6 +52,8 @@ export function ContributorContributionRequestDetailView({
   applicationHref,
   projectHref,
   onApplicationSubmitted,
+  materialsSlot,
+  guidanceSlot,
 }: {
   requestId: string;
   requestsHref: string;
@@ -58,6 +61,8 @@ export function ContributorContributionRequestDetailView({
   applicationHref: (applicationId: string) => string;
   projectHref: (projectSlug: string) => string;
   onApplicationSubmitted: (application: ApplicationDto) => void;
+  materialsSlot?: ReactNode;
+  guidanceSlot?: ReactNode;
 }) {
   const query = useContributionRequestDetailsQuery(requestId);
 
@@ -101,7 +106,13 @@ export function ContributorContributionRequestDetailView({
       </a>
       <RequestOverview request={request} projectHref={projectHref} />
       <RequirementSections requirements={request.requirements} />
+      {guidanceSlot}
       <RequestMetadata request={request} />
+      {materialsSlot && (
+        <div className="mt-5 rounded-card border border-border bg-card p-5">
+          {materialsSlot}
+        </div>
+      )}
       <ApplicationSubmissionGate
         requestId={request.id}
         requestsHref={requestsHref}

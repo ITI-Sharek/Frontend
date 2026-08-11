@@ -116,7 +116,15 @@ export function MaterialsPanel({
             <MaterialCard
               key={material.id}
               material={material}
-              isOwner={isOwner}
+              // A Request listing also contains inherited Project Materials.
+              // They remain visible here, but their owner controls belong on
+              // the Project surface so deleting or versioning one from a
+              // Request cannot look like a Request-local operation.
+              isOwner={
+                isOwner &&
+                (scope.kind === "project" ||
+                  material.contributionRequestId === scope.id)
+              }
               grants={
                 openGrantsFor === material.id ? grantsQuery.data : undefined
               }
