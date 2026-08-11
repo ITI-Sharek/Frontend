@@ -54,6 +54,25 @@ html.dark {
   color-scheme: dark;
 }
 
+/* Smooth background/color transitions when switching themes */
+body,
+.bg-background,
+.bg-card,
+.bg-header-bg,
+.bg-input-bg {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .bg-background,
+  .bg-card,
+  .bg-header-bg,
+  .bg-input-bg {
+    transition: none;
+  }
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;
@@ -90,4 +109,136 @@ p {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Light mode scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f6f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+  border: 2px solid #f4f6f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Firefox */
+html:not(.dark) {
+  scrollbar-color: #d1d5db #f4f6f9;
+}
+
+/* ── Dark mode scrollbar ── */
+html.dark {
+  scrollbar-color: #21303f #0d1117;
+}
+
+html.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #21303f;
+  border-radius: 4px;
+  border: 2px solid #0d1117;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #2d4056;
+}
+
+/* ── Dark mode selection ── */
+html.dark ::selection {
+  background: color-mix(in srgb, #7c92ff 28%, transparent);
+  color: #e6edf3;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Micro-interactions
+   All transforms use `will-change: transform` only on hover to avoid
+   promoting every card to a composite layer at idle.
+   prefers-reduced-motion: the global override at the bottom of this file
+   sets transition-duration: 0.01ms on *, which disables all of these.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Card hover lift ── */
+/*
+ * Applied to any element with `rounded-card border border-border bg-card`.
+ * A 1px lift + slightly deeper shadow — subtle elevation feedback.
+ * We target by data attribute so routes can opt in without CSS coupling.
+ */
+[data-card-hover] {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+[data-card-hover]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.1), 0 2px 6px -2px rgba(0, 0, 0, 0.07);
+}
+html.dark [data-card-hover]:hover {
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(124, 146, 255, 0.18);
+}
+
+/* ── Table row hover ── */
+/*
+ * Smooth background transition on <tr> elements — avoids the jarring
+ * instant-snap that plain `hover:bg-*` produces.
+ */
+tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+/* ── Skeleton shimmer animation ── */
+/*
+ * Attach `.skeleton` to any placeholder element.
+ * Uses a CSS gradient sweep — no JS, no layout thrashing.
+ */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    color-mix(in srgb, var(--border) 55%, var(--card)) 50%,
+    var(--border) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-input);
+}
+
+/* ── Focus transition on interactive controls ── */
+/*
+ * Input, select, textarea: the ring/border transition is already on the
+ * component class, but we reinforce it globally so custom inputs behave
+ * consistently.
+ */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ── Link micro-interaction ── */
+/*
+ * Anchor tags inside main content: a very fast underline offset transition.
+ */
+a {
+  transition: color 0.12s ease, opacity 0.12s ease;
 }

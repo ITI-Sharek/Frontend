@@ -18,6 +18,7 @@ import { useAdminPendingSkillReviewsQuery } from "@/modules/skill-profiles";
 import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
+import { PageTransition } from "@/shared/components/layout/page-transition";
 import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { Button } from "@/shared/components/ui/button";
@@ -107,7 +108,9 @@ function AdminLayout() {
         />
       }
     >
-      <Outlet />
+      <PageTransition routeKey={pathname}>
+        <Outlet />
+      </PageTransition>
     </AppShell>
   );
 }
