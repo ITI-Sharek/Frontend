@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { FileText, FolderOpen, NotebookPen, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 
 import {
@@ -22,14 +23,35 @@ import {
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
 import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
-import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
+import { useOwnerProjectContributionRequestsQuery } from "@/modules/contribution-requests";
+import {
+  MaterialAnalysisPanel,
+  MaterialsPanel,
+  useProjectMaterialsQuery,
+} from "@/modules/materials";
 import type { ProjectManualOverrideField } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
+import { cn } from "@/lib/utils";
+
+type ProjectWorkspaceTab = "overview" | "materials" | "analysis" | "proposals";
+
+function validateSearch(search: Record<string, unknown>): {
+  tab: ProjectWorkspaceTab;
+} {
+  const tab = search.tab;
+  return {
+    tab:
+      tab === "materials" || tab === "analysis" || tab === "proposals"
+        ? tab
+        : "overview",
+  };
+}
 
 export const Route = createFileRoute("/_appLayout/my-projects/$projectId/")({
   head: () => ({ meta: [{ title: "إدارة المشروع | Sharek" }] }),
+  validateSearch,
   component: OwnerProjectManagementPage,
 });
 
@@ -46,6 +68,8 @@ function useProjectActionKey(operation: string, revision: number) {
 
 function OwnerProjectManagementPage() {
   const { projectId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const projectQuery = useOwnerProjectQuery(projectId);
 
   if (projectQuery.isPending) {
@@ -67,21 +91,34 @@ function OwnerProjectManagementPage() {
   }
 
   return (
-    <OwnerProjectManagement projectId={projectId} project={projectQuery.data} />
+    <OwnerProjectManagement
+      projectId={projectId}
+      project={projectQuery.data}
+      activeTab={tab}
+      onTabChange={(nextTab) =>
+        void navigate({ search: { tab: nextTab }, replace: true })
+      }
+    />
   );
 }
 
 function OwnerProjectManagement({
   projectId,
   project,
+  activeTab,
+  onTabChange,
 }: {
   projectId: string;
   project: NonNullable<ReturnType<typeof useOwnerProjectQuery>["data"]>;
+  activeTab: ProjectWorkspaceTab;
+  onTabChange: (tab: ProjectWorkspaceTab) => void;
 }) {
   const editMutation = useEditProjectMutation();
   const refreshMutation = useRefreshProjectSourceMutation();
   const publishMutation = usePublishProjectMutation();
   const archiveMutation = useArchiveProjectMutation();
+  const contributionRequestsQuery =
+    useOwnerProjectContributionRequestsQuery(projectId);
   const [restoringField, setRestoringField] =
     useState<ProjectManualOverrideField | null>(null);
 
@@ -97,104 +134,181 @@ function OwnerProjectManagement({
 
   return (
     <>
-      <div className="mx-auto w-full max-w-3xl px-4 pt-6 md:px-6">
-        <Link
-          to={ROUTES.ownerContributionRequests(projectId)}
-          className="inline-flex items-center gap-2 rounded-card border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/40"
+      <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6">
+        <nav
+          aria-label="أقسام إدارة المشروع"
+          className="flex gap-1 overflow-x-auto border-b border-border"
         >
-          طلبات المساهمة لهذا المشروع
-        </Link>
+          <ProjectTabButton
+            icon={FileText}
+            label="نظرة عامة"
+            selected={activeTab === "overview"}
+            onClick={() => onTabChange("overview")}
+          />
+          <ProjectTabButton
+            icon={FolderOpen}
+            label="المواد"
+            selected={activeTab === "materials"}
+            onClick={() => onTabChange("materials")}
+          />
+          <ProjectTabButton
+            icon={Sparkles}
+            label="التحليل"
+            selected={activeTab === "analysis"}
+            onClick={() => onTabChange("analysis")}
+          />
+          <ProjectTabButton
+            icon={NotebookPen}
+            label="المقترحات"
+            selected={activeTab === "proposals"}
+            onClick={() => onTabChange("proposals")}
+          />
+          <Link
+            to={ROUTES.ownerContributionRequests(projectId)}
+            className="flex min-h-12 shrink-0 items-center gap-2 border-b-2 border-transparent px-4 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            طلبات المساهمة
+            <span
+              aria-label={`${contributionRequestsQuery.data?.totalCount ?? 0} طلبات مساهمة`}
+              className="inline-flex min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-primary"
+            >
+              {contributionRequestsQuery.data?.totalCount ?? "…"}
+            </span>
+          </Link>
+        </nav>
       </div>
-      <ProjectOwnerDetailView
-        project={project}
-        myProjectsHref="/my-projects"
-        publicProjectHref={`/projects/${encodeURIComponent(project.slug)}`}
-        onSaveEdit={(payload) => {
-          editMutation.mutate({
-            projectId,
-            idempotencyKey: editKey,
-            ...payload,
-          });
-        }}
-        isSavingEdit={editMutation.isPending}
-        editError={
-          editMutation.isError
-            ? getProjectApiErrorMessage(editMutation.error)
-            : null
-        }
-        onRestoreField={(field) => {
-          setRestoringField(field);
-          editMutation.mutate(
-            {
+      {activeTab === "overview" && (
+        <ProjectOwnerDetailView
+          project={project}
+          myProjectsHref="/my-projects"
+          publicProjectHref={`/projects/${encodeURIComponent(project.slug)}`}
+          onSaveEdit={(payload) => {
+            editMutation.mutate({
               projectId,
-              idempotencyKey: getRestoreFieldIdempotencyKey(
-                restoreKeysRef.current,
-                project.revision,
-                field,
-              ),
+              idempotencyKey: editKey,
+              ...payload,
+            });
+          }}
+          isSavingEdit={editMutation.isPending}
+          editError={
+            editMutation.isError
+              ? getProjectApiErrorMessage(editMutation.error)
+              : null
+          }
+          onRestoreField={(field) => {
+            setRestoringField(field);
+            editMutation.mutate(
+              {
+                projectId,
+                idempotencyKey: getRestoreFieldIdempotencyKey(
+                  restoreKeysRef.current,
+                  project.revision,
+                  field,
+                ),
+                expectedRevision: project.revision,
+                restoreFromSource: [field],
+              },
+              { onSettled: () => setRestoringField(null) },
+            );
+          }}
+          restoringField={restoringField}
+          onRefresh={() => {
+            refreshMutation.mutate({
+              projectId,
+              idempotencyKey: refreshKey,
               expectedRevision: project.revision,
-              restoreFromSource: [field],
-            },
-            { onSettled: () => setRestoringField(null) },
-          );
-        }}
-        restoringField={restoringField}
-        onRefresh={() => {
-          refreshMutation.mutate({
-            projectId,
-            idempotencyKey: refreshKey,
-            expectedRevision: project.revision,
-          });
-        }}
-        isRefreshing={refreshMutation.isPending}
-        refreshError={
-          refreshMutation.isError
-            ? getProjectApiErrorMessage(refreshMutation.error)
-            : null
-        }
-        onPublish={() => {
-          publishMutation.mutate({
-            projectId,
-            idempotencyKey: publishKey,
-            expectedRevision: project.revision,
-            confirm: true,
-          });
-        }}
-        isPublishing={publishMutation.isPending}
-        publishError={
-          publishMutation.isError
-            ? getProjectApiErrorMessage(publishMutation.error)
-            : null
-        }
-        onArchive={() => {
-          archiveMutation.mutate({
-            projectId,
-            idempotencyKey: archiveKey,
-            expectedRevision: project.revision,
-            confirm: true,
-          });
-        }}
-        isArchiving={archiveMutation.isPending}
-        archiveError={
-          archiveMutation.isError
-            ? getProjectApiErrorMessage(archiveMutation.error)
-            : null
-        }
-        recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
-      />
-      <div className="mx-auto w-full max-w-5xl space-y-8 px-4 pb-8 md:px-6">
+            });
+          }}
+          isRefreshing={refreshMutation.isPending}
+          refreshError={
+            refreshMutation.isError
+              ? getProjectApiErrorMessage(refreshMutation.error)
+              : null
+          }
+          onPublish={() => {
+            publishMutation.mutate({
+              projectId,
+              idempotencyKey: publishKey,
+              expectedRevision: project.revision,
+              confirm: true,
+            });
+          }}
+          isPublishing={publishMutation.isPending}
+          publishError={
+            publishMutation.isError
+              ? getProjectApiErrorMessage(publishMutation.error)
+              : null
+          }
+          onArchive={() => {
+            archiveMutation.mutate({
+              projectId,
+              idempotencyKey: archiveKey,
+              expectedRevision: project.revision,
+              confirm: true,
+            });
+          }}
+          isArchiving={archiveMutation.isPending}
+          archiveError={
+            archiveMutation.isError
+              ? getProjectApiErrorMessage(archiveMutation.error)
+              : null
+          }
+          recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
+        />
+      )}
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-6 md:px-6">
         {/* Composed at the route, not inside modules/projects: a module must
             never import another module. */}
-        <OwnerProjectMaterials projectId={projectId} />
-        <OwnerProposalWorkspace projectId={projectId} />
+        {activeTab === "materials" && (
+          <OwnerProjectMaterials projectId={projectId} />
+        )}
+        {activeTab === "analysis" && (
+          <MaterialAnalysisPanel
+            projectId={projectId}
+            projectRevision={project.revision}
+            projectStatus={project.status}
+          />
+        )}
+        {activeTab === "proposals" && (
+          <OwnerProposalWorkspace projectId={projectId} />
+        )}
       </div>
     </>
   );
 }
 
+function ProjectTabButton({
+  icon: Icon,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: typeof FileText;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-current={selected ? "page" : undefined}
+      onClick={onClick}
+      className={cn(
+        "flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-4 text-sm transition-colors",
+        selected
+          ? "border-primary font-semibold text-primary"
+          : "border-transparent text-muted-foreground hover:text-foreground",
+      )}
+    >
+      <Icon className="size-4" aria-hidden />
+      {label}
+    </button>
+  );
+}
+
 /**
- * Materials sit apart from the AI surfaces on this page, and deliberately
- * offer nothing that starts analysis: uploading here is storage consent only.
+ * Uploading remains storage consent only. Analysis has its own route-level
+ * panel below so selecting source material is an explicit owner action.
  */
 function OwnerProjectMaterials({ projectId }: { projectId: string }) {
   const materialsQuery = useProjectMaterialsQuery(projectId);

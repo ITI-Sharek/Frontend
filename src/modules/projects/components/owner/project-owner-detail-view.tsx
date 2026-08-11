@@ -18,7 +18,10 @@ import { cn } from "@/lib/utils";
 
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../explore-filters";
 import { ProjectSourceStatusPanel } from "./project-source-status-panel";
-import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
+import {
+  formatFieldList,
+  parseFieldList,
+} from "../../utils/project-field-list";
 import type {
   ProjectCategory,
   ProjectDifficulty,
@@ -90,7 +93,7 @@ export function ProjectOwnerDetailView({
   const [confirmingArchive, setConfirmingArchive] = useState(false);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6 md:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <a href={myProjectsHref} className="text-sm text-muted-foreground">
@@ -111,139 +114,145 @@ export function ProjectOwnerDetailView({
         </StatusChip>
       </div>
 
-      <ProjectSourceStatusPanel
-        attribution={project.source.attribution}
-        status={project.source.status}
-        onRefresh={onRefresh}
-        isRefreshing={isRefreshing}
-        refreshError={refreshError}
-        recoverySlot={recoverySlot}
-      />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <ProjectEditForm
+          key={project.revision}
+          project={project}
+          onSaveEdit={onSaveEdit}
+          isSavingEdit={isSavingEdit}
+          editError={editError}
+          onRestoreField={onRestoreField}
+          restoringField={restoringField}
+        />
 
-      <ProjectEditForm
-        key={project.revision}
-        project={project}
-        onSaveEdit={onSaveEdit}
-        isSavingEdit={isSavingEdit}
-        editError={editError}
-        onRestoreField={onRestoreField}
-        restoringField={restoringField}
-      />
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-24">
+          <ProjectSourceStatusPanel
+            attribution={project.source.attribution}
+            status={project.source.status}
+            onRefresh={onRefresh}
+            isRefreshing={isRefreshing}
+            refreshError={refreshError}
+            recoverySlot={recoverySlot}
+          />
 
-      {project.status === "draft" && (
-        <Card>
-          <h2 className="text-sm font-bold text-foreground">النشر</h2>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            بعد النشر يظهر المشروع لكل المساهمين. يمكنك أرشفته لاحقاً في أي وقت،
-            لكن لا يمكن إعادته إلى مسودة.
-          </p>
-          {publishError && (
-            <p role="alert" className="mt-3 text-xs text-destructive">
-              {publishError}
-            </p>
+          {project.status === "draft" && (
+            <Card className="p-5">
+              <h2 className="text-sm font-bold text-foreground">النشر</h2>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                بعد النشر يظهر المشروع لكل المساهمين. يمكنك أرشفته لاحقاً في أي
+                وقت، لكن لا يمكن إعادته إلى مسودة.
+              </p>
+              {publishError && (
+                <p role="alert" className="mt-3 text-xs text-destructive">
+                  {publishError}
+                </p>
+              )}
+              {!confirmingPublish ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => setConfirmingPublish(true)}
+                >
+                  <Rocket className="size-4" />
+                  نشر المشروع
+                </Button>
+              ) : (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={isPublishing}
+                    onClick={() => {
+                      onPublish();
+                    }}
+                  >
+                    {isPublishing && (
+                      <Loader2 className="size-4 animate-spin" />
+                    )}
+                    تأكيد النشر
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={isPublishing}
+                    onClick={() => setConfirmingPublish(false)}
+                  >
+                    إلغاء
+                  </Button>
+                </div>
+              )}
+            </Card>
           )}
-          {!confirmingPublish ? (
-            <Button
-              type="button"
-              size="sm"
-              className="mt-3"
-              onClick={() => setConfirmingPublish(true)}
-            >
-              <Rocket className="size-4" />
-              نشر المشروع
-            </Button>
-          ) : (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={isPublishing}
-                onClick={() => {
-                  onPublish();
-                }}
-              >
-                {isPublishing && <Loader2 className="size-4 animate-spin" />}
-                تأكيد النشر
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isPublishing}
-                onClick={() => setConfirmingPublish(false)}
-              >
-                إلغاء
-              </Button>
-            </div>
-          )}
-        </Card>
-      )}
 
-      {project.status === "published" && (
-        <Card>
-          <h2 className="text-sm font-bold text-foreground">الأرشفة</h2>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            الأرشفة تزيل المشروع من كل القوائم العامة. هذا الإجراء الوحيد
-            لسحب مشروع منشور، ولا يمكن التراجع عنه إلى مسودة.
-          </p>
-          <Button asChild type="button" size="sm" className="mt-3">
-            <a href={publicProjectHref}>
-              <ExternalLink className="size-4" />
-              عرض الصفحة العامة
-            </a>
-          </Button>
-          {archiveError && (
-            <p role="alert" className="mt-3 text-xs text-destructive">
-              {archiveError}
-            </p>
-          )}
-          {!confirmingArchive ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="mt-3"
-              onClick={() => setConfirmingArchive(true)}
-            >
-              <ArchiveRestore className="size-4" />
-              أرشفة المشروع
-            </Button>
-          ) : (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive"
-                disabled={isArchiving}
-                onClick={() => {
-                  onArchive();
-                }}
-              >
-                {isArchiving && <Loader2 className="size-4 animate-spin" />}
-                تأكيد الأرشفة
+          {project.status === "published" && (
+            <Card className="p-5">
+              <h2 className="text-sm font-bold text-foreground">الأرشفة</h2>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                الأرشفة تزيل المشروع من كل القوائم العامة. هذا الإجراء الوحيد
+                لسحب مشروع منشور، ولا يمكن التراجع عنه إلى مسودة.
+              </p>
+              <Button asChild type="button" size="sm" className="mt-3">
+                <a href={publicProjectHref}>
+                  <ExternalLink className="size-4" />
+                  عرض الصفحة العامة
+                </a>
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isArchiving}
-                onClick={() => setConfirmingArchive(false)}
-              >
-                إلغاء
-              </Button>
-            </div>
+              {archiveError && (
+                <p role="alert" className="mt-3 text-xs text-destructive">
+                  {archiveError}
+                </p>
+              )}
+              {!confirmingArchive ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-3"
+                  onClick={() => setConfirmingArchive(true)}
+                >
+                  <ArchiveRestore className="size-4" />
+                  أرشفة المشروع
+                </Button>
+              ) : (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    disabled={isArchiving}
+                    onClick={() => {
+                      onArchive();
+                    }}
+                  >
+                    {isArchiving && <Loader2 className="size-4 animate-spin" />}
+                    تأكيد الأرشفة
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={isArchiving}
+                    onClick={() => setConfirmingArchive(false)}
+                  >
+                    إلغاء
+                  </Button>
+                </div>
+              )}
+            </Card>
           )}
-        </Card>
-      )}
 
-      {project.status === "archived" && (
-        <Card className="border-border/60 bg-muted/20">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            هذا المشروع مؤرشف وغير مرئي للعامة. إعادة النشر أو التفعيل غير
-            متاحة من هذه الصفحة حالياً.
-          </p>
-        </Card>
-      )}
+          {project.status === "archived" && (
+            <Card className="border-border/60 bg-surface-fog p-5">
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                هذا المشروع مؤرشف وغير مرئي للعامة. إعادة النشر أو التفعيل غير
+                متاحة من هذه الصفحة حالياً.
+              </p>
+            </Card>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }
@@ -284,22 +293,19 @@ function ProjectEditForm({
       payload.title = title;
       hasChange = true;
     }
-    const normalizedDescription = description.trim() === "" ? null : description;
+    const normalizedDescription =
+      description.trim() === "" ? null : description;
     if (normalizedDescription !== effective.description) {
       payload.description = normalizedDescription;
       hasChange = true;
     }
     const normalizedTags = parseFieldList(tags);
-    if (
-      normalizedTags.join(",") !== effective.tags.join(",")
-    ) {
+    if (normalizedTags.join(",") !== effective.tags.join(",")) {
       payload.tags = normalizedTags;
       hasChange = true;
     }
     const normalizedTechnologies = parseFieldList(technologies);
-    if (
-      normalizedTechnologies.join(",") !== effective.technologies.join(",")
-    ) {
+    if (normalizedTechnologies.join(",") !== effective.technologies.join(",")) {
       payload.technologies = normalizedTechnologies;
       hasChange = true;
     }
@@ -331,7 +337,11 @@ function ProjectEditForm({
           onRestore={() => onRestoreField("title")}
           isRestoring={restoringField === "title"}
         >
-          <Input dir="ltr" value={title} onChange={(event) => setTitle(event.target.value)} />
+          <Input
+            dir="ltr"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
         </EditFieldLabel>
 
         <EditFieldLabel
@@ -356,7 +366,11 @@ function ProjectEditForm({
           onRestore={() => onRestoreField("tags")}
           isRestoring={restoringField === "tags"}
         >
-          <Input dir="ltr" value={tags} onChange={(event) => setTags(event.target.value)} />
+          <Input
+            dir="ltr"
+            value={tags}
+            onChange={(event) => setTags(event.target.value)}
+          />
         </EditFieldLabel>
 
         <EditFieldLabel

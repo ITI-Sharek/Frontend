@@ -1,5 +1,11 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, BriefcaseBusiness, Compass, MessageCircleQuestion, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  Compass,
+  MessageCircleQuestion,
+  Plus,
+} from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -10,7 +16,10 @@ import {
   useMyProjectsQuery,
 } from "@/modules/projects";
 import { useContributorProfileQuery } from "@/modules/contributors";
-import { DiscussionPostCard, useDiscussionPostsQuery } from "@/modules/discussions";
+import {
+  DiscussionPostCard,
+  useDiscussionPostsQuery,
+} from "@/modules/discussions";
 import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_appLayout/home")({
@@ -30,35 +39,49 @@ function HomeHubPage() {
   return <HomeHubView currentUser={currentUser} />;
 }
 
-function HomeHubView({
-  currentUser,
-}: {
-  currentUser: AuthUserDto;
-}) {
+function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
   const displayName =
     [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
     currentUser.email;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-9 px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
+      <header className="flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">أهلاً، {displayName}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            كل ما تحتاجه للبدء في مكان واحد.
+          <p className="text-xs font-semibold text-primary">
+            {currentUser.role === "owner"
+              ? "مساحة صاحب المشروع"
+              : "مساحة المساهم"}
+          </p>
+          <h1 className="mt-2 text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+            أهلاً، {displayName}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+            {currentUser.role === "owner"
+              ? "راجع مشاريعك وابدأ طلب مساهمة جديداً من سياق المشروع نفسه."
+              : "تابع سجلك، واكتشف عملاً مفتوحاً يناسب خبرتك الحالية."}
           </p>
         </div>
         <Button asChild size="sm">
-          <Link to={ROUTES.newProject}>
-            <Plus className="size-4" aria-hidden />
-            أضف مشروعاً
+          <Link
+            to={currentUser.role === "owner" ? ROUTES.newProject : ROUTES.tasks}
+          >
+            {currentUser.role === "owner" ? (
+              <Plus className="size-4" aria-hidden />
+            ) : (
+              <Compass className="size-4" aria-hidden />
+            )}
+            {currentUser.role === "owner"
+              ? "أضف مشروعاً"
+              : "استكشف طلبات المساهمة"}
+            <ArrowLeft className="size-4" aria-hidden />
           </Link>
         </Button>
-      </div>
-
-      <ExplorePreviewSection />
+      </header>
 
       <MyWorksSection currentUser={currentUser} />
+
+      <ExplorePreviewSection />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <DiscussionsPreviewSection />
@@ -73,7 +96,7 @@ function ExplorePreviewSection() {
   const projects = exploreQuery.data?.projects.slice(0, 3) ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-4">
       <SectionHeader
         icon={Compass}
         title="استكشف المشاريع"
@@ -95,11 +118,7 @@ function ExplorePreviewSection() {
   );
 }
 
-function MyWorksSection({
-  currentUser,
-}: {
-  currentUser: AuthUserDto;
-}) {
+function MyWorksSection({ currentUser }: { currentUser: AuthUserDto }) {
   if (currentUser.role === "owner") {
     return <OwnerWorksPreview />;
   }
@@ -112,7 +131,7 @@ function OwnerWorksPreview() {
   const projects = projectsQuery.data?.projects.slice(0, 3) ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-4">
       <SectionHeader
         icon={BriefcaseBusiness}
         title="أعمالي"
@@ -124,12 +143,12 @@ function OwnerWorksPreview() {
       ) : projects.length === 0 ? (
         <EmptyPreviewCard label="لم تنشئ مشاريع بعد." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
           {projects.map((project) => (
             <Link
               key={project.id}
               to={ROUTES.myProjects}
-              className="flex items-center justify-between gap-3 rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50"
+              className="flex min-h-16 items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-surface-fog"
             >
               <span className="min-w-0 truncate text-sm font-semibold text-foreground">
                 {project.title}
@@ -150,7 +169,7 @@ function ContributorWorksPreview({ username }: { username: string }) {
   const history = profileQuery.data?.contributionHistory.slice(0, 3) ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-4">
       <SectionHeader
         icon={BriefcaseBusiness}
         title="أعمالي"
@@ -162,12 +181,12 @@ function ContributorWorksPreview({ username }: { username: string }) {
       ) : history.length === 0 ? (
         <EmptyPreviewCard label="لا توجد مساهمات موثّقة بعد." />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
           {history.map((item) => (
             <Link
               key={item.id}
               to={ROUTES.contributorProfile(username)}
-              className="flex flex-col gap-1 rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50"
+              className="flex min-h-16 flex-col justify-center gap-1 px-5 py-4 transition-colors hover:bg-surface-fog"
             >
               <span className="text-sm font-semibold text-foreground">
                 {item.title}
@@ -188,7 +207,7 @@ function DiscussionsPreviewSection() {
   const posts = postsQuery.data?.slice(0, 2) ?? [];
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-4">
       <SectionHeader
         icon={MessageCircleQuestion}
         title="النقاشات"
@@ -212,14 +231,14 @@ function DiscussionsPreviewSection() {
 
 function SupportPreviewCard() {
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-4">
       <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
         <MessageCircleQuestion className="size-4.5 text-primary" aria-hidden />
         بحاجة مساعدة؟
       </h2>
       <Link
         to={ROUTES.support}
-        className="flex flex-1 flex-col justify-between gap-3 rounded-card border border-border bg-card p-5 transition-colors hover:border-primary/50"
+        className="flex flex-1 flex-col justify-between gap-3 rounded-card border border-border bg-surface-fog p-5 transition-colors hover:border-primary/40"
       >
         <p className="text-sm leading-6 text-muted-foreground">
           راسل فريق الدعم أو اطّلع على أساسيات Sharek.
@@ -245,16 +264,17 @@ function SectionHeader({
   hrefLabel: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
-        <Icon className="size-4.5 text-primary" aria-hidden />
-        {title}
-      </h2>
+    <div className="flex items-end justify-between gap-3 border-b border-border pb-3">
+      <div>
+        <Icon className="mb-2 size-4.5 text-primary" aria-hidden />
+        <h2 className="text-xl font-bold text-foreground">{title}</h2>
+      </div>
       <Link
         to={href}
-        className="text-xs font-semibold text-primary hover:opacity-80"
+        className="inline-flex min-h-10 items-center gap-1 px-2 text-sm font-semibold text-primary hover:bg-primary/[0.05]"
       >
         {hrefLabel}
+        <ArrowLeft className="size-4" aria-hidden />
       </Link>
     </div>
   );

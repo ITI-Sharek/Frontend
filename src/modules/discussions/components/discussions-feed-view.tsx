@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
+import { SidePanel } from "@/shared/components/ui/side-panel";
 
 import { useCreateDiscussionPostMutation } from "../api/mutations/use-create-discussion-post-mutation";
 import { useDiscussionPostsQuery } from "../api/queries/use-discussion-posts-query";
@@ -27,15 +28,19 @@ export function DiscussionsFeedView({
             مقالات وخبرات يشاركها أصحاب المشاريع والمساهمون، مع تعليقات مفتوحة.
           </p>
         </div>
-        {!isComposing && (
-          <Button size="sm" onClick={() => setIsComposing(true)}>
-            <Plus className="size-4" aria-hidden />
-            منشور جديد
-          </Button>
-        )}
+        <Button size="sm" onClick={() => setIsComposing(true)}>
+          <Plus className="size-4" aria-hidden />
+          منشور جديد
+        </Button>
       </div>
 
-      {isComposing && (
+      <SidePanel
+        open={isComposing}
+        title="منشور جديد"
+        description="شارك سؤالاً أو خبرة مع مجتمع Sharek من دون مغادرة قائمة النقاشات."
+        className="max-w-xl"
+        onClose={() => setIsComposing(false)}
+      >
         <DiscussionPostComposer
           isSubmitting={createMutation.isPending}
           onCancel={() => setIsComposing(false)}
@@ -46,7 +51,7 @@ export function DiscussionsFeedView({
             );
           }}
         />
-      )}
+      </SidePanel>
 
       {postsQuery.data === undefined ? (
         <p className="text-sm text-muted-foreground">جارٍ تحميل النقاشات...</p>
@@ -55,10 +60,12 @@ export function DiscussionsFeedView({
           لا توجد منشورات بعد. كن أول من يبدأ نقاشًا.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {postsQuery.data.map((post) => (
-            <DiscussionPostCard key={post.id} post={post} />
-          ))}
+        <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto overscroll-contain pe-1">
+          <div className="flex flex-col gap-3">
+            {postsQuery.data.map((post) => (
+              <DiscussionPostCard key={post.id} post={post} />
+            ))}
+          </div>
         </div>
       )}
     </div>

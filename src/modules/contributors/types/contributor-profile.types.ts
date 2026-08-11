@@ -26,6 +26,13 @@ export interface ContributorHistoryItemDto {
 export interface ContributorReputationSummaryDto {
   rating: number | null;
   reviewsCount: number;
+  completedContributions: number;
+  totalAssignedTasks: number;
+  successRate: number;
+  topVerifiedSkills: Array<{
+    name: string;
+    verifiedContributionCount: number;
+  }>;
 }
 
 /**
@@ -48,6 +55,14 @@ export interface ContributorGithubInstallationDto {
   status: "active" | "disconnected" | "reauthorization_required" | "revoked";
   verifiedAt: string | null;
   manageUrl: string | null;
+  repositories: ContributorGithubRepositoryDto[];
+}
+
+export interface ContributorGithubRepositoryDto {
+  repositoryId: string;
+  fullName: string;
+  visibility: string;
+  defaultBranch: string | null;
 }
 
 export interface ContributorFieldDto {

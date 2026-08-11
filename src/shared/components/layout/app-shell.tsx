@@ -66,19 +66,27 @@ export function AppShell({
       </a>
 
       <div className="flex min-h-dvh">
-        <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-e border-border bg-card md:flex">
+        <aside className="sticky top-0 hidden h-dvh w-[17rem] shrink-0 flex-col border-e border-border bg-card md:flex">
           <Brand brand={brand} />
 
           <nav
-            className="flex flex-1 flex-col gap-1.5 px-3 py-4"
+            className="flex flex-1 flex-col overflow-y-auto px-4 py-5"
             aria-label={navigationLabel}
           >
-            {primaryItems.map((item) => (
-              <SidebarItem key={item.label} item={item} />
-            ))}
+            <p className="mb-2 px-3 text-[11px] font-semibold text-muted-foreground">
+              مساحة العمل
+            </p>
+            <div className="flex flex-col gap-1">
+              {primaryItems.map((item) => (
+                <SidebarItem key={item.label} item={item} />
+              ))}
+            </div>
 
             {secondaryItems.length > 0 && (
-              <div className="mt-auto border-t border-border pt-3">
+              <div className="mt-auto border-t border-border pt-4">
+                <p className="mb-2 px-3 text-[11px] font-semibold text-muted-foreground">
+                  الحساب والمساعدة
+                </p>
                 {secondaryItems.map((item) => (
                   <SidebarItem key={item.label} item={item} />
                 ))}
@@ -87,7 +95,7 @@ export function AppShell({
           </nav>
 
           {planChip && (
-            <div className="border-t border-border px-5 py-4">
+            <div className="border-t border-border bg-surface-fog px-5 py-4">
               <p
                 dir="ltr"
                 className="text-end font-mono text-xs font-medium text-foreground"
@@ -107,7 +115,7 @@ export function AppShell({
           className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0"
         >
           {topBar && (
-            <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 md:px-6">
+            <header className="sticky top-0 z-30 flex min-h-[4.5rem] items-center justify-between gap-4 border-b border-border bg-header-bg px-4 py-3 backdrop-blur-xl md:px-6 lg:px-8">
               {topBar}
             </header>
           )}
@@ -117,7 +125,7 @@ export function AppShell({
 
       {mobileItems.length > 0 && (
         <nav
-          className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_30px_rgba(14,21,19,0.06)] backdrop-blur-xl md:hidden"
           aria-label={navigationLabel}
         >
           {mobileItems.map((item) => (
@@ -133,43 +141,47 @@ function Brand({ brand }: { brand: AppShellBrand }) {
   const Icon = brand.icon;
 
   return (
-    <div className="flex min-h-16 items-center gap-3 border-b border-border px-5 py-3">
+    <Link
+      to="/home"
+      aria-label="الذهاب إلى الرئيسية"
+      className="flex min-h-[4.5rem] items-center gap-3 border-b border-border px-5 py-3 transition-colors hover:bg-surface-fog focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+    >
       {brand.logoSrc && (
         <img
           src={brand.logoSrc}
           alt=""
           width={32}
           height={32}
-          className="size-8 shrink-0"
+          className="size-9 shrink-0"
         />
       )}
       {Icon && (
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-input bg-primary/15 text-foreground">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-input bg-primary/10 text-primary">
           <Icon className="size-5" aria-hidden={true} />
         </span>
       )}
       <span className="min-w-0">
-        <span className="block truncate text-base font-bold text-foreground">
+        <span className="block truncate text-lg font-bold leading-5 text-foreground">
           {brand.title}
         </span>
         <span
           dir="ltr"
-          className="block truncate text-end font-mono text-[11px] text-muted-foreground"
+          className="mt-0.5 block truncate text-end font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
         >
           {brand.subtitle}
         </span>
       </span>
-    </div>
+    </Link>
   );
 }
 
 function SidebarItem({ item }: { item: AppShellNavItem }) {
   const Icon = item.icon;
   const className = cn(
-    "flex min-h-11 w-full items-center gap-3 rounded-input px-3 py-2.5 text-start text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+    "relative flex min-h-11 w-full items-center gap-3 rounded-input px-3 py-2.5 text-start text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card",
     item.active
-      ? "bg-primary font-semibold text-primary-foreground"
-      : "text-muted-foreground hover:bg-border/35 hover:text-foreground",
+      ? "bg-primary/[0.09] font-semibold text-primary before:absolute before:inset-y-2 before:start-0 before:w-0.5 before:rounded-full before:bg-primary"
+      : "text-muted-foreground hover:bg-surface-fog hover:text-foreground",
     item.disabled && "cursor-not-allowed opacity-55 hover:bg-transparent",
   );
 
@@ -215,8 +227,8 @@ function MobileItem({ item }: { item: AppShellNavItem }) {
       className={cn(
         "flex min-h-16 flex-1 touch-manipulation flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
         item.active
-          ? "bg-primary/15 font-semibold text-foreground"
-          : "text-muted-foreground hover:bg-border/25 hover:text-foreground",
+          ? "bg-primary/[0.08] font-semibold text-primary"
+          : "text-muted-foreground hover:bg-surface-fog hover:text-foreground",
       )}
     >
       <span className="relative">
@@ -228,7 +240,13 @@ function MobileItem({ item }: { item: AppShellNavItem }) {
   );
 }
 
-function NavBadge({ count, compact = false }: { count?: number; compact?: boolean }) {
+function NavBadge({
+  count,
+  compact = false,
+}: {
+  count?: number;
+  compact?: boolean;
+}) {
   if (count === undefined || count <= 0) return null;
 
   const visibleCount = count > 99 ? "99+" : count;

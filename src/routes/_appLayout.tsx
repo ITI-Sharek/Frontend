@@ -13,14 +13,16 @@ import {
   useLogoutMutation,
 } from "@/modules/auth";
 import { ensureCurrentContributorProfile } from "@/modules/contributors";
-import { NotificationPopover } from "@/modules/notifications";
-import { useNotifications } from "@/providers/notifications-provider";
+import { MessagesButton } from "@/modules/assignment-conversations";
+import {
+  NotificationPopover,
+  useUnreadNotificationCountQuery,
+} from "@/modules/notifications";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { HeaderSearch } from "@/shared/components/navigation/header-search";
-import { MessagesButton } from "@/shared/components/navigation/messages-button";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 
 export const Route = createFileRoute("/_appLayout")({
@@ -29,7 +31,13 @@ export const Route = createFileRoute("/_appLayout")({
 });
 
 function AppLayout() {
-  const { unreadCount } = useNotifications();
+  const unreadCountQuery = useUnreadNotificationCountQuery();
+  const unreadCount = unreadCountQuery.data?.unreadCount ?? 0;
+  const conversationUnreadCountQuery = useUnreadNotificationCountQuery(
+    "conversation_activity",
+  );
+  const conversationUnreadCount =
+    conversationUnreadCountQuery.data?.unreadCount ?? 0;
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -115,7 +123,7 @@ function AppLayout() {
           search={<HeaderSearch />}
           actions={
             <>
-              <MessagesButton />
+              <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
               <ProfileMenu
                 displayName={displayName}

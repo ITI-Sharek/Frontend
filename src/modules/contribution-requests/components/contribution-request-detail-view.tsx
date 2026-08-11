@@ -1,9 +1,20 @@
-import { CircleAlert, Loader2, Trash2 } from "lucide-react";
+import {
+  CircleAlert,
+  FileText,
+  GitPullRequest,
+  Loader2,
+  Paperclip,
+  Sparkles,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
+import { cn } from "@/lib/utils";
 import {
   PageContainer,
   PageFeedback,
@@ -15,9 +26,7 @@ import { DiscardContributionRequestDialog } from "./discard-contribution-request
 import { PublishContributionRequestDialog } from "./publish-contribution-request-dialog";
 import { CancelContributionRequestDialog } from "./cancel-contribution-request-dialog";
 import { OwnerApplicationReview } from "./owner-application-review";
-import {
-  getContributionRequestErrorMessage,
-} from "../constants/contribution-request-copy";
+import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
 import {
   useCancelContributionRequestMutation,
   useDiscardContributionRequestMutation,
@@ -27,19 +36,35 @@ import {
 import { useContributionRequestQuery } from "../api/queries/use-contribution-request-query";
 import { toContributionRequestForm } from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
-import { getContributionRequestStatusMeta } from "../utils/contribution-request-status";
+import {
+  getOwnerContributionRequestStatusMeta,
+  isContributionRequestApplicationsClosed,
+} from "../utils/contribution-request-status";
 import {
   formatContributionDate,
   formatContributionDateTime,
 } from "../utils/contributor-presentation";
 import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
 
+type RequestWorkspaceTab =
+  | "details"
+  | "applications"
+  | "matches"
+  | "delivery"
+  | "materials";
+
 export function ContributionRequestDetailView({
   requestId,
   projectHref,
+  materialsSlot,
+  deliverySlot,
+  matchingSlot,
 }: {
   requestId: string;
   projectHref: (projectId: string) => string;
+  materialsSlot?: ReactNode;
+  deliverySlot?: ReactNode;
+  matchingSlot?: ReactNode;
 }) {
   const query = useContributionRequestQuery(requestId);
   const updateMutation = useUpdateContributionRequestMutation(requestId);
@@ -68,6 +93,7 @@ export function ContributionRequestDetailView({
   const [cancelOpen, setCancelOpen] = useState(false);
   const [focusLifecycle, setFocusLifecycle] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState<RequestWorkspaceTab>("details");
 
   useEffect(() => {
     if (focusLifecycle) lifecycleFocusRef.current?.focus();
@@ -109,7 +135,12 @@ export function ContributionRequestDetailView({
 
   const request = query.data;
   const editable = request.status === "draft";
-  const statusMeta = getContributionRequestStatusMeta(request.status);
+  const now = new Date();
+  const applicationsClosed = isContributionRequestApplicationsClosed(
+    request,
+    now,
+  );
+  const statusMeta = getOwnerContributionRequestStatusMeta(request, now);
 
   async function update(payload: ContributionRequestDraftPayload) {
     setSaved(false);
@@ -200,7 +231,11 @@ export function ContributionRequestDetailView({
       >
         <PageHeader
           title={request.title}
-          description={descriptionByStatus[request.status]}
+          description={
+            applicationsClosed
+              ? `منشور، لكن التقديم مغلق منذ ${formatContributionDateTime(request.applicationsCloseTime)}.`
+              : descriptionByStatus[request.status]
+          }
           actions={
             <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
               {statusMeta.label}
@@ -209,139 +244,208 @@ export function ContributionRequestDetailView({
         />
       </div>
 
-      {request.status === "discarded" ? (
-        <Card className="mt-6 border-destructive/25 bg-destructive/5">
-          <h2 className="text-lg font-bold text-foreground">
-            مسودة متجاهلة — للعرض فقط
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من
-            هذه الواجهة.
-          </p>
-          <ReadOnlyRequest request={request} />
-          <Button asChild variant="outline" className="mt-5">
-            <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
-          </Button>
-        </Card>
-      ) : request.status === "cancelled" ? (
-        <Card className="mt-6 border-destructive/25 bg-destructive/5">
-          <h2 className="text-lg font-bold text-foreground">
-            طلب ملغى — للعرض فقط
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            تم إلغاء هذا الطلب المنشور. طلبات التقديم والتقييمات والقرارات
-            السابقة محفوظة ولم تُحذف.
-          </p>
-          <ReadOnlyRequest request={request} />
-          <Button asChild variant="outline" className="mt-5">
-            <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
-          </Button>
-        </Card>
-      ) : editable ? (
-        <Card className="mt-6">
-          {saved && (
-            <p
-              role="status"
-              aria-live="polite"
-              className="mb-4 text-sm text-evidence-teal"
-            >
-              حُفظت أحدث تغييرات المسودة.
-            </p>
-          )}
-          <ContributionRequestForm
-            key={request.updatedAt}
-            initialState={toContributionRequestForm(request)}
-            isSubmitting={updateMutation.isPending}
-            submitError={updateError}
-            submitLabel="حفظ التغييرات"
-            cancelHref={projectHref(request.projectId)}
-            onSubmit={update}
+      <nav
+        aria-label="أقسام طلب المساهمة"
+        className="mt-5 flex gap-1 overflow-x-auto border-b border-border"
+      >
+        <RequestTab
+          icon={FileText}
+          label="التفاصيل"
+          selected={activeTab === "details"}
+          onClick={() => setActiveTab("details")}
+        />
+        {request.status !== "draft" && request.status !== "discarded" && (
+          <RequestTab
+            icon={Users}
+            label="طلبات التقديم"
+            selected={activeTab === "applications"}
+            onClick={() => setActiveTab("applications")}
           />
-          <div className="mt-6 border-t border-border pt-5">
-            <h2 className="font-bold text-foreground">نشر الطلب</h2>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              يصبح الطلب مرئيًا للمساهمين فورًا ويخضع لحد النشر الشهري المرتبط
-              بباقتك.
-            </p>
-            <Button
-              id="publish-request-trigger"
-              type="button"
-              size="sm"
-              className="mt-3"
-              onClick={() => {
-                setFocusLifecycle(false);
-                setPublishError(null);
-                setPublishOpen(true);
-              }}
-            >
-              نشر الطلب
-            </Button>
-          </div>
-          <div className="mt-6 border-t border-destructive/25 pt-5">
-            <h2 className="font-bold text-foreground">إنهاء المسودة</h2>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              التجاهل نهائي ولا يحذف السجل أو يحوله إلى إلغاء منشور.
-            </p>
-            <Button
-              id="discard-request-trigger"
-              type="button"
-              variant="destructive"
-              size="sm"
-              className="mt-3"
-              onClick={() => {
-                setFocusLifecycle(false);
-                setDiscardError(null);
-                setDiscardOpen(true);
-              }}
-            >
-              <Trash2 className="size-4" aria-hidden="true" />
-              تجاهل المسودة
-            </Button>
-          </div>
-        </Card>
-      ) : request.status === "published" ? (
-        <Card className="mt-6">
-          <ReadOnlyRequest request={request} />
-          <div className="mt-6 border-t border-destructive/25 pt-5">
-            <h2 className="font-bold text-foreground">إلغاء الطلب</h2>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              الإلغاء نهائي، يوقف استقبال طلبات تقديم جديدة، ويحافظ على سجل
-              الطلبات والقرارات السابقة.
-            </p>
-            <Button
-              id="cancel-request-trigger"
-              type="button"
-              variant="destructive"
-              size="sm"
-              className="mt-3"
-              onClick={() => {
-                setFocusLifecycle(false);
-                setCancelError(null);
-                setCancelOpen(true);
-              }}
-            >
-              إلغاء الطلب
-            </Button>
-          </div>
-        </Card>
-      ) : (
-        <Card className="mt-6">
-          <h2 className="text-lg font-bold text-foreground">
-            طلب غير قابل للتعديل
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            حالة هذا السجل ({statusMeta.label}) لا تتيح إجراءات نشر أو إلغاء أو
-            تعديل من هذه الواجهة.
-          </p>
-          <ReadOnlyRequest request={request} />
-          <Button asChild variant="outline" className="mt-5">
-            <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
-          </Button>
-        </Card>
-      )}
+        )}
+        {matchingSlot && request.status === "published" && (
+          <RequestTab
+            icon={Sparkles}
+            label="المطابقات"
+            selected={activeTab === "matches"}
+            onClick={() => setActiveTab("matches")}
+          />
+        )}
+        {deliverySlot && (
+          <RequestTab
+            icon={GitPullRequest}
+            label="التسليم"
+            selected={activeTab === "delivery"}
+            onClick={() => setActiveTab("delivery")}
+          />
+        )}
+        {materialsSlot && (
+          <RequestTab
+            icon={Paperclip}
+            label="المواد"
+            selected={activeTab === "materials"}
+            onClick={() => setActiveTab("materials")}
+          />
+        )}
+      </nav>
 
-      {request.status !== "draft" && request.status !== "discarded" && (
-        <OwnerApplicationReview contributionRequestId={request.id} />
+      {activeTab === "details" &&
+        (request.status === "discarded" ? (
+          <Card className="mt-6 border-destructive/25 bg-destructive/5">
+            <h2 className="text-lg font-bold text-foreground">
+              مسودة متجاهلة — للعرض فقط
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من
+              هذه الواجهة.
+            </p>
+            <ReadOnlyRequest request={request} />
+            <Button asChild variant="outline" className="mt-5">
+              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+            </Button>
+          </Card>
+        ) : request.status === "cancelled" ? (
+          <Card className="mt-6 border-destructive/25 bg-destructive/5">
+            <h2 className="text-lg font-bold text-foreground">
+              طلب ملغى — للعرض فقط
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              تم إلغاء هذا الطلب المنشور. طلبات التقديم والتقييمات والقرارات
+              السابقة محفوظة ولم تُحذف.
+            </p>
+            <ReadOnlyRequest request={request} />
+            <Button asChild variant="outline" className="mt-5">
+              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+            </Button>
+          </Card>
+        ) : editable ? (
+          <Card className="mt-6">
+            {saved && (
+              <p
+                role="status"
+                aria-live="polite"
+                className="mb-4 text-sm text-evidence-teal"
+              >
+                حُفظت أحدث تغييرات المسودة.
+              </p>
+            )}
+            <ContributionRequestForm
+              key={request.updatedAt}
+              initialState={toContributionRequestForm(request)}
+              isSubmitting={updateMutation.isPending}
+              submitError={updateError}
+              submitLabel="حفظ التغييرات"
+              cancelHref={projectHref(request.projectId)}
+              onSubmit={update}
+            />
+            <div className="mt-6 border-t border-border pt-5">
+              <h2 className="font-bold text-foreground">نشر الطلب</h2>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                يصبح الطلب مرئيًا للمساهمين فورًا ويخضع لحد النشر الشهري المرتبط
+                بباقتك.
+              </p>
+              <Button
+                id="publish-request-trigger"
+                type="button"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setFocusLifecycle(false);
+                  setPublishError(null);
+                  setPublishOpen(true);
+                }}
+              >
+                نشر الطلب
+              </Button>
+            </div>
+            <div className="mt-6 border-t border-destructive/25 pt-5">
+              <h2 className="font-bold text-foreground">إنهاء المسودة</h2>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                التجاهل نهائي ولا يحذف السجل أو يحوله إلى إلغاء منشور.
+              </p>
+              <Button
+                id="discard-request-trigger"
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setFocusLifecycle(false);
+                  setDiscardError(null);
+                  setDiscardOpen(true);
+                }}
+              >
+                <Trash2 className="size-4" aria-hidden="true" />
+                تجاهل المسودة
+              </Button>
+            </div>
+          </Card>
+        ) : request.status === "published" ? (
+          <Card className="mt-6">
+            <ReadOnlyRequest request={request} />
+            {applicationsClosed && (
+              <div
+                role="status"
+                className="mt-6 rounded-input border border-amber-500/30 bg-amber-500/5 p-4"
+              >
+                <h2 className="font-bold text-foreground">التقديم مغلق</h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  لا يستقبل طلبات تقديم جديدة بعد انتهاء مهلة التقديم. تظل
+                  الطلبات السابقة محفوظة ويمكنك مراجعتها واتخاذ القرار بشأنها.
+                </p>
+              </div>
+            )}
+            <div className="mt-6 border-t border-destructive/25 pt-5">
+              <h2 className="font-bold text-foreground">إلغاء الطلب</h2>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                الإلغاء نهائي، يوقف استقبال طلبات تقديم جديدة، ويحافظ على سجل
+                الطلبات والقرارات السابقة.
+              </p>
+              <Button
+                id="cancel-request-trigger"
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="mt-3"
+                onClick={() => {
+                  setFocusLifecycle(false);
+                  setCancelError(null);
+                  setCancelOpen(true);
+                }}
+              >
+                إلغاء الطلب
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <Card className="mt-6">
+            <h2 className="text-lg font-bold text-foreground">
+              طلب غير قابل للتعديل
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              حالة هذا السجل ({statusMeta.label}) لا تتيح إجراءات نشر أو إلغاء
+              أو تعديل من هذه الواجهة.
+            </p>
+            <ReadOnlyRequest request={request} />
+            <Button asChild variant="outline" className="mt-5">
+              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+            </Button>
+          </Card>
+        ))}
+
+      {activeTab === "applications" &&
+        request.status !== "draft" &&
+        request.status !== "discarded" && (
+          <OwnerApplicationReview contributionRequestId={request.id} />
+        )}
+
+      {activeTab === "matches" && matchingSlot && request.status === "published" && matchingSlot}
+
+      {activeTab === "delivery" && deliverySlot && deliverySlot}
+
+      {activeTab === "materials" && materialsSlot && (
+        <div className="mt-5 max-h-[calc(100dvh-16rem)] overflow-y-auto rounded-card border border-border bg-card p-5">
+          {materialsSlot}
+        </div>
       )}
 
       {discardOpen && (
@@ -386,6 +490,35 @@ export function ContributionRequestDetailView({
   );
 }
 
+function RequestTab({
+  icon: Icon,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: typeof FileText;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-current={selected ? "page" : undefined}
+      onClick={onClick}
+      className={cn(
+        "flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-4 text-sm transition-colors",
+        selected
+          ? "border-primary font-semibold text-primary"
+          : "border-transparent text-muted-foreground hover:text-foreground",
+      )}
+    >
+      <Icon className="size-4" aria-hidden />
+      {label}
+    </button>
+  );
+}
+
 function ReadOnlyRequest({
   request,
 }: {
@@ -406,7 +539,10 @@ function ReadOnlyRequest({
           <dd className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-sm font-semibold text-foreground">
             <span>{request.attribution.contributorName}</span>
             {request.attribution.contributorUsername !== null && (
-              <span dir="ltr" className="text-xs font-normal text-muted-foreground">
+              <span
+                dir="ltr"
+                className="text-xs font-normal text-muted-foreground"
+              >
                 @{request.attribution.contributorUsername}
               </span>
             )}

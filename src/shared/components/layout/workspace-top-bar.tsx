@@ -13,16 +13,20 @@ export function WorkspaceTopBar({
 }) {
   return (
     <>
-      <div className="min-w-0 shrink-0">
-        <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+      <div className="min-w-0 shrink-0 lg:min-w-48">
+        <p className="truncate text-base font-bold text-foreground">{title}</p>
         {description && (
-          <p className="mt-0.5 hidden truncate text-xs text-muted-foreground sm:block">
+          <p className="mt-0.5 hidden truncate text-[12px] text-muted-foreground lg:block">
             {description}
           </p>
         )}
       </div>
-      {search && <div className="flex min-w-0 flex-1 justify-center">{search}</div>}
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {search && (
+        <div className="flex min-w-0 flex-1 justify-center px-2">{search}</div>
+      )}
+      {actions && (
+        <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+      )}
     </>
   );
 }
