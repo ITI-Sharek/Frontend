@@ -17,11 +17,13 @@ import { NotificationPopover } from "@/modules/notifications";
 import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
+import { PageTransition } from "@/shared/components/layout/page-transition";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { HeaderSearch } from "@/shared/components/navigation/header-search";
 import { MessagesButton } from "@/shared/components/navigation/messages-button";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
+import { ThemeSwitcher } from "@/shared/components/navigation/theme-switcher";
 
 export const Route = createFileRoute("/_appLayout")({
   beforeLoad: requireMemberRoute,
@@ -116,6 +118,7 @@ function AppLayout() {
           actions={
             <>
               <MessagesButton />
+              <ThemeSwitcher />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
               <ProfileMenu
                 displayName={displayName}
@@ -134,7 +137,9 @@ function AppLayout() {
         />
       }
     >
-      <Outlet />
+      <PageTransition routeKey={pathname}>
+        <Outlet />
+      </PageTransition>
     </AppShell>
   );
 }
