@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleAlert, ExternalLink, Loader2, Star } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Label } from "@/shared/components/ui/label";
 
 import { deliveryKeys } from "../api/query-keys";
 import { httpDeliveryClient } from "../services/delivery-client";
+import { formatDeliveryDate } from "./delivery-lifecycle-copy";
 import type {
   DeliveryClient,
   ReviewDeliveryCommand,
@@ -190,6 +192,17 @@ export function OwnerDeliveryReviewPanel({
       <h2 className="text-lg font-bold text-foreground">
         مراجعة تسليم {contributor.displayName}
       </h2>
+      {contributor.username && (
+        <a
+          href={ROUTES.contributorProfile(contributor.username)}
+          className="mt-1 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+        >
+          عرض ملف المساهم وسمعته
+        </a>
+      )}
+      <p className="mt-3 text-xs text-muted-foreground">
+        أُرسل في {formatDeliveryDate(delivery.submittedAt) ?? "وقت غير متاح"} · الإرسال رقم {delivery.submissionNumber}
+      </p>
       <a
         href={delivery.pullRequestUrl}
         target="_blank"
@@ -200,6 +213,15 @@ export function OwnerDeliveryReviewPanel({
         {delivery.pullRequestUrl}
         <ExternalLink className="size-4 shrink-0" aria-hidden />
       </a>
+
+      {delivery.contributorNotes && (
+        <section aria-labelledby="delivery-notes-heading" className="mt-5 rounded-input bg-border/20 p-4">
+          <h3 id="delivery-notes-heading" className="font-semibold text-foreground">ملاحظات المساهم</h3>
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
+            {delivery.contributorNotes}
+          </p>
+        </section>
+      )}
 
       {queueDelivery && queueDelivery.contributionRequest.requirements.length > 0 && (
         <section aria-labelledby="delivery-requirements-heading" className="mt-5">
@@ -213,6 +235,49 @@ export function OwnerDeliveryReviewPanel({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {detailQuery.isPending && (
+        <p role="status" className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+          جارٍ تحميل سجل التسليم…
+        </p>
+      )}
+
+      {detailQuery.data && (
+        <section aria-labelledby="owner-delivery-history-heading" className="mt-5">
+          <h3 id="owner-delivery-history-heading" className="font-semibold text-foreground">سجل التسليم والمراجعة</h3>
+          <ol className="mt-2 space-y-3">
+            {detailQuery.data.submissions.map((submission) => {
+              const review = detailQuery.data.reviews.find(
+                (item) => item.submissionNumber === submission.submissionNumber,
+              );
+              return (
+                <li key={submission.submissionNumber} className="rounded-input border border-border p-4 text-sm">
+                  <p className="font-semibold text-foreground">
+                    الإرسال رقم {submission.submissionNumber} · {formatDeliveryDate(submission.submittedAt) ?? "وقت غير متاح"}
+                  </p>
+                  {submission.contributorNotes && (
+                    <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{submission.contributorNotes}</p>
+                  )}
+                  {review && (
+                    <div className="mt-3 border-t border-border pt-3">
+                      <p className="font-medium text-foreground">
+                        {{
+                          APPROVED: "اعتماد",
+                          CHANGES_REQUESTED: "طلب تغييرات",
+                          REJECTED: "رفض",
+                        }[review.outcome]}
+                        {review.rating !== null && ` — ${review.rating} من 5`}
+                      </p>
+                      {review.feedback && <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{review.feedback}</p>}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
         </section>
       )}
 
