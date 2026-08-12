@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { FilePlus2, Loader2, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -10,7 +11,7 @@ import type { ContributionProposalSummaryDto } from "../types/contribution-propo
 import {
   formatProposalDate,
   formatProposerLabel,
-  PROPOSAL_STATUS_META,
+  getProposalStatusMeta,
 } from "../utils/proposal-presenter";
 
 export function ProposalListView({
@@ -34,8 +35,11 @@ export function ProposalListView({
   onLoadMore?: () => void;
   loadMoreError?: string | null;
 }) {
+  const { t, i18n } = useTranslation();
+  const statusMeta = getProposalStatusMeta(t);
+
   if (isLoading) {
-    return <p role="status" className="text-sm text-muted-foreground">جارٍ تحميل المقترحات…</p>;
+    return <p role="status" className="text-sm text-muted-foreground">{t("proposalList.loading")}</p>;
   }
 
   if (error) {
@@ -43,7 +47,7 @@ export function ProposalListView({
       <Card>
         <p role="alert" className="text-sm text-destructive">{error}</p>
         <Button type="button" size="sm" variant="outline" className="mt-3" onClick={onRetry}>
-          <RotateCcw className="size-4" /> إعادة المحاولة
+          <RotateCcw className="size-4" /> {t("proposalList.retry")}
         </Button>
       </Card>
     );
@@ -54,12 +58,12 @@ export function ProposalListView({
       <Card className="border-dashed text-center">
         <FilePlus2 className="mx-auto size-8 text-muted-foreground" aria-hidden="true" />
         <p className="mt-3 text-sm font-semibold text-foreground">
-          {role === "owner" ? "لا توجد مقترحات لهذا المشروع" : "لم ترسل مقترحات بعد"}
+          {role === "owner" ? t("proposalList.emptyOwnerTitle") : t("proposalList.emptyContributorTitle")}
         </p>
         <p className="mt-1 text-xs leading-6 text-muted-foreground">
           {role === "owner"
-            ? "ستظهر هنا المقترحات الخاصة المرسلة إلى مشروعك."
-            : "ابدأ من الصفحة العامة لمشروع منشور يقبل المقترحات."}
+            ? t("proposalList.emptyOwnerDescription")
+            : t("proposalList.emptyContributorDescription")}
         </p>
       </Card>
     );
@@ -68,7 +72,7 @@ export function ProposalListView({
   return (
     <div className="space-y-3">
       {proposals.map((proposal) => {
-        const status = PROPOSAL_STATUS_META[proposal.status];
+        const status = statusMeta[proposal.status];
         return (
           <Link
             key={proposal.id}
@@ -80,18 +84,26 @@ export function ProposalListView({
                 <h3 className="font-semibold text-foreground">{proposal.title}</h3>
                 {role === "owner" && (
                   <p className="mt-1 truncate text-xs font-medium text-foreground">
-                    من {formatProposerLabel(proposal.proposerName, proposal.proposerUsername)}
+                    {t("proposalList.from", {
+                      proposer: formatProposerLabel(
+                        proposal.proposerName,
+                        proposal.proposerUsername,
+                      ),
+                    })}
                   </p>
                 )}
                 <p className="mt-1 text-xs text-muted-foreground">
-                  النسخة {proposal.currentVersion} · {formatProposalDate(proposal.updatedAt)}
+                  {t("proposalList.version", {
+                    version: proposal.currentVersion,
+                    date: formatProposalDate(proposal.updatedAt, i18n.language),
+                  })}
                 </p>
               </div>
               <StatusChip tone={status.tone} icon={status.icon}>{status.label}</StatusChip>
             </div>
             {proposal.revisionRequestedAt && proposal.status === "PENDING" && (
               <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
-                يوجد طلب مراجعة ينتظر نسخة جديدة من المساهم.
+                {t("proposalList.revisionWaiting")}
               </p>
             )}
           </Link>
@@ -112,7 +124,7 @@ export function ProposalListView({
             onClick={onLoadMore}
           >
             {isLoadingMore && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-            تحميل المزيد
+            {t("proposalList.loadMore")}
           </Button>
         </div>
       )}

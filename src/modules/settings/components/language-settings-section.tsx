@@ -1,39 +1,40 @@
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
-const LANGUAGES = [
-  { value: "ar", label: "العربية" },
-  { value: "en", label: "English" },
-] as const;
-
-/** Settings → "اللغة": mock preference toggle (no backend persistence yet). */
+/** Settings → "Language": connects to react-i18next and persists via localStorage. */
 export function LanguageSettingsSection() {
-  const [language, setLanguage] = useState<"ar" | "en">("ar");
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith("en") ? "en" : "ar";
 
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-bold text-foreground">اللغة</h2>
+        <h2 className="text-lg font-bold text-foreground">
+          {t("settings.language.title")}
+        </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          لغة عرض الواجهة. الدعم الكامل لتبديل الاتجاه (RTL/LTR) قادم.
+          {t("settings.language.description")}
         </p>
       </div>
       <div className="flex gap-2">
-        {LANGUAGES.map((option) => (
+        {SUPPORTED_LANGUAGES.map((lang) => (
           <button
-            key={option.value}
+            key={lang}
             type="button"
-            aria-pressed={language === option.value}
-            onClick={() => setLanguage(option.value)}
+            lang={lang}
+            dir={lang === "ar" ? "rtl" : "ltr"}
+            aria-pressed={currentLang === lang}
+            onClick={() => void i18n.changeLanguage(lang)}
             className={cn(
               "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              language === option.value
+              currentLang === lang
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-input-bg text-muted-foreground hover:border-primary/50 hover:text-foreground",
             )}
           >
-            {option.label}
+            {t(`settings.language.options.${lang}`)}
           </button>
         ))}
       </div>

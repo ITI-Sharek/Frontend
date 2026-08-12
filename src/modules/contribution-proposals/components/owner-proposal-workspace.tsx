@@ -1,4 +1,5 @@
 import { Check, Inbox } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Card } from "@/shared/components/ui/card";
 
@@ -11,12 +12,15 @@ import { getProposalErrorMessage } from "../constants/proposal-copy";
 import { ProposalListView } from "./proposal-list-view";
 
 export function OwnerProposalWorkspace({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const query = useProjectContributionProposalsQuery(projectId);
   const proposals = query.data?.pages.flatMap((page) => page.proposals) ?? [];
   // A failed *next* page keeps `data` populated, so route it to the inline
   // load-more error instead of the terminal state that replaces the whole list.
   const hasLoadedAnyPage = query.data !== undefined;
-  const message = query.isError ? getProposalErrorMessage(query.error) : null;
+  const message = query.isError
+    ? getProposalErrorMessage(t, query.error)
+    : null;
 
   const intakeQuery = useContributionProposalIntakeQuery(projectId);
   const intakeMutation = useSetContributionProposalIntakeMutation();
@@ -33,9 +37,9 @@ export function OwnerProposalWorkspace({ projectId }: { projectId: string }) {
             <Inbox className="size-4" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-base font-bold text-foreground">مقترحات المساهمين الخاصة</h2>
+            <h2 className="text-base font-bold text-foreground">{t("proposalOwner.title")}</h2>
             <p className="mt-1 text-xs leading-6 text-muted-foreground">
-              راجع النسخ الأصلية واطلب تعديلًا أو اقبلها كمسودة منسوبة أو اعتذر بسبب واضح.
+              {t("proposalOwner.description")}
             </p>
           </div>
         </div>
@@ -49,13 +53,15 @@ export function OwnerProposalWorkspace({ projectId }: { projectId: string }) {
           className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-input border border-border px-3 text-sm font-semibold text-foreground hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {intakeEnabled && <Check className="size-4 text-primary" aria-hidden="true" />}
-          {intakeEnabled ? "يستقبل مقترحات" : "الاستقبال متوقف"}
+          {intakeEnabled
+            ? t("proposalOwner.acceptingProposals")
+            : t("proposalOwner.intakeStopped")}
         </button>
       </div>
 
       {intakeError && (
         <p role="alert" className="mb-4 text-sm text-destructive">
-          {getProposalErrorMessage(intakeError)}
+          {getProposalErrorMessage(t, intakeError)}
         </p>
       )}
       <ProposalListView

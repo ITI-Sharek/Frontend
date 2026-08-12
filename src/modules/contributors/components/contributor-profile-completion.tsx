@@ -1,6 +1,7 @@
 import { ChevronLeft, Check, FileText, Github, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ComponentType } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Card } from "@/shared/components/ui/card";
@@ -12,24 +13,24 @@ type CompletionPrompt = (typeof KNOWN_PROMPTS)[number];
 
 interface PromptMeta {
   icon: ComponentType<{ className?: string }>;
-  title: string;
+  titleKey: string;
   settingsSection: "profile" | "github";
 }
 
 const PROMPT_META: Record<CompletionPrompt, PromptMeta> = {
   add_bio: {
     icon: FileText,
-    title: "أضف نبذة تعريفية",
+    titleKey: "contributor.completion.promptAddBio",
     settingsSection: "profile",
   },
   generate_skills: {
     icon: Sparkles,
-    title: "ولّد ملفك المهاري",
+    titleKey: "contributor.completion.promptGenerateSkills",
     settingsSection: "github",
   },
   connect_github: {
     icon: Github,
-    title: "اربط مستودعات GitHub",
+    titleKey: "contributor.completion.promptConnectGithub",
     settingsSection: "github",
   },
 };
@@ -48,6 +49,7 @@ export function ContributorProfileCompletion({
 }: {
   profile: ContributorProfileDto;
 }) {
+  const { t } = useTranslation();
   if (profile.viewerRelationship !== "owner") return null;
 
   const incomplete = new Set(profile.completionPrompts.filter(isKnownPrompt));
@@ -59,9 +61,12 @@ export function ContributorProfileCompletion({
     <Card className="flex flex-col gap-5 border-primary/40 bg-primary/5">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-foreground">أكمل ملفك</h2>
+          <h2 className="text-lg font-bold text-foreground">{t("contributor.completion.title")}</h2>
           <span className="text-sm font-semibold text-primary">
-            {completedCount} من {KNOWN_PROMPTS.length}
+            {t("contributor.completion.progress", {
+              done: completedCount,
+              total: KNOWN_PROMPTS.length,
+            })}
           </span>
         </div>
         <div
@@ -70,7 +75,7 @@ export function ContributorProfileCompletion({
           aria-valuemin={0}
           aria-valuemax={KNOWN_PROMPTS.length}
           aria-valuenow={completedCount}
-          aria-label="اكتمال الملف"
+          aria-label={t("contributor.completion.progressLabel")}
         >
           <div
             className="h-full rounded-full bg-primary transition-all"
@@ -80,7 +85,7 @@ export function ContributorProfileCompletion({
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          الملفات المكتملة تحصل على فرص مطابقة أفضل مع طلبات المساهمة.
+          {t("contributor.completion.description")}
         </p>
       </div>
 
@@ -112,7 +117,7 @@ export function ContributorProfileCompletion({
                       : "truncate text-sm font-medium text-foreground"
                   }
                 >
-                  {meta.title}
+                  {t(meta.titleKey)}
                 </span>
               </span>
 
@@ -124,7 +129,7 @@ export function ContributorProfileCompletion({
                   search={{ section: meta.settingsSection }}
                   className="flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:opacity-80"
                 >
-                  إكمال
+                  {t("contributor.completion.completeLink")}
                   <ChevronLeft className="size-4" />
                 </Link>
               )}

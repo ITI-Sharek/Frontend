@@ -1,19 +1,24 @@
 import { describe, expect, it } from "vitest";
 
+import i18n from "@/lib/i18n";
 import {
   getOwnerTypeLabel,
   getSafeUnavailableAreas,
   sourceNeedsRepositoryControlRecovery,
 } from "./project-source-presenter";
 
+// Tests pin the language to Arabic in vitest.setup.ts, so the shared i18n
+// instance resolves real strings — the same strings the components render.
+const t = i18n.getFixedT("ar");
+
 describe("getOwnerTypeLabel", () => {
   it("labels user and organization owners", () => {
-    expect(getOwnerTypeLabel("user")).toBe("حساب شخصي");
-    expect(getOwnerTypeLabel("organization")).toBe("منظمة");
+    expect(getOwnerTypeLabel(t, "user")).toBe("حساب شخصي");
+    expect(getOwnerTypeLabel(t, "organization")).toBe("منظمة");
   });
 
   it("labels an unreconciled legacy owner as unknown rather than defaulting to personal", () => {
-    expect(getOwnerTypeLabel("unknown")).toBe("نوع الحساب غير معروف");
+    expect(getOwnerTypeLabel(t, "unknown")).toBe("نوع الحساب غير معروف");
   });
 });
 

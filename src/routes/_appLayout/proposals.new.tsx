@@ -1,7 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import i18n from "@/lib/i18n";
 import { requireContributorRoute } from "@/modules/auth";
 import {
   getProposalErrorMessage,
@@ -25,11 +27,12 @@ function validateProposalSearch(search: Record<string, unknown>) {
 export const Route = createFileRoute("/_appLayout/proposals/new")({
   beforeLoad: requireContributorRoute,
   validateSearch: validateProposalSearch,
-  head: () => ({ meta: [{ title: "إرسال مقترح مساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: i18n.t("pageTitle.newProposal") }] }),
   component: NewProposalPage,
 });
 
 function NewProposalPage() {
+  const { t } = useTranslation();
   const { projectId, projectName } = Route.useSearch();
   const navigate = Route.useNavigate();
   const mutation = useSubmitContributionProposalMutation();
@@ -39,12 +42,12 @@ function NewProposalPage() {
   if (!projectId) {
     return (
       <div className="mx-auto max-w-lg px-4 py-12 text-center">
-        <h1 className="text-xl font-bold text-foreground">اختر مشروعًا أولًا</h1>
+        <h1 className="text-xl font-bold text-foreground">{t("proposals.chooseProjectFirst")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          يبدأ المقترح من الصفحة العامة لمشروع منشور يقبل المقترحات.
+          {t("proposals.chooseProjectDescription")}
         </p>
         <Link className="mt-4 inline-flex text-sm font-semibold text-primary" to={ROUTES.publicProjects}>
-          استعراض المشاريع
+          {t("proposals.browseProjects")}
         </Link>
       </div>
     );
@@ -68,7 +71,7 @@ function NewProposalPage() {
         params: { proposalId: proposal.id },
       });
     } catch (submitError) {
-      setError(getProposalErrorMessage(submitError));
+      setError(getProposalErrorMessage(t, submitError));
     }
   }
 

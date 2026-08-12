@@ -1,5 +1,6 @@
 import { Check, Circle, Loader2, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -22,6 +23,7 @@ export function AnalysisProgressStep({
   onCompleted: () => void;
   onRetry: () => void;
 }) {
+  const { t } = useTranslation();
   const [stages, setStages] = useState(initialStages);
   const doneCount = stages.filter((stage) => stage.status === "done").length;
   const allDone = doneCount === stages.length;
@@ -46,14 +48,15 @@ export function AnalysisProgressStep({
   if (failed) {
     return (
       <Card>
-        <h2 className="text-xl font-bold text-foreground">تعذّر التحليل</h2>
+        <h2 className="text-xl font-bold text-foreground">
+          {t("contributor.onboarding.analysisFailedTitle")}
+        </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          حدث خطأ تقني أثناء تحليل نشاطك — لم يؤثر ذلك على حسابك. أعد المحاولة،
-          وإن تكرر الأمر تواصل مع الدعم.
+          {t("contributor.onboarding.analysisFailedDescription")}
         </p>
         <Button size="sm" className="mt-4" onClick={onRetry}>
           <RefreshCw className="size-4" />
-          إعادة المحاولة
+          {t("contributor.onboarding.analysisRetry")}
         </Button>
       </Card>
     );
@@ -62,9 +65,14 @@ export function AnalysisProgressStep({
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-foreground">جارٍ تحليل نشاطك</h2>
+        <h2 className="text-xl font-bold text-foreground">
+          {t("contributor.onboarding.analysisRunningTitle")}
+        </h2>
         <StatusChip tone="ai" icon={Loader2}>
-          {doneCount} من {stages.length}
+          {t("contributor.onboarding.analysisStageCount", {
+            done: doneCount,
+            total: stages.length,
+          })}
         </StatusChip>
       </div>
 
@@ -99,10 +107,10 @@ export function AnalysisProgressStep({
 
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
         <p className="text-xs text-muted-foreground">
-          يمكنك المغادرة الآن — سنخبرك عند اكتمال التحليل.
+          {t("contributor.onboarding.analysisLeaveAndNotify")}
         </p>
         <Button size="sm" disabled={!allDone} onClick={onCompleted}>
-          عرض الملف المُولَّد
+          {t("contributor.onboarding.analysisViewGenerated")}
         </Button>
       </div>
     </Card>

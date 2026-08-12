@@ -1,5 +1,6 @@
 import { Github, Loader2, Sparkles, Unlink } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
@@ -23,6 +24,8 @@ export function ContributorGithubSettingsSection({
   onDisconnectGitHub: () => Promise<void>;
   onOpenRepositories: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4 rounded-input border border-border p-4">
@@ -32,7 +35,9 @@ export function ContributorGithubSettingsSection({
           </span>
           <div>
             <p className="font-semibold text-foreground">
-              {profile.githubStatus.connected ? "متصل" : "غير متصل"}
+              {profile.githubStatus.connected
+                ? t("contributor.githubStatus.connected")
+                : t("contributor.githubStatus.disconnected")}
             </p>
             {profile.githubStatus.connected && profile.githubStatus.username ? (
               <a
@@ -46,7 +51,7 @@ export function ContributorGithubSettingsSection({
               </a>
             ) : (
               <p className="text-xs text-muted-foreground">
-                اربط حسابك لبناء ملف مهاري موثق تلقائيًا.
+                {t("contributor.settings.githubConnectHint")}
               </p>
             )}
           </div>
@@ -54,14 +59,14 @@ export function ContributorGithubSettingsSection({
         {profile.githubStatus.connected ? (
           <div className="flex flex-wrap justify-end gap-2">
             <GitHubConnectButton
-              label="تغيير الحساب"
+              label={t("contributor.settings.githubChangeAccount")}
               onConnectGitHub={onConnectGitHub}
             />
             <GitHubDisconnectButton onDisconnectGitHub={onDisconnectGitHub} />
           </div>
         ) : (
           <GitHubConnectButton
-            label="ربط الحساب"
+            label={t("contributor.settings.githubConnectAccount")}
             onConnectGitHub={onConnectGitHub}
           />
         )}
@@ -69,11 +74,9 @@ export function ContributorGithubSettingsSection({
 
       <div className="flex flex-col gap-4 rounded-input border border-border p-4">
         <div>
-          <p className="font-semibold text-foreground">تحليل المهارات بالذكاء الاصطناعي</p>
+          <p className="font-semibold text-foreground">{t("contributor.settings.aiSkillsAnalysisTitle")}</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            تحليل المهارات يستخدم ربط تطبيق GitHub وصلاحية مستقلة تماماً عن
-            تسجيل الدخول عبر GitHub. تختار المستودعات وتوافق صراحةً قبل بدء أي
-            تحليل، ويراجع الفريق المهارات قبل اعتمادها — لا شيء يُنشر تلقائيًا.
+            {t("contributor.settings.aiSkillsAnalysisDescription")}
           </p>
         </div>
         <SkillsGenerator onOpenRepositories={onOpenRepositories} />
@@ -89,6 +92,7 @@ function GitHubConnectButton({
   label: string;
   onConnectGitHub: () => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,7 +104,7 @@ function GitHubConnectButton({
     } catch (connectError) {
       setIsStarting(false);
       setError(
-        getApiErrorMessage(connectError, "تعذر فتح ربط GitHub. حاول مرة أخرى."),
+        getApiErrorMessage(connectError, t("contributor.settings.githubConnectError")),
       );
     }
   }
@@ -111,7 +115,7 @@ function GitHubConnectButton({
         {isStarting ? (
           <>
             <Loader2 className="size-4 animate-spin" />
-            <span>جارٍ التحويل...</span>
+            <span>{t("contributor.settings.redirecting")}</span>
           </>
         ) : (
           <>
@@ -130,15 +134,12 @@ function GitHubDisconnectButton({
 }: {
   onDisconnectGitHub: () => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleDisconnect() {
-    if (
-      !window.confirm(
-        "سيتم فصل تسجيل الدخول عبر GitHub فقط. لن يؤثر ذلك على ربط تطبيق GitHub الخاص بتحليل المهارات. هل تريد المتابعة؟",
-      )
-    ) {
+    if (!window.confirm(t("contributor.settings.disconnectConfirm"))) {
       return;
     }
 
@@ -149,10 +150,7 @@ function GitHubDisconnectButton({
     } catch (disconnectError) {
       setIsDisconnecting(false);
       setError(
-        getApiErrorMessage(
-          disconnectError,
-          "تعذر فصل حساب GitHub. تأكد من وجود طريقة أخرى لتسجيل الدخول.",
-        ),
+        getApiErrorMessage(disconnectError, t("contributor.settings.disconnectError")),
       );
     }
   }
@@ -171,7 +169,11 @@ function GitHubDisconnectButton({
         ) : (
           <Unlink className="size-4" />
         )}
-        <span>{isDisconnecting ? "جارٍ الفصل..." : "فصل الحساب"}</span>
+        <span>
+          {isDisconnecting
+            ? t("contributor.settings.disconnecting")
+            : t("contributor.settings.disconnectAccount")}
+        </span>
       </Button>
       {error && <p className="max-w-xs text-xs text-destructive">{error}</p>}
     </div>
@@ -183,14 +185,16 @@ function SkillsGenerator({
 }: {
   onOpenRepositories: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-start gap-2">
       <Button type="button" size="sm" onClick={onOpenRepositories}>
         <Sparkles className="size-4" />
-        <span>ربط تطبيق GitHub واختيار المستودعات</span>
+        <span>{t("contributor.settings.githubReposButton")}</span>
       </Button>
       <p className="text-xs text-muted-foreground">
-        متاح حتى لو لم تربط تسجيل الدخول عبر GitHub.
+        {t("contributor.settings.githubReposHint")}
       </p>
     </div>
   );

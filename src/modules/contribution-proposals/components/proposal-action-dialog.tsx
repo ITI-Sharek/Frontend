@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -27,6 +28,7 @@ export function ProposalActionDialog({
   onCancel: () => void;
   onConfirm: (reason: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -89,7 +91,10 @@ export function ProposalActionDialog({
       (normalized.length < field.minLength || normalized.length > field.maxLength)
     ) {
       setFieldError(
-        `اكتب سببًا بين ${field.minLength} و${field.maxLength} حرفًا.`,
+        t("proposalAction.lengthError", {
+          min: field.minLength,
+          max: field.maxLength,
+        }),
       );
       document.getElementById(fieldId)?.focus();
       return;
@@ -149,7 +154,7 @@ export function ProposalActionDialog({
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button type="button" variant="outline" disabled={isSubmitting} onClick={onCancel}>
-            إلغاء
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"

@@ -1,42 +1,50 @@
 import { ArrowLeft, Check, FolderGit2, UserRound } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 
-const CONTRIBUTOR_POINTS = [
-  "اكتشف عملاً يناسب سياقك الحالي، مع توضيح الدليل الناقص وعدم اليقين.",
-  "تعاون داخل مساحة المشروع بعد القبول، لا داخل سباق تطبيقات أو ترتيب عالمي.",
-  "حوّل العمل المكتمل والمراجع إلى سجل مهني يحفظ سياقه ومصدره.",
-] as const;
+function getContributorPoints(t: TFunction) {
+  return [
+    t("landing.rolesContributorPoint1"),
+    t("landing.rolesContributorPoint2"),
+    t("landing.rolesContributorPoint3"),
+  ];
+}
 
-const OWNER_POINTS = [
-  "قدّم نطاق العمل والمتطلبات وطريقة المراجعة قبل أن يتقدم أحد.",
-  "استخدم التحليل المساعد لتقليل الغموض، واحتفظ بقرار الاختيار النهائي.",
-  "راجع النتيجة وأنشئ دليلاً عادلاً مع أثر تدقيق واضح عند الحاجة.",
-] as const;
+function getOwnerPoints(t: TFunction) {
+  return [
+    t("landing.rolesOwnerPoint1"),
+    t("landing.rolesOwnerPoint2"),
+    t("landing.rolesOwnerPoint3"),
+  ];
+}
 
 export function RolesSection() {
+  const { t } = useTranslation();
+
   return (
     <section id="for-who" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid overflow-hidden rounded-card border border-border lg:grid-cols-2">
           <RolePanel
             icon={UserRound}
-            label="للمساهم"
-            title="اجعل العمل الذي أنجزته قابلاً للفهم والثقة."
-            description="Sharek يساعدك على الوصول إلى مساهمة ذات معنى، إكمالها بوضوح، ثم الاحتفاظ بسجل لا يعتمد على الادعاء الذاتي أو الشعبية."
-            points={CONTRIBUTOR_POINTS}
-            action="ابدأ سجل مساهماتك"
+            label={t("landing.rolesContributorLabel")}
+            title={t("landing.rolesContributorTitle")}
+            description={t("landing.rolesContributorDescription")}
+            points={getContributorPoints(t)}
+            action={t("landing.rolesContributorAction")}
             tone="accent"
           />
           <RolePanel
             icon={FolderGit2}
-            label="لصاحب المشروع"
-            title="اعثر على مساهم مناسب بأقل غموض، لا بأكثر طلبات."
-            description="اعرض العمل كسياق تعاون واضح، افهم ما يدعم ملاءمة كل متقدم، ثم اتخذ القرار وراجع النتيجة بنفسك."
-            points={OWNER_POINTS}
-            action="أضف مشروعاً"
+            label={t("landing.rolesOwnerLabel")}
+            title={t("landing.rolesOwnerTitle")}
+            description={t("landing.rolesOwnerDescription")}
+            points={getOwnerPoints(t)}
+            action={t("home.addProject")}
             tone="paper"
           />
         </div>

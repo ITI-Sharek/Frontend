@@ -1,5 +1,6 @@
 import { Loader2, MailCheck, RotateCcw } from "lucide-react";
 import { useEffect, useId, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
@@ -26,6 +27,7 @@ export function VerifyEmailStep({
   verificationExpiresAt,
   onVerified,
 }: VerifyEmailStepProps) {
+  const { t, i18n } = useTranslation();
   const codeInputId = useId();
   const [code, setCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -52,10 +54,7 @@ export function VerifyEmailStep({
       await onVerified(session);
     } catch (verifyError) {
       setError(
-        getApiErrorMessage(
-          verifyError,
-          "رمز التحقق غير صحيح أو انتهت صلاحيته. حاول مرة أخرى.",
-        ),
+        getApiErrorMessage(verifyError, t("register.verify.invalidCode")),
       );
       setIsVerifying(false);
     }
@@ -69,18 +68,21 @@ export function VerifyEmailStep({
     setIsResending(true);
     try {
       await resendEmailVerification(email);
-      setNotice("تم إرسال رمز جديد إلى بريدك الإلكتروني.");
+      setNotice(t("register.verify.codeSent"));
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (resendError) {
       setError(
-        getApiErrorMessage(resendError, "تعذر إعادة إرسال الرمز. حاول لاحقًا."),
+        getApiErrorMessage(resendError, t("register.verify.resendError")),
       );
     } finally {
       setIsResending(false);
     }
   }
 
-  const expiresAtLabel = formatExpiryTime(verificationExpiresAt);
+  const expiresAtLabel = formatExpiryTime(
+    verificationExpiresAt,
+    i18n.language.startsWith("en") ? "en" : "ar",
+  );
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -88,16 +90,18 @@ export function VerifyEmailStep({
         <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
           <MailCheck className="size-7" />
         </span>
-        <h2 className="text-lg font-bold text-foreground">تحقق من بريدك</h2>
+        <h2 className="text-lg font-bold text-foreground">
+          {t("register.verify.title")}
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          أرسلنا رمزًا من {OTP_LENGTH} أرقام إلى{" "}
+          {t("register.verify.description", { length: OTP_LENGTH })}{" "}
           <span dir="ltr" className="font-semibold text-foreground">
             {email}
           </span>
           {expiresAtLabel && (
             <>
               <br />
-              الرمز صالح حتى {expiresAtLabel}.
+              {t("register.verify.validUntil", { time: expiresAtLabel })}
             </>
           )}
         </p>
@@ -112,7 +116,7 @@ export function VerifyEmailStep({
       >
         <div className="flex w-full flex-col gap-1.5">
           <Label htmlFor={codeInputId} className="w-full text-right">
-            رمز التحقق
+            {t("register.verify.codeLabel")}
           </Label>
           <Input
             id={codeInputId}
@@ -144,10 +148,10 @@ export function VerifyEmailStep({
           {isVerifying ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              <span>جارٍ التحقق...</span>
+              <span>{t("register.verify.verifying")}</span>
             </>
           ) : (
-            <span>تأكيد البريد الإلكتروني</span>
+            <span>{t("register.verify.confirm")}</span>
           )}
         </Button>
 
@@ -161,10 +165,10 @@ export function VerifyEmailStep({
           <RotateCcw className="size-4" />
           <span>
             {resendCooldown > 0
-              ? `إعادة الإرسال بعد ${resendCooldown} ثانية`
+              ? t("register.verify.resendAfter", { seconds: resendCooldown })
               : isResending
-                ? "جارٍ الإرسال..."
-                : "إعادة إرسال الرمز"}
+                ? t("register.verify.resending")
+                : t("register.verify.resend")}
           </span>
         </Button>
       </form>
@@ -172,10 +176,10 @@ export function VerifyEmailStep({
   );
 }
 
-function formatExpiryTime(iso: string): string | null {
+function formatExpiryTime(iso: string, locale: string): string | null {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleTimeString("ar", {
+  return date.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
   });

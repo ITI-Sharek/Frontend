@@ -1,11 +1,16 @@
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
-import { CATEGORY_LABELS, DIFFICULTY_LABELS, ExploreFilters } from "./explore-filters";
+import {
+  ExploreFilters,
+  getCategoryLabel,
+  getDifficultyLabel,
+} from "./explore-filters";
 import { ExploreProjectCard } from "./explore-project-card";
 import type { ExploreSearchParamsDto } from "../types/explore.types";
 
@@ -22,6 +27,7 @@ interface ExploreViewProps {
  * comparison cards, loading + filtered-empty states.
  */
 export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProps) {
+  const { t } = useTranslation();
   const exploreQuery = useExploreProjectsQuery(params);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [searchDraft, setSearchDraft] = useState(params.q ?? "");
@@ -42,7 +48,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
       ? [
           {
             key: "category",
-            label: CATEGORY_LABELS[params.category],
+            label: getCategoryLabel(t, params.category),
             remove: () => onParamsChange({ category: undefined }),
           },
         ]
@@ -51,7 +57,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
       ? [
           {
             key: "difficulty",
-            label: DIFFICULTY_LABELS[params.difficulty],
+            label: getDifficultyLabel(t, params.difficulty),
             remove: () => onParamsChange({ difficulty: undefined }),
           },
         ]
@@ -63,10 +69,9 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6">
-      <h1 className="text-2xl font-bold text-foreground">استكشاف المشاريع</h1>
+      <h1 className="text-2xl font-bold text-foreground">{t("explore.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        اعثر على مشروع مفتوح المصدر يناسب مهاراتك — كل مشروع منشور بتقنياته
-        وتصنيفه ومستوى صعوبته.
+        {t("explore.description")}
       </p>
 
       <form
@@ -81,13 +86,13 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
           <input
             value={searchDraft}
             onChange={(event) => setSearchDraft(event.target.value)}
-            placeholder="ابحث بالاسم أو الوصف"
+            placeholder={t("explore.searchPlaceholder")}
             className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
           />
           {searchDraft !== "" && (
             <button
               type="button"
-              aria-label="مسح البحث"
+              aria-label={t("explore.clearSearch")}
               className="text-muted-foreground hover:text-foreground"
               onClick={() => {
                 setSearchDraft("");
@@ -105,7 +110,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
           className="flex items-center gap-2 rounded-input border border-border bg-card px-4 text-sm font-medium text-foreground lg:hidden"
         >
           <SlidersHorizontal className="size-4" />
-          فلاتر
+          {t("explore.filtersButton")}
           {filtersCount > 0 && (
             <span className="rounded-full bg-primary px-1.5 py-0.5 font-mono text-[10px] leading-none text-primary-foreground">
               {filtersCount}
@@ -122,11 +127,12 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm text-foreground">
-              <b>{pagination?.total ?? "…"}</b> مشاريع مطابقة
+              <b>{pagination?.total ?? "…"}</b>{" "}
+              {t("project.results.matchingProjects")}
               {params.q !== undefined && (
                 <span className="text-muted-foreground">
                   {" "}
-                  — نتائج بحث «{params.q}»
+                  {t("explore.searchResultsFor", { query: params.q })}
                 </span>
               )}
             </p>
@@ -147,7 +153,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
                 onClick={onReset}
                 className="text-xs text-primary hover:opacity-80"
               >
-                مسح الكل
+                {t("explore.clearAllFilters")}
               </button>
             )}
           </div>
@@ -184,10 +190,13 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
                     className="inline-flex items-center gap-1 rounded-input border border-border px-3 py-1.5 text-sm text-foreground disabled:opacity-40"
                   >
                     <ChevronRight className="size-4" />
-                    السابق
+                    {t("explore.previousPage")}
                   </button>
                   <span className="font-mono text-xs tracking-[0.65px] text-muted-foreground">
-                    صفحة {pagination.page} من {pagination.totalPages}
+                    {t("explore.page", {
+                      current: pagination.page,
+                      total: pagination.totalPages,
+                    })}
                   </span>
                   <button
                     type="button"
@@ -195,7 +204,7 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
                     onClick={() => onParamsChange({ page: pagination.page + 1 })}
                     className="inline-flex items-center gap-1 rounded-input border border-border px-3 py-1.5 text-sm text-foreground disabled:opacity-40"
                   >
-                    التالي
+                    {t("explore.nextPage")}
                     <ChevronLeft className="size-4" />
                   </button>
                 </div>
@@ -203,12 +212,12 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
             </>
           ) : (
             <div className="mt-4 rounded-card border border-dashed border-border bg-card p-10 text-center">
-              <p className="font-bold text-foreground">لا توجد مشاريع تطابق هذه الفلاتر</p>
+              <p className="font-bold text-foreground">{t("explore.noMatch")}</p>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                جرّب إزالة أحد الفلاتر أو توسيع البحث.
+                {t("explore.noMatchDescription")}
               </p>
               <Button size="sm" variant="outline" className="mt-4" onClick={onReset}>
-                إعادة تعيين الفلاتر
+                {t("explore.resetFiltersButton")}
               </Button>
             </div>
           )}
@@ -219,25 +228,25 @@ export function ExploreView({ params, onParamsChange, onReset }: ExploreViewProp
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="إغلاق الفلاتر"
+            aria-label={t("explore.closeFiltersAriaLabel")}
             className="absolute inset-0 bg-foreground/40"
             onClick={() => setSheetOpen(false)}
           />
           <div className="absolute inset-x-0 bottom-0 max-h-[85%] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-5 pb-8">
             <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-border" />
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">الفلاتر</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("explore.filtersTitle")}</h2>
               <button
                 type="button"
                 className="text-sm text-primary"
                 onClick={onReset}
               >
-                إعادة تعيين
+                {t("explore.resetFilters")}
               </button>
             </div>
             <ExploreFilters params={params} onChange={onParamsChange} onReset={onReset} />
             <Button className="mt-2 w-full" onClick={() => setSheetOpen(false)}>
-              عرض {pagination?.total ?? ""} مشاريع
+              {t("explore.viewProjects", { count: pagination?.total ?? 0 })}
             </Button>
           </div>
         </div>

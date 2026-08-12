@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { ComponentType } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -33,41 +35,45 @@ export function getPublicProfileSections(profile: ContributorProfileDto) {
   };
 }
 
-const PROFICIENCY_LABEL: Record<
+const PROFICIENCY_LABEL_KEYS: Record<
   ContributorSkillDto["proficiencyLevel"],
   string
 > = {
-  beginner: "مبتدئ",
-  intermediate: "متوسط",
-  advanced: "متقدم",
+  beginner: "contributor.profile.proficiencyBeginner",
+  intermediate: "contributor.profile.proficiencyIntermediate",
+  advanced: "contributor.profile.proficiencyAdvanced",
 };
 
 /** WF-06: confidence renders as a labeled band, never a bare decimal. */
-function confidenceLabel(confidence: number): string {
-  if (confidence >= 0.8) return "عالية";
-  if (confidence >= 0.5) return "متوسطة";
-  return "منخفضة";
+function confidenceLabel(t: TFunction, confidence: number): string {
+  if (confidence >= 0.8) return t("contributor.profile.confidenceHigh");
+  if (confidence >= 0.5) return t("contributor.profile.confidenceMedium");
+  return t("contributor.profile.confidenceLow");
 }
 
 const UNVERIFIED_STATUS_META: Record<
   Exclude<ContributorSkillDto["status"], "approved">,
-  { icon: ComponentType<{ className?: string }>; label: string }
+  { icon: ComponentType<{ className?: string }>; labelKey: string }
 > = {
-  pending: { icon: Clock, label: "قيد المراجعة" },
-  rejected: { icon: CircleSlash, label: "غير معتمدة" },
-  disputed: { icon: CircleAlert, label: "قيد الاعتراض" },
+  pending: { icon: Clock, labelKey: "contributor.profile.skillStatusPending" },
+  rejected: { icon: CircleSlash, labelKey: "contributor.profile.skillStatusRejected" },
+  disputed: { icon: CircleAlert, labelKey: "contributor.profile.skillStatusDisputed" },
 };
 
 type ProfileTabId = "about" | "skills" | "contributions";
 
 const TABS: {
   id: ProfileTabId;
-  label: string;
+  labelKey: string;
   icon: ComponentType<{ className?: string }>;
 }[] = [
-  { id: "about", label: "البيانات الشخصية", icon: UserRound },
-  { id: "skills", label: "المهارات", icon: Wrench },
-  { id: "contributions", label: "المساهمات", icon: FolderGit2 },
+  { id: "about", labelKey: "contributor.profile.tabAbout", icon: UserRound },
+  { id: "skills", labelKey: "contributor.profile.tabSkills", icon: Wrench },
+  {
+    id: "contributions",
+    labelKey: "contributor.profile.tabContributions",
+    icon: FolderGit2,
+  },
 ];
 
 /**
@@ -80,6 +86,7 @@ export function ContributorProfileSections({
 }: {
   profile: ContributorProfileDto;
 }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ProfileTabId>("about");
   const sections = getPublicProfileSections(profile);
   const verifiedSkills = profile.skills.filter(
@@ -95,7 +102,7 @@ export function ContributorProfileSections({
     <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card">
       <div
         role="tablist"
-        aria-label="أقسام الملف الشخصي"
+        aria-label={t("contributor.profile.tabsAriaLabel")}
         className="flex border-b border-border bg-background"
       >
         {TABS.map((tab) => {
@@ -118,7 +125,7 @@ export function ContributorProfileSections({
               )}
             >
               <Icon className="size-4" />
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           );
         })}
@@ -132,31 +139,31 @@ export function ContributorProfileSections({
         hidden={activeTab !== "about"}
         className="flex-1 p-6"
       >
-        <h2 className="text-lg font-bold text-foreground">نبذة عني</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.aboutTitle")}</h2>
         {sections.hasBio ? (
           <p className="mt-3 max-w-prose leading-8 text-muted-foreground">
             {profile.bio}
           </p>
         ) : (
           <ContributorProfileEmptyState
-            title="أضف نبذة تعريفية"
-            description="اكتب ملخصاً قصيراً يوضح خبراتك وما تحب المساهمة فيه."
+            title={t("contributor.profile.aboutEmptyTitle")}
+            description={t("contributor.profile.aboutEmptyDescription")}
           />
         )}
 
         <dl className="mt-6 grid gap-x-8 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">الدور</dt>
+            <dt className="text-muted-foreground">{t("contributor.profile.roleLabel")}</dt>
             <dd className="font-medium text-foreground">{profile.roleLabel}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">الإتاحة</dt>
+            <dt className="text-muted-foreground">{t("contributor.profile.availabilityLabel")}</dt>
             <dd className="font-medium text-foreground">
-              {profile.availability ?? "غير محددة"}
+              {profile.availability ?? t("contributor.profile.unspecified")}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">حساب GitHub</dt>
+            <dt className="text-muted-foreground">{t("contributor.profile.githubAccountLabel")}</dt>
             <dd className="font-medium text-foreground">
               {profile.githubStatus.connected &&
               profile.githubStatus.username ? (
@@ -170,29 +177,29 @@ export function ContributorProfileSections({
                   @{profile.githubStatus.username}
                 </a>
               ) : (
-                "غير متصل"
+                t("contributor.githubStatus.disconnected")
               )}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">اسم المستخدم</dt>
+            <dt className="text-muted-foreground">{t("contributor.profile.usernameLabel")}</dt>
             <dd dir="ltr" className="font-mono text-[13px] tracking-[0.65px] text-foreground">
               @{profile.username}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">مستوى الخبرة</dt>
+            <dt className="text-muted-foreground">{t("contributor.profile.experienceLevelLabel")}</dt>
             <dd className="font-medium text-foreground">
-              {profile.experienceLevel?.labelAr ?? "غير محدد"}
+              {profile.experienceLevel?.labelAr ?? t("contributor.profile.experienceLevelUnspecified")}
             </dd>
           </div>
           <div className="flex items-start justify-between gap-4 sm:col-span-2">
-            <dt className="shrink-0 text-muted-foreground">مجالات الاهتمام</dt>
+            <dt className="shrink-0 text-muted-foreground">{t("contributor.profile.fieldsLabel")}</dt>
             <dd className="text-end font-medium text-foreground">
               {profile.fields.length > 0 ? (
-                profile.fields.map((field) => field.labelAr).join("، ")
+                profile.fields.map((field) => field.labelAr).join(t("contributor.profile.fieldsSeparator"))
               ) : (
-                "غير محددة"
+                t("contributor.profile.unspecified")
               )}
             </dd>
           </div>
@@ -208,10 +215,10 @@ export function ContributorProfileSections({
         className="flex-1 p-6"
       >
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-foreground">مهاراتي</h2>
+          <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.skillsTitle")}</h2>
           {verifiedSkills.length > 0 && (
             <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {verifiedSkills.length} موثقة
+              {t("contributor.profile.verifiedCount", { count: verifiedSkills.length })}
             </span>
           )}
         </div>
@@ -224,14 +231,14 @@ export function ContributorProfileSections({
 
             {verifiedSkills.length === 0 && (
               <p className="text-sm leading-6 text-muted-foreground">
-                مهاراتك قيد المراجعة — تظهر هنا موثقةً بعد اعتماد فريق المراجعة.
+                {t("contributor.profile.skillsInReview")}
               </p>
             )}
 
             {showUnverified && (
               <div className="mt-2 border-t border-border pt-4">
                 <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-                  غير موثقة بعد — تظهر لك فقط
+                  {t("contributor.profile.unverifiedOnlyYou")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {unverifiedSkills.map((skill, index) => (
@@ -246,15 +253,15 @@ export function ContributorProfileSections({
           </div>
         ) : (
           <ContributorProfileEmptyState
-            title="لا توجد مهارات بعد"
-            description="إضافة المهارات تساعد أصحاب المشاريع على فهم نقاط قوتك بسرعة."
+            title={t("contributor.profile.skillsEmptyTitle")}
+            description={t("contributor.profile.skillsEmptyDescription")}
           />
         )}
 
         {profile.declaredSkills.length > 0 && (
           <div className="mt-6 border-t border-border pt-4">
             <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              مهارات أضفتها بنفسك — غير موثقة بواسطة GitHub
+              {t("contributor.profile.declaredSkillsLabel")}
             </p>
             <div className="flex flex-wrap gap-2">
               {profile.declaredSkills.map((skill) => (
@@ -279,7 +286,7 @@ export function ContributorProfileSections({
         hidden={activeTab !== "contributions"}
         className="flex-1 p-6"
       >
-        <h2 className="text-lg font-bold text-foreground">المساهمات</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.contributionsTitle")}</h2>
         {sections.hasHistory ? (
           <ol className="mt-4 flex flex-col">
             {profile.contributionHistory.map((item, index) => (
@@ -309,8 +316,8 @@ export function ContributorProfileSections({
           </ol>
         ) : (
           <ContributorProfileEmptyState
-            title="لا توجد مساهمات منشورة"
-            description="ستظهر هنا المشاريع والمهام التي ساهمت فيها بعد توثيقها."
+            title={t("contributor.profile.contributionsEmptyTitle")}
+            description={t("contributor.profile.contributionsEmptyDescription")}
           />
         )}
       </div>
@@ -323,6 +330,7 @@ export function ContributorProfileSections({
  * Verified and unverified skills must never look identical.
  */
 function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
+  const { t } = useTranslation();
   const hasEvidence =
     skill.evidenceSummary !== null && skill.evidenceSummary.trim() !== "";
 
@@ -332,14 +340,16 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
         {skill.name}
       </span>
       <span className="text-xs text-muted-foreground">
-        {PROFICIENCY_LABEL[skill.proficiencyLevel]}
+        {t(PROFICIENCY_LABEL_KEYS[skill.proficiencyLevel])}
       </span>
       <span className="inline-flex items-center gap-1 text-xs text-evidence-teal">
         <BadgeCheck className="size-3.5" />
-        موثقة
+        {t("contributor.profile.verifiedBadge")}
       </span>
       <span className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-        الثقة: {confidenceLabel(skill.confidence)}
+        {t("contributor.profile.confidence", {
+          confidence: confidenceLabel(t, skill.confidence),
+        })}
       </span>
     </>
   );
@@ -357,7 +367,7 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
       <summary className="flex cursor-pointer flex-wrap items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
         {header}
         <span className="ms-auto inline-flex items-center gap-1 text-xs text-muted-foreground">
-          الأدلة
+          {t("contributor.profile.evidenceLabel")}
           <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
         </span>
       </summary>
@@ -369,6 +379,7 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
 }
 
 function UnverifiedSkillChip({ skill }: { skill: ContributorSkillDto }) {
+  const { t } = useTranslation();
   if (skill.status === "approved") return null;
   const meta = UNVERIFIED_STATUS_META[skill.status];
   const StatusIcon = meta.icon;
@@ -380,7 +391,7 @@ function UnverifiedSkillChip({ skill }: { skill: ContributorSkillDto }) {
       </span>
       <span className="inline-flex items-center gap-1 text-xs">
         <StatusIcon className="size-3.5" />
-        {meta.label}
+        {t(meta.labelKey)}
       </span>
     </span>
   );

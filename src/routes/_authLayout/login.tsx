@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import {
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_authLayout/login")({
 });
 
 function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [retryUser, setRetryUser] = useState<AuthUserDto | null>(null);
@@ -54,7 +56,7 @@ function LoginPage() {
       setSessionError(null);
       await navigateAfterAuth(retryUser);
     } catch {
-      setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
+      setSessionError(t("auth.sessionLoginError"));
     }
   }
 
@@ -77,7 +79,7 @@ function LoginPage() {
         try {
           await navigateAfterAuth(user);
         } catch {
-          setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
+          setSessionError(t("auth.sessionLoginError"));
         }
       })
       .catch(() => {
@@ -91,7 +93,7 @@ function LoginPage() {
 
   return (
     <>
-      <AuthHero heading="مرحباً بك مجدداً" subtext="سجل دخولك" />
+      <AuthHero heading={t("auth.loginHero")} subtext={t("auth.loginSubtext")} />
       {sessionError && (
         <ContributorProfileErrorView
           message={sessionError}
@@ -105,7 +107,7 @@ function LoginPage() {
             await handleLoginSuccess(session);
           } catch {
             setRetryUser(session.user);
-            setSessionError("تم تسجيل الدخول لكن تعذر فتح ملف المساهم.");
+            setSessionError(t("auth.sessionLoginError"));
           }
         }}
       />

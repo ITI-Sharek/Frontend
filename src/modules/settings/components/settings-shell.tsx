@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -7,11 +8,6 @@ export interface SettingsSectionItem {
   label: string;
 }
 
-/**
- * Settings layout with an inner sidebar navigation (à la Upwork settings):
- * a vertical section list on one side, active section content on the other.
- * Generic/presentational — section content is composed by the route.
- */
 export function SettingsShell({
   sections,
   activeSectionId,
@@ -23,11 +19,18 @@ export function SettingsShell({
   onSelectSection: (id: string) => void;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto flex w-full flex-col gap-8 px-4 py-8 md:flex-row md:px-8">
       <aside className="w-full shrink-0 md:w-56">
-        <h1 className="mb-4 text-2xl font-bold text-foreground">الإعدادات</h1>
-        <nav className="flex flex-row gap-1 overflow-x-auto md:flex-col md:overflow-visible" aria-label="أقسام الإعدادات">
+        <h1 className="mb-4 text-2xl font-bold text-foreground">
+          {t("settings.title")}
+        </h1>
+        <nav
+          className="flex flex-row gap-1 overflow-x-auto md:flex-col md:overflow-visible"
+          aria-label={t("settings.nav")}
+        >
           {sections.map((section) => {
             const isActive = section.id === activeSectionId;
             return (

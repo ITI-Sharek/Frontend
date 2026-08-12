@@ -1,15 +1,11 @@
 import { ChevronLeft, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type {
   ApplicationsSummaryDto,
   GrowthSummaryDto,
 } from "../types/dashboard.types";
 
-/**
- * WF-02 bottom row: "YOUR GROWTH" (deltas, Principle 8) beside
- * "MY APPLICATIONS" (counts + view-all). When there is no growth data yet,
- * the panel shows the path, never zeros.
- */
 export function DashboardSummary({
   growth,
   applications,
@@ -19,17 +15,17 @@ export function DashboardSummary({
   applications: ApplicationsSummaryDto;
   showGrowthPath?: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <section className="grid gap-4 md:grid-cols-2">
       <div className="rounded-card border border-border bg-card p-5">
         <h2 className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-          نموك
+          {t("dashboard.growth.title")}
         </h2>
         {showGrowthPath ? (
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            سمعتك تُبنى من التسليمات المعتمدة وتقييمات أصحاب المشاريع. الخطوة
-            الأولى: قدّم على مهمة مطابقة لمهاراتك الموثقة — أول مساهمة معتمدة
-            تبدأ سجلّك.
+            {t("dashboard.growth.growthPath")}
           </p>
         ) : (
           <div className="mt-3 flex flex-col gap-1.5">
@@ -40,11 +36,15 @@ export function DashboardSummary({
               <TrendingUp className="size-4 text-primary" />
             </p>
             <p className="text-sm text-muted-foreground">
-              {growth.completedCount} مساهمات مكتملة · معدل نجاح{" "}
-              {growth.successRate}٪
+              {t("dashboard.growth.completedContributions", {
+                count: growth.completedCount,
+                rate: growth.successRate,
+              })}
             </p>
             <p className="text-sm text-evidence-teal">
-              +{growth.skillsVerifiedThisMonth} مهارة موثقة هذا الشهر
+              {t("dashboard.growth.skillsThisMonth", {
+                count: growth.skillsVerifiedThisMonth,
+              })}
             </p>
           </div>
         )}
@@ -53,19 +53,21 @@ export function DashboardSummary({
       <div className="rounded-card border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-2">
           <h2 className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-            طلبات الانضمام
+            {t("dashboard.applications.title")}
           </h2>
           <a
             href="#"
             className="inline-flex items-center gap-1 text-sm text-primary transition-colors hover:opacity-80"
           >
-            عرض الكل
+            {t("dashboard.applications.viewAll")}
             <ChevronLeft className="size-4" />
           </a>
         </div>
         <dl className="mt-3 flex flex-col gap-2 text-sm">
           <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground">بانتظار صاحب المشروع</dt>
+            <dt className="text-muted-foreground">
+              {t("dashboard.applications.pendingOwnerReview")}
+            </dt>
             <dd className="font-bold text-foreground">
               {applications.pendingOwnerReviewCount}
             </dd>

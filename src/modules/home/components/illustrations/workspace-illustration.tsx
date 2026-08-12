@@ -1,8 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 /**
- * مساحة التعاون بعد القبول: مهمة → نقاش → تسليم، يربطها خيط تدقيق واحد.
- * الألوان من متغيرات النظام حتى تعمل في الوضعين الفاتح والداكن.
+ * The post-acceptance collaboration space: task -> discussion -> deliverable,
+ * tied together by a single audit thread.
+ * Colors come from system tokens so they work in both light and dark modes.
  */
 export function WorkspaceIllustration({ className }: { className?: string }) {
+  const { t } = useTranslation();
   return (
     <svg
       viewBox="0 0 560 448"
@@ -10,7 +14,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
       focusable="false"
       className={className}
     >
-      {/* خيط التدقيق: يبدأ من يمين القراءة وينزل عبر المراحل الثلاث */}
+      {/* Audit thread: starts at the reading side and flows through the three stages */}
       <line
         x1="526"
         y1="44"
@@ -25,7 +29,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
       <circle cx="526" cy="196" r="5" fill="var(--primary)" />
       <circle cx="526" cy="340" r="5" fill="var(--primary)" />
 
-      {/* بطاقة المهمة */}
+      {/* Task card */}
       <g>
         <rect
           x="36"
@@ -45,7 +49,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
           fontWeight="700"
           fill="var(--foreground)"
         >
-          المهمة
+          {t("landing.illustrationWorkspaceTask")}
         </text>
         <rect
           x="60"
@@ -64,7 +68,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
           fontWeight="600"
           fill="var(--review-amber)"
         >
-          قيد التنفيذ
+          {t("landing.illustrationWorkspaceInProgress")}
         </text>
         <rect x="212" y="68" width="260" height="9" rx="4.5" fill="var(--border)" />
         <rect
@@ -96,7 +100,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
         />
       </g>
 
-      {/* بطاقة النقاش */}
+      {/* Discussion card */}
       <g>
         <rect
           x="64"
@@ -116,7 +120,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
           fontWeight="700"
           fill="var(--foreground)"
         >
-          نقاش مرتبط بالمهمة
+          {t("landing.illustrationWorkspaceTaskDiscussion")}
         </text>
         <rect
           x="252"
@@ -138,7 +142,7 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
         />
       </g>
 
-      {/* بطاقة التسليم */}
+      {/* Deliverable card */}
       <g>
         <rect
           x="36"
@@ -158,9 +162,9 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
           fontWeight="700"
           fill="var(--foreground)"
         >
-          التسليم
+          {t("landing.illustrationWorkspaceDeliverable")}
         </text>
-        {/* ملف الدليل */}
+        {/* Evidence file */}
         <rect
           x="404"
           y="352"
@@ -216,11 +220,11 @@ export function WorkspaceIllustration({ className }: { className?: string }) {
           fontWeight="600"
           className="fill-evidence-teal-foreground dark:fill-evidence-teal"
         >
-          جاهز للمراجعة
+          {t("landing.illustrationWorkspaceReadyForReview")}
         </text>
       </g>
 
-      {/* ختم التحقق عند نهاية الخيط */}
+      {/* Verification seal at the end of the thread */}
       <g>
         <circle
           cx="526"

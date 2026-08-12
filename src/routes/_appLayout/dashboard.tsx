@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { requireContributorRoute } from "@/modules/auth";
 import {
@@ -8,7 +9,6 @@ import {
 import type { DashboardLifecycleState } from "@/modules/dashboard";
 
 interface DashboardSearch {
-  /** Dev/demo affordance while the API is mocked: preview WF-02 states B/C. */
   state?: "onboarding" | "empty";
 }
 
@@ -31,6 +31,7 @@ export const Route = createFileRoute("/_appLayout/dashboard")({
 });
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const { state } = Route.useSearch();
   const lifecycleState = state ? SEARCH_STATE_MAP[state] : "active";
   const dashboardQuery = useContributorDashboardQuery(lifecycleState);
@@ -38,7 +39,7 @@ function DashboardPage() {
   if (dashboardQuery.data === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل لوحة التحكم...</p>
+        <p className="text-muted-foreground">{t("dashboard.loading")}</p>
       </div>
     );
   }

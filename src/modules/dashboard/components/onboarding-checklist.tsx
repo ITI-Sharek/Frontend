@@ -1,24 +1,22 @@
 import { Check, Circle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
 import type { OnboardingStepDto } from "../types/dashboard.types";
 
-/**
- * WF-02 State B: onboarding incomplete — the dashboard *is* the checklist.
- * Explore stays open meanwhile; applying unlocks after review.
- */
 export function OnboardingChecklist({
   steps,
 }: {
   steps: OnboardingStepDto[];
 }) {
+  const { t } = useTranslation();
   const doneCount = steps.filter((step) => step.status === "done").length;
 
   return (
     <section className="rounded-card border border-border bg-card p-6">
       <h2 className="text-lg font-bold text-foreground">
-        أكمل الإعداد ({doneCount} من {steps.length})
+        {t("dashboard.onboarding.title", { done: doneCount, total: steps.length })}
       </h2>
 
       <ol className="mt-4 flex flex-col gap-3">
@@ -46,12 +44,14 @@ export function OnboardingChecklist({
       </ol>
 
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-4">
-        <span className="text-sm text-muted-foreground">في هذه الأثناء:</span>
+        <span className="text-sm text-muted-foreground">
+          {t("dashboard.onboarding.meanwhile")}
+        </span>
         <Button size="sm" variant="outline">
-          استكشاف المشاريع
+          {t("dashboard.onboarding.exploreProjects")}
         </Button>
         <span className="text-xs text-muted-foreground">
-          (التقديم يُفتح بعد مراجعة ملفك المهاري)
+          {t("dashboard.onboarding.applyUnlockNote")}
         </span>
       </div>
     </section>

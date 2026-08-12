@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -16,13 +17,14 @@ import { Input } from "@/shared/components/ui/input";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { cn } from "@/lib/utils";
 
-import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../explore-filters";
+import {
+  getCategoryLabel,
+  getDifficultyLabel,
+  PROJECT_CATEGORIES,
+  PROJECT_DIFFICULTIES,
+} from "../explore-filters";
 import { ProjectSourceStatusPanel } from "./project-source-status-panel";
 import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
-import type {
-  ProjectCategory,
-  ProjectDifficulty,
-} from "../../types/project.types";
 import type {
   EditProjectPayload,
   ProjectManualOverrideField,
@@ -30,13 +32,10 @@ import type {
 } from "../../types/project-draft.types";
 
 const STATUS_META = {
-  draft: { tone: "neutral" as const, icon: FileText, label: "مسودة" },
-  published: { tone: "positive" as const, icon: CircleCheck, label: "منشور" },
-  archived: { tone: "neutral" as const, icon: Archive, label: "مؤرشف" },
+  draft: { tone: "neutral" as const, icon: FileText, labelKey: "project.myProjectsList.statusDraft" },
+  published: { tone: "positive" as const, icon: CircleCheck, labelKey: "project.myProjectsList.statusPublished" },
+  archived: { tone: "neutral" as const, icon: Archive, labelKey: "project.myProjectsList.statusArchived" },
 };
-
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
-const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
 
 interface ProjectOwnerDetailViewProps {
   project: ProjectOwnerViewDto;
@@ -85,6 +84,7 @@ export function ProjectOwnerDetailView({
   archiveError,
   recoverySlot,
 }: ProjectOwnerDetailViewProps) {
+  const { t } = useTranslation();
   const statusMeta = STATUS_META[project.status];
   const [confirmingPublish, setConfirmingPublish] = useState(false);
   const [confirmingArchive, setConfirmingArchive] = useState(false);
@@ -94,20 +94,20 @@ export function ProjectOwnerDetailView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <a href={myProjectsHref} className="text-sm text-muted-foreground">
-            مشاريعي
+            {t("project.owner.myProjects")}
           </a>
           <h1
             dir="ltr"
             className="mt-1 truncate text-end font-mono text-2xl font-bold tracking-[0.65px] text-foreground"
           >
-            {project.project.title || "بلا عنوان"}
+            {project.project.title || t("project.detail.noTitle")}
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            الإصدار #{project.revision}
+            {t("project.owner.revision", { revision: project.revision })}
           </p>
         </div>
         <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
-          {statusMeta.label}
+          {t(statusMeta.labelKey)}
         </StatusChip>
       </div>
 
@@ -132,10 +132,9 @@ export function ProjectOwnerDetailView({
 
       {project.status === "draft" && (
         <Card>
-          <h2 className="text-sm font-bold text-foreground">النشر</h2>
+          <h2 className="text-sm font-bold text-foreground">{t("project.owner.publishTitle")}</h2>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            بعد النشر يظهر المشروع لكل المساهمين. يمكنك أرشفته لاحقاً في أي وقت،
-            لكن لا يمكن إعادته إلى مسودة.
+            {t("project.owner.publishDescription")}
           </p>
           {publishError && (
             <p role="alert" className="mt-3 text-xs text-destructive">
@@ -150,7 +149,7 @@ export function ProjectOwnerDetailView({
               onClick={() => setConfirmingPublish(true)}
             >
               <Rocket className="size-4" />
-              نشر المشروع
+              {t("project.owner.publishProject")}
             </Button>
           ) : (
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -163,7 +162,7 @@ export function ProjectOwnerDetailView({
                 }}
               >
                 {isPublishing && <Loader2 className="size-4 animate-spin" />}
-                تأكيد النشر
+                {t("project.owner.confirmPublish")}
               </Button>
               <Button
                 type="button"
@@ -172,7 +171,7 @@ export function ProjectOwnerDetailView({
                 disabled={isPublishing}
                 onClick={() => setConfirmingPublish(false)}
               >
-                إلغاء
+                {t("common.cancel")}
               </Button>
             </div>
           )}
@@ -181,15 +180,14 @@ export function ProjectOwnerDetailView({
 
       {project.status === "published" && (
         <Card>
-          <h2 className="text-sm font-bold text-foreground">الأرشفة</h2>
+          <h2 className="text-sm font-bold text-foreground">{t("project.owner.archiveTitle")}</h2>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            الأرشفة تزيل المشروع من كل القوائم العامة. هذا الإجراء الوحيد
-            لسحب مشروع منشور، ولا يمكن التراجع عنه إلى مسودة.
+            {t("project.owner.archiveDescription")}
           </p>
           <Button asChild type="button" size="sm" className="mt-3">
             <a href={publicProjectHref}>
               <ExternalLink className="size-4" />
-              عرض الصفحة العامة
+              {t("project.owner.viewPublicPage")}
             </a>
           </Button>
           {archiveError && (
@@ -206,7 +204,7 @@ export function ProjectOwnerDetailView({
               onClick={() => setConfirmingArchive(true)}
             >
               <ArchiveRestore className="size-4" />
-              أرشفة المشروع
+              {t("project.owner.archiveProject")}
             </Button>
           ) : (
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -220,7 +218,7 @@ export function ProjectOwnerDetailView({
                 }}
               >
                 {isArchiving && <Loader2 className="size-4 animate-spin" />}
-                تأكيد الأرشفة
+                {t("project.owner.confirmArchive")}
               </Button>
               <Button
                 type="button"
@@ -229,7 +227,7 @@ export function ProjectOwnerDetailView({
                 disabled={isArchiving}
                 onClick={() => setConfirmingArchive(false)}
               >
-                إلغاء
+                {t("common.cancel")}
               </Button>
             </div>
           )}
@@ -239,8 +237,7 @@ export function ProjectOwnerDetailView({
       {project.status === "archived" && (
         <Card className="border-border/60 bg-muted/20">
           <p className="text-xs leading-relaxed text-muted-foreground">
-            هذا المشروع مؤرشف وغير مرئي للعامة. إعادة النشر أو التفعيل غير
-            متاحة من هذه الصفحة حالياً.
+            {t("project.owner.archivedNote")}
           </p>
         </Card>
       )}
@@ -263,6 +260,7 @@ function ProjectEditForm({
   onRestoreField: (field: ProjectManualOverrideField) => void;
   restoringField: ProjectManualOverrideField | null;
 }) {
+  const { t } = useTranslation();
   const effective = project.project;
   const [title, setTitle] = useState(effective.title);
   const [description, setDescription] = useState(effective.description ?? "");
@@ -319,14 +317,14 @@ function ProjectEditForm({
 
   return (
     <Card>
-      <h2 className="text-sm font-bold text-foreground">بيانات المشروع</h2>
+      <h2 className="text-sm font-bold text-foreground">{t("project.owner.projectData")}</h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        الحقول المعلَّمة «من GitHub» تُحدَّث تلقائياً عند التحديث ما لم تعدّلها.
+        {t("project.owner.githubFieldNote")}
       </p>
 
       <div className="mt-4 flex flex-col gap-4">
         <EditFieldLabel
-          label="العنوان"
+          label={t("project.fields.title")}
           isManual={isManual("title")}
           onRestore={() => onRestoreField("title")}
           isRestoring={restoringField === "title"}
@@ -335,7 +333,7 @@ function ProjectEditForm({
         </EditFieldLabel>
 
         <EditFieldLabel
-          label="الوصف"
+          label={t("project.fields.description")}
           isManual={isManual("description")}
           onRestore={() => onRestoreField("description")}
           isRestoring={restoringField === "description"}
@@ -350,8 +348,8 @@ function ProjectEditForm({
         </EditFieldLabel>
 
         <EditFieldLabel
-          label="الوسوم"
-          hint="مفصولة بفواصل"
+          label={t("project.fields.tags")}
+          hint={t("project.fields.commaSeparated")}
           isManual={isManual("tags")}
           onRestore={() => onRestoreField("tags")}
           isRestoring={restoringField === "tags"}
@@ -360,8 +358,8 @@ function ProjectEditForm({
         </EditFieldLabel>
 
         <EditFieldLabel
-          label="التقنيات"
-          hint="مفصولة بفواصل"
+          label={t("project.fields.technologies")}
+          hint={t("project.fields.commaSeparated")}
           isManual={isManual("technologies")}
           onRestore={() => onRestoreField("technologies")}
           isRestoring={restoringField === "technologies"}
@@ -373,12 +371,12 @@ function ProjectEditForm({
           />
         </EditFieldLabel>
 
-        <EditFieldLabel label="التصنيف" hint="مطلوب قبل النشر">
+        <EditFieldLabel label={t("project.fields.category")} hint={t("project.fields.requiredBeforePublish")}>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((item) => (
+            {PROJECT_CATEGORIES.map((item) => (
               <PillOption
                 key={item}
-                label={CATEGORY_LABELS[item]}
+                label={getCategoryLabel(t, item)}
                 selected={category === item}
                 onSelect={() => setCategory(item)}
               />
@@ -386,12 +384,12 @@ function ProjectEditForm({
           </div>
         </EditFieldLabel>
 
-        <EditFieldLabel label="مستوى الصعوبة" hint="مطلوب قبل النشر">
+        <EditFieldLabel label={t("project.fields.difficulty")} hint={t("project.fields.requiredBeforePublish")}>
           <div className="flex flex-wrap gap-2">
-            {DIFFICULTIES.map((item) => (
+            {PROJECT_DIFFICULTIES.map((item) => (
               <PillOption
                 key={item}
-                label={DIFFICULTY_LABELS[item]}
+                label={getDifficultyLabel(t, item)}
                 selected={difficulty === item}
                 onSelect={() => setDifficulty(item)}
               />
@@ -416,7 +414,7 @@ function ProjectEditForm({
           }}
         >
           {isSavingEdit && <Loader2 className="size-4 animate-spin" />}
-          حفظ التعديلات
+          {t("project.owner.saveEdits")}
         </Button>
       </div>
     </Card>
@@ -438,6 +436,7 @@ function EditFieldLabel({
   isRestoring?: boolean;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-1.5">
       <span className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
@@ -454,7 +453,7 @@ function EditFieldLabel({
             onClick={onRestore}
             className="rounded-full bg-border/50 px-2 py-0.5 font-mono text-[10px] tracking-[0.65px] text-muted-foreground transition-colors hover:text-foreground"
           >
-            {isRestoring ? "جارٍ الاستعادة..." : "استعادة من GitHub"}
+            {isRestoring ? t("project.owner.restoring") : t("project.owner.restoreFromGithub")}
           </button>
         )}
       </span>

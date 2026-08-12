@@ -2,7 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CircleAlert, RotateCcw } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
+import i18n from "@/lib/i18n";
 import {
   getProposalErrorMessage,
   ProposalDetailView,
@@ -30,7 +32,7 @@ import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 import { invalidateProposalAcceptanceSideEffects } from "./proposals.helpers";
 
 export const Route = createFileRoute("/_appLayout/proposals/$proposalId")({
-  head: () => ({ meta: [{ title: "تفاصيل مقترح المساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: i18n.t("pageTitle.proposalDetail") }] }),
   component: ProposalDetailsPage,
 });
 
@@ -46,6 +48,7 @@ function useProposalCommandKeys() {
 }
 
 function ProposalDetailsPage() {
+  const { t } = useTranslation();
   const { proposalId } = Route.useParams();
   const { currentUser: contextUser } = Route.useRouteContext();
   const { currentUser, isResolving: isResolvingUser } =
@@ -64,7 +67,7 @@ function ProposalDetailsPage() {
   const [reportSuccess, setReportSuccess] = useState<string | null>(null);
 
   if (query.isPending) {
-    return <p role="status" className="p-8 text-center text-sm text-muted-foreground">جارٍ تحميل المقترح…</p>;
+    return <p role="status" className="p-8 text-center text-sm text-muted-foreground">{t("proposalPage.loading")}</p>;
   }
 
   // A failed load and "you are not a party to this proposal" used to share one
@@ -75,11 +78,11 @@ function ProposalDetailsPage() {
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر تحميل المقترح"
-          description={getProposalErrorMessage(query.error)}
+          title={t("proposalPage.loadErrorTitle")}
+          description={getProposalErrorMessage(t, query.error)}
           action={
             <Button size="sm" onClick={() => void query.refetch()}>
-              <RotateCcw className="size-4" aria-hidden="true" /> إعادة المحاولة
+              <RotateCcw className="size-4" aria-hidden="true" /> {t("proposalList.retry")}
             </Button>
           }
         />
@@ -95,7 +98,7 @@ function ProposalDetailsPage() {
   if (isResolvingUser) {
     return (
       <p role="status" className="p-8 text-center text-sm text-muted-foreground">
-        جارٍ التحقق من الحساب…
+        {t("proposalPage.resolving")}
       </p>
     );
   }
@@ -103,9 +106,9 @@ function ProposalDetailsPage() {
   if (!currentUser || currentUser.role === "admin") {
     return (
       <div className="mx-auto max-w-xl px-4 py-12 text-center">
-        <h1 className="text-xl font-bold text-foreground">المقترح غير متاح</h1>
+        <h1 className="text-xl font-bold text-foreground">{t("proposalPage.notAvailable")}</h1>
         <p role="alert" className="mt-3 text-sm text-destructive">
-          هذا المسار مخصص لأطراف المقترح.
+          {t("proposalPage.notAvailableDescription")}
         </p>
       </div>
     );
@@ -139,10 +142,10 @@ function ProposalDetailsPage() {
       if (action === "withdraw") await withdrawMutation.mutateAsync(command);
       if (action === "report") {
         await reportMutation.mutateAsync({ ...command, reason });
-        setReportSuccess("وصل البلاغ إلى سجل المراجعة الإشرافية دون تغيير حالة المقترح.");
+        setReportSuccess(t("proposalDetail.reportSuccess"));
       }
     } catch (error) {
-      setActionError(getProposalErrorMessage(error));
+      setActionError(getProposalErrorMessage(t, error));
       if (shouldRefreshProposalAfterError(error)) await query.refetch();
       throw error;
     } finally {
@@ -163,7 +166,7 @@ function ProposalDetailsPage() {
         ),
       });
     } catch (error) {
-      setActionError(getProposalErrorMessage(error));
+      setActionError(getProposalErrorMessage(t, error));
       if (shouldRefreshProposalAfterError(error)) await query.refetch();
     } finally {
       setBusyAction(null);

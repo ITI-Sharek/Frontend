@@ -1,5 +1,6 @@
 import { Github, Star } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ export function ContributorReputationStrip({
 }: {
   profile: ContributorProfileDto;
 }) {
+  const { t } = useTranslation();
   const { rating, reviewsCount } = profile.reputationSummary;
   const verifiedCount = profile.skills.filter(
     (skill) => skill.status === "approved",
@@ -29,12 +31,12 @@ export function ContributorReputationStrip({
   return (
     <div className="h-full overflow-hidden rounded-card border border-border bg-card">
       <h2 className="border-b border-border bg-background px-5 py-3.5 text-base font-bold text-foreground">
-        إحصائيات
+        {t("contributor.reputation.title")}
       </h2>
       <dl className="px-5">
-        <StatRow label="التقييمات">
+        <StatRow label={t("contributor.reputation.ratings")}>
           {rating === null ? (
-            <span className="text-sm text-muted-foreground">جديد</span>
+            <span className="text-sm text-muted-foreground">{t("contributor.reputation.new")}</span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
               <StarRating rating={rating} />
@@ -45,7 +47,7 @@ export function ContributorReputationStrip({
           )}
         </StatRow>
 
-        <StatRow label="المهارات الموثقة">
+        <StatRow label={t("contributor.reputation.verifiedSkills")}>
           {verifiedPercent === null ? (
             <span className="text-sm text-muted-foreground">—</span>
           ) : (
@@ -53,26 +55,26 @@ export function ContributorReputationStrip({
           )}
         </StatRow>
 
-        <StatRow label="المساهمات المكتملة">
+        <StatRow label={t("contributor.reputation.completedContributions")}>
           <span className="text-sm font-bold text-foreground">
             {profile.contributionHistory.length}
           </span>
         </StatRow>
 
-        <StatRow label="الإتاحة">
+        <StatRow label={t("contributor.reputation.availability")}>
           <span className="text-sm font-medium text-foreground">
-            {profile.availability ?? "غير محددة"}
+            {profile.availability ?? t("contributor.profile.unspecified")}
           </span>
         </StatRow>
 
-        <StatRow label="حساب GitHub" last>
+        <StatRow label={t("contributor.reputation.githubAccount")} last>
           {profile.githubStatus.connected ? (
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
               <Github className="size-4" />
-              متصل
+              {t("contributor.githubStatus.connected")}
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">غير متصل</span>
+            <span className="text-sm text-muted-foreground">{t("contributor.githubStatus.disconnected")}</span>
           )}
         </StatRow>
       </dl>
@@ -103,13 +105,16 @@ function StatRow({
 }
 
 function StarRating({ rating }: { rating: number }) {
+  const { t } = useTranslation();
   const filled = Math.round(rating);
   return (
     <span
       dir="ltr"
       className="inline-flex"
       role="img"
-      aria-label={`التقييم ${rating.toFixed(1)} من 5`}
+      aria-label={t("contributor.reputation.ratingAria", {
+        rating: rating.toFixed(1),
+      })}
     >
       {Array.from({ length: 5 }, (_, index) => (
         <Star

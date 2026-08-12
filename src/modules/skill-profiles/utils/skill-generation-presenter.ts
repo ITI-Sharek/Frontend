@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 import {
   getApiErrorCode,
   getApiErrorMetadataString,
@@ -18,72 +20,39 @@ interface GenerationStatusMeta {
   retryable: boolean;
 }
 
-const GENERATION_STATUS_META: Record<
+const GENERATION_STATUS_FLAGS: Record<
   SkillProfileGenerationStatus,
-  GenerationStatusMeta
+  Pick<GenerationStatusMeta, "tone" | "terminal" | "retryable">
 > = {
-  queued: {
-    label: "في الانتظار",
-    tone: "waiting",
-    description: "تم استلام طلبك وهو في قائمة الانتظار.",
-    terminal: false,
-    retryable: false,
-  },
-  collecting_evidence: {
-    label: "جمع الأدلة",
-    tone: "waiting",
-    description: "نقرأ المستودعات المختارة لجمع أدلة مساهماتك.",
-    terminal: false,
-    retryable: false,
-  },
-  analyzing: {
-    label: "قيد التحليل",
-    tone: "ai",
-    description: "يجري تحليل الأدلة لاستخراج مهارات مرشحة.",
-    terminal: false,
-    retryable: false,
-  },
-  pending_review: {
-    label: "بانتظار مراجعة الإدارة",
-    tone: "attention",
-    description:
-      "اكتمل التحليل بنجاح. المهارات المستخرجة ما زالت بانتظار اعتماد الإدارة، ولا تظهر للعامة قبل الاعتماد.",
-    terminal: true,
-    retryable: false,
-  },
-  needs_more_evidence: {
-    label: "أدلة غير كافية",
-    tone: "attention",
-    description:
-      "لم نجد مساهمات برمجية كافية منسوبة إليك. أعد المحاولة باختيار مستودعات تُظهر مساهماتك بوضوح أكبر.",
-    terminal: true,
-    retryable: true,
-  },
-  failed: {
-    label: "فشل التحليل",
-    tone: "negative",
-    description: "تعذّر إكمال التحليل.",
-    terminal: true,
-    retryable: true,
-  },
+  queued: { tone: "waiting", terminal: false, retryable: false },
+  collecting_evidence: { tone: "waiting", terminal: false, retryable: false },
+  analyzing: { tone: "ai", terminal: false, retryable: false },
+  pending_review: { tone: "attention", terminal: true, retryable: false },
+  needs_more_evidence: { tone: "attention", terminal: true, retryable: true },
+  failed: { tone: "negative", terminal: true, retryable: true },
 };
 
 export function getGenerationStatusMeta(
+  t: TFunction,
   status: SkillProfileGenerationStatus,
 ): GenerationStatusMeta {
-  return GENERATION_STATUS_META[status];
+  return {
+    label: t(`skillProfile.generationStatus.${status}.label`),
+    description: t(`skillProfile.generationStatus.${status}.description`),
+    ...GENERATION_STATUS_FLAGS[status],
+  };
 }
 
 export function isGenerationTerminal(
   status: SkillProfileGenerationStatus,
 ): boolean {
-  return GENERATION_STATUS_META[status].terminal;
+  return GENERATION_STATUS_FLAGS[status].terminal;
 }
 
 export function isGenerationActive(
   status: SkillProfileGenerationStatus,
 ): boolean {
-  return !GENERATION_STATUS_META[status].terminal;
+  return !GENERATION_STATUS_FLAGS[status].terminal;
 }
 
 /** Retry is offered only for `failed` and `needs_more_evidence`. */
@@ -91,7 +60,7 @@ export function canRetryGeneration(
   generation: Pick<SkillProfileGenerationDto, "status"> | null | undefined,
 ): boolean {
   if (!generation) return false;
-  return GENERATION_STATUS_META[generation.status].retryable;
+  return GENERATION_STATUS_FLAGS[generation.status].retryable;
 }
 
 export function getGenerationProgressPercent(
@@ -105,40 +74,39 @@ export function getGenerationProgressPercent(
   return Math.min(100, Math.max(0, Math.round(ratio * 100)));
 }
 
-const SKILL_PROFILE_ERROR_MESSAGES: Record<string, string> = {
+const SKILL_PROFILE_ERROR_KEYS: Record<string, string> = {
   SKILL_PROFILE_ANALYSIS_CONSENT_REQUIRED:
-    "يلزم إقرار الموافقة الصريحة قبل بدء التحليل.",
+    "skillProfile.errors.consentRequired",
   SKILL_PROFILE_GENERATION_ALREADY_ACTIVE:
-    "لديك تحليل جارٍ بالفعل. تابعنا حالته أدناه.",
-  SKILL_PROFILE_QUEUE_UNAVAILABLE:
-    "خدمة التحليل غير متاحة حالياً. أعد المحاولة بعد قليل.",
+    "skillProfile.errors.alreadyActive",
+  SKILL_PROFILE_QUEUE_UNAVAILABLE: "skillProfile.errors.queueUnavailable",
   SKILL_PROFILE_GENERATION_NOT_RETRYABLE:
-    "لا يمكن إعادة محاولة هذا التحليل في حالته الحالية.",
-  SKILL_PROFILE_GENERATION_NOT_FOUND: "لم يُعثر على هذا التحليل.",
-  SKILL_PROFILE_GENERATION_FORBIDDEN:
-    "لا تملك صلاحية إجراء تحليل المهارات بهذا الحساب.",
+    "skillProfile.errors.notRetryable",
+  SKILL_PROFILE_GENERATION_NOT_FOUND: "skillProfile.errors.notFound",
+  SKILL_PROFILE_GENERATION_FORBIDDEN: "skillProfile.errors.forbidden",
   SKILL_PROFILE_REPOSITORY_SELECTION_LIMIT_EXCEEDED:
-    "الحد الأقصى هو 10 مستودعات في التحليل الواحد.",
+    "skillProfile.errors.repositoryLimitExceeded",
   SKILL_PROFILE_REPOSITORY_SELECTION_DUPLICATE:
-    "تم اختيار المستودع نفسه أكثر من مرة.",
+    "skillProfile.errors.repositoryDuplicate",
   SKILL_PROFILE_REPOSITORY_ID_INVALID:
-    "أحد المستودعات المختارة لم يعد صالحاً. حدّث الاختيار وأعد المحاولة.",
+    "skillProfile.errors.repositoryInvalid",
   SKILL_PROFILE_INSTALLATION_REQUIRED:
-    "تحتاج إلى ربط تطبيق GitHub نشط قبل بدء التحليل.",
+    "skillProfile.errors.installationRequired",
 };
 
-const SKILL_PROFILE_FALLBACK_ERROR =
-  "تعذّر إكمال العملية. أعد المحاولة بعد قليل.";
-
 export function getSkillProfileErrorMessage(
+  t: TFunction,
   code: string | null | undefined,
 ): string {
-  if (!code) return SKILL_PROFILE_FALLBACK_ERROR;
-  return SKILL_PROFILE_ERROR_MESSAGES[code] ?? SKILL_PROFILE_FALLBACK_ERROR;
+  if (!code) return t("skillProfile.errors.generic");
+  return t(SKILL_PROFILE_ERROR_KEYS[code] ?? "skillProfile.errors.generic");
 }
 
-export function getSkillProfileApiErrorMessage(error: unknown): string {
-  return getSkillProfileErrorMessage(getApiErrorCode(error));
+export function getSkillProfileApiErrorMessage(
+  t: TFunction,
+  error: unknown,
+): string {
+  return getSkillProfileErrorMessage(t, getApiErrorCode(error));
 }
 
 /**

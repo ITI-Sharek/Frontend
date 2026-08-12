@@ -1,6 +1,7 @@
 import { ArrowLeft, Mail } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
@@ -22,6 +23,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const { t } = useTranslation();
   const rememberId = useId();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +45,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       await onLoginSuccess?.(session);
     } catch (error) {
       setSubmitError(
-        getApiErrorMessage(error, "تعذر تسجيل الدخول، تحقق من بياناتك وحاول مرة أخرى."),
+        getApiErrorMessage(error, t("auth.loginError")),
       );
     } finally {
       setIsSubmitting(false);
@@ -55,11 +57,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <Card>
         <form className="flex w-full flex-col gap-6" onSubmit={handleSubmit}>
           <SocialAuthButtons />
-          <AuthDivider label="أو عبر البريد" />
+          <AuthDivider label={t("auth.orViaEmail")} />
 
           <AuthTextField
             id="email"
-            label="البريد الإلكتروني"
+            label={t("auth.email")}
             icon={Mail}
             placeholder="name@company.com"
             autoComplete="email"
@@ -68,7 +70,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             onChange={(e) => setEmail(e.target.value)}
           />
           <AuthPasswordField
-            label="كلمة المرور"
+            label={t("auth.password")}
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -81,14 +83,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 htmlFor={rememberId}
                 className="text-sm text-muted-foreground"
               >
-                تذكرني
+                {t("auth.rememberMe")}
               </label>
             </div>
             <Link
               to={ROUTES.forgotPassword}
               className="text-sm font-semibold text-primary"
             >
-              نسيت كلمة المرور؟
+              {t("auth.forgotPassword")}
             </Link>
           </div>
 
@@ -104,7 +106,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             disabled={!canSubmit || isSubmitting}
           >
             <ArrowLeft className="size-4" />
-            <span>{isSubmitting ? "جارٍ تسجيل الدخول..." : "تسجيل دخول"}</span>
+            <span>{isSubmitting ? t("auth.loggingIn") : t("auth.loginButton")}</span>
           </Button>
         </form>
       </Card>
@@ -112,9 +114,9 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <DevLoginButtons onLoginSuccess={onLoginSuccess} />
 
       <p className="w-full text-center text-base">
-        <span className="text-muted-foreground">ليس لديك حساب؟ </span>
+        <span className="text-muted-foreground">{t("auth.noAccount")} </span>
         <Link to={ROUTES.register} className="font-bold text-primary">
-          إنشاء حساب جديد
+          {t("auth.createAccount")}
         </Link>
       </p>
     </>

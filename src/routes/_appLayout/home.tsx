@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, BriefcaseBusiness, Compass, MessageCircleQuestion, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -30,11 +31,8 @@ function HomeHubPage() {
   return <HomeHubView currentUser={currentUser} />;
 }
 
-function HomeHubView({
-  currentUser,
-}: {
-  currentUser: AuthUserDto;
-}) {
+function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
+  const { t } = useTranslation();
   const displayName =
     [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
     currentUser.email;
@@ -43,21 +41,22 @@ function HomeHubView({
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">أهلاً، {displayName}</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {t("home.greeting", { name: displayName })}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            كل ما تحتاجه للبدء في مكان واحد.
+            {t("home.subtitle")}
           </p>
         </div>
         <Button asChild size="sm">
           <Link to={ROUTES.newProject}>
             <Plus className="size-4" aria-hidden />
-            أضف مشروعاً
+            {t("home.addProject")}
           </Link>
         </Button>
       </div>
 
       <ExplorePreviewSection />
-
       <MyWorksSection currentUser={currentUser} />
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -69,6 +68,7 @@ function HomeHubView({
 }
 
 function ExplorePreviewSection() {
+  const { t } = useTranslation();
   const exploreQuery = useExploreProjectsQuery({});
   const projects = exploreQuery.data?.projects.slice(0, 3) ?? [];
 
@@ -76,14 +76,14 @@ function ExplorePreviewSection() {
     <section className="flex flex-col gap-3">
       <SectionHeader
         icon={Compass}
-        title="استكشف المشاريع"
+        title={t("home.exploreProjects")}
         href={ROUTES.explore}
-        hrefLabel="عرض الكل"
+        hrefLabel={t("home.viewAll")}
       />
       {exploreQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : projects.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد مشاريع لعرضها حالياً." />
+        <EmptyPreviewCard label={t("home.noProjectsToShow")} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
@@ -95,19 +95,15 @@ function ExplorePreviewSection() {
   );
 }
 
-function MyWorksSection({
-  currentUser,
-}: {
-  currentUser: AuthUserDto;
-}) {
+function MyWorksSection({ currentUser }: { currentUser: AuthUserDto }) {
   if (currentUser.role === "owner") {
     return <OwnerWorksPreview />;
   }
-
   return <ContributorWorksPreview username={currentUser.username ?? ""} />;
 }
 
 function OwnerWorksPreview() {
+  const { t } = useTranslation();
   const projectsQuery = useMyProjectsQuery();
   const projects = projectsQuery.data?.projects.slice(0, 3) ?? [];
 
@@ -115,14 +111,14 @@ function OwnerWorksPreview() {
     <section className="flex flex-col gap-3">
       <SectionHeader
         icon={BriefcaseBusiness}
-        title="أعمالي"
+        title={t("home.myWorks")}
         href={ROUTES.myProjects}
-        hrefLabel="عرض كل مشاريعي"
+        hrefLabel={t("home.viewAllMyProjects")}
       />
       {projectsQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : projects.length === 0 ? (
-        <EmptyPreviewCard label="لم تنشئ مشاريع بعد." />
+        <EmptyPreviewCard label={t("home.noProjects")} />
       ) : (
         <div className="flex flex-col gap-2">
           {projects.map((project) => (
@@ -146,6 +142,7 @@ function OwnerWorksPreview() {
 }
 
 function ContributorWorksPreview({ username }: { username: string }) {
+  const { t } = useTranslation();
   const profileQuery = useContributorProfileQuery(username);
   const history = profileQuery.data?.contributionHistory.slice(0, 3) ?? [];
 
@@ -153,14 +150,14 @@ function ContributorWorksPreview({ username }: { username: string }) {
     <section className="flex flex-col gap-3">
       <SectionHeader
         icon={BriefcaseBusiness}
-        title="أعمالي"
+        title={t("home.myWorks")}
         href={ROUTES.contributorProfile(username)}
-        hrefLabel="عرض سجل مساهماتي"
+        hrefLabel={t("home.viewContributionHistory")}
       />
       {profileQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : history.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد مساهمات موثّقة بعد." />
+        <EmptyPreviewCard label={t("home.noContributions")} />
       ) : (
         <div className="flex flex-col gap-2">
           {history.map((item) => (
@@ -184,6 +181,7 @@ function ContributorWorksPreview({ username }: { username: string }) {
 }
 
 function DiscussionsPreviewSection() {
+  const { t } = useTranslation();
   const postsQuery = useDiscussionPostsQuery();
   const posts = postsQuery.data?.slice(0, 2) ?? [];
 
@@ -191,14 +189,14 @@ function DiscussionsPreviewSection() {
     <section className="flex flex-col gap-3">
       <SectionHeader
         icon={MessageCircleQuestion}
-        title="النقاشات"
+        title={t("home.discussions")}
         href={ROUTES.discussions}
-        hrefLabel="عرض الكل"
+        hrefLabel={t("home.viewAll")}
       />
       {postsQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : posts.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد منشورات بعد." />
+        <EmptyPreviewCard label={t("home.noPosts")} />
       ) : (
         <div className="flex flex-col gap-3">
           {posts.map((post) => (
@@ -211,21 +209,23 @@ function DiscussionsPreviewSection() {
 }
 
 function SupportPreviewCard() {
+  const { t } = useTranslation();
+
   return (
     <section className="flex flex-col gap-3">
       <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
         <MessageCircleQuestion className="size-4.5 text-primary" aria-hidden />
-        بحاجة مساعدة؟
+        {t("home.needHelp")}
       </h2>
       <Link
         to={ROUTES.support}
         className="flex flex-1 flex-col justify-between gap-3 rounded-card border border-border bg-card p-5 transition-colors hover:border-primary/50"
       >
         <p className="text-sm leading-6 text-muted-foreground">
-          راسل فريق الدعم أو اطّلع على أساسيات Sharek.
+          {t("home.supportDescription")}
         </p>
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-          الذهاب لصفحة الدعم
+          {t("home.goToSupport")}
           <ArrowLeft className="size-4" aria-hidden />
         </span>
       </Link>
@@ -250,10 +250,7 @@ function SectionHeader({
         <Icon className="size-4.5 text-primary" aria-hidden />
         {title}
       </h2>
-      <Link
-        to={href}
-        className="text-xs font-semibold text-primary hover:opacity-80"
-      >
+      <Link to={href} className="text-xs font-semibold text-primary hover:opacity-80">
         {hrefLabel}
       </Link>
     </div>

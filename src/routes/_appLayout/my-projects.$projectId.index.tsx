@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   GitHubAppDisconnectConfirm,
@@ -25,11 +26,12 @@ import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
 import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
 import type { ProjectManualOverrideField } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
+import i18n from "@/lib/i18n";
 import { Button } from "@/shared/components/ui/button";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
 export const Route = createFileRoute("/_appLayout/my-projects/$projectId/")({
-  head: () => ({ meta: [{ title: "إدارة المشروع | Sharek" }] }),
+  head: () => ({ meta: [{ title: i18n.t("pageTitle.projectManagement") }] }),
   component: OwnerProjectManagementPage,
 });
 
@@ -45,13 +47,14 @@ function useProjectActionKey(operation: string, revision: number) {
 }
 
 function OwnerProjectManagementPage() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const projectQuery = useOwnerProjectQuery(projectId);
 
   if (projectQuery.isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل المشروع...</p>
+        <p className="text-muted-foreground">{t("project.loading")}</p>
       </div>
     );
   }
@@ -60,7 +63,7 @@ function OwnerProjectManagementPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center">
         <p className="max-w-md text-sm leading-6 text-destructive">
-          {getProjectApiErrorMessage(projectQuery.error)}
+          {getProjectApiErrorMessage(t, projectQuery.error)}
         </p>
       </div>
     );
@@ -82,6 +85,7 @@ function OwnerProjectManagement({
   const refreshMutation = useRefreshProjectSourceMutation();
   const publishMutation = usePublishProjectMutation();
   const archiveMutation = useArchiveProjectMutation();
+  const { t } = useTranslation();
   const [restoringField, setRestoringField] =
     useState<ProjectManualOverrideField | null>(null);
 
@@ -102,7 +106,7 @@ function OwnerProjectManagement({
           to={ROUTES.ownerContributionRequests(projectId)}
           className="inline-flex items-center gap-2 rounded-card border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/40"
         >
-          طلبات المساهمة لهذا المشروع
+          {t("project.owner.contributionRequestsLink")}
         </Link>
       </div>
       <ProjectOwnerDetailView
@@ -119,7 +123,7 @@ function OwnerProjectManagement({
         isSavingEdit={editMutation.isPending}
         editError={
           editMutation.isError
-            ? getProjectApiErrorMessage(editMutation.error)
+            ? getProjectApiErrorMessage(t, editMutation.error)
             : null
         }
         onRestoreField={(field) => {
@@ -149,7 +153,7 @@ function OwnerProjectManagement({
         isRefreshing={refreshMutation.isPending}
         refreshError={
           refreshMutation.isError
-            ? getProjectApiErrorMessage(refreshMutation.error)
+            ? getProjectApiErrorMessage(t, refreshMutation.error)
             : null
         }
         onPublish={() => {
@@ -163,7 +167,7 @@ function OwnerProjectManagement({
         isPublishing={publishMutation.isPending}
         publishError={
           publishMutation.isError
-            ? getProjectApiErrorMessage(publishMutation.error)
+            ? getProjectApiErrorMessage(t, publishMutation.error)
             : null
         }
         onArchive={() => {
@@ -177,7 +181,7 @@ function OwnerProjectManagement({
         isArchiving={archiveMutation.isPending}
         archiveError={
           archiveMutation.isError
-            ? getProjectApiErrorMessage(archiveMutation.error)
+            ? getProjectApiErrorMessage(t, archiveMutation.error)
             : null
         }
         recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}

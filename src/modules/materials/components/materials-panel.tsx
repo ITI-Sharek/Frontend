@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   useMaterialGrantsQuery,
@@ -12,7 +13,6 @@ import {
   useRevokeMaterialAccessMutation,
   useUploadMaterialMutation,
 } from "../api/mutations/use-material-mutations";
-import { MATERIAL_COPY } from "../constants/material-copy";
 import { downloadMaterialVersion } from "../services/materials.service";
 import type { MaterialDto } from "../types/material.types";
 import { MaterialCard } from "./material-card";
@@ -42,6 +42,7 @@ export function MaterialsPanel({
   isLoading,
   isError,
 }: MaterialsPanelProps) {
+  const { t } = useTranslation();
   const [openGrantsFor, setOpenGrantsFor] = useState<string | null>(null);
 
   const constraintsQuery = useMaterialUploadConstraintsQuery();
@@ -81,10 +82,10 @@ export function MaterialsPanel({
     <section className="space-y-4" aria-labelledby="materials-heading">
       <header>
         <h2 id="materials-heading" className="text-lg font-semibold">
-          {MATERIAL_COPY.sectionTitle}
+          {t("material.sectionTitle")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {MATERIAL_COPY.sectionDescription}
+          {t("material.sectionDescription")}
         </p>
       </header>
 
@@ -101,14 +102,14 @@ export function MaterialsPanel({
       )}
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">{MATERIAL_COPY.loading}</p>
+        <p className="text-sm text-muted-foreground">{t("material.loading")}</p>
       ) : isError ? (
         <p role="alert" className="text-sm text-destructive">
-          {MATERIAL_COPY.loadFailed}
+          {t("material.loadFailed")}
         </p>
       ) : !materials || materials.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {isOwner ? MATERIAL_COPY.emptyOwner : MATERIAL_COPY.emptyReader}
+          {isOwner ? t("material.emptyOwner") : t("material.emptyReader")}
         </p>
       ) : (
         <div className="space-y-3">

@@ -1,5 +1,6 @@
 import { FilePlus2, Loader2, Trash2, Users } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -54,6 +55,7 @@ export function MaterialCard({
   onOpenGrants,
   isGrantsOpen,
 }: MaterialCardProps) {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -61,7 +63,7 @@ export function MaterialCard({
   const versionInputRef = useRef<HTMLInputElement>(null);
 
   const isDeleted = material.deletedAt !== null;
-  const visibility = getVisibilityCopy(material.visibility);
+  const visibility = getVisibilityCopy(t, material.visibility);
 
   async function handleAddVersion(file: File) {
     setIsAddingVersion(true);
@@ -73,7 +75,7 @@ export function MaterialCard({
         idempotencyKey: createMaterialIdempotencyKey(),
       });
     } catch (versionError) {
-      setError(getMaterialErrorMessage(versionError));
+      setError(getMaterialErrorMessage(t, versionError));
     } finally {
       setIsAddingVersion(false);
       if (versionInputRef.current) versionInputRef.current.value = "";
@@ -90,7 +92,7 @@ export function MaterialCard({
       });
       setIsConfirmingDelete(false);
     } catch (deleteError) {
-      setError(getMaterialErrorMessage(deleteError));
+      setError(getMaterialErrorMessage(t, deleteError));
     } finally {
       setIsDeleting(false);
     }
@@ -136,7 +138,7 @@ export function MaterialCard({
             ref={versionInputRef}
             type="file"
             className="sr-only"
-            aria-label="اختيار نسخة جديدة"
+            aria-label={t("material.selectNewVersionAria")}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void handleAddVersion(file);
@@ -154,7 +156,7 @@ export function MaterialCard({
             ) : (
               <FilePlus2 className="size-4" aria-hidden />
             )}
-            رفع نسخة جديدة
+            {t("material.uploadNewVersion")}
           </Button>
 
           {material.visibility === "RESTRICTED_PROJECT" && (
@@ -166,14 +168,14 @@ export function MaterialCard({
               onClick={() => onOpenGrants(material.id)}
             >
               <Users className="size-4" aria-hidden />
-              إدارة الصلاحيات
+              {t("material.managePermissions")}
             </Button>
           )}
 
           {isConfirmingDelete ? (
             <span className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                سيُلغى وصول الجميع فورًا ثم يُحذف المحتوى نهائيًا.
+                {t("material.deleteConfirmation")}
               </span>
               <Button
                 type="button"
@@ -185,7 +187,7 @@ export function MaterialCard({
                 {isDeleting ? (
                   <Loader2 className="size-4 animate-spin" aria-hidden />
                 ) : null}
-                تأكيد الحذف
+                {t("material.confirmDelete")}
               </Button>
               <Button
                 type="button"
@@ -194,7 +196,7 @@ export function MaterialCard({
                 onClick={() => setIsConfirmingDelete(false)}
                 disabled={isDeleting}
               >
-                تراجع
+                {t("material.backOut")}
               </Button>
             </span>
           ) : (
@@ -205,7 +207,7 @@ export function MaterialCard({
               onClick={() => setIsConfirmingDelete(true)}
             >
               <Trash2 className="size-4" aria-hidden />
-              حذف المادة
+              {t("material.deleteMaterial")}
             </Button>
           )}
         </div>

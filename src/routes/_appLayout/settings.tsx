@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/_appLayout/settings")({
 });
 
 function SettingsPage() {
+  const { t } = useTranslation();
   const navigate = Route.useNavigate();
   const { section } = Route.useSearch();
   const currentUserQuery = useCurrentUserQuery();
@@ -51,12 +53,12 @@ function SettingsPage() {
   const sections: SettingsSectionItem[] = [
     ...(isContributor
       ? [
-          { id: "profile", label: "الملف الشخصي" },
-          { id: "github", label: "GitHub" },
+          { id: "profile", label: t("settings.sections.profile") },
+          { id: "github", label: t("settings.sections.github") },
         ]
       : []),
-    { id: "language", label: "اللغة" },
-    { id: "subscription", label: "الاشتراك" },
+    { id: "language", label: t("settings.sections.language") },
+    { id: "subscription", label: t("settings.sections.subscription") },
   ];
 
   const activeSectionId = section ?? sections[0].id;
@@ -77,7 +79,7 @@ function SettingsPage() {
             <ContributorProfileSettingsSection profile={profileQuery.data} />
           ) : (
             <p className="text-sm text-muted-foreground">
-              جارٍ تحميل بيانات ملفك...
+              {t("settings.loadingProfile")}
             </p>
           )}
         </>
@@ -101,7 +103,7 @@ function SettingsPage() {
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              جارٍ تحميل بيانات ملفك...
+              {t("settings.loadingProfile")}
             </p>
           )}
         </>
