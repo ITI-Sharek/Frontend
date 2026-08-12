@@ -42,8 +42,15 @@ describe("Owner delivery review panel", () => {
     await render(client);
 
     await waitFor(() => container.textContent.includes("مراجعة تسليم سارة أحمد"));
+    await waitFor(() => container.textContent.includes("سجل التسليم والمراجعة"));
     expect(container.textContent).toContain("دعم قارئ الشاشة");
     expect(container.textContent).toContain("sharek/pull/42");
+    expect(container.textContent).toContain("ملاحظات المساهم");
+    expect(container.textContent).toContain("جاهز للمراجعة");
+    expect(container.textContent).toContain("سجل التسليم والمراجعة");
+    expect(
+      container.querySelector<HTMLAnchorElement>('a[href="/profile/sara"]'),
+    ).not.toBeNull();
 
     const outcome = container.querySelector<HTMLSelectElement>(
       'select[name="outcome"]',
