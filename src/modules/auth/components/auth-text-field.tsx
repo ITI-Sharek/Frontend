@@ -33,7 +33,10 @@ export function AuthTextField({
           )}
           {...props}
         />
-        <Icon className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Icon
+          className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
       </div>
     </div>
   );

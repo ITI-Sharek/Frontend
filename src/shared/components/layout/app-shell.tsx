@@ -8,6 +8,8 @@ import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   SIDEBAR_COLLAPSED_WIDTH,
+  SIDEBAR_MAX_WIDTH,
+  SIDEBAR_MIN_WIDTH,
   useSidebarState,
 } from "@/shared/hooks/use-sidebar-state";
 
@@ -80,7 +82,15 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const sidebar = useSidebarState();
-  const { collapsed, width, toggleCollapsed, startResize, handleResizeMove, stopResize } = sidebar;
+  const {
+    collapsed,
+    width,
+    setWidth,
+    toggleCollapsed,
+    startResize,
+    handleResizeMove,
+    stopResize,
+  } = sidebar;
 
   const primaryItems = nav.filter((item) => !item.secondary);
   const secondaryItems = nav.filter((item) => item.secondary);
@@ -160,10 +170,37 @@ export function AppShell({
               role="separator"
               aria-orientation="vertical"
               aria-label="تغيير عرض القائمة الجانبية"
+              aria-valuemin={SIDEBAR_MIN_WIDTH}
+              aria-valuemax={SIDEBAR_MAX_WIDTH}
+              aria-valuenow={Math.round(width)}
+              aria-valuetext={`${Math.round(width)} بكسل`}
+              tabIndex={0}
               onPointerDown={startResize}
               onPointerMove={handleResizeMove}
               onPointerUp={stopResize}
               onPointerCancel={stopResize}
+              onKeyDown={(event) => {
+                const isRtl = document.documentElement.dir === "rtl";
+                const increaseKey = isRtl ? "ArrowLeft" : "ArrowRight";
+                const decreaseKey = isRtl ? "ArrowRight" : "ArrowLeft";
+
+                if (event.key === "Home") {
+                  event.preventDefault();
+                  setWidth(SIDEBAR_MIN_WIDTH);
+                  return;
+                }
+                if (event.key === "End") {
+                  event.preventDefault();
+                  setWidth(SIDEBAR_MAX_WIDTH);
+                  return;
+                }
+                if (event.key !== increaseKey && event.key !== decreaseKey) {
+                  return;
+                }
+
+                event.preventDefault();
+                setWidth(width + (event.key === increaseKey ? 16 : -16));
+              }}
               className="absolute start-0 top-0 h-full w-1.5 cursor-col-resize touch-none select-none transition-colors duration-150 hover:bg-primary/25 active:bg-primary/40"
               style={{ touchAction: "none" }}
             />
