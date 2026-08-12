@@ -1,6 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 import {
   ROLE_OPTIONS,
-  ROLE_STEP_DISCLAIMER,
 } from "../../constants/signup.constants";
 import type { SignupRole } from "../../types/signup.types";
 import { RoleOptionCard } from "../role-option-card";
@@ -11,21 +12,23 @@ interface RoleStepProps {
 }
 
 export function RoleStep({ role, onSelect }: RoleStepProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-1 text-right">
         <h2 className="text-lg font-bold text-foreground">
-          ما هو دورك في Share-k؟
+          {t("register.role.title")}
         </h2>
         <p className="text-sm text-muted-foreground">
-          سيساعدنا هذا في تخصيص تجربتك وعرض الحقول المناسبة لك.
+          {t("register.role.subtitle")}
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {ROLE_OPTIONS.map((option) => (
           <RoleOptionCard
             key={option.value}
-            title={option.title}
+            title={t(`auth.role.${option.value}`)}
             description={option.description}
             icon={option.icon}
             selected={role === option.value}
@@ -34,7 +37,7 @@ export function RoleStep({ role, onSelect }: RoleStepProps) {
         ))}
       </div>
       <p className="text-right text-xs text-muted-foreground">
-        {ROLE_STEP_DISCLAIMER}
+        {t("register.role.disclaimer")}
       </p>
     </div>
   );

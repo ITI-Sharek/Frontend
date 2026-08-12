@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft, BadgeCheck, Clock, Inbox } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -23,22 +25,33 @@ export function AdminSkillReviewQueue({
 }: {
   reviews: PendingSkillReviewsDto;
 }) {
-  const groups = groupPendingSkillReviews(reviews.items);
+  const { t } = useTranslation();
+  const groups = groupPendingSkillReviews(t, reviews.items);
   const oldest = groups[0]?.oldestCreatedAt;
 
   return (
     <PageContainer>
       <PageHeader
-        title="مراجعة المهارات المعلقة"
-        description="ابدأ بالمساهم الذي انتظر أطول وقت، وافحص الأدلة والشكوك قبل توثيق المهارة. التحليل الآلي استشاري والقرار للمراجع البشري."
+        title={t("admin.skillReviews.title")}
+        description={t("skillProfile.reviewQueue.description")}
       />
 
       <dl className="mt-6 grid overflow-hidden rounded-card border border-border bg-card sm:grid-cols-3">
-        <Metric label="المهارات المعلقة" value={reviews.total.toString()} />
-        <Metric label="المساهمون في الصفحة" value={groups.length.toString()} />
         <Metric
-          label="أقدم انتظار"
-          value={oldest ? formatWaitingAge(oldest) : "الطابور خالٍ"}
+          label={t("skillProfile.reviewQueue.pendingSkillsMetric")}
+          value={reviews.total.toString()}
+        />
+        <Metric
+          label={t("skillProfile.reviewQueue.contributorsMetric")}
+          value={groups.length.toString()}
+        />
+        <Metric
+          label={t("skillProfile.reviewQueue.oldestWaitMetric")}
+          value={
+            oldest
+              ? formatWaitingAge(t, oldest)
+              : t("skillProfile.reviewQueue.emptyQueue")
+          }
         />
       </dl>
 
@@ -46,8 +59,8 @@ export function AdminSkillReviewQueue({
         <PageFeedback
           className="mt-6"
           icon={Inbox}
-          title="لا توجد مراجعات معلقة"
-          description="كل المهارات الواصلة تمت مراجعتها، أو لم تصل مهارات جديدة بعد."
+          title={t("skillProfile.reviewQueue.emptyTitle")}
+          description={t("skillProfile.reviewQueue.emptyDescription")}
         />
       ) : (
         <>
@@ -56,25 +69,27 @@ export function AdminSkillReviewQueue({
               <thead>
                 <tr className="border-b border-border text-start text-xs text-muted-foreground">
                   <th scope="col" className="px-5 py-3 font-semibold">
-                    المساهم
+                    {t("skillProfile.reviewQueue.columnContributor")}
                   </th>
                   <th scope="col" className="px-5 py-3 font-semibold">
-                    المهارات
+                    {t("skillProfile.reviewQueue.columnSkills")}
                   </th>
                   <th scope="col" className="px-5 py-3 font-semibold">
-                    متوسط الثقة
+                    {t("skillProfile.reviewQueue.columnConfidence")}
                   </th>
                   <th scope="col" className="px-5 py-3 font-semibold">
-                    مدة الانتظار
+                    {t("skillProfile.reviewQueue.columnWaiting")}
                   </th>
                   <th scope="col" className="px-5 py-3 font-semibold">
-                    <span className="sr-only">الإجراء</span>
+                    <span className="sr-only">
+                      {t("skillProfile.reviewQueue.columnAction")}
+                    </span>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {groups.map((group) => (
-                  <QueueTableRow key={group.contributorId} group={group} />
+                  <QueueTableRow key={group.contributorId} group={group} t={t} />
                 ))}
               </tbody>
             </table>
@@ -82,7 +97,7 @@ export function AdminSkillReviewQueue({
 
           <div className="mt-6 flex flex-col gap-3 md:hidden">
             {groups.map((group) => (
-              <QueueMobileItem key={group.contributorId} group={group} />
+              <QueueMobileItem key={group.contributorId} group={group} t={t} />
             ))}
           </div>
         </>
@@ -91,7 +106,13 @@ export function AdminSkillReviewQueue({
   );
 }
 
-function QueueTableRow({ group }: { group: ContributorReviewGroup }) {
+function QueueTableRow({
+  group,
+  t,
+}: {
+  group: ContributorReviewGroup;
+  t: TFunction;
+}) {
   return (
     <tr className="border-b border-border last:border-b-0 hover:bg-border/15">
       <td className="min-w-56 px-5 py-4">
@@ -107,40 +128,52 @@ function QueueTableRow({ group }: { group: ContributorReviewGroup }) {
         {formatConfidence(group.averageConfidence)}
       </td>
       <td className="px-5 py-4">
-        <WaitingAge createdAt={group.oldestCreatedAt} />
+        <WaitingAge createdAt={group.oldestCreatedAt} t={t} />
       </td>
       <td className="px-5 py-4 text-end">
-        <ReviewLink group={group} compact />
+        <ReviewLink group={group} t={t} compact />
       </td>
     </tr>
   );
 }
 
-function QueueMobileItem({ group }: { group: ContributorReviewGroup }) {
+function QueueMobileItem({
+  group,
+  t,
+}: {
+  group: ContributorReviewGroup;
+  t: TFunction;
+}) {
   return (
     <article className="rounded-card border border-border bg-card p-4">
       <ContributorIdentity group={group} />
       <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-3 text-xs">
         <div>
-          <dt className="text-muted-foreground">المهارات</dt>
+          <dt className="text-muted-foreground">
+            {t("skillProfile.reviewQueue.mobileSkills")}
+          </dt>
           <dd className="mt-1 font-mono font-semibold tabular-nums text-foreground">
             {group.skills.length}
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">الثقة</dt>
+          <dt className="text-muted-foreground">
+            {t("skillProfile.reviewQueue.mobileConfidence")}
+          </dt>
           <dd className="mt-1 font-mono font-semibold tabular-nums text-foreground">
             {formatConfidence(group.averageConfidence)}
           </dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">الانتظار</dt>
+          <dt className="text-muted-foreground">
+            {t("skillProfile.reviewQueue.mobileWaiting")}
+          </dt>
           <dd className="mt-1">
-            <WaitingAge createdAt={group.oldestCreatedAt} compact />
+            <WaitingAge createdAt={group.oldestCreatedAt} t={t} compact />
           </dd>
         </div>
       </dl>
-      <ReviewLink group={group} />
+      <ReviewLink group={group} t={t} />
     </article>
   );
 }
@@ -165,9 +198,11 @@ function ContributorIdentity({ group }: { group: ContributorReviewGroup }) {
 
 function WaitingAge({
   createdAt,
+  t,
   compact = false,
 }: {
   createdAt: string;
+  t: TFunction;
   compact?: boolean;
 }) {
   const band = getAgingBand(createdAt);
@@ -182,28 +217,32 @@ function WaitingAge({
       )}
     >
       <Icon className="size-4" aria-hidden="true" />
-      {formatWaitingAge(createdAt)}
+      {formatWaitingAge(t, createdAt)}
     </span>
   );
 }
 
 function ReviewLink({
   group,
+  t,
   compact = false,
 }: {
   group: ContributorReviewGroup;
+  t: TFunction;
   compact?: boolean;
 }) {
   return (
     <Link
       to={ROUTES.adminSkillReview(group.contributorId)}
-      aria-label={`فتح مراجعة ${group.contributorName}`}
+      aria-label={t("skillProfile.reviewQueue.openReviewAria", {
+        contributorName: group.contributorName,
+      })}
       className={cn(
         "inline-flex min-h-10 items-center justify-center gap-2 rounded-input font-semibold text-foreground transition-colors duration-150 hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         compact ? "px-3 text-xs" : "mt-3 w-full px-4 text-sm",
       )}
     >
-      فتح المراجعة
+      {t("skillProfile.reviewQueue.openReview")}
       <ArrowLeft className="size-4" aria-hidden="true" />
     </Link>
   );

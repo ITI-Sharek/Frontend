@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { AuthHero, RegisterForm } from "@/modules/auth";
 import type { ContributorSignupDetails } from "@/modules/auth";
@@ -35,13 +36,14 @@ async function persistContributorSignupDetails(
 }
 
 function RegisterPage() {
+  const { t } = useTranslation();
   const experienceLevelsQuery = useExperienceLevelsQuery();
 
   return (
     <>
       <AuthHero
-        heading="إنشاء حساب جديد"
-        subtext="انضم إلى مجتمع المطورين والخبراء التقنيين"
+        heading={t("auth.registerHero")}
+        subtext={t("auth.registerSubtext")}
       />
       <RegisterForm
         experienceLevelOptions={(experienceLevelsQuery.data ?? []).map(

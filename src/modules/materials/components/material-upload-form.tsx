@@ -1,5 +1,6 @@
 import { CloudUpload, Loader2 } from "lucide-react";
 import { useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -48,6 +49,7 @@ export function MaterialUploadForm({
   isSubmitting,
   onUpload,
 }: MaterialUploadFormProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState<MaterialVisibility>("PUBLIC");
@@ -77,13 +79,15 @@ export function MaterialUploadForm({
   function validate(candidate: File): string | null {
     if (!constraints) return null;
     if (candidate.size > constraints.maxBytes) {
-      return `حجم الملف يتجاوز الحد المسموح به (${formatBytes(constraints.maxBytes)}).`;
+      return t("material.errors.tooLargeWithLimit", {
+        maxBytes: formatBytes(t, constraints.maxBytes),
+      });
     }
     if (
       candidate.type !== "" &&
       !constraints.allowedMimeTypes.includes(candidate.type)
     ) {
-      return "صيغة الملف غير مدعومة. اختر ملفًا بإحدى الصيغ المذكورة.";
+      return t("material.errors.fileTypeUnsupported");
     }
     return null;
   }
@@ -91,11 +95,11 @@ export function MaterialUploadForm({
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!file) {
-      setError("اختر ملفًا قبل الرفع.");
+      setError(t("material.errors.fileRequired"));
       return;
     }
     if (title.trim().length < 3) {
-      setError("اكتب عنوانًا لا يقل عن ٣ أحرف.");
+      setError(t("material.errors.titleTooShort"));
       return;
     }
     const localError = validate(file);
@@ -114,7 +118,7 @@ export function MaterialUploadForm({
       });
       reset();
     } catch (uploadError) {
-      setError(getMaterialErrorMessage(uploadError));
+      setError(getMaterialErrorMessage(t, uploadError));
     }
   }
 
@@ -127,19 +131,22 @@ export function MaterialUploadForm({
     >
       <div>
         <h3 id={`${fileId}-heading`} className="text-sm font-semibold">
-          رفع مادة جديدة
+          {t("material.uploadTitle")}
         </h3>
         <p id={constraintsId} className="mt-1 text-xs text-muted-foreground">
           {isConstraintsLoading || !constraints
-            ? "جارٍ تحميل الصيغ والحدود المسموح بها…"
-            : `الصيغ المدعومة: ${constraints.allowedMimeTypes
-                .map(formatMimeType)
-                .join("، ")} — بحد أقصى ${formatBytes(constraints.maxBytes)} للملف.`}
+            ? t("material.constraintsLoading")
+            : t("material.supportedFormats", {
+                formats: constraints.allowedMimeTypes
+                  .map((mimeType) => formatMimeType(t, mimeType))
+                  .join(t("material.formatsSeparator")),
+                maxBytes: formatBytes(t, constraints.maxBytes),
+              })}
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={fileId}>الملف</Label>
+        <Label htmlFor={fileId}>{t("material.fileLabel")}</Label>
         <Input
           id={fileId}
           ref={fileInputRef}
@@ -155,20 +162,20 @@ export function MaterialUploadForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={titleId}>عنوان المادة</Label>
+        <Label htmlFor={titleId}>{t("material.titleLabel")}</Label>
         <Input
           id={titleId}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           maxLength={255}
-          placeholder="مثال: كراسة الشروط"
+          placeholder={t("material.titlePlaceholder")}
         />
       </div>
 
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">مستوى الظهور</legend>
+        <legend className="text-sm font-medium">{t("material.visibilityLabel")}</legend>
         {visibilities.map((option) => {
-          const copy = getVisibilityCopy(option);
+          const copy = getVisibilityCopy(t, option);
           return (
             <label
               key={option}
@@ -213,7 +220,7 @@ export function MaterialUploadForm({
         ) : (
           <CloudUpload className="size-4" aria-hidden />
         )}
-        {isSubmitting ? "جارٍ الرفع…" : "رفع المادة"}
+        {isSubmitting ? t("material.uploading") : t("material.uploadButton")}
       </Button>
     </form>
   );

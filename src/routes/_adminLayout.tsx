@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import {
@@ -20,6 +21,7 @@ import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
+import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
 import { Button } from "@/shared/components/ui/button";
 
 export const beforeLoadAdminRoute = requireAdminRoute;
@@ -30,6 +32,7 @@ export const Route = createFileRoute("/_adminLayout")({
 });
 
 function AdminLayout() {
+  const { t } = useTranslation();
   const { unreadCount } = useNotifications();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -63,23 +66,25 @@ function AdminLayout() {
     pathname,
     unreadCount,
     pendingReviewsCount: pendingReviews.data?.total ?? 0,
+    t,
   });
 
   return (
     <AppShell
       nav={navigation}
       brand={{
-        title: "إدارة شارك",
-        subtitle: "Review operations",
+        title: t("workspace.adminBrand"),
+        subtitle: t("workspace.adminBrandSubtitle"),
         icon: ShieldCheck,
       }}
-      navigationLabel="تنقل الإدارة"
+      navigationLabel={t("workspace.adminNavigation")}
       topBar={
         <WorkspaceTopBar
-          title="مكتب المراجعة"
-          description="طوابير الثقة والسلامة"
+          title={t("workspace.adminOffice")}
+          description={t("workspace.adminQueues")}
           actions={
             <>
+              <LanguageSwitcher />
               <NotificationPopover
                 allNotificationsHref={ROUTES.adminNotifications}
               />
@@ -90,7 +95,7 @@ function AdminLayout() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="تسجيل الخروج"
+                aria-label={t("workspace.logoutAriaLabel")}
                 disabled={logoutMutation.isPending}
                 onClick={() => {
                   logoutMutation.mutate(undefined, {
@@ -113,13 +118,14 @@ function AdminLayout() {
 }
 
 function AdminSessionLoadingState() {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      جارٍ التحقق من صلاحية الإدارة…
+      {t("common.loading_admin_session")}
     </div>
   );
 }

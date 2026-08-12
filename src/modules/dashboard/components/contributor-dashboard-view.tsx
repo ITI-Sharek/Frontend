@@ -1,4 +1,5 @@
 import { BadgeCheck, Bell, ChevronLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -9,22 +10,18 @@ import { MatchedTasksSection } from "./matched-tasks-section";
 import { OnboardingChecklist } from "./onboarding-checklist";
 import type { ContributorDashboardDto } from "../types/dashboard.types";
 
-/**
- * WF-02 contributor dashboard. Layout re-composes by lifecycle state:
- * A (active): attention → matched tasks → growth/applications.
- * B (onboarding): the dashboard IS the checklist.
- * C (verified, zero applications): matched-tasks hero + growth path.
- */
 export function ContributorDashboardView({
   dashboard,
 }: {
   dashboard: ContributorDashboardDto;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 md:px-8">
       <header className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-foreground">
-          صباح الخير، {dashboard.greetingName}
+          {t("dashboard.greeting", { name: dashboard.greetingName })}
         </h1>
         <div className="flex items-center gap-4">
           <span className="relative text-muted-foreground">
@@ -48,14 +45,15 @@ export function ContributorDashboardView({
           <section className="rounded-card border border-evidence-teal/40 bg-evidence-teal/5 p-6">
             <p className="flex items-center gap-2 font-mono text-[13px] tracking-[0.65px] text-evidence-teal">
               <BadgeCheck className="size-4" />
-              ملفك موثق
+              {t("dashboard.profileVerified")}
             </p>
             <h2 className="mt-2 text-xl font-bold text-foreground">
-              {dashboard.fullyMatchedTasksCount} مهام تطابق مهاراتك بالكامل
-              اليوم
+              {t("dashboard.matchedTasksToday", {
+                count: dashboard.fullyMatchedTasksCount,
+              })}
             </h2>
             <Button size="sm" className="mt-4">
-              اعرضها
+              {t("dashboard.viewThem")}
               <ChevronLeft className="size-4" />
             </Button>
           </section>

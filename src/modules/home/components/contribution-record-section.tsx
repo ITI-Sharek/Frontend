@@ -1,24 +1,29 @@
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+
 import { ContributionLedgerIllustration } from "./illustrations/contribution-ledger-illustration";
 
-const RECORD_POINTS = [
-  {
-    term: "يتراكم ولا يُعاد بناؤه",
-    description:
-      "كل مساهمة مكتملة تضيف سطراً جديداً إلى السجل. لا يبدأ من الصفر مع كل مشروع، ولا يُمحى عند مغادرته.",
-  },
-  {
-    term: "حالته صادقة",
-    description:
-      "ما اكتمل تحقّقه يظهر متحققاً منه، وما يزال قيد المراجعة يظهر كذلك — لا يتحول انتظار المراجعة إلى ادعاء مؤكد.",
-  },
-  {
-    term: "يُشارك بحدود واضحة",
-    description:
-      "أنت تقرر ما يُعرض علناً وما يبقى خاصاً. ما يُنشر يحمل سياقه ودليله، لا عنواناً بلا إسناد.",
-  },
-] as const;
+function getRecordPoints(t: TFunction) {
+  return [
+    {
+      term: t("landing.recordAccumulatesTerm"),
+      description: t("landing.recordAccumulatesDescription"),
+    },
+    {
+      term: t("landing.recordHonestTerm"),
+      description: t("landing.recordHonestDescription"),
+    },
+    {
+      term: t("landing.recordSharedLimitsTerm"),
+      description: t("landing.recordSharedLimitsDescription"),
+    },
+  ];
+}
 
 export function ContributionRecordSection() {
+  const { t } = useTranslation();
+  const recordPoints = getRecordPoints(t);
+
   return (
     <section
       id="record"
@@ -30,15 +35,13 @@ export function ContributionRecordSection() {
 
           <div className="order-1 lg:order-2">
             <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-              المساهمة تنتهي، والسجل يبقى — ويتراكم.
+              {t("landing.recordHeading")}
             </h2>
             <p className="mt-5 max-w-[62ch] text-base leading-8 text-muted-foreground">
-              ما تنجزه عبر Sharek لا يتحول إلى رقم في عدّاد، بل إلى سطر في
-              سجل مهني يجيب عن الأسئلة التي تهم فعلاً: ماذا أُنجز، ومن راجعه،
-              وما الدليل عليه.
+              {t("landing.recordDescription")}
             </p>
             <dl className="mt-8 border-t border-border">
-              {RECORD_POINTS.map((point) => (
+              {recordPoints.map((point) => (
                 <div
                   key={point.term}
                   className="grid gap-1.5 border-b border-border py-5"

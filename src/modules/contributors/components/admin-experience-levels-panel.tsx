@@ -1,5 +1,6 @@
 import { Check, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
@@ -14,6 +15,7 @@ const INPUT_CLASS_NAME =
   "min-h-11 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary";
 
 export function AdminExperienceLevelsPanel() {
+  const { t } = useTranslation();
   const levels = useAdminExperienceLevelsQuery();
   const createLevel = useCreateExperienceLevelMutation();
   const updateLevel = useUpdateExperienceLevelMutation();
@@ -30,11 +32,10 @@ export function AdminExperienceLevelsPanel() {
     >
       <div className="border-b border-border p-5 md:p-6">
         <h2 id="experience-levels-heading" className="text-lg font-bold text-foreground">
-          مستويات الخبرة
+          {t("contributor.admin.experienceLevelsTitle")}
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          تظهر المستويات النشطة كخيار موحّد في التسجيل وإعدادات المساهم. تعطيل
-          مستوى لا يحذفه ولا يمحو اختيارات سابقة.
+          {t("contributor.admin.experienceLevelsDescription")}
         </p>
       </div>
 
@@ -57,47 +58,47 @@ export function AdminExperienceLevelsPanel() {
         }}
       >
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          الاسم العربي
+          {t("contributor.admin.arabicName")}
           <input
             dir="rtl"
             name="labelAr"
             required
             maxLength={100}
-            placeholder="2-4 سنوات"
+            placeholder={t("contributor.admin.levelArPlaceholder")}
             value={labelAr}
             onChange={(event) => setLabelAr(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-right`}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          الاسم الإنجليزي
+          {t("contributor.admin.englishName")}
           <input
             dir="ltr"
             name="labelEn"
             required
             maxLength={100}
-            placeholder="2-4 years"
+            placeholder={t("contributor.admin.levelEnPlaceholder")}
             value={labelEn}
             onChange={(event) => setLabelEn(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-left`}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          المفتاح البرمجي
+          {t("contributor.admin.codeKey")}
           <input
             dir="ltr"
             name="levelKey"
             required
             maxLength={50}
             pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-            title="استخدم حروفاً إنجليزية صغيرة وأرقاماً وشرطات فقط"
+            title={t("contributor.admin.keyPatternHint")}
             placeholder="two-to-four"
             value={key}
             onChange={(event) => setKey(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-left`}
           />
           <span className="text-xs font-normal text-muted-foreground">
-            حروف صغيرة وأرقام وشرطات فقط
+            {t("contributor.admin.keyPatternHelp")}
           </span>
         </label>
         <Button type="submit" disabled={createLevel.isPending}>
@@ -106,20 +107,22 @@ export function AdminExperienceLevelsPanel() {
           ) : (
             <Plus className="size-4" aria-hidden="true" />
           )}
-          {createLevel.isPending ? "جارٍ الإضافة…" : "إضافة مستوى"}
+          {createLevel.isPending
+            ? t("contributor.admin.adding")
+            : t("contributor.admin.addLevel")}
         </Button>
       </form>
 
       {error && (
         <p role="alert" className="border-b border-border px-5 py-4 text-sm text-destructive md:px-6">
-          {getApiErrorMessage(error, "تعذر تحديث مستويات الخبرة.")}
+          {getApiErrorMessage(error, t("contributor.admin.updateLevelsError"))}
         </p>
       )}
 
       <div className="divide-y divide-border">
         {levels.isPending ? (
           <p role="status" aria-live="polite" className="p-6 text-sm text-muted-foreground">
-            جارٍ تحميل المستويات…
+            {t("contributor.admin.loadingLevels")}
           </p>
         ) : levels.data?.length ? (
           levels.data.map((level) => (
@@ -137,9 +140,9 @@ export function AdminExperienceLevelsPanel() {
                 </p>
               </div>
               <label className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
-                ترتيب الظهور
+                {t("contributor.admin.sortOrder")}
                 <input
-                  aria-label={`ترتيب ${level.labelAr}`}
+                  aria-label={t("contributor.admin.sortOrderAria", { name: level.labelAr })}
                   type="number"
                   min={0}
                   max={10000}
@@ -172,15 +175,17 @@ export function AdminExperienceLevelsPanel() {
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input border border-border px-3 text-sm font-semibold text-foreground hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {level.active && <Check className="size-4 text-primary" aria-hidden="true" />}
-                {level.active ? "نشط" : "غير نشط"}
+                {level.active
+                  ? t("contributor.admin.active")
+                  : t("contributor.admin.inactive")}
               </button>
             </div>
           ))
         ) : levels.isError ? null : (
           <div className="p-6">
-            <p className="font-semibold text-foreground">لا توجد مستويات بعد</p>
+            <p className="font-semibold text-foreground">{t("contributor.admin.noLevelsTitle")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              أضف أول مستوى من النموذج أعلاه ليصبح متاحًا في التسجيل وإعدادات المساهم.
+              {t("contributor.admin.noLevelsDescription")}
             </p>
           </div>
         )}

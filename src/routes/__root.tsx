@@ -1,6 +1,11 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 import { AppProviders } from "@/providers/app-providers";
+
+// Initialize i18n early.
+import "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
@@ -9,12 +14,6 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sharek — مساهمات حقيقية، وسجل مهني قائم على الدليل" },
-      {
-        name: "description",
-        content:
-          "Sharek ينظم التعاون في المشاريع مفتوحة المصدر ويحفظ سجلاً مهنياً موثوقاً للمساهمات المكتملة والأدلة التي تدعمها.",
-      },
       { name: "theme-color", content: "#ffffff" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
@@ -29,9 +28,30 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="antialiased">
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <DocumentLangSync />
+          {children}
+        </AppProviders>
         <Scripts />
       </body>
     </html>
   );
+}
+
+/**
+ * Syncs the <html> element's `lang` and `dir` attributes with the active
+ * i18next language. Runs client-side only — SSR renders the defaults (ar/rtl)
+ * which are then updated on hydration.
+ */
+function DocumentLangSync() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "ar";
+  const dir = lang === "en" ? "ltr" : "rtl";
+
+  useEffect(() => {
+    document.documentElement.setAttribute("lang", lang);
+    document.documentElement.setAttribute("dir", dir);
+  }, [lang, dir]);
+
+  return null;
 }

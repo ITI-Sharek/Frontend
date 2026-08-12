@@ -1,5 +1,7 @@
 import { Flag } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -7,16 +9,19 @@ import { cn } from "@/lib/utils";
 
 import type { GeneratedSkillDto } from "../../types/onboarding.types";
 
-const PROFICIENCY_LABEL: Record<GeneratedSkillDto["proficiency"], string> = {
-  beginner: "مبتدئ",
-  intermediate: "متوسط",
-  advanced: "متقدم",
+const PROFICIENCY_LABEL_KEYS: Record<
+  GeneratedSkillDto["proficiency"],
+  string
+> = {
+  beginner: "contributor.profile.proficiencyBeginner",
+  intermediate: "contributor.profile.proficiencyIntermediate",
+  advanced: "contributor.profile.proficiencyAdvanced",
 };
 
-function confidenceLabel(confidence: number): string {
-  if (confidence >= 0.8) return "عالية";
-  if (confidence >= 0.5) return "متوسطة";
-  return "منخفضة";
+function confidenceLabel(t: TFunction, confidence: number): string {
+  if (confidence >= 0.8) return t("contributor.profile.confidenceHigh");
+  if (confidence >= 0.5) return t("contributor.profile.confidenceMedium");
+  return t("contributor.profile.confidenceLow");
 }
 
 /**
@@ -30,6 +35,7 @@ export function ProfilePreviewStep({
   skills: GeneratedSkillDto[];
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
 
   function toggleFlag(name: string) {
@@ -43,10 +49,9 @@ export function ProfilePreviewStep({
 
   return (
     <Card>
-      <h2 className="text-xl font-bold text-foreground">ملفك المهاري المُولَّد</h2>
+      <h2 className="text-xl font-bold text-foreground">{t("contributor.onboarding.previewTitle")}</h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        هذا ما استخرجه الذكاء الاصطناعي من نشاطك. راجعه وأبلغ عن أي خطأ واضح —
-        ثم يعتمده فريق المراجعة البشري قبل أن يظهر لأي أحد.
+        {t("contributor.onboarding.previewDescription")}
       </p>
 
       <div className="mt-4 flex flex-col gap-2">
@@ -66,10 +71,12 @@ export function ProfilePreviewStep({
                 {skill.name}
               </span>
               <span className="text-xs text-muted-foreground">
-                {PROFICIENCY_LABEL[skill.proficiency]}
+                {t(PROFICIENCY_LABEL_KEYS[skill.proficiency])}
               </span>
               <span className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-                الثقة: {confidenceLabel(skill.confidence)}
+                {t("contributor.onboarding.previewConfidence", {
+                  confidence: confidenceLabel(t, skill.confidence),
+                })}
               </span>
               <button
                 type="button"
@@ -82,7 +89,9 @@ export function ProfilePreviewStep({
                 )}
               >
                 <Flag className="size-3.5" />
-                {isFlagged ? "مُبلَّغ عنها" : "الإبلاغ عن خطأ"}
+                {isFlagged
+                  ? t("contributor.onboarding.previewFlagged")
+                  : t("contributor.onboarding.previewReportError")}
               </button>
             </div>
           );
@@ -92,11 +101,11 @@ export function ProfilePreviewStep({
       <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
         <p className="text-xs text-muted-foreground">
           {flagged.size > 0
-            ? `${flagged.size} مهارة مُبلَّغ عنها — سيراها المراجع مع ملاحظتك.`
-            : "لا شيء يُنشر تلقائيًا — المراجعة البشرية أولاً."}
+            ? t("contributor.onboarding.previewFlaggedCount", { count: flagged.size })
+            : t("contributor.onboarding.previewNothingAutoPublished")}
         </p>
         <Button size="sm" onClick={onSubmit}>
-          إرسال للمراجعة
+          {t("contributor.onboarding.previewSubmit")}
         </Button>
       </div>
     </Card>

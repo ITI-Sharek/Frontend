@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ComponentType, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -47,9 +48,11 @@ export function AppShell({
   brand = DEFAULT_BRAND,
   planChip,
   topBar,
-  navigationLabel = "التنقل الرئيسي",
+  navigationLabel,
   children,
 }: AppShellProps) {
+  const { t } = useTranslation();
+  const navLabel = navigationLabel ?? t("navigation.mainNavigation");
   const primaryItems = nav.filter((item) => !item.secondary);
   const secondaryItems = nav.filter((item) => item.secondary);
   const mobileItems = nav
@@ -62,7 +65,7 @@ export function AppShell({
         href="#main-content"
         className="fixed start-4 top-3 z-50 -translate-y-20 rounded-input bg-foreground px-4 py-2 text-sm font-semibold text-background transition-transform duration-200 focus-visible:translate-y-0"
       >
-        تخطي إلى المحتوى
+        {t("shell.skipToContent")}
       </a>
 
       <div className="flex min-h-dvh">
@@ -71,7 +74,7 @@ export function AppShell({
 
           <nav
             className="flex flex-1 flex-col gap-1.5 px-3 py-4"
-            aria-label={navigationLabel}
+            aria-label={navLabel}
           >
             {primaryItems.map((item) => (
               <SidebarItem key={item.label} item={item} />
@@ -118,7 +121,7 @@ export function AppShell({
       {mobileItems.length > 0 && (
         <nav
           className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
-          aria-label={navigationLabel}
+          aria-label={navLabel}
         >
           {mobileItems.map((item) => (
             <MobileItem key={item.label} item={item} />
@@ -229,13 +232,14 @@ function MobileItem({ item }: { item: AppShellNavItem }) {
 }
 
 function NavBadge({ count, compact = false }: { count?: number; compact?: boolean }) {
+  const { t } = useTranslation();
   if (count === undefined || count <= 0) return null;
 
   const visibleCount = count > 99 ? "99+" : count;
 
   return (
     <span
-      aria-label={`${count} عناصر تحتاج إلى إجراء`}
+      aria-label={t("shell.badgeAriaLabel_other", { count })}
       className={cn(
         "inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white",
         compact && "absolute -start-3 -top-2",

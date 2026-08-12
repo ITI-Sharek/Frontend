@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Lightbulb } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Card } from "@/shared/components/ui/card";
@@ -19,10 +20,11 @@ export function ProposalSubmissionView({
   error: string | null;
   onSubmit: (fields: ContributionProposalFields) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6">
       <Link to={ROUTES.publicProjects} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowRight className="size-4" /> العودة إلى المشاريع
+        <ArrowRight className="size-4" /> {t("proposalSubmission.backToProjects")}
       </Link>
       <header className="mt-5">
         <div className="flex items-center gap-3">
@@ -30,9 +32,9 @@ export function ProposalSubmissionView({
             <Lightbulb className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">اقتراح عمل جديد للمشروع</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("proposalSubmission.title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              مسار خاص ومنفصل عن التقديم على طلب مساهمة موجود.
+              {t("proposalSubmission.description")}
             </p>
           </div>
         </div>
@@ -44,13 +46,13 @@ export function ProposalSubmissionView({
             identifier is worse than saying nothing. */}
         {projectName ? (
           <p className="mb-5 text-xs text-muted-foreground">
-            المشروع: <span className="font-semibold text-foreground">{projectName}</span>
+            {t("proposalSubmission.project")} <span className="font-semibold text-foreground">{projectName}</span>
           </p>
         ) : null}
         <ProposalEditor
           requiresDisclosure
           isSubmitting={isSubmitting}
-          submitLabel="إرسال المقترح إلى صاحب المشروع"
+          submitLabel={t("proposalSubmission.submitLabel")}
           error={error}
           onSubmit={onSubmit}
         />

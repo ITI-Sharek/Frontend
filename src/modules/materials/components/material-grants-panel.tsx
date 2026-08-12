@@ -1,5 +1,6 @@
 import { Loader2, ShieldCheck, ShieldX } from "lucide-react";
 import { useId, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -27,6 +28,7 @@ export function MaterialGrantsPanel({
   onGrant,
   onRevoke,
 }: MaterialGrantsPanelProps) {
+  const { t } = useTranslation();
   const [granteeId, setGranteeId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pendingRevoke, setPendingRevoke] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export function MaterialGrantsPanel({
   async function handleGrant(event: React.FormEvent) {
     event.preventDefault();
     if (granteeId.trim() === "") {
-      setError("أدخل معرّف المساهم لمنحه الصلاحية.");
+      setError(t("material.errors.granteeIdRequired"));
       return;
     }
     setError(null);
@@ -49,7 +51,7 @@ export function MaterialGrantsPanel({
       });
       setGranteeId("");
     } catch (grantError) {
-      setError(getMaterialErrorMessage(grantError));
+      setError(getMaterialErrorMessage(t, grantError));
     }
   }
 
@@ -62,7 +64,7 @@ export function MaterialGrantsPanel({
         idempotencyKey: createMaterialIdempotencyKey(),
       });
     } catch (revokeError) {
-      setError(getMaterialErrorMessage(revokeError));
+      setError(getMaterialErrorMessage(t, revokeError));
     } finally {
       setPendingRevoke(null);
     }
@@ -71,17 +73,16 @@ export function MaterialGrantsPanel({
   return (
     <section className="space-y-3 rounded-lg bg-muted/30 p-3">
       <div>
-        <h4 className="text-sm font-semibold">الصلاحيات الصريحة</h4>
+        <h4 className="text-sm font-semibold">{t("material.grantsPanelTitle")}</h4>
         <p className="mt-1 text-xs text-muted-foreground">
-          امنح الوصول لمساهم لديه إسناد قائم في المشروع. ينتهي الوصول فور سحب
-          الصلاحية، بما في ذلك روابط التنزيل التي أُصدرت قبل السحب.
+          {t("material.grantsPanelDescription")}
         </p>
       </div>
 
       <form onSubmit={handleGrant} className="flex flex-col gap-2 sm:flex-row">
         <div className="flex-1 space-y-1">
           <Label htmlFor={inputId} className="text-xs">
-            معرّف المساهم
+            {t("material.granteeId")}
           </Label>
           <Input
             id={inputId}
@@ -103,7 +104,7 @@ export function MaterialGrantsPanel({
           ) : (
             <ShieldCheck className="size-4" aria-hidden />
           )}
-          منح الصلاحية
+          {t("material.grantButton")}
         </Button>
       </form>
 
@@ -114,10 +115,10 @@ export function MaterialGrantsPanel({
       )}
 
       {isLoading ? (
-        <p className="text-xs text-muted-foreground">جارٍ تحميل الصلاحيات…</p>
+        <p className="text-xs text-muted-foreground">{t("material.grantsLoading")}</p>
       ) : live.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          لا توجد صلاحيات سارية على هذه المادة.
+          {t("material.grantsEmpty")}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -150,7 +151,7 @@ export function MaterialGrantsPanel({
                 ) : (
                   <ShieldX className="size-4" aria-hidden />
                 )}
-                سحب الصلاحية
+                {t("material.revokeButton")}
               </Button>
             </li>
           ))}
@@ -162,12 +163,12 @@ export function MaterialGrantsPanel({
       {revoked.length > 0 && (
         <details className="text-xs">
           <summary className="cursor-pointer text-muted-foreground">
-            صلاحيات مسحوبة ({revoked.length})
+            {t("material.revokedTitle", { count: revoked.length })}
           </summary>
           <ul className="mt-2 space-y-1">
             {revoked.map((grant) => (
               <li key={`${grant.granteeId}-${grant.revokedAt}`} className="text-muted-foreground">
-                {grant.granteeName} — سُحبت الصلاحية
+                {t("material.grantRevoked", { name: grant.granteeName })}
               </li>
             ))}
           </ul>

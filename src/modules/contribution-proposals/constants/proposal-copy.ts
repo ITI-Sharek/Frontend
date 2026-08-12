@@ -1,35 +1,30 @@
 import { isAxiosError } from "axios";
+import type { TFunction } from "i18next";
 
 import {
   getApiErrorCode,
   getApiErrorMetadataNumber,
 } from "@/shared/utils/get-api-error-code";
 
-const ERROR_COPY: Record<string, string> = {
-  PROPOSAL_PROJECT_NOT_PUBLISHED:
-    "هذا المشروع لم يعد منشورًا ولا يقبل مقترحات مساهمة.",
-  PROPOSAL_OWNER_CANNOT_PROPOSE:
-    "صاحب المشروع لا يرسل مقترحًا إلى مشروعه؛ استخدم إنشاء طلب مساهمة.",
-  PROPOSAL_INTAKE_DISABLED:
-    "أوقف صاحب المشروع استقبال مقترحات المساهمة حاليًا.",
-  PROPOSAL_RATE_LIMITED:
-    "وصلت إلى الحد اليومي لمقترحات المساهمة. حاول في يوم آخر.",
-  PROPOSAL_CURSOR_INVALID: "تعذر تحميل الصفحة التالية من المقترحات.",
-  PROPOSAL_IDEMPOTENCY_CONFLICT:
-    "تعارضت هذه المحاولة مع أمر سابق. راجع المقترح قبل إعادة المحاولة.",
-  PROPOSAL_TERMINAL:
-    "انتقل المقترح إلى حالة نهائية ولم يعد هذا الإجراء متاحًا.",
-  PROPOSAL_NOT_AUTHORIZED: "هذا المقترح غير متاح لهذا الحساب.",
-  PROPOSAL_IDEMPOTENCY_KEY_INVALID:
-    "تعذر تأمين العملية لإعادة المحاولة. أعد فتح الإجراء.",
-  PROPOSAL_CONCURRENT_MODIFICATION:
-    "تغيّر المقترح في نفس الوقت. حدّث البيانات قبل تسجيل إجراء آخر.",
-  PROPOSAL_NOT_FOUND: "لم نعثر على هذا المقترح أو لا تملك صلاحية عرضه.",
-  PROPOSAL_NO_REVISION_REQUESTED:
-    "لا يوجد طلب مراجعة مفتوح يسمح بإرسال نسخة جديدة.",
+const ERROR_COPY_KEYS: Record<string, string> = {
+  PROPOSAL_PROJECT_NOT_PUBLISHED: "proposalErrors.projectNotPublished",
+  PROPOSAL_OWNER_CANNOT_PROPOSE: "proposalErrors.ownerCannotPropose",
+  PROPOSAL_INTAKE_DISABLED: "proposalErrors.intakeDisabled",
+  PROPOSAL_RATE_LIMITED: "proposalErrors.rateLimited",
+  PROPOSAL_CURSOR_INVALID: "proposalErrors.cursorInvalid",
+  PROPOSAL_IDEMPOTENCY_CONFLICT: "proposalErrors.idempotencyConflict",
+  PROPOSAL_TERMINAL: "proposalErrors.terminal",
+  PROPOSAL_NOT_AUTHORIZED: "proposalErrors.notAuthorized",
+  PROPOSAL_IDEMPOTENCY_KEY_INVALID: "proposalErrors.idempotencyKeyInvalid",
+  PROPOSAL_CONCURRENT_MODIFICATION: "proposalErrors.concurrentModification",
+  PROPOSAL_NOT_FOUND: "proposalErrors.notFound",
+  PROPOSAL_NO_REVISION_REQUESTED: "proposalErrors.noRevisionRequested",
 };
 
-export function getProposalErrorMessage(error: unknown): string {
+export function getProposalErrorMessage(
+  t: TFunction,
+  error: unknown,
+): string {
   const code = getApiErrorCode(error);
   // The backend sends the limit it enforced; telling the contributor the
   // number is more useful than telling them a limit exists. Falls through to
@@ -37,14 +32,15 @@ export function getProposalErrorMessage(error: unknown): string {
   if (code === "PROPOSAL_RATE_LIMITED") {
     const dailyLimit = getApiErrorMetadataNumber(error, "dailyLimit");
     if (dailyLimit !== null) {
-      return `وصلت إلى الحد اليومي لمقترحات المساهمة (${dailyLimit} مقترحات في اليوم). حاول في يوم آخر.`;
+      return t("proposalErrors.rateLimitedWithCount", { count: dailyLimit });
     }
   }
-  if (code && ERROR_COPY[code]) return ERROR_COPY[code];
+  const key = code ? ERROR_COPY_KEYS[code] : undefined;
+  if (key) return t(key);
   if (isAxiosError(error) && error.response?.status === 401) {
-    return "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.";
+    return t("proposalErrors.sessionExpired");
   }
-  return "تعذر إكمال العملية الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى.";
+  return t("proposalErrors.generic");
 }
 
 export function shouldRefreshProposalAfterError(error: unknown): boolean {

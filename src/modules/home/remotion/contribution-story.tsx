@@ -6,47 +6,60 @@ import {
   interpolate,
   useCurrentFrame,
 } from "remotion";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
-const PHASES = [
-  {
-    frame: 0,
-    label: "فهم الملاءمة والمتطلبات",
-    detail: "ملاءمة جزئية · الدليل والناقص واضحان",
-    tone: "#6B5CA5",
-  },
-  {
-    frame: 80,
-    label: "قرار صاحب المشروع",
-    detail: "تم القبول بقرار بشري",
-    tone: "#2E3192",
-  },
-  {
-    frame: 160,
-    label: "تسليم المساهمة",
-    detail: "طلب دمج + وصف العمل + لقطات اختبار",
-    tone: "#2E3192",
-  },
-  {
-    frame: 240,
-    label: "مراجعة الأدلة",
-    detail: "تحقق المالك من النتيجة والمصدر",
-    tone: "#D97706",
-  },
-  {
-    frame: 320,
-    label: "سجل مساهمة موثوق",
-    detail: "مكتملة · متحقق منها · مرئية للعامة",
-    tone: "#0F766E",
-  },
-] as const;
+type StoryPhase = {
+  frame: number;
+  label: string;
+  detail: string;
+  tone: string;
+};
+
+function getPhases(t: TFunction): StoryPhase[] {
+  return [
+    {
+      frame: 0,
+      label: t("landing.storyPhase1Label"),
+      detail: t("landing.storyPhase1Detail"),
+      tone: "#6B5CA5",
+    },
+    {
+      frame: 80,
+      label: t("landing.storyPhase2Label"),
+      detail: t("landing.storyPhase2Detail"),
+      tone: "#2E3192",
+    },
+    {
+      frame: 160,
+      label: t("landing.storyPhase3Label"),
+      detail: t("landing.storyPhase3Detail"),
+      tone: "#2E3192",
+    },
+    {
+      frame: 240,
+      label: t("landing.storyPhase4Label"),
+      detail: t("landing.storyPhase4Detail"),
+      tone: "#D97706",
+    },
+    {
+      frame: 320,
+      label: t("landing.storyPhase5Label"),
+      detail: t("landing.storyPhase5Detail"),
+      tone: "#0F766E",
+    },
+  ];
+}
 
 const fontFamily = '"IBM Plex Sans Arabic", system-ui, sans-serif';
 const monoFamily = '"Geist Mono", ui-monospace, monospace';
 
 export function ContributionStory() {
+  const { t } = useTranslation();
   const frame = useCurrentFrame();
+  const phases = getPhases(t);
   const completedPhase = Math.min(
-    PHASES.length - 1,
+    phases.length - 1,
     Math.floor(frame / 80),
   );
 
@@ -72,10 +85,10 @@ export function ContributionStory() {
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <strong style={{ fontSize: 34, lineHeight: 1.2 }}>
-            سجل مساهمة
+            {t("landing.storyHeaderTitle")}
           </strong>
           <span style={{ color: "#475569", fontSize: 21 }}>
-            نموذج توضيحي · شخص حقيقي، عمل محدد، ودليل قابل للمراجعة
+            {t("landing.storyHeaderSubtitle")}
           </span>
         </div>
         <bdi
@@ -116,7 +129,7 @@ export function ContributionStory() {
                 marginBottom: 10,
               }}
             >
-              مشروع أطلس للتوثيق العربي
+              {t("landing.storyProjectName")}
             </div>
             <h2
               style={{
@@ -126,10 +139,10 @@ export function ContributionStory() {
                 maxWidth: 690,
               }}
             >
-              تحسين التنقل بلوحة المفاتيح في الواجهة العربية
+              {t("landing.storyContributionTitle")}
             </h2>
             <p style={{ color: "#475569", fontSize: 24, margin: "16px 0 0" }}>
-              المساهمة: مريم ع. · المراجع: فريق المشروع
+              {t("landing.storyContributorsLine")}
             </p>
           </div>
 
@@ -143,7 +156,7 @@ export function ContributionStory() {
               padding: 0,
             }}
           >
-            {PHASES.map((phase, index) => (
+            {phases.map((phase, index) => (
               <Sequence
                 key={phase.label}
                 name={phase.label}
@@ -181,7 +194,7 @@ export function ContributionStory() {
               <span
                 style={{
                   backgroundColor:
-                    completedPhase === PHASES.length - 1 ? "#2DD4BF" : "#E2E8F0",
+                    completedPhase === phases.length - 1 ? "#2DD4BF" : "#E2E8F0",
                   borderRadius: 999,
                   display: "block",
                   height: 18,
@@ -189,19 +202,28 @@ export function ContributionStory() {
                 }}
               />
               <strong style={{ fontSize: 27 }}>
-                {completedPhase === PHASES.length - 1
-                  ? "مساهمة متحقق منها"
-                  : "سجل قيد التكوين"}
+                {completedPhase === phases.length - 1
+                  ? t("landing.storyStatusVerified")
+                  : t("landing.storyStatusBuilding")}
               </strong>
             </div>
 
             <EvidenceLine
-              label="المصدر"
-              value="مستودع محدد + إفادة المالك"
+              label={t("landing.storyEvidenceSourceLabel")}
+              value={t("landing.storyEvidenceSourceValue")}
             />
-            <EvidenceLine label="طريقة التحقق" value="مراجعة بشرية" />
-            <EvidenceLine label="الظهور" value="ملخص عام؛ المصدر الخاص محجوب" />
-            <EvidenceLine label="الحداثة" value="محدّث مع آخر مراجعة" />
+            <EvidenceLine
+              label={t("landing.storyEvidenceMethodLabel")}
+              value={t("landing.storyEvidenceMethodValue")}
+            />
+            <EvidenceLine
+              label={t("landing.storyEvidenceVisibilityLabel")}
+              value={t("landing.storyEvidenceVisibilityValue")}
+            />
+            <EvidenceLine
+              label={t("landing.storyEvidenceFreshnessLabel")}
+              value={t("landing.storyEvidenceFreshnessValue")}
+            />
           </div>
 
           <div
@@ -213,7 +235,7 @@ export function ContributionStory() {
             }}
           >
             <strong style={{ color: "#6B5CA5", fontSize: 22 }}>
-              دور الذكاء الاصطناعي: استشاري
+              {t("landing.storyAiRoleTitle")}
             </strong>
             <p
               style={{
@@ -223,8 +245,7 @@ export function ContributionStory() {
                 margin: "10px 0 0",
               }}
             >
-              رتّب الإشارات وشرح النقص. صاحب المشروع اتخذ القرار، والمراجعة
-              البشرية أكدت النتيجة.
+              {t("landing.storyAiRoleDescription")}
             </p>
           </div>
         </Interactive.Aside>
@@ -237,7 +258,7 @@ function PhaseRow({
   phase,
   index,
 }: {
-  phase: (typeof PHASES)[number];
+  phase: StoryPhase;
   index: number;
 }) {
   const frame = useCurrentFrame();
