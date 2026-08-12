@@ -19,9 +19,11 @@ import type { ContributorDashboardDto } from "../types/dashboard.types";
  */
 export function ContributorDashboardView({
   dashboard,
+  deliveryLifecycleSlot,
   recommendedSlot,
 }: {
   dashboard: ContributorDashboardDto;
+  deliveryLifecycleSlot?: ReactNode;
   recommendedSlot?: ReactNode;
 }) {
   return (
@@ -111,6 +113,7 @@ export function ContributorDashboardView({
             </a>
           </nav>
           <AttentionFeed items={dashboard.attentionItems} />
+          {deliveryLifecycleSlot}
           <MatchedTasksSection
             tasks={dashboard.matchedTasks}
             matchReason={dashboard.matchReason}

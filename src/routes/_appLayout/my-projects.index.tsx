@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { requireMemberRoute } from "@/modules/auth";
+import { OwnerDeliveryInbox } from "@/modules/delivery-reviews";
 import { MyProjectsList, useMyProjectsQuery } from "@/modules/projects";
 import type { MyProjectSummaryDto } from "@/modules/projects";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
@@ -48,19 +49,22 @@ function MyProjectsPage() {
   ];
 
   return (
-    <MyProjectsList
-      projects={projects}
-      quota={projectsQuery.data.quota}
-      pageInfo={projectsQuery.data.pageInfo}
-      importHref="/my-projects/new"
-      onProjectHref={(projectId) => `/my-projects/${encodeURIComponent(projectId)}`}
-      isLoadingMore={projectsQuery.isFetching && cursor !== undefined}
-      onLoadMore={() => {
-        const nextCursor = projectsQuery.data.pageInfo.nextCursor;
-        if (!nextCursor) return;
-        setLoadedProjects(projects);
-        setCursor(nextCursor);
-      }}
-    />
+    <>
+      <OwnerDeliveryInbox />
+      <MyProjectsList
+        projects={projects}
+        quota={projectsQuery.data.quota}
+        pageInfo={projectsQuery.data.pageInfo}
+        importHref="/my-projects/new"
+        onProjectHref={(projectId) => `/my-projects/${encodeURIComponent(projectId)}`}
+        isLoadingMore={projectsQuery.isFetching && cursor !== undefined}
+        onLoadMore={() => {
+          const nextCursor = projectsQuery.data.pageInfo.nextCursor;
+          if (!nextCursor) return;
+          setLoadedProjects(projects);
+          setCursor(nextCursor);
+        }}
+      />
+    </>
   );
 }
