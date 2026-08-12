@@ -21,23 +21,24 @@ export function AuthHeader() {
       <div className="flex items-center gap-4" dir="ltr">
         <button
           type="button"
-          aria-label="Toggle theme"
+          aria-label="تبديل المظهر"
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
           className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
         >
           {mounted && resolvedTheme === "dark" ? (
-            <Sun className="size-4" />
+            <Sun className="size-4" aria-hidden="true" />
           ) : (
-            <Moon className="size-4" />
+            <Moon className="size-4" aria-hidden="true" />
           )}
         </button>
-        <button
-          type="button"
-          className="flex items-center gap-1 font-mono text-[13px] tracking-[0.65px] text-muted-foreground transition-colors hover:text-foreground"
+        <span
+          role="group"
+          aria-label="اللغة الحالية: العربية"
+          className="flex items-center gap-1 font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
         >
           <span dir="rtl">العربية</span>
-          <Globe className="size-5" />
-        </button>
+          <Globe className="size-5" aria-hidden="true" />
+        </span>
       </div>
     </header>
   );
