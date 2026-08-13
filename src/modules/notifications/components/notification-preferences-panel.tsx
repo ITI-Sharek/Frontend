@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
@@ -59,6 +60,7 @@ function getCategoryPatch(category: NotificationCategoryPreferenceDto) {
 }
 
 export function NotificationPreferencesPanel() {
+  const { t } = useTranslation();
   const preferencesQuery = useNotificationPreferencesQuery();
   const updateMutation = useUpdateNotificationPreferencesMutation();
   const [form, setForm] = useState<PreferencesForm | null>(null);
@@ -77,7 +79,7 @@ export function NotificationPreferencesPanel() {
   if (preferencesQuery.isLoading || !form) {
     return (
       <div role="status" className="text-sm text-muted-foreground">
-        جارٍ تحميل تفضيلات الإشعارات…
+        {t("notifications.preferences.loading")}
       </div>
     );
   }
@@ -85,9 +87,9 @@ export function NotificationPreferencesPanel() {
   if (preferencesQuery.isError) {
     return (
       <div role="alert" className="grid gap-3 text-sm text-muted-foreground">
-        <span>تعذّر تحميل تفضيلات الإشعارات.</span>
+        <span>{t("notifications.preferences.loadError")}</span>
         <Button type="button" variant="outline" onClick={() => void preferencesQuery.refetch()}>
-          إعادة المحاولة
+          {t("common.retry")}
         </Button>
       </div>
     );
@@ -157,15 +159,15 @@ export function NotificationPreferencesPanel() {
     <section aria-labelledby="notification-preferences-title" className="grid gap-6">
       <div>
         <h2 id="notification-preferences-title" className="text-lg font-bold text-foreground">
-          تفضيلات الإشعارات
+          {t("notifications.preferences.title")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          تحكم في مدة الاحتفاظ والتنبيهات الاختيارية وساعات الهدوء.
+          {t("notifications.preferences.description")}
         </p>
       </div>
 
       <label className="grid max-w-sm gap-2 text-sm font-semibold text-foreground">
-        مدة الاحتفاظ
+        {t("notifications.preferences.retention")}
         <select
           name="notification-retention"
           value={form.retentionDays}
@@ -179,14 +181,14 @@ export function NotificationPreferencesPanel() {
         >
           {RETENTION_OPTIONS.map((days) => (
             <option key={days} value={days}>
-              {days} يومًا
+              {t("notifications.preferences.days", { count: days })}
             </option>
           ))}
         </select>
       </label>
 
       <fieldset className="grid gap-3 rounded-input border border-border p-4">
-        <legend className="px-1 text-sm font-semibold text-foreground">ساعات الهدوء</legend>
+        <legend className="px-1 text-sm font-semibold text-foreground">{t("notifications.preferences.quietHours")}</legend>
         <label className="flex items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
@@ -200,11 +202,11 @@ export function NotificationPreferencesPanel() {
             }
             className="size-4 accent-primary"
           />
-          تفعيل ساعات الهدوء
+          {t("notifications.preferences.enableQuietHours")}
         </label>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="grid gap-1 text-xs text-muted-foreground">
-            البداية
+            {t("notifications.preferences.start")}
             <Input
               type="time"
               name="notification-quiet-hours-start"
@@ -219,7 +221,7 @@ export function NotificationPreferencesPanel() {
             />
           </label>
           <label className="grid gap-1 text-xs text-muted-foreground">
-            النهاية
+            {t("notifications.preferences.end")}
             <Input
               type="time"
               name="notification-quiet-hours-end"
@@ -234,7 +236,7 @@ export function NotificationPreferencesPanel() {
             />
           </label>
           <label className="grid gap-1 text-xs text-muted-foreground">
-            المنطقة الزمنية
+            {t("notifications.preferences.timeZone")}
             <select
               name="notification-quiet-hours-timezone"
               value={form.quietHours.timeZone}
@@ -258,12 +260,12 @@ export function NotificationPreferencesPanel() {
           </label>
         </div>
         <p className="text-xs text-muted-foreground">
-          يمكن أن تمتد الساعات عبر منتصف الليل، مثل 22:00 إلى 06:00.
+          {t("notifications.preferences.quietHoursHelp")}
         </p>
       </fieldset>
 
       <fieldset className="grid gap-3">
-        <legend className="text-sm font-semibold text-foreground">فئات التنبيه داخل التطبيق</legend>
+        <legend className="text-sm font-semibold text-foreground">{t("notifications.preferences.categories")}</legend>
         {form.categories.map((category) => (
           <div
             key={category.type}
@@ -271,11 +273,11 @@ export function NotificationPreferencesPanel() {
           >
             <div>
               <p className="text-sm font-semibold text-foreground">
-                {getNotificationTypeLabel(category.type)}
+                {getNotificationTypeLabel(t, category.type)}
               </p>
               {category.requiredInApp && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  لا يمكن تعطيل التنبيهات الأساسية.
+                  {t("notifications.preferences.required")}
                 </p>
               )}
             </div>
@@ -292,24 +294,24 @@ export function NotificationPreferencesPanel() {
       </fieldset>
 
       <div className="grid gap-2 rounded-input border border-border p-4">
-        <p className="text-sm font-semibold text-foreground">إشعارات المتصفح</p>
+        <p className="text-sm font-semibold text-foreground">{t("notifications.preferences.browserTitle")}</p>
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" disabled checked={false} readOnly className="size-4" />
-          متاحة في شريحة لاحقة
+          {t("notifications.preferences.browserLater")}
         </label>
         <p className="text-xs text-muted-foreground">
-          لن نطلب إذن المتصفح أو نسجل Service Worker في هذه المرحلة.
+          {t("notifications.preferences.browserHelp")}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="button" disabled={updateMutation.isPending} onClick={save}>
-          {updateMutation.isPending ? "جارٍ الحفظ…" : "حفظ تفضيلات الإشعارات"}
+          {updateMutation.isPending ? t("common.saving") : t("notifications.preferences.save")}
         </Button>
         <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
-          {status === "saved" && "تم حفظ التفضيلات."}
-          {status === "conflict" && "تغيّرت التفضيلات في جلسة أخرى؛ تم تحديث النموذج."}
-          {status === "error" && "تعذّر الحفظ؛ تمت استعادة آخر إعدادات محفوظة."}
+          {status === "saved" && t("notifications.preferences.saved")}
+          {status === "conflict" && t("notifications.preferences.conflict")}
+          {status === "error" && t("notifications.preferences.saveError")}
         </p>
       </div>
     </section>

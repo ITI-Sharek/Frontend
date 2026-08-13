@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleAlert, ExternalLink, Loader2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -21,6 +22,7 @@ export function ContributorDeliveryPanel({
   applicationId: string;
   client?: DeliveryClient;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const lifecycleQuery = useQuery({
     queryKey: deliveryKeys.contributorLifecycle(),
@@ -87,7 +89,7 @@ export function ContributorDeliveryPanel({
     return (
       <p role="status" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin" aria-hidden />
-        جارٍ تحميل حالة التسليم…
+        {t("deliveryReviews.panel.loading")}
       </p>
     );
   }
@@ -97,7 +99,7 @@ export function ContributorDeliveryPanel({
       <Card className="mt-6 border-destructive/25 p-5">
         <p role="alert" className="flex items-center gap-2 text-sm text-destructive">
           <CircleAlert className="size-4" aria-hidden />
-          تعذر تحميل حالة التسليم. حاول مرة أخرى.
+          {t("deliveryReviews.panel.loadError")}
         </p>
         <Button
           type="button"
@@ -106,7 +108,7 @@ export function ContributorDeliveryPanel({
           className="mt-3"
           onClick={() => void lifecycleQuery.refetch()}
         >
-          إعادة المحاولة
+          {t("common.retry")}
         </Button>
       </Card>
     );
@@ -118,11 +120,11 @@ export function ContributorDeliveryPanel({
 
   if (delivery) {
     const statusCopy = {
-      SUBMITTED: "بانتظار مراجعة صاحب المشروع",
-      RESUBMITTED: "بانتظار مراجعة صاحب المشروع",
-      CHANGES_REQUESTED: "طلب صاحب المشروع تغييرات",
-      APPROVED: "اعتمد صاحب المشروع التسليم",
-      REJECTED: "رفض صاحب المشروع التسليم",
+      SUBMITTED: t("deliveryReviews.panel.status.submitted"),
+      RESUBMITTED: t("deliveryReviews.panel.status.submitted"),
+      CHANGES_REQUESTED: t("deliveryReviews.panel.status.changesRequested"),
+      APPROVED: t("deliveryReviews.panel.status.approved"),
+      REJECTED: t("deliveryReviews.panel.status.rejected"),
     }[delivery.status];
     const isResubmission = delivery.status === "CHANGES_REQUESTED";
     const showUpdateForm = isResubmission || editingSubmitted;
@@ -130,12 +132,12 @@ export function ContributorDeliveryPanel({
 
     return (
       <Card className="mt-6 border-evidence-teal/30 p-5 md:p-6">
-        <h2 className="text-lg font-bold text-foreground">تسليم العمل</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("deliveryReviews.panel.title")}</h2>
         <p role="status" className="mt-2 text-sm font-medium text-evidence-teal">
           {statusCopy}
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          الإرسال رقم {delivery.submissionNumber}
+          {t("deliveryReviews.panel.submissionNumber", { number: delivery.submissionNumber })}
         </p>
         <a
           href={delivery.pullRequestUrl}
@@ -154,7 +156,7 @@ export function ContributorDeliveryPanel({
             className="mt-6 border-t border-border pt-5"
           >
             <h3 id="delivery-history-heading" className="font-bold text-foreground">
-              سجل التسليم والمراجعة
+              {t("deliveryReviews.panel.history")}
             </h3>
             <ol className="mt-3 space-y-3">
               {detailQuery.data.submissions.map((submission) => {
@@ -167,16 +169,16 @@ export function ContributorDeliveryPanel({
                     className="rounded-input border border-border p-4 text-sm"
                   >
                     <p className="font-semibold text-foreground">
-                      الإرسال رقم {submission.submissionNumber}
+                      {t("deliveryReviews.panel.submissionNumber", { number: submission.submissionNumber })}
                     </p>
                     {review && (
                       <p className="mt-2 text-sm font-medium text-foreground">
                         {{
-                          APPROVED: "اعتماد صاحب المشروع",
-                          CHANGES_REQUESTED: "طلب تغييرات",
-                          REJECTED: "رفض صاحب المشروع",
+                          APPROVED: t("deliveryReviews.panel.review.approvedByOwner"),
+                          CHANGES_REQUESTED: t("deliveryReviews.panel.review.changesRequested"),
+                          REJECTED: t("deliveryReviews.panel.review.rejectedByOwner"),
                         }[review.outcome]}
-                        {review.rating !== null && ` — ${review.rating} من 5`}
+                        {review.rating !== null && ` — ${t("deliveryReviews.panel.ratingOutOfFive", { rating: review.rating })}`}
                       </p>
                     )}
                     {review?.feedback && (
@@ -205,7 +207,7 @@ export function ContributorDeliveryPanel({
               setEditingSubmitted(true);
             }}
           >
-            تعديل رابط التسليم
+            {t("deliveryReviews.panel.editLink")}
           </Button>
         )}
 
@@ -215,7 +217,7 @@ export function ContributorDeliveryPanel({
             onSubmit={(event) => void submit(event)}
           >
             <div>
-              <Label htmlFor="delivery-pull-request-url">رابط Pull Request المحدّث</Label>
+              <Label htmlFor="delivery-pull-request-url">{t("deliveryReviews.panel.updatedPullRequestUrl")}</Label>
               <Input
                 id="delivery-pull-request-url"
                 name="pullRequestUrl"
@@ -238,7 +240,7 @@ export function ContributorDeliveryPanel({
               )}
             </div>
             <div>
-              <Label htmlFor="delivery-contributor-notes">ملاحظات التحديث (اختياري)</Label>
+              <Label htmlFor="delivery-contributor-notes">{t("deliveryReviews.panel.updateNotes")}</Label>
               <textarea
                 id="delivery-contributor-notes"
                 name="contributorNotes"
@@ -257,10 +259,10 @@ export function ContributorDeliveryPanel({
             <Button type="submit" disabled={isSending}>
               <Send className="size-4" aria-hidden />
               {isSending
-                ? "جارٍ الإرسال…"
+                ? t("deliveryReviews.panel.sending")
                 : isResubmission
-                  ? "إعادة إرسال التسليم"
-                  : "حفظ رابط التسليم"}
+                  ? t("deliveryReviews.panel.resubmit")
+                  : t("deliveryReviews.panel.saveLink")}
             </Button>
             {editingSubmitted && (
               <Button
@@ -275,7 +277,7 @@ export function ContributorDeliveryPanel({
                   setSubmitError(null);
                 }}
               >
-                إلغاء التعديل
+                {t("common.cancel")}
               </Button>
             )}
           </form>
@@ -290,7 +292,7 @@ export function ContributorDeliveryPanel({
     setSubmitError(null);
     const canonicalUrl = pullRequestUrl.trim();
     if (!GITHUB_PULL_REQUEST_URL.test(canonicalUrl)) {
-      setValidationError("أدخل رابط Pull Request صالحًا من GitHub.");
+      setValidationError(t("deliveryReviews.panel.invalidUrl"));
       return;
     }
     try {
@@ -300,19 +302,19 @@ export function ContributorDeliveryPanel({
         await submitMutation.mutateAsync();
       }
     } catch {
-      setSubmitError("تعذر إرسال التسليم الآن. حاول مرة أخرى.");
+      setSubmitError(t("deliveryReviews.panel.submitError"));
     }
   }
 
   return (
     <Card className="mt-6 p-5 md:p-6">
-      <h2 className="text-lg font-bold text-foreground">تسليم العمل</h2>
+      <h2 className="text-lg font-bold text-foreground">{t("deliveryReviews.panel.title")}</h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        أرسل رابط Pull Request على GitHub ليبدأ صاحب المشروع المراجعة البشرية.
+        {t("deliveryReviews.panel.description")}
       </p>
       <form className="mt-5 space-y-4" onSubmit={(event) => void submit(event)}>
         <div>
-          <Label htmlFor="delivery-pull-request-url">رابط Pull Request</Label>
+          <Label htmlFor="delivery-pull-request-url">{t("deliveryReviews.panel.pullRequestUrl")}</Label>
           <Input
             id="delivery-pull-request-url"
             name="pullRequestUrl"
@@ -336,7 +338,7 @@ export function ContributorDeliveryPanel({
           )}
         </div>
         <div>
-          <Label htmlFor="delivery-contributor-notes">ملاحظات للمراجع (اختياري)</Label>
+          <Label htmlFor="delivery-contributor-notes">{t("deliveryReviews.panel.reviewerNotes")}</Label>
           <textarea
             id="delivery-contributor-notes"
             name="contributorNotes"
@@ -354,7 +356,7 @@ export function ContributorDeliveryPanel({
         {submitError && <p role="alert" className="text-sm text-destructive">{submitError}</p>}
         <Button type="submit" disabled={submitMutation.isPending}>
           <Send className="size-4" aria-hidden />
-          {submitMutation.isPending ? "جارٍ الإرسال…" : "إرسال التسليم"}
+          {submitMutation.isPending ? t("deliveryReviews.panel.sending") : t("deliveryReviews.panel.submit")}
         </Button>
       </form>
     </Card>

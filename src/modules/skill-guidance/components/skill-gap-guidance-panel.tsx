@@ -1,5 +1,6 @@
 import { BookOpenCheck, CircleAlert, Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -12,6 +13,7 @@ export function SkillGapGuidancePanel({
 }: {
   contributionRequestId: string;
 }) {
+  const { t } = useTranslation();
   const mutation = useSkillGapGuidanceMutation();
   const [result, setResult] = useState<SkillGapGuidanceResultDto | null>(null);
 
@@ -30,41 +32,40 @@ export function SkillGapGuidancePanel({
       <div>
         <p className="flex items-center gap-2 text-xs font-semibold text-evidence-teal-foreground dark:text-evidence-teal">
           <ShieldCheck className="size-4" aria-hidden />
-          تغطية المتطلبات
+          {t("skillGuidance.eyebrow")}
         </p>
-        <h2 className="mt-1 text-lg font-bold text-foreground">إرشاد مرتبط بالمصادر</h2>
+        <h2 className="mt-1 text-lg font-bold text-foreground">{t("skillGuidance.title")}</h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          استخدم المتطلبات المنشورة ومهاراتك المعتمدة للحصول على خطوات تعلم عملية.
-          هذا الإرشاد تعليمي وليس قرارًا بشأن أهليتك أو طلب التقديم.
+          {t("skillGuidance.description")}
         </p>
       </div>
 
       <Button type="button" className="w-fit" onClick={() => void requestGuidance()} disabled={mutation.isPending}>
         {mutation.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <BookOpenCheck className="size-4" aria-hidden />}
-        {mutation.isPending ? "جارٍ إعداد الإرشاد…" : "إرشاد مرتبط بالمصادر"}
+        {mutation.isPending ? t("skillGuidance.preparing") : t("skillGuidance.action")}
       </Button>
 
       {mutation.isError && (
         <p role="alert" className="flex items-center gap-2 text-sm text-destructive">
           <CircleAlert className="size-4" aria-hidden />
-          تعذّر إعداد الإرشاد. يمكنك المحاولة مرة أخرى.
+          {t("skillGuidance.error")}
         </p>
       )}
 
       {result?.kind === "no_assessable_evidence" && (
         <p role="status" className="rounded-input border border-border bg-surface-fog p-3 text-sm leading-6 text-muted-foreground">
-          لا توجد أدلة قابلة للتقييم في النطاق المصرح به بعد.
+          {t("skillGuidance.noEvidence")}
         </p>
       )}
       {result?.kind === "system_limit" && (
         <p role="status" className="rounded-input border border-amber-500/30 bg-amber-500/5 p-3 text-sm leading-6 text-muted-foreground">
-          الإرشاد متوقف مؤقتًا بسبب حد تقني. لم يتغير طلب التقديم.
+          {t("skillGuidance.systemLimit")}
         </p>
       )}
       {result?.kind === "completed" && (
         <div className="grid gap-4 border-t border-border pt-4">
           <div>
-            <h3 className="font-semibold text-foreground">فجوات تحتاج إلى تعلم</h3>
+            <h3 className="font-semibold text-foreground">{t("skillGuidance.gapsTitle")}</h3>
             {result.missingSkills?.length ? (
               <ul className="mt-2 grid gap-2 text-sm leading-6 text-muted-foreground">
                 {result.missingSkills.map((skill) => (
@@ -74,12 +75,12 @@ export function SkillGapGuidancePanel({
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-muted-foreground">لم تظهر فجوات ضمن الأدلة الحالية.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t("skillGuidance.noGaps")}</p>
             )}
           </div>
           {!!result.learningResources?.length && (
             <div>
-              <h3 className="font-semibold text-foreground">موارد مرتبطة بالمصادر</h3>
+              <h3 className="font-semibold text-foreground">{t("skillGuidance.resourcesTitle")}</h3>
               <ul className="mt-2 grid gap-2 text-sm">
                 {result.learningResources.map((resource) => (
                   <li key={resource.url}>

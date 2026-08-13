@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import i18n from "@/lib/i18n";
 
 import {
   getGitHubAppErrorMessage,
@@ -39,14 +40,14 @@ const ALL_STATUSES: GitHubAppInstallationStatus[] = [
 describe("github app installation presenter", () => {
   it("renders every installation status with distinct copy", () => {
     const labels = ALL_STATUSES.map(
-      (status) => getInstallationStatusMeta(status).label,
+      (status) => getInstallationStatusMeta(i18n.t, status).label,
     );
     expect(new Set(labels).size).toBe(ALL_STATUSES.length);
   });
 
   it("treats only active links as usable for analysis", () => {
     for (const status of ALL_STATUSES) {
-      expect(getInstallationStatusMeta(status).usable).toBe(
+      expect(getInstallationStatusMeta(i18n.t, status).usable).toBe(
         status === "active",
       );
     }
@@ -54,7 +55,7 @@ describe("github app installation presenter", () => {
 
   it("offers re-authorization for every non-active status", () => {
     for (const status of ALL_STATUSES) {
-      expect(getInstallationStatusMeta(status).needsReauthorization).toBe(
+      expect(getInstallationStatusMeta(i18n.t, status).needsReauthorization).toBe(
         status !== "active",
       );
     }

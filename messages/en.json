@@ -33,6 +33,9 @@
     "publish": "Publish",
     "unpublish": "Unpublish",
     "previous": "Previous",
+    "optional": "(optional)",
+    "required": "(required)",
+    "saving": "Saving…",
     "page": "Page {{current}} of {{total}}",
     "comingSoon": "Coming soon",
     "notSpecified": "Not specified",
@@ -262,6 +265,8 @@
     "language": {
       "title": "Language",
       "description": "Interface display language.",
+      "saving": "Saving language…",
+      "saveError": "Could not save the language; your previous choice was restored.",
       "options": {
         "ar": "العربية",
         "en": "English"
@@ -272,31 +277,6 @@
       "description": "Your current plan and usage limits this month.",
       "requestsToday": "{{used}} of {{total}} requests today",
       "upgradeDisabled": "Upgrading to higher plans is not currently available."
-    }
-  },
-  "notifications": {
-    "title": "Notifications",
-    "description": "Track account changes, review results, and events that need your attention.",
-    "markAllRead": "Mark all as read",
-    "markRead": "Mark as read",
-    "unread": "Unread",
-    "noNotifications": "No notifications yet",
-    "noNotificationsConnected": "Review results and important events will appear here as they arrive.",
-    "noNotificationsDisconnected": "New events will appear here once the server connection is restored.",
-    "noNotificationsSession": "No notifications in this session yet.",
-    "viewAll": "View all notifications",
-    "dialog": {
-      "title": "Latest notifications",
-      "ariaLabel_unread": "Notifications, {{count}} unread",
-      "ariaLabel": "Notifications"
-    },
-    "connection": {
-      "connected": "Connected live",
-      "connecting": "Connecting…",
-      "unauthorized": "Session does not allow notifications",
-      "unauthorized_full": "Session unauthorized",
-      "disconnected": "Disconnected",
-      "reconnecting": "Will update when connection is restored"
     }
   },
   "proposals": {
@@ -555,6 +535,55 @@
     "notAvailable": "Proposal not available",
     "notAvailableDescription": "This path is for parties to the proposal."
   },
+  "assignmentConversations": {
+    "status": {
+      "active": "Open",
+      "readOnly": "Read only"
+    },
+    "button": {
+      "openAria": "Open conversations",
+      "unreadAria": "Open conversations, {{count}} unread"
+    },
+    "list": {
+      "ariaLabel": "Conversation list",
+      "title": "Assignments",
+      "description": "Your private conversations",
+      "loadOlder": "Load older conversations"
+    },
+    "workspace": {
+      "title": "Conversations",
+      "loading": "Loading conversations…",
+      "opening": "Opening conversation…",
+      "loadErrorTitle": "Could not load conversations",
+      "loadErrorDescription": "Check your connection and try again. Conversations are visible only to assignment participants.",
+      "unavailableTitle": "Conversation unavailable",
+      "unavailableDescription": "The conversation may not exist or you may no longer be authorized to access it.",
+      "emptyIntro": "Private conversations between the project owner and assigned contributor after an assignment is created.",
+      "emptyTitle": "No conversations yet",
+      "emptyDescription": "A private conversation will appear here after an application is accepted and an assignment is created.",
+      "description": "Communicate directly with the other participant in your assignments."
+    },
+    "thread": {
+      "ariaLabel": "Assignment conversation",
+      "activeDescription": "The conversation is available to both participants",
+      "readOnlyDescription": "This conversation is preserved as read only",
+      "searchLabel": "Search messages",
+      "searchPlaceholder": "Search within this conversation…",
+      "loadingMessages": "Loading messages…",
+      "loadError": "Could not load conversation messages.",
+      "loadOlder": "Load older messages",
+      "empty": "Start the first message in this conversation.",
+      "messageFrom": "Message from {{sender}}",
+      "you": "You"
+    },
+    "composer": {
+      "label": "Message text",
+      "readOnlyPlaceholder": "Conversation is read only",
+      "placeholder": "Write your message…",
+      "sendAria": "Send message",
+      "sendError": "Could not send the message."
+    }
+  },
   "__application__": {},
   "__contributionRequest__": {},
   "contributor": {
@@ -748,10 +777,10 @@
       "saving": "Saving...",
       "saved": "Saved",
       "saveChanges": "Save changes",
-  "githubConnectHint": "Connect your account to build a verified skill profile automatically.",
-  "githubChangeAccount": "Change account",
-  "githubConnectAccount": "Connect account",
-  "githubConnectError": "Could not open GitHub connection. Please try again.",
+      "githubConnectHint": "Connect your account to build a verified skill profile automatically.",
+      "githubChangeAccount": "Change account",
+      "githubConnectAccount": "Connect account",
+      "githubConnectError": "Could not open GitHub connection. Please try again.",
       "aiSkillsAnalysisTitle": "AI skill analysis",
       "aiSkillsAnalysisDescription": "Skill analysis uses the GitHub App connection with permissions fully independent from signing in with GitHub. You choose the repositories and explicitly consent before any analysis starts, and the team reviews skills before approving them — nothing is published automatically.",
       "redirecting": "Redirecting...",
@@ -798,8 +827,83 @@
       "skillsGenerationQueued": "Analysis of your GitHub activity has started. Skills will appear here once the analysis completes and the team reviews it."
     }
   },
-  "__discussion__": {},
-  "__githubApp__": {},
+  "discussions": {
+    "title": "Discussions",
+    "description": "Articles and experience shared by project owners and contributors, with open comments.",
+    "roles": {
+      "owner": "Project owner",
+      "contributor": "Contributor"
+    },
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments",
+    "newPost": "New post",
+    "panelDescription": "Share a question or experience with the Sharek community without leaving the discussion list.",
+    "loading": "Loading discussions…",
+    "empty": "No posts yet. Be the first to start a discussion.",
+    "back": "Back to discussions",
+    "commentsTitle_one": "Comments ({{count}})",
+    "commentsTitle_other": "Comments ({{count}})",
+    "commentPlaceholder": "Add a comment…",
+    "sending": "Sending…",
+    "composer": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "A title that summarizes the topic",
+      "bodyLabel": "Content",
+      "bodyPlaceholder": "Share your experience or ask the Sharek community a question",
+      "publishing": "Publishing…"
+    }
+  },
+  "githubApp": {
+    "restart": "Restart connection",
+    "accountType": {
+      "user": "Personal account",
+      "organization": "Organization"
+    },
+    "candidates": {
+      "emptyTitle": "No available installation found",
+      "emptyDescription": "GitHub returned no account or organization that can be linked to this attempt. Restart the connection and make sure the app is installed on the right account.",
+      "title": "Choose an account or organization",
+      "description": "The GitHub App is installed on more than one account. Choose the account you want to link to Share-k now."
+    },
+    "repositories": {
+      "title": "Choose repositories",
+      "selectedCount": "{{selected}} / {{max}} repositories",
+      "description": "Choose one to {{max}} repositories that clearly show your development contributions. Analysis starts only after you press Start.",
+      "loading": "Loading repositories…",
+      "empty": "No repositories are available through this connection. Update the allowed repositories in the GitHub installation settings.",
+      "private": "Private",
+      "public": "Public",
+      "limit": "You reached the {{max}}-repository limit. Deselect a repository to add another.",
+      "page": "Page {{page}}"
+    },
+    "installations": {
+      "allRepositories": "All repositories",
+      "selectedRepositories": "Selected repositories",
+      "selected": "Selected for analysis",
+      "use": "Use this connection",
+      "reauthorize": "Reauthorize",
+      "manage": "Manage or remove the app on GitHub",
+      "disconnect": "Disconnect locally"
+    },
+    "status": {
+      "active": {
+        "label": "Active",
+        "description": "Share-k can read the repositories selected through this connection."
+      },
+      "disconnected": {
+        "label": "Disconnected locally",
+        "description": "Share-k repository access through this link is stopped. The GitHub App may still be installed on your account."
+      },
+      "reauthorizationRequired": {
+        "label": "Reauthorization needed",
+        "description": "Authorization for this installation expired. Reauthorize to continue without reinstalling."
+      },
+      "revoked": {
+        "label": "Revoked on GitHub",
+        "description": "Authorization was revoked on GitHub. Reconnect to resume skill analysis."
+      }
+    }
+  },
   "landing": {
     "heroEyebrow": "A collaboration space that preserves the trail of real work",
     "heroTitle": "Contribute to real work. Build a record that can be verified.",
@@ -1360,6 +1464,307 @@
       "sourcesTitle": "Sources"
     }
   },
-  "__support__": {},
+  "support": {
+    "title": "Support",
+    "description": "Have a question or need help with a problem? Our team is here to help.",
+    "contactTitle": "Contact us",
+    "contactDescription": "Email the support team and we will reply by email. In-app live chat is coming soon.",
+    "emailAction": "Email us at {{email}}",
+    "aboutTitle": "About Sharek",
+    "points": {
+      "evidence": {
+        "title": "Evidence before claims",
+        "body": "Every verified contribution links back to reviewable evidence: a pull request, work description, or project-owner attestation."
+      },
+      "human": {
+        "title": "Decisions stay human",
+        "body": "Automated analysis is advisory only. The project owner decides who to select, and human review confirms outcomes."
+      },
+      "record": {
+        "title": "A real professional record",
+        "body": "Sharek turns completed work into an understandable, shareable record—not badges or points."
+      }
+    }
+  },
+  "footer": {
+    "description": "A collaboration space that preserves trustworthy evidence of completed work."
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "system": "Automatic (system)"
+  },
+  "skillGuidance": {
+    "eyebrow": "Requirement coverage",
+    "title": "Source-linked guidance",
+    "description": "Use published requirements and your verified skills to get practical learning steps. This guidance is educational, not a decision about your eligibility or application.",
+    "preparing": "Preparing guidance…",
+    "action": "Get source-linked guidance",
+    "error": "Could not prepare guidance. Try again.",
+    "noEvidence": "There is no assessable evidence in the authorized scope yet.",
+    "systemLimit": "Guidance is temporarily paused by a technical limit. Your application is unchanged.",
+    "gapsTitle": "Learning gaps",
+    "noGaps": "No gaps appeared in the current evidence.",
+    "resourcesTitle": "Source-linked resources"
+  },
+  "matching": {
+    "confidence": {
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low"
+    },
+    "recommendations": {
+      "viewRequest": "View contribution request and apply",
+      "loading": "Preparing recommendations from your verified skills…",
+      "gatedTitle": "Recommendations personalized for you",
+      "gatedDescription": "Personal recommendations are unavailable on your current plan. You can explore all requests and apply under the normal rules.",
+      "loadError": "Could not load recommendations.",
+      "eyebrow": "Gold · Evidence-based recommendations",
+      "title": "Recommended for you",
+      "description": "These requests appear because of your verified skills and contribution history. Recommendations are advisory only.",
+      "empty": "No new recommendations right now. You can explore published requests manually.",
+      "quotaNote": "Applying follows the normal rules and is not tied to a contributor-plan quota."
+    },
+    "owner": {
+      "relevance": "Relevance: {{score}}",
+      "confidence": "Confidence: {{confidence}}",
+      "evidenceSources_one": "Evidence source: {{count}}",
+      "evidenceSources_other": "Evidence sources: {{count}}",
+      "invited": "Invitation sent",
+      "invite": "Invite to apply",
+      "loading": "Loading matches using verified evidence…",
+      "gatedTitle": "AI matching is available with Silver and Gold",
+      "gatedDescription": "This preview does not expose identities or evidence for unavailable matches. You can continue reviewing normal applications.",
+      "loadError": "Could not load matches.",
+      "inviteError": "Could not send the invitation. Try again.",
+      "goldLimit": "Gold · up to 10 matches",
+      "silverLimit": "Silver · up to 5 matches",
+      "title": "Matching contributors",
+      "description": "Advisory suggestions based on verified skills, contributor reputation, and permitted evidence. The decision is yours; a match is not a selection.",
+      "generate": "Generate matches",
+      "systemLimit": "Matching is temporarily paused by a technical limit. The request is unchanged and you can retry.",
+      "empty": "No matching suggestions yet. You can continue reviewing normal applications."
+    }
+  },
+  "subscriptions": {
+    "loading": "Loading subscription status…",
+    "loadError": "Could not load subscription status.",
+    "title": "Subscription and benefits",
+    "description": "Your current plan and benefits come from your server account.",
+    "currentPlan": "Current plan",
+    "active": "Active",
+    "usageTitle": "Contribution-request usage this month",
+    "usage": "{{used}} of {{limit}}",
+    "usageAria": "Contribution-request usage",
+    "renews": "The limit renews on {{date}}.",
+    "noQuota": "Applying to contribution requests follows the normal rules; contributors have no plan-based daily quota.",
+    "benefits": "Benefits",
+    "upgradeUnavailable": "Upgrade unavailable in the MVP preview",
+    "purchaseUnavailable": "Plan purchases are unavailable during the MVP preview."
+  },
+  "deliveryReviews": {
+    "lifecycle": {
+      "pendingOwnerReview": "Application awaiting the project owner's decision",
+      "declinedByOwner": "Application was not selected",
+      "notSelected": "Another contributor was selected",
+      "expired": "Application window expired",
+      "withdrawn": "Application withdrawn",
+      "requestCancelled": "Contribution request cancelled",
+      "awaitingDelivery": "Awaiting work delivery",
+      "deliverySubmitted": "Delivery awaiting review",
+      "changesRequested": "Changes requested on the delivery",
+      "deliveryRejected": "Delivery rejected",
+      "completed": "Contribution completed"
+    },
+    "contributorLifecycle": {
+      "title": "Your contribution journey",
+      "description": "Track application decisions, delivery, and review in one place.",
+      "loading": "Loading contribution journey…",
+      "loadError": "Could not load your contribution journey.",
+      "emptyTitle": "No active contributions yet",
+      "emptyDescription": "Your application and delivery statuses will appear here after you apply.",
+      "dueAt": "Delivery due: {{date}}",
+      "open": "Open contribution"
+    },
+    "ownerInbox": {
+      "title": "Delivery tracking",
+      "description": "Review new deliveries and track every accepted contribution.",
+      "needsReviewCount_one": "{{count}} needs your review",
+      "needsReviewCount_other": "{{count}} need your review",
+      "loading": "Loading deliveries…",
+      "loadError": "Could not load delivery tracking.",
+      "empty": "No deliveries or assignments yet",
+      "needsReview": "Needs review",
+      "lastSubmission": "Last delivery: {{date}}",
+      "review": "Review delivery",
+      "openRequest": "Open request"
+    },
+    "panel": {
+      "loading": "Loading delivery status…",
+      "loadError": "Could not load delivery status. Try again.",
+      "title": "Work delivery",
+      "submissionNumber": "Submission {{number}}",
+      "history": "Delivery and review history",
+      "ratingOutOfFive": "{{rating}} out of 5",
+      "editLink": "Edit delivery link",
+      "updatedPullRequestUrl": "Updated pull request URL",
+      "updateNotes": "Update notes (optional)",
+      "sending": "Sending…",
+      "resubmit": "Resubmit delivery",
+      "saveLink": "Save delivery link",
+      "invalidUrl": "Enter a valid GitHub pull request URL.",
+      "submitError": "Could not submit the delivery now. Try again.",
+      "description": "Send a GitHub pull request URL so the project owner can begin human review.",
+      "pullRequestUrl": "Pull request URL",
+      "reviewerNotes": "Notes for the reviewer (optional)",
+      "submit": "Submit delivery",
+      "status": {
+        "submitted": "Awaiting project owner review",
+        "changesRequested": "The project owner requested changes",
+        "approved": "The project owner approved the delivery",
+        "rejected": "The project owner rejected the delivery"
+      },
+      "review": {
+        "approvedByOwner": "Approved by project owner",
+        "changesRequested": "Changes requested",
+        "rejectedByOwner": "Rejected by project owner"
+      }
+    },
+    "ownerReview": {
+      "loadError": "Could not load the delivery review workspace.",
+      "noAssignment": "No work assignment is linked to this request.",
+      "delivery": "Delivery",
+      "awaitingContributor": "Waiting for the contributor to submit a pull request URL.",
+      "completedTitle": "Contribution request completed",
+      "completedDescription": "You approved the delivery and the rating was recorded in the review history.",
+      "statusTitle": "Delivery status",
+      "awaitingResubmission": "Waiting for the contributor to resubmit after the requested changes.",
+      "rejectedStatus": "The delivery was rejected and feedback was saved.",
+      "ratingRequired": "Choose a rating from one to five stars before approval.",
+      "feedbackRequired": "Write clear feedback for the contributor before sending this decision.",
+      "saveError": "Could not save the review decision now. Try again.",
+      "approveDelivery": "Approve delivery",
+      "requestChanges": "Request changes",
+      "rejectDelivery": "Reject delivery",
+      "reviewTitle": "Review {{name}}'s delivery",
+      "viewContributor": "View contributor profile and reputation",
+      "submittedMeta": "Submitted {{date}} · submission {{number}}",
+      "unavailableTime": "Time unavailable",
+      "contributorNotes": "Contributor notes",
+      "requirements": "Review requirements",
+      "loadingHistory": "Loading delivery history…",
+      "historyMeta": "Submission {{number}} · {{date}}",
+      "approve": "Approve",
+      "reject": "Reject",
+      "decision": "Review decision",
+      "rating": "Rating",
+      "chooseRating": "Choose a rating",
+      "stars_one": "{{count}} star",
+      "stars_other": "{{count}} stars",
+      "feedback": "Review feedback",
+      "saving": "Saving decision…"
+    }
+  },
+  "notifications": {
+    "fallback": "Notification",
+    "types": {
+      "application_status": "Application status",
+      "proposal_status": "Proposal status",
+      "assignment_status": "Assignment status",
+      "material_status": "Material status",
+      "skill_review": "Skill review",
+      "skill_profile_generation": "Skill analysis",
+      "delivery_update": "Delivery update",
+      "match_found": "Match",
+      "task_recommendation": "Task recommendation",
+      "plan_limit": "Plan limits",
+      "moderation": "Moderation",
+      "account_security": "Account security",
+      "conversation_activity": "Conversation activity",
+      "assignment_call": "Assignment call",
+      "system": "System"
+    },
+    "priorities": {
+      "urgent": "Urgent",
+      "attention": "Needs attention",
+      "ambient": "For your information"
+    },
+    "skillProfile": {
+      "adminReadyTitle": "New skill analysis to review",
+      "adminReadyMessage_one": "A contributor's completed analysis has {{count}} skill awaiting your review.",
+      "adminReadyMessage_other": "A contributor's completed analysis has {{count}} skills awaiting your review.",
+      "readyTitle": "Skill analysis ready for review",
+      "readyMessage_one": "Your skill analysis is complete. {{count}} skill awaits admin review.",
+      "readyMessage_other": "Your skill analysis is complete. {{count}} skills await admin review.",
+      "moreEvidenceTitle": "More evidence needed",
+      "moreEvidenceMessage": "The analysis completed, but the available evidence is insufficient. Select more repositories or try again.",
+      "failedTitle": "Skill analysis could not be completed",
+      "failedMessage": "A problem occurred during analysis. Try again from the skill analysis page."
+    },
+    "center": {
+      "title": "Notifications",
+      "description": "Track account changes, review outcomes, and events requiring your attention.",
+      "filters": "Notification filters",
+      "readState": "Notification read status",
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read",
+      "type": "Type",
+      "allTypes": "All types",
+      "loadErrorDescription": "Try again now; saved notifications remain available when the connection returns.",
+      "emptyConnected": "Review results and important events will appear here as they arrive.",
+      "emptyOffline": "Saved notifications will load when the server connection is restored.",
+      "loadMore": "Load more"
+    },
+    "popover": {
+      "triggerUnread_one": "Notifications, {{count}} unread",
+      "triggerUnread_other": "Notifications, {{count}} unread",
+      "latest": "Latest notifications",
+      "empty": "No notifications in this session yet.",
+      "viewAll": "View all notifications"
+    },
+    "preferences": {
+      "loading": "Loading notification preferences…",
+      "loadError": "Could not load notification preferences.",
+      "title": "Notification preferences",
+      "description": "Control retention, optional alerts, and quiet hours.",
+      "retention": "Retention period",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "quietHours": "Quiet hours",
+      "enableQuietHours": "Enable quiet hours",
+      "start": "Start",
+      "end": "End",
+      "timeZone": "Time zone",
+      "quietHoursHelp": "Hours may span midnight, for example 22:00 to 06:00.",
+      "categories": "In-app alert categories",
+      "required": "Essential alerts cannot be disabled.",
+      "browserTitle": "Browser notifications",
+      "browserLater": "Available in a later release",
+      "browserHelp": "Browser permission and a Service Worker are not requested at this stage.",
+      "save": "Save notification preferences",
+      "saved": "Preferences saved.",
+      "conflict": "Preferences changed in another session; the form has been refreshed.",
+      "saveError": "Could not save; the latest saved settings were restored."
+    },
+    "loading": "Loading notifications…",
+    "loadError": "Could not load notifications",
+    "emptyTitle": "No notifications yet",
+    "unread": "Unread",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "open": "Open notification",
+    "targetUnavailable": "Destination unavailable",
+    "connection": {
+      "idle": "Offline",
+      "connected": "Connected live",
+      "connecting": "Connecting…",
+      "synchronizing": "Synchronizing notifications…",
+      "unauthorized": "Session is not authorized",
+      "delayed": "Connection delayed"
+    }
+  },
   "__sharedUi__": {}
 }

@@ -1,32 +1,22 @@
 import { MessageCircleQuestion, ShieldCheck, Sparkles, Users } from "lucide-react";
-
-const ABOUT_POINTS = [
-  {
-    icon: ShieldCheck,
-    title: "دليل قبل الادعاء",
-    body: "كل مساهمة موثقة تعود إلى دليل يمكن مراجعته: طلب دمج، وصف عمل، أو إفادة صاحب المشروع.",
-  },
-  {
-    icon: Users,
-    title: "القرار يبقى للبشر",
-    body: "التحليل الآلي استشاري فقط. صاحب المشروع يقرر القبول، والمراجعة البشرية تؤكد النتيجة.",
-  },
-  {
-    icon: Sparkles,
-    title: "سجل مهني حقيقي",
-    body: "Sharek يحوّل عملك المكتمل إلى سجل قابل للفهم والمشاركة، لا إلى شارات أو نقاط.",
-  },
-] as const;
+import { useTranslation } from "react-i18next";
 
 const SUPPORT_EMAIL = "support@sharek.dev";
 
 export function SupportView() {
+  const { t } = useTranslation();
+  const aboutPoints = [
+    { icon: ShieldCheck, title: t("support.points.evidence.title"), body: t("support.points.evidence.body") },
+    { icon: Users, title: t("support.points.human.title"), body: t("support.points.human.body") },
+    { icon: Sparkles, title: t("support.points.record.title"), body: t("support.points.record.body") },
+  ];
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:px-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">الدعم</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("support.title")}</h1>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          لديك سؤال أو مشكلة تحتاج مساعدة؟ فريقنا هنا للمساعدة.
+          {t("support.description")}
         </p>
       </div>
 
@@ -37,11 +27,10 @@ export function SupportView() {
           </span>
           <div>
             <h2 className="text-base font-semibold text-foreground">
-              تواصل معنا
+              {t("support.contactTitle")}
             </h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              أرسل رسالة إلى فريق الدعم وسنرد عليك عبر البريد الإلكتروني. الدردشة
-              المباشرة داخل التطبيق قريبًا.
+              {t("support.contactDescription")}
             </p>
           </div>
         </div>
@@ -49,14 +38,14 @@ export function SupportView() {
           href={`mailto:${SUPPORT_EMAIL}`}
           className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
-          راسلنا على {SUPPORT_EMAIL}
+          {t("support.emailAction", { email: SUPPORT_EMAIL })}
         </a>
       </div>
 
       <div>
-        <h2 className="text-lg font-bold text-foreground">عن Sharek</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("support.aboutTitle")}</h2>
         <div className="mt-4 flex flex-col gap-4">
-          {ABOUT_POINTS.map((point) => (
+          {aboutPoints.map((point) => (
             <div
               key={point.title}
               className="flex items-start gap-3 rounded-card border border-border bg-card p-4"

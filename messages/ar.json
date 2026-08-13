@@ -33,6 +33,9 @@
     "publish": "نشر",
     "unpublish": "إلغاء النشر",
     "previous": "السابق",
+    "optional": "(اختياري)",
+    "required": "(مطلوب)",
+    "saving": "جارٍ الحفظ…",
     "page": "صفحة {{current}} من {{total}}",
     "comingSoon": "قريباً",
     "notSpecified": "غير محددة",
@@ -262,6 +265,8 @@
     "language": {
       "title": "اللغة",
       "description": "لغة عرض الواجهة.",
+      "saving": "جارٍ حفظ اللغة…",
+      "saveError": "تعذّر حفظ اللغة؛ تمت استعادة اختيارك السابق.",
       "options": {
         "ar": "العربية",
         "en": "English"
@@ -272,31 +277,6 @@
       "description": "خطتك الحالية وحدود الاستخدام لهذا الشهر.",
       "requestsToday": "{{used}} من {{total}} طلبات اليوم",
       "upgradeDisabled": "الترقية للخطط الأعلى غير مفعّلة حاليًا."
-    }
-  },
-  "notifications": {
-    "title": "الإشعارات",
-    "description": "تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك.",
-    "markAllRead": "تحديد الكل كمقروء",
-    "markRead": "تحديد كمقروء",
-    "unread": "غير مقروء",
-    "noNotifications": "لا توجد إشعارات بعد",
-    "noNotificationsConnected": "ستظهر نتائج المراجعات والأحداث المهمة هنا فور وصولها.",
-    "noNotificationsDisconnected": "ستظهر الأحداث الجديدة هنا بعد استعادة الاتصال بالخادم.",
-    "noNotificationsSession": "لا توجد إشعارات في هذه الجلسة بعد.",
-    "viewAll": "عرض كل الإشعارات",
-    "dialog": {
-      "title": "آخر الإشعارات",
-      "ariaLabel_unread": "الإشعارات، {{count}} غير مقروءة",
-      "ariaLabel": "الإشعارات"
-    },
-    "connection": {
-      "connected": "متصل مباشرة",
-      "connecting": "جارٍ الاتصال…",
-      "unauthorized": "الجلسة لا تسمح بالإشعارات",
-      "unauthorized_full": "الجلسة غير مخولة",
-      "disconnected": "غير متصل",
-      "reconnecting": "سيتم التحديث عند استعادة الاتصال"
     }
   },
   "proposals": {
@@ -555,6 +535,55 @@
     "notAvailable": "المقترح غير متاح",
     "notAvailableDescription": "هذا المسار مخصص لأطراف المقترح."
   },
+  "assignmentConversations": {
+    "status": {
+      "active": "مفتوحة",
+      "readOnly": "للقراءة فقط"
+    },
+    "button": {
+      "openAria": "فتح المحادثات",
+      "unreadAria": "فتح المحادثات، {{count}} غير مقروءة"
+    },
+    "list": {
+      "ariaLabel": "قائمة المحادثات",
+      "title": "Assignments",
+      "description": "محادثاتك الخاصة",
+      "loadOlder": "تحميل محادثات أقدم"
+    },
+    "workspace": {
+      "title": "المحادثات",
+      "loading": "جارٍ تحميل المحادثات…",
+      "opening": "جارٍ فتح المحادثة…",
+      "loadErrorTitle": "تعذّر تحميل المحادثات",
+      "loadErrorDescription": "تحقق من الاتصال ثم أعد المحاولة. لا تظهر المحادثات إلا للمشاركين في Assignment.",
+      "unavailableTitle": "المحادثة غير متاحة",
+      "unavailableDescription": "قد تكون المحادثة غير موجودة أو لم تعد مخولًا للوصول إليها.",
+      "emptyIntro": "محادثات خاصة بين مالك المشروع والمساهم المعيّن بعد قبول Assignment.",
+      "emptyTitle": "لا توجد محادثات بعد",
+      "emptyDescription": "ستظهر هنا المحادثة الخاصة عند قبول طلب مساهمة وإنشاء Assignment.",
+      "description": "تواصل مباشرة مع الطرف الآخر في Assignments الخاصة بك."
+    },
+    "thread": {
+      "ariaLabel": "محادثة Assignment",
+      "activeDescription": "المحادثة متاحة للطرفين",
+      "readOnlyDescription": "هذه المحادثة محفوظة للقراءة فقط",
+      "searchLabel": "البحث في الرسائل",
+      "searchPlaceholder": "ابحث داخل رسائل المحادثة…",
+      "loadingMessages": "جارٍ تحميل الرسائل…",
+      "loadError": "تعذّر تحميل رسائل المحادثة.",
+      "loadOlder": "تحميل رسائل أقدم",
+      "empty": "ابدأ أول رسالة في هذه المحادثة.",
+      "messageFrom": "رسالة من {{sender}}",
+      "you": "أنت"
+    },
+    "composer": {
+      "label": "نص الرسالة",
+      "readOnlyPlaceholder": "المحادثة للقراءة فقط",
+      "placeholder": "اكتب رسالتك…",
+      "sendAria": "إرسال الرسالة",
+      "sendError": "تعذّر إرسال الرسالة."
+    }
+  },
   "__application__": {},
   "__contributionRequest__": {},
   "contributor": {
@@ -752,10 +781,10 @@
       "saving": "جارٍ الحفظ...",
       "saved": "تم الحفظ",
       "saveChanges": "حفظ التغييرات",
-  "githubConnectHint": "اربط حسابك لبناء ملف مهاري موثق تلقائيًا.",
-  "githubChangeAccount": "تغيير الحساب",
-  "githubConnectAccount": "ربط الحساب",
-  "githubConnectError": "تعذر فتح ربط GitHub. حاول مرة أخرى.",
+      "githubConnectHint": "اربط حسابك لبناء ملف مهاري موثق تلقائيًا.",
+      "githubChangeAccount": "تغيير الحساب",
+      "githubConnectAccount": "ربط الحساب",
+      "githubConnectError": "تعذر فتح ربط GitHub. حاول مرة أخرى.",
       "aiSkillsAnalysisTitle": "تحليل المهارات بالذكاء الاصطناعي",
       "aiSkillsAnalysisDescription": "تحليل المهارات يستخدم ربط تطبيق GitHub وصلاحية مستقلة تماماً عن تسجيل الدخول عبر GitHub. تختار المستودعات وتوافق صراحةً قبل بدء أي تحليل، ويراجع الفريق المهارات قبل اعتمادها — لا شيء يُنشر تلقائيًا.",
       "redirecting": "جارٍ التحويل...",
@@ -802,8 +831,91 @@
       "skillsGenerationQueued": "بدأ تحليل نشاطك على GitHub. ستظهر المهارات هنا بعد اكتمال التحليل ومراجعة الفريق."
     }
   },
-  "__discussion__": {},
-  "__githubApp__": {},
+  "discussions": {
+    "title": "النقاشات",
+    "description": "مقالات وخبرات يشاركها أصحاب المشاريع والمساهمون، مع تعليقات مفتوحة.",
+    "roles": {
+      "owner": "صاحب مشروع",
+      "contributor": "مساهم"
+    },
+    "commentCount_zero": "لا توجد تعليقات",
+    "commentCount_one": "تعليق واحد",
+    "commentCount_two": "تعليقان",
+    "commentCount_few": "{{count}} تعليقات",
+    "commentCount_many": "{{count}} تعليقًا",
+    "commentCount_other": "{{count}} تعليق",
+    "newPost": "منشور جديد",
+    "panelDescription": "شارك سؤالاً أو خبرة مع مجتمع Sharek من دون مغادرة قائمة النقاشات.",
+    "loading": "جارٍ تحميل النقاشات…",
+    "empty": "لا توجد منشورات بعد. كن أول من يبدأ نقاشًا.",
+    "back": "العودة للنقاشات",
+    "commentsTitle_zero": "التعليقات (0)",
+    "commentsTitle_one": "التعليقات (1)",
+    "commentsTitle_two": "التعليقات (2)",
+    "commentsTitle_few": "التعليقات ({{count}})",
+    "commentsTitle_many": "التعليقات ({{count}})",
+    "commentsTitle_other": "التعليقات ({{count}})",
+    "commentPlaceholder": "أضف تعليقًا…",
+    "sending": "جارٍ الإرسال…",
+    "composer": {
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "عنوان يلخّص الموضوع",
+      "bodyLabel": "المحتوى",
+      "bodyPlaceholder": "شارك خبرتك أو اطرح سؤالاً على مجتمع Sharek",
+      "publishing": "جارٍ النشر…"
+    }
+  },
+  "githubApp": {
+    "restart": "إعادة بدء الربط",
+    "accountType": {
+      "user": "حساب شخصي",
+      "organization": "منظمة"
+    },
+    "candidates": {
+      "emptyTitle": "لم نجد أي تثبيت متاح",
+      "emptyDescription": "لم يُرجع GitHub أي حساب أو منظمة يمكن ربطها بهذه المحاولة. ابدأ الربط من جديد وتأكد من تثبيت التطبيق على الحساب الصحيح.",
+      "title": "اختر الحساب أو المنظمة",
+      "description": "تم تثبيت تطبيق GitHub على أكثر من حساب. اختر الحساب الذي تريد ربطه بـ Share-k الآن."
+    },
+    "repositories": {
+      "title": "اختر المستودعات",
+      "selectedCount": "{{selected}} / {{max}} مستودع",
+      "description": "اختر من مستودع واحد حتى {{max}} مستودعات تُظهر مساهماتك البرمجية بوضوح. لن يبدأ أي تحليل قبل ضغطك على زر البدء.",
+      "loading": "جارٍ تحميل المستودعات…",
+      "empty": "لا توجد مستودعات متاحة عبر هذا الربط. حدّث المستودعات المسموح بها من إعدادات التثبيت على GitHub.",
+      "private": "خاص",
+      "public": "عام",
+      "limit": "وصلت إلى الحد الأقصى ({{max}} مستودعات). ألغِ اختيار مستودع لإضافة غيره.",
+      "page": "صفحة {{page}}"
+    },
+    "installations": {
+      "allRepositories": "كل المستودعات",
+      "selectedRepositories": "مستودعات محددة",
+      "selected": "محدد للتحليل",
+      "use": "استخدام هذا الربط",
+      "reauthorize": "إعادة التفويض",
+      "manage": "إدارة أو إزالة التطبيق من GitHub",
+      "disconnect": "فصل محلي"
+    },
+    "status": {
+      "active": {
+        "label": "مُفعّل",
+        "description": "يمكن لـ Share-k قراءة المستودعات المحددة عبر هذا الربط."
+      },
+      "disconnected": {
+        "label": "مفصول محلياً",
+        "description": "أوقفت قراءة Share-k عبر هذا الربط. تطبيق GitHub قد يكون ما زال مثبتاً على حسابك."
+      },
+      "reauthorizationRequired": {
+        "label": "يحتاج إعادة تفويض",
+        "description": "انتهت صلاحية تفويضك لهذا التثبيت. أعد التفويض للمتابعة دون إعادة التثبيت."
+      },
+      "revoked": {
+        "label": "ملغى من GitHub",
+        "description": "أُلغي التفويض من جهة GitHub. أعد الربط لاستئناف تحليل المهارات."
+      }
+    }
+  },
   "landing": {
     "heroEyebrow": "مساحة تعاون تحفظ أثر العمل الحقيقي",
     "heroTitle": "ساهم في عملٍ حقيقي. وابنِ سجلاً يمكن التحقق منه.",
@@ -1368,6 +1480,335 @@
       "sourcesTitle": "المصادر"
     }
   },
-  "__support__": {},
+  "support": {
+    "title": "الدعم",
+    "description": "لديك سؤال أو مشكلة تحتاج مساعدة؟ فريقنا هنا للمساعدة.",
+    "contactTitle": "تواصل معنا",
+    "contactDescription": "أرسل رسالة إلى فريق الدعم وسنرد عليك عبر البريد الإلكتروني. الدردشة المباشرة داخل التطبيق قريبًا.",
+    "emailAction": "راسلنا على {{email}}",
+    "aboutTitle": "عن Sharek",
+    "points": {
+      "evidence": {
+        "title": "دليل قبل الادعاء",
+        "body": "كل مساهمة موثقة تعود إلى دليل يمكن مراجعته: طلب دمج، وصف عمل، أو إفادة صاحب المشروع."
+      },
+      "human": {
+        "title": "القرار يبقى للبشر",
+        "body": "التحليل الآلي استشاري فقط. صاحب المشروع يقرر القبول، والمراجعة البشرية تؤكد النتيجة."
+      },
+      "record": {
+        "title": "سجل مهني حقيقي",
+        "body": "Sharek يحوّل عملك المكتمل إلى سجل قابل للفهم والمشاركة، لا إلى شارات أو نقاط."
+      }
+    }
+  },
+  "footer": {
+    "description": "مساحة تعاون تحفظ دليلاً موثوقاً على العمل المكتمل."
+  },
+  "theme": {
+    "toggle": "تبديل المظهر",
+    "light": "الوضع النهاري",
+    "dark": "الوضع الليلي",
+    "system": "تلقائي (النظام)"
+  },
+  "skillGuidance": {
+    "eyebrow": "تغطية المتطلبات",
+    "title": "إرشاد مرتبط بالمصادر",
+    "description": "استخدم المتطلبات المنشورة ومهاراتك المعتمدة للحصول على خطوات تعلم عملية. هذا الإرشاد تعليمي وليس قرارًا بشأن أهليتك أو طلب التقديم.",
+    "preparing": "جارٍ إعداد الإرشاد…",
+    "action": "إرشاد مرتبط بالمصادر",
+    "error": "تعذّر إعداد الإرشاد. يمكنك المحاولة مرة أخرى.",
+    "noEvidence": "لا توجد أدلة قابلة للتقييم في النطاق المصرح به بعد.",
+    "systemLimit": "الإرشاد متوقف مؤقتًا بسبب حد تقني. لم يتغير طلب التقديم.",
+    "gapsTitle": "فجوات تحتاج إلى تعلم",
+    "noGaps": "لم تظهر فجوات ضمن الأدلة الحالية.",
+    "resourcesTitle": "موارد مرتبطة بالمصادر"
+  },
+  "matching": {
+    "confidence": {
+      "HIGH": "عالية",
+      "MEDIUM": "متوسطة",
+      "LOW": "منخفضة"
+    },
+    "recommendations": {
+      "viewRequest": "عرض طلب المساهمة والتقديم",
+      "loading": "جارٍ إعداد التوصيات من مهاراتك المعتمدة…",
+      "gatedTitle": "توصيات مخصصة لك",
+      "gatedDescription": "التوصيات الشخصية غير متاحة ضمن خطتك الحالية. يمكنك استكشاف كل الطلبات والتقديم وفق القواعد العادية.",
+      "loadError": "تعذّر تحميل التوصيات.",
+      "eyebrow": "Gold · توصيات مبنية على الأدلة",
+      "title": "موصى بها لك",
+      "description": "تظهر هذه الطلبات بسبب مهاراتك المعتمدة وتاريخ مساهماتك. التوصيات إرشادية فقط.",
+      "empty": "لا توجد توصيات جديدة الآن. يمكنك استكشاف الطلبات المنشورة يدويًا.",
+      "quotaNote": "التقديم متاح وفق القواعد العادية ولا يرتبط بحصة خطة المساهم."
+    },
+    "owner": {
+      "relevance": "الأهمية: {{score}}",
+      "confidence": "الثقة: {{confidence}}",
+      "evidenceSources_zero": "مصادر الأدلة: {{count}}",
+      "evidenceSources_one": "مصدر الأدلة: {{count}}",
+      "evidenceSources_two": "مصادر الأدلة: {{count}}",
+      "evidenceSources_few": "مصادر الأدلة: {{count}}",
+      "evidenceSources_many": "مصدر الأدلة: {{count}}",
+      "evidenceSources_other": "مصادر الأدلة: {{count}}",
+      "invited": "تم إرسال الدعوة",
+      "invite": "دعوة للتقديم",
+      "loading": "جارٍ تحميل المطابقات باستخدام الأدلة المعتمدة…",
+      "gatedTitle": "المطابقة بالذكاء الاصطناعي متاحة مع Silver وGold",
+      "gatedDescription": "هذه المعاينة لا تعرض هويات أو أدلة للمطابقات غير المتاحة. يمكنك متابعة مراجعة طلبات التقديم بالطريقة العادية.",
+      "loadError": "تعذّر تحميل المطابقات.",
+      "inviteError": "تعذّر إرسال الدعوة. يمكنك المحاولة مرة أخرى.",
+      "goldLimit": "Gold · حتى 10 مطابَقات",
+      "silverLimit": "Silver · حتى 5 مطابَقات",
+      "title": "مساهمون مطابقون",
+      "description": "اقتراحات إرشادية مبنية على المهارات المعتمدة وسمعة المساهم والأدلة المصرح بها. القرار لك، والمطابقة ليست اختيارًا.",
+      "generate": "توليد المطابقات",
+      "systemLimit": "المطابقة متوقفة مؤقتًا بسبب حد تقني. لم يتغير الطلب ويمكنك إعادة المحاولة.",
+      "empty": "لا توجد اقتراحات مطابقة بعد. يمكنك الاستمرار في مراجعة طلبات التقديم العادية."
+    }
+  },
+  "subscriptions": {
+    "loading": "جارٍ تحميل حالة الاشتراك…",
+    "loadError": "تعذّر تحميل حالة الاشتراك.",
+    "title": "الاشتراك والمزايا",
+    "description": "حالة الخطة والمزايا الحالية تأتي من حسابك على الخادم.",
+    "currentPlan": "خطتك الحالية",
+    "active": "نشطة",
+    "usageTitle": "استخدام طلبات المساهمة هذا الشهر",
+    "usage": "{{used}} من {{limit}}",
+    "usageAria": "استخدام طلبات المساهمة",
+    "renews": "يتجدد الحد في {{date}}.",
+    "noQuota": "التقديم على طلبات المساهمة متاح وفق القواعد العادية، ولا توجد حصة يومية مرتبطة بخطة المساهم.",
+    "benefits": "المزايا",
+    "upgradeUnavailable": "الترقية غير متاحة في معاينة MVP",
+    "purchaseUnavailable": "شراء الخطط غير متاح خلال معاينة MVP."
+  },
+  "deliveryReviews": {
+    "lifecycle": {
+      "pendingOwnerReview": "طلب التقديم بانتظار قرار صاحب المشروع",
+      "declinedByOwner": "لم يتم اختيار طلب التقديم",
+      "notSelected": "تم اختيار مساهم آخر",
+      "expired": "انتهت مهلة طلب التقديم",
+      "withdrawn": "تم سحب طلب التقديم",
+      "requestCancelled": "أُلغي طلب المساهمة",
+      "awaitingDelivery": "بانتظار تسليم العمل",
+      "deliverySubmitted": "التسليم بانتظار المراجعة",
+      "changesRequested": "طُلبت تغييرات على التسليم",
+      "deliveryRejected": "رُفض التسليم",
+      "completed": "اكتملت المساهمة"
+    },
+    "contributorLifecycle": {
+      "title": "مسار مساهماتك",
+      "description": "تابع قرار التقديم والتسليم والمراجعة من مكان واحد.",
+      "loading": "جارٍ تحميل مسار المساهمات…",
+      "loadError": "تعذر تحميل مسار المساهمات.",
+      "emptyTitle": "لا توجد مساهمات جارية بعد",
+      "emptyDescription": "ستظهر هنا حالة طلباتك وتسليماتك بعد التقديم.",
+      "dueAt": "موعد التسليم: {{date}}",
+      "open": "فتح المساهمة"
+    },
+    "ownerInbox": {
+      "title": "متابعة التسليمات",
+      "description": "راجع التسليمات الجديدة وتابع دورة كل مساهمة مقبولة.",
+      "needsReviewCount_zero": "لا توجد تسليمات تحتاج مراجعتك",
+      "needsReviewCount_one": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_two": "{{count}} تحتاجان مراجعتك",
+      "needsReviewCount_few": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_many": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_other": "{{count}} تحتاج مراجعتك",
+      "loading": "جارٍ تحميل التسليمات…",
+      "loadError": "تعذر تحميل متابعة التسليمات.",
+      "empty": "لا توجد تسليمات أو إسنادات بعد",
+      "needsReview": "تحتاج مراجعة",
+      "lastSubmission": "آخر تسليم: {{date}}",
+      "review": "مراجعة التسليم",
+      "openRequest": "فتح الطلب"
+    },
+    "panel": {
+      "loading": "جارٍ تحميل حالة التسليم…",
+      "loadError": "تعذر تحميل حالة التسليم. حاول مرة أخرى.",
+      "title": "تسليم العمل",
+      "submissionNumber": "الإرسال رقم {{number}}",
+      "history": "سجل التسليم والمراجعة",
+      "ratingOutOfFive": "{{rating}} من 5",
+      "editLink": "تعديل رابط التسليم",
+      "updatedPullRequestUrl": "رابط Pull Request المحدّث",
+      "updateNotes": "ملاحظات التحديث (اختياري)",
+      "sending": "جارٍ الإرسال…",
+      "resubmit": "إعادة إرسال التسليم",
+      "saveLink": "حفظ رابط التسليم",
+      "invalidUrl": "أدخل رابط Pull Request صالحًا من GitHub.",
+      "submitError": "تعذر إرسال التسليم الآن. حاول مرة أخرى.",
+      "description": "أرسل رابط Pull Request على GitHub ليبدأ صاحب المشروع المراجعة البشرية.",
+      "pullRequestUrl": "رابط Pull Request",
+      "reviewerNotes": "ملاحظات للمراجع (اختياري)",
+      "submit": "إرسال التسليم",
+      "status": {
+        "submitted": "بانتظار مراجعة صاحب المشروع",
+        "changesRequested": "طلب صاحب المشروع تغييرات",
+        "approved": "اعتمد صاحب المشروع التسليم",
+        "rejected": "رفض صاحب المشروع التسليم"
+      },
+      "review": {
+        "approvedByOwner": "اعتماد صاحب المشروع",
+        "changesRequested": "طلب تغييرات",
+        "rejectedByOwner": "رفض صاحب المشروع"
+      }
+    },
+    "ownerReview": {
+      "loadError": "تعذر تحميل مساحة مراجعة التسليم.",
+      "noAssignment": "لا يوجد إسناد عمل مرتبط بهذا الطلب.",
+      "delivery": "التسليم",
+      "awaitingContributor": "بانتظار أن يرسل المساهم رابط Pull Request.",
+      "completedTitle": "اكتمل طلب المساهمة",
+      "completedDescription": "اعتمدت التسليم وسُجل التقييم في سجل المراجعة.",
+      "statusTitle": "حالة التسليم",
+      "awaitingResubmission": "بانتظار إعادة إرسال المساهم بعد طلب التغييرات.",
+      "rejectedStatus": "تم رفض التسليم مع حفظ الملاحظات.",
+      "ratingRequired": "اختر تقييمًا من نجمة واحدة إلى خمس نجوم قبل الاعتماد.",
+      "feedbackRequired": "اكتب ملاحظات واضحة للمساهم قبل إرسال هذا القرار.",
+      "saveError": "تعذر حفظ قرار المراجعة الآن. حاول مرة أخرى.",
+      "approveDelivery": "اعتماد التسليم",
+      "requestChanges": "طلب تغييرات",
+      "rejectDelivery": "رفض التسليم",
+      "reviewTitle": "مراجعة تسليم {{name}}",
+      "viewContributor": "عرض ملف المساهم وسمعته",
+      "submittedMeta": "أُرسل في {{date}} · الإرسال رقم {{number}}",
+      "unavailableTime": "وقت غير متاح",
+      "contributorNotes": "ملاحظات المساهم",
+      "requirements": "متطلبات المراجعة",
+      "loadingHistory": "جارٍ تحميل سجل التسليم…",
+      "historyMeta": "الإرسال رقم {{number}} · {{date}}",
+      "approve": "اعتماد",
+      "reject": "رفض",
+      "decision": "قرار المراجعة",
+      "rating": "التقييم",
+      "chooseRating": "اختر التقييم",
+      "stars_zero": "{{count}} نجوم",
+      "stars_one": "نجمة واحدة",
+      "stars_two": "نجمتان",
+      "stars_few": "{{count}} نجوم",
+      "stars_many": "{{count}} نجمة",
+      "stars_other": "{{count}} نجمة",
+      "feedback": "ملاحظات المراجعة",
+      "saving": "جارٍ حفظ القرار…"
+    }
+  },
+  "notifications": {
+    "fallback": "إشعار",
+    "types": {
+      "application_status": "حالة الطلب",
+      "proposal_status": "حالة المقترح",
+      "assignment_status": "حالة الإسناد",
+      "material_status": "حالة المادة",
+      "skill_review": "مراجعة المهارات",
+      "skill_profile_generation": "تحليل المهارات",
+      "delivery_update": "تحديث التسليم",
+      "match_found": "مطابقة",
+      "task_recommendation": "ترشيح مهمة",
+      "plan_limit": "حدود الخطة",
+      "moderation": "إشعار إشراف",
+      "account_security": "أمان الحساب",
+      "conversation_activity": "نشاط المحادثة",
+      "assignment_call": "مكالمة الإسناد",
+      "system": "النظام"
+    },
+    "priorities": {
+      "urgent": "عاجل",
+      "attention": "يحتاج انتباهًا",
+      "ambient": "للعلم"
+    },
+    "skillProfile": {
+      "adminReadyTitle": "تحليل مهارات جديد للمراجعة",
+      "adminReadyMessage_zero": "يوجد تحليل مهارات مكتمل من أحد المساهمين ولا يحتوي مهارات في انتظار مراجعتك.",
+      "adminReadyMessage_one": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على مهارة واحدة في انتظار مراجعتك.",
+      "adminReadyMessage_two": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على مهارتين في انتظار مراجعتك.",
+      "adminReadyMessage_few": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارات في انتظار مراجعتك.",
+      "adminReadyMessage_many": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارة في انتظار مراجعتك.",
+      "adminReadyMessage_other": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارة في انتظار مراجعتك.",
+      "readyTitle": "تحليل المهارات جاهز للمراجعة",
+      "readyMessage_zero": "اكتمل تحليل مهاراتك ولا توجد مهارات في انتظار المراجعة.",
+      "readyMessage_one": "اكتمل تحليل مهاراتك. توجد مهارة واحدة في انتظار مراجعة الإدارة.",
+      "readyMessage_two": "اكتمل تحليل مهاراتك. توجد مهارتان في انتظار مراجعة الإدارة.",
+      "readyMessage_few": "اكتمل تحليل مهاراتك. توجد {{count}} مهارات في انتظار مراجعة الإدارة.",
+      "readyMessage_many": "اكتمل تحليل مهاراتك. توجد {{count}} مهارة في انتظار مراجعة الإدارة.",
+      "readyMessage_other": "اكتمل تحليل مهاراتك. توجد {{count}} مهارة في انتظار مراجعة الإدارة.",
+      "moreEvidenceTitle": "نحتاج إلى أدلة إضافية",
+      "moreEvidenceMessage": "اكتمل تحليل المهارات، لكن الأدلة المتاحة غير كافية. اختر مستودعات إضافية أو أعد المحاولة.",
+      "failedTitle": "تعذر إكمال تحليل المهارات",
+      "failedMessage": "حدثت مشكلة أثناء التحليل. أعد المحاولة من صفحة تحليل المهارات."
+    },
+    "center": {
+      "title": "الإشعارات",
+      "description": "تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك.",
+      "filters": "فلاتر الإشعارات",
+      "readState": "حالة قراءة الإشعارات",
+      "all": "الكل",
+      "unread": "غير مقروءة",
+      "read": "مقروءة",
+      "type": "النوع",
+      "allTypes": "كل الأنواع",
+      "loadErrorDescription": "يمكنك إعادة المحاولة الآن؛ ستظل الإشعارات قابلة للاسترداد عند عودة الاتصال.",
+      "emptyConnected": "ستظهر نتائج المراجعات والأحداث المهمة هنا فور وصولها.",
+      "emptyOffline": "سيتم تحميل الإشعارات المحفوظة عند استعادة الاتصال بالخادم.",
+      "loadMore": "تحميل المزيد"
+    },
+    "popover": {
+      "triggerUnread_zero": "الإشعارات، لا توجد غير مقروءة",
+      "triggerUnread_one": "الإشعارات، إشعار واحد غير مقروء",
+      "triggerUnread_two": "الإشعارات، إشعاران غير مقروءين",
+      "triggerUnread_few": "الإشعارات، {{count}} غير مقروءة",
+      "triggerUnread_many": "الإشعارات، {{count}} غير مقروء",
+      "triggerUnread_other": "الإشعارات، {{count}} غير مقروء",
+      "latest": "آخر الإشعارات",
+      "empty": "لا توجد إشعارات في هذه الجلسة بعد.",
+      "viewAll": "عرض كل الإشعارات"
+    },
+    "preferences": {
+      "loading": "جارٍ تحميل تفضيلات الإشعارات…",
+      "loadError": "تعذّر تحميل تفضيلات الإشعارات.",
+      "title": "تفضيلات الإشعارات",
+      "description": "تحكم في مدة الاحتفاظ والتنبيهات الاختيارية وساعات الهدوء.",
+      "retention": "مدة الاحتفاظ",
+      "days_zero": "{{count}} يوم",
+      "days_one": "يوم واحد",
+      "days_two": "يومان",
+      "days_few": "{{count}} أيام",
+      "days_many": "{{count}} يومًا",
+      "days_other": "{{count}} يوم",
+      "quietHours": "ساعات الهدوء",
+      "enableQuietHours": "تفعيل ساعات الهدوء",
+      "start": "البداية",
+      "end": "النهاية",
+      "timeZone": "المنطقة الزمنية",
+      "quietHoursHelp": "يمكن أن تمتد الساعات عبر منتصف الليل، مثل 22:00 إلى 06:00.",
+      "categories": "فئات التنبيه داخل التطبيق",
+      "required": "لا يمكن تعطيل التنبيهات الأساسية.",
+      "browserTitle": "إشعارات المتصفح",
+      "browserLater": "متاحة في شريحة لاحقة",
+      "browserHelp": "لن نطلب إذن المتصفح أو نسجل Service Worker في هذه المرحلة.",
+      "save": "حفظ تفضيلات الإشعارات",
+      "saved": "تم حفظ التفضيلات.",
+      "conflict": "تغيّرت التفضيلات في جلسة أخرى؛ تم تحديث النموذج.",
+      "saveError": "تعذّر الحفظ؛ تمت استعادة آخر إعدادات محفوظة."
+    },
+    "loading": "جارٍ تحميل الإشعارات…",
+    "loadError": "تعذّر تحميل الإشعارات",
+    "emptyTitle": "لا توجد إشعارات بعد",
+    "unread": "غير مقروء",
+    "markAllRead": "تحديد الكل كمقروء",
+    "markRead": "تحديد كمقروء",
+    "markUnread": "تحديد كغير مقروء",
+    "open": "فتح الإشعار",
+    "targetUnavailable": "الهدف غير متاح",
+    "connection": {
+      "idle": "غير متصل",
+      "connected": "متصل مباشرة",
+      "connecting": "جارٍ الاتصال…",
+      "synchronizing": "جارٍ مزامنة الإشعارات…",
+      "unauthorized": "الجلسة غير مخولة",
+      "delayed": "غير متصل"
+    }
+  },
   "__sharedUi__": {}
 }
