@@ -7,6 +7,8 @@ import {
   useContributorDashboardQuery,
 } from "@/modules/dashboard";
 import type { DashboardLifecycleState } from "@/modules/dashboard";
+import { ContributorDeliveryLifecycleSection } from "@/modules/delivery-reviews";
+import { RecommendedTasksSection } from "@/modules/matching";
 
 interface DashboardSearch {
   state?: "onboarding" | "empty";
@@ -44,5 +46,11 @@ function DashboardPage() {
     );
   }
 
-  return <ContributorDashboardView dashboard={dashboardQuery.data} />;
+  return (
+    <ContributorDashboardView
+      dashboard={dashboardQuery.data}
+      deliveryLifecycleSlot={<ContributorDeliveryLifecycleSection />}
+      recommendedSlot={<RecommendedTasksSection />}
+    />
+  );
 }

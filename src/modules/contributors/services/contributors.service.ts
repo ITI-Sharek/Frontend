@@ -4,8 +4,11 @@ import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 import i18n from "@/lib/i18n";
 
+import type {
+  ContributorGithubInstallationDto,
+  ContributorProfileDto,
+} from "../types/contributor-profile.types";
 import { ContributorProfileError } from "../types/contributor-profile.types";
-import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
 function normalizeContributorProfileError(error: unknown): never {
   if (isAxiosError(error)) {
@@ -50,16 +53,30 @@ function normalizeContributorProfileError(error: unknown): never {
 }
 
 /** Normalize older responses defensively while all environments migrate. */
+type RawContributorProfileInstallation = Omit<
+  ContributorGithubInstallationDto,
+  "repositories"
+> &
+  Partial<Pick<ContributorGithubInstallationDto, "repositories">>;
+
 type RawContributorProfileResponse = Omit<
   ContributorProfileDto,
-  "experienceLevel" | "fields" | "declaredSkills"
+  | "experienceLevel"
+  | "fields"
+  | "declaredSkills"
+  | "githubInstallations"
+  | "reputationSummary"
 > &
   Partial<
     Pick<
       ContributorProfileDto,
       "experienceLevel" | "fields" | "declaredSkills"
     >
-  >;
+  > & {
+    githubInstallations?: RawContributorProfileInstallation[];
+    reputationSummary?: Partial<ContributorProfileDto["reputationSummary"]> &
+      Pick<ContributorProfileDto["reputationSummary"], "rating" | "reviewsCount">;
+  };
 
 function resolveAvatarUrl(avatarUrl: string | null): string | null {
   if (!avatarUrl || !avatarUrl.startsWith("/")) return avatarUrl;
@@ -69,12 +86,28 @@ function resolveAvatarUrl(avatarUrl: string | null): string | null {
 function normalizeContributorProfile(
   data: RawContributorProfileResponse,
 ): ContributorProfileDto {
+  const reputationSummary = data.reputationSummary;
+
   return {
     ...data,
     avatarUrl: resolveAvatarUrl(data.avatarUrl),
     experienceLevel: data.experienceLevel ?? null,
     fields: data.fields ?? [],
     declaredSkills: data.declaredSkills ?? [],
+    githubInstallations: (data.githubInstallations ?? []).map(
+      (installation) => ({
+        ...installation,
+        repositories: installation.repositories ?? [],
+      }),
+    ),
+    reputationSummary: {
+      rating: reputationSummary?.rating ?? null,
+      reviewsCount: reputationSummary?.reviewsCount ?? 0,
+      completedContributions: reputationSummary?.completedContributions ?? 0,
+      totalAssignedTasks: reputationSummary?.totalAssignedTasks ?? 0,
+      successRate: reputationSummary?.successRate ?? 0,
+      topVerifiedSkills: reputationSummary?.topVerifiedSkills ?? [],
+    },
   };
 }
 

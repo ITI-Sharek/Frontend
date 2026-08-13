@@ -86,4 +86,16 @@ describe("PublicProjectDetailView", () => {
     expect(html).toContain("إرسال مقترح مساهمة");
     expect(html).toContain("/proposals/new?projectId=project-1");
   });
+
+  it("renders route-composed Project Materials for an authenticated reader", () => {
+    const html = renderToStaticMarkup(
+      <PublicProjectDetailView
+        project={publicBackedProject}
+        exploreHref="/explore"
+        materialsSlot={<p>كراسة المشروع متاحة للقراءة</p>}
+      />,
+    );
+
+    expect(html).toContain("كراسة المشروع متاحة للقراءة");
+  });
 });

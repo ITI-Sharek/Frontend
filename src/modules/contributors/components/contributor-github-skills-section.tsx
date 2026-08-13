@@ -20,7 +20,7 @@ import type {
 
 export const GITHUB_SKILL_ANALYSIS_PATH = "/profile/github";
 
-const INSTALLATION_STATUS_META: Record<
+const INSTALLATION_STATUS_LABEL: Record<
   ContributorGithubInstallationDto["status"],
   { labelKey: string; tone: StatusChipTone; icon: typeof CheckCircle2 }
 > = {
@@ -85,7 +85,11 @@ export function ContributorGithubSkillsSection({
           </div>
         </div>
 
-        <Button asChild size="sm" variant={model.installations.length > 0 ? "outline" : "primary"}>
+        <Button
+          asChild
+          size="sm"
+          variant={model.installations.length > 0 ? "outline" : "primary"}
+        >
           <Link to={GITHUB_SKILL_ANALYSIS_PATH}>
             <Github className="size-4" />
             {model.installations.length > 0
@@ -96,20 +100,36 @@ export function ContributorGithubSkillsSection({
       </div>
 
       {model.installations.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-2">
+        <ul className="mt-4 flex flex-col gap-3">
           {model.installations.map((installation) => {
-            const meta = INSTALLATION_STATUS_META[installation.status];
+            const meta = INSTALLATION_STATUS_LABEL[installation.status];
             return (
-              <li
-                key={installation.installationLinkId}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5"
-              >
-                <span dir="ltr" className="font-mono text-xs text-foreground">
-                  {installation.accountLogin}
-                </span>
-                <StatusChip tone={meta.tone} icon={meta.icon}>
-                  {t(meta.labelKey)}
-                </StatusChip>
+              <li key={installation.installationLinkId}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span dir="ltr" className="font-mono text-xs text-foreground">
+                    {installation.accountLogin}
+                  </span>
+                  <StatusChip tone={meta.tone} icon={meta.icon}>
+                    {t(meta.labelKey)}
+                  </StatusChip>
+                </div>
+                {installation.repositories.length > 0 && (
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {installation.repositories.map((repository) => (
+                      <li
+                        key={repository.repositoryId}
+                        className="rounded-full border border-border bg-background px-3 py-1.5"
+                      >
+                        <span
+                          dir="ltr"
+                          className="font-mono text-xs text-foreground"
+                        >
+                          {repository.fullName}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             );
           })}

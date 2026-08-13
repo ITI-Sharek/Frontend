@@ -9,6 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
@@ -38,10 +39,12 @@ export function ApplicationStatusView({
   applicationId,
   requestHref,
   requestsHref,
+  deliverySlot,
 }: {
   applicationId: string;
   requestHref: (requestId: string) => string;
   requestsHref: string;
+  deliverySlot?: ReactNode;
 }) {
   const query = useApplicationQuery(applicationId);
   const reportMutation = useReportDecisionFeedbackMutation();
@@ -249,6 +252,8 @@ export function ApplicationStatusView({
           </dl>
         </section>
       )}
+
+      {application.status === "ACCEPTED" && deliverySlot}
 
       {application.status === "DECLINED_BY_OWNER" &&
         application.ownerDecision?.feedback && (

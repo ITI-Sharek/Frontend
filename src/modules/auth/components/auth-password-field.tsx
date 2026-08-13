@@ -26,7 +26,10 @@ export function AuthPasswordField({ label, ...props }: AuthPasswordFieldProps) {
           className="ps-10 pe-10 text-left"
           {...props}
         />
-        <Lock className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Lock
+          className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
@@ -34,9 +37,9 @@ export function AuthPasswordField({ label, ...props }: AuthPasswordFieldProps) {
           className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
         >
           {visible ? (
-            <EyeOff className="size-4" />
+            <EyeOff className="size-4" aria-hidden="true" />
           ) : (
-            <Eye className="size-4" />
+            <Eye className="size-4" aria-hidden="true" />
           )}
         </button>
       </div>
