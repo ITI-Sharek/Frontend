@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -12,9 +13,6 @@ import type {
   SocialAuthProvider,
   SocialAuthRole,
 } from "../services/social-auth.service";
-
-const GITHUB_IDENTITY_ONLY_MESSAGE =
-  "تسجيل GitHub هنا للتحقق من هويتك فقط. ربط المستودعات العامة والخاصة يتم لاحقاً من الملف الشخصي بموافقة منفصلة.";
 
 function GoogleIcon() {
   return (
@@ -53,6 +51,7 @@ export function SocialAuthButtons({
   intent = "login",
   role = "contributor",
 }: SocialAuthButtonsProps) {
+  const { t } = useTranslation();
   const [activeProvider, setActiveProvider] =
     useState<SocialAuthProvider | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -62,15 +61,15 @@ export function SocialAuthButtons({
     setActiveProvider(provider);
     setMessage(
       provider === "github"
-        ? "جارٍ فتح تسجيل الدخول عبر GitHub للتحقق من هويتك فقط..."
-        : `جارٍ فتح تسجيل الدخول عبر ${providerLabel}...`,
+        ? t("auth.openingGithubLogin")
+        : t("auth.openingProviderLogin", { provider: providerLabel }),
     );
 
     try {
       await startSocialAuth(provider, intent, role);
     } catch {
       setActiveProvider(null);
-      setMessage(`تعذر فتح تسجيل الدخول عبر ${providerLabel}. حاول مرة أخرى.`);
+      setMessage(t("auth.socialAuthError", { provider: providerLabel }));
     }
   }
 
@@ -85,7 +84,11 @@ export function SocialAuthButtons({
           disabled={activeProvider !== null}
           onClick={() => handleSocialAuth("github")}
         >
-          <span>{activeProvider === "github" ? "جارٍ الفتح..." : "GitHub"}</span>
+          <span>
+            {activeProvider === "github"
+              ? t("auth.openingInProgress")
+              : "GitHub"}
+          </span>
           <Github className="size-4" />
         </Button>
         <Button
@@ -96,7 +99,11 @@ export function SocialAuthButtons({
           disabled={activeProvider !== null}
           onClick={() => handleSocialAuth("google")}
         >
-          <span>{activeProvider === "google" ? "جارٍ الفتح..." : "Google"}</span>
+          <span>
+            {activeProvider === "google"
+              ? t("auth.openingInProgress")
+              : "Google"}
+          </span>
           <GoogleIcon />
         </Button>
       </div>
@@ -111,7 +118,7 @@ export function SocialAuthButtons({
       )}
 
       <p className="text-right text-xs leading-5 text-muted-foreground">
-        {GITHUB_IDENTITY_ONLY_MESSAGE}
+        {t("auth.githubIdentityNote")}
       </p>
     </div>
   );

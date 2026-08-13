@@ -24,10 +24,7 @@ export {
   MIN_ANALYSIS_REPOSITORIES,
   SKILL_ANALYSIS_CONSENT_VERSION,
 } from "./constants/skill-analysis.constants";
-export {
-  SKILL_ANALYSIS_CONSENT_LABEL,
-  SkillAnalysisConsent,
-} from "./components/skill-analysis-consent";
+export { SkillAnalysisConsent } from "./components/skill-analysis-consent";
 export { SkillGenerationStatusPanel } from "./components/skill-generation-status-panel";
 export {
   canRetryGeneration,

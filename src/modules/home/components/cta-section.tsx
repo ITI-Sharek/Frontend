@@ -1,5 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -7,6 +8,7 @@ import { Button } from "@/shared/components/ui/button";
 import { VerificationSeal } from "./illustrations/verification-seal";
 
 export function CtaSection() {
+  const { t } = useTranslation();
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -15,11 +17,10 @@ export function CtaSection() {
             <VerificationSeal className="hidden size-20 shrink-0 text-primary sm:block" />
             <div>
               <h2 className="max-w-3xl text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-                اجعل مساهمتك التالية عملاً ذا معنى، وسجلاً يستحق الثقة.
+                {t("landing.ctaHeading")}
               </h2>
               <p className="mt-4 max-w-[68ch] text-base leading-8 text-muted-foreground">
-                أنشئ حسابك كمساهم أو صاحب مشروع. ستظل القرارات المهمة للبشر،
-                وسيظل الدليل قابلاً للفهم والمراجعة.
+                {t("landing.ctaDescription")}
               </p>
             </div>
           </div>
@@ -31,7 +32,7 @@ export function CtaSection() {
               className="min-h-12 px-6"
             >
               <Link to={ROUTES.register}>
-                إنشاء حساب
+                {t("landing.ctaCreateAccount")}
                 <ArrowLeft className="size-4" aria-hidden />
               </Link>
             </Button>
@@ -41,7 +42,7 @@ export function CtaSection() {
               size="default"
               className="min-h-12"
             >
-              <Link to={ROUTES.login}>تسجيل الدخول</Link>
+              <Link to={ROUTES.login}>{t("landing.ctaLogin")}</Link>
             </Button>
           </div>
         </div>

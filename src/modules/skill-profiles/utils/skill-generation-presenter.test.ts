@@ -1,6 +1,8 @@
 import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
+import i18n from "@/lib/i18n";
+
 import {
   canRetryGeneration,
   getActiveGenerationIdFromError,
@@ -11,6 +13,8 @@ import {
   isGenerationTerminal,
 } from "./skill-generation-presenter";
 import type { SkillProfileGenerationStatus } from "../types/skill-profile-generation.types";
+
+const t = i18n.t;
 
 const ALL_STATUSES: SkillProfileGenerationStatus[] = [
   "queued",
@@ -34,7 +38,7 @@ function apiError(code: string, metadata?: unknown) {
 describe("generation status presenter", () => {
   it("describes every status", () => {
     for (const status of ALL_STATUSES) {
-      const meta = getGenerationStatusMeta(status);
+      const meta = getGenerationStatusMeta(t, status);
       expect(meta.label.length).toBeGreaterThan(0);
       expect(meta.description.length).toBeGreaterThan(0);
     }
@@ -55,16 +59,16 @@ describe("generation status presenter", () => {
   });
 
   it("never presents pending_review as approved", () => {
-    const meta = getGenerationStatusMeta("pending_review");
+    const meta = getGenerationStatusMeta(t, "pending_review");
     expect(meta.description).toContain("بانتظار اعتماد الإدارة");
     expect(meta.label).not.toContain("معتمد");
     expect(meta.description).not.toMatch(/تم الاعتماد|معتمدة بالفعل/);
   });
 
   it("asks for clearer contributions on needs_more_evidence", () => {
-    expect(getGenerationStatusMeta("needs_more_evidence").description).toContain(
-      "مستودعات",
-    );
+    expect(
+      getGenerationStatusMeta(t, "needs_more_evidence").description,
+    ).toContain("مستودعات");
   });
 
   it("offers retry only for failed and needs_more_evidence", () => {
@@ -97,7 +101,7 @@ describe("generation status presenter", () => {
   });
 
   it("maps documented skill-profile error codes to safe copy", () => {
-    const fallback = getSkillProfileErrorMessage("UNKNOWN_CODE");
+    const fallback = getSkillProfileErrorMessage(t, "UNKNOWN_CODE");
     for (const code of [
       "SKILL_PROFILE_ANALYSIS_CONSENT_REQUIRED",
       "SKILL_PROFILE_GENERATION_ALREADY_ACTIVE",
@@ -109,7 +113,7 @@ describe("generation status presenter", () => {
       "SKILL_PROFILE_REPOSITORY_SELECTION_DUPLICATE",
       "SKILL_PROFILE_REPOSITORY_ID_INVALID",
     ]) {
-      expect(getSkillProfileErrorMessage(code)).not.toBe(fallback);
+      expect(getSkillProfileErrorMessage(t, code)).not.toBe(fallback);
     }
   });
 

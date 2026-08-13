@@ -7,27 +7,34 @@ import {
   Link2,
   UserRoundCheck,
 } from "lucide-react";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
-const EVIDENCE_FIELDS = [
-  {
-    term: "المصدر",
-    description: "طلب دمج، إفادة مالك، مرفق، وصف، لقطة شاشة، أو رابط عرض.",
-  },
-  {
-    term: "طريقة التحقق",
-    description: "من راجع الدليل، وما الذي أكده، وما الذي بقي غير محسوم.",
-  },
-  {
-    term: "الظهور والخصوصية",
-    description: "ما يمكن نشره، وما يبقى خاصاً، ومن يستطيع الاطلاع عليه.",
-  },
-  {
-    term: "الحداثة وحالة المراجعة",
-    description: "متى جُمع الدليل، وهل ينتظر المراجعة أم تم تأكيده أو الاعتراض عليه.",
-  },
-] as const;
+function getEvidenceFields(t: TFunction) {
+  return [
+    {
+      term: t("landing.evidenceSourceTerm"),
+      description: t("landing.evidenceSourceDescription"),
+    },
+    {
+      term: t("landing.evidenceMethodTerm"),
+      description: t("landing.evidenceMethodDescription"),
+    },
+    {
+      term: t("landing.evidenceVisibilityTerm"),
+      description: t("landing.evidenceVisibilityDescription"),
+    },
+    {
+      term: t("landing.evidenceFreshnessTerm"),
+      description: t("landing.evidenceFreshnessDescription"),
+    },
+  ];
+}
 
 export function FeaturesSection() {
+  const { t } = useTranslation();
+  const evidenceFields = getEvidenceFields(t);
+
   return (
     <section
       id="evidence"
@@ -36,11 +43,10 @@ export function FeaturesSection() {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 flex max-w-3xl flex-col gap-4">
           <h2 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            الدليل ليس شارة. إنه سجل يمكن فهمه ومراجعته.
+            {t("landing.evidenceHeading")}
           </h2>
           <p className="max-w-[68ch] text-base leading-8 text-muted-foreground">
-            لا يطلب Sharek من الناس تصديق ادعاء مهني بلا سياق. كل سجل مساهمة
-            يوضح المصدر، وطريقة التحقق، والظهور، والحداثة، وحالة المراجعة.
+            {t("landing.evidenceDescription")}
           </p>
         </div>
 
@@ -50,24 +56,23 @@ export function FeaturesSection() {
               <div>
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <GitPullRequest className="size-5" aria-hidden />
-                  <span>مساهمة مكتملة</span>
+                  <span>{t("landing.evidenceCompletedContribution")}</span>
                 </div>
                 <h3 className="mt-3 text-2xl font-bold text-foreground">
-                  دعم التنقل بلوحة المفاتيح في الواجهة العربية
+                  {t("landing.evidenceSampleTitle")}
                 </h3>
                 <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                  سياق واضح للعمل، والنتيجة التي راجعها المشروع، والأدلة التي
-                  تبرر إدراجها في السجل المهني.
+                  {t("landing.evidenceSampleDescription")}
                 </p>
               </div>
               <span className="inline-flex min-h-9 shrink-0 items-center gap-2 self-start rounded-full bg-evidence-teal px-3 text-sm font-semibold text-evidence-teal-foreground">
                 <CheckCircle2 className="size-4" aria-hidden />
-                متحقق منها
+                {t("landing.evidenceVerifiedBadge")}
               </span>
             </header>
 
             <dl>
-              {EVIDENCE_FIELDS.map((field) => (
+              {evidenceFields.map((field) => (
                 <div
                   key={field.term}
                   className="grid gap-2 border-b border-border px-6 py-5 last:border-b-0 sm:grid-cols-[170px_1fr] sm:gap-6 sm:px-8"
@@ -87,12 +92,10 @@ export function FeaturesSection() {
             <section className="rounded-card border border-advisory-violet/40 bg-card p-6 sm:p-8">
               <div className="flex items-center gap-3 text-advisory-violet">
                 <AlertCircle className="size-5" aria-hidden />
-                <h3 className="text-lg font-bold">التحليل الآلي يقدّم رأياً</h3>
+                <h3 className="text-lg font-bold">{t("landing.evidenceAiAdvisoryTitle")}</h3>
               </div>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                يشرح Sharek الإشارات الداعمة والناقصة، ودرجة الثقة وعدم
-                اليقين. لا يحوّل النتيجة إلى حكم نهائي، ولا يمنع التقديم
-                وحده.
+                {t("landing.evidenceAiAdvisoryDescription")}
               </p>
               <ul className="mt-6 space-y-4 text-sm">
                 <li className="flex items-start gap-3">
@@ -101,8 +104,8 @@ export function FeaturesSection() {
                     aria-hidden
                   />
                   <span>
-                    <b className="text-foreground">الدليل الداعم:</b>{" "}
-                    يظهر بالنص، لا بلون أو درجة غامضة.
+                    <b className="text-foreground">{t("landing.evidenceSupportingEvidenceLabel")}</b>{" "}
+                    {t("landing.evidenceSupportingEvidenceText")}
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -111,8 +114,8 @@ export function FeaturesSection() {
                     aria-hidden
                   />
                   <span>
-                    <b className="text-foreground">حدود الظهور:</b> الشرح لا
-                    يكشف ملفاً خاصاً أو اسماً أو مقتطفاً غير مسموح به.
+                    <b className="text-foreground">{t("landing.evidenceVisibilityLimitLabel")}</b>{" "}
+                    {t("landing.evidenceVisibilityLimitText")}
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -121,8 +124,8 @@ export function FeaturesSection() {
                     aria-hidden
                   />
                   <span>
-                    <b className="text-foreground">المسار البشري:</b> المالك
-                    يقرر الاختيار، ويمكن للمستخدم المراجعة أو الاعتراض.
+                    <b className="text-foreground">{t("landing.evidenceHumanPathLabel")}</b>{" "}
+                    {t("landing.evidenceHumanPathText")}
                   </span>
                 </li>
               </ul>
@@ -132,13 +135,11 @@ export function FeaturesSection() {
               <div className="flex items-center gap-3">
                 <Link2 className="size-5 text-primary" aria-hidden />
                 <h3 className="text-lg font-bold text-foreground">
-                  الأدلة ليست GitHub فقط
+                  {t("landing.evidenceNotOnlyGithub")}
                 </h3>
               </div>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                يمكن أن تأتي من مستودع مفوض، أو إفادة مالك، أو مرفق، أو وصف،
-                أو لقطة شاشة، أو رابط عرض، أو عمل لا يعتمد على مستودع عندما
-                يدعم العقد ذلك.
+                {t("landing.evidenceNotOnlyGithubDescription")}
               </p>
             </section>
           </div>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import i18n from "@/lib/i18n";
 import type { MaterialVersionDto } from "../types/material.types";
 import {
   canDownloadVersion,
@@ -9,6 +10,10 @@ import {
   getMaterialStateMeta,
   getMaterialVersionState,
 } from "./material-state";
+
+// Tests pin the language to Arabic in vitest.setup.ts, so the shared i18n
+// instance resolves real strings — the same strings the components render.
+const t = i18n.getFixedT("ar");
 
 const version = (
   overrides: Partial<MaterialVersionDto> = {},
@@ -53,7 +58,7 @@ describe("getMaterialVersionState", () => {
 
     expect(state).toBe("SCAN_UNAVAILABLE");
     expect(state).not.toBe("REJECTED");
-    expect(getMaterialStateMeta(state).description).toContain(
+    expect(getMaterialStateMeta(t, state).description).toContain(
       "هذا لا يعني أن الملف ضار",
     );
   });
@@ -103,7 +108,7 @@ describe("canDownloadVersion", () => {
 
 describe("getDownloadBlockedReason", () => {
   it("gives no reason when the download is available", () => {
-    expect(getDownloadBlockedReason("READY")).toBeNull();
+    expect(getDownloadBlockedReason(t, "READY")).toBeNull();
   });
 
   it("explains every blocked state rather than leaving a bare disabled control", () => {
@@ -115,7 +120,7 @@ describe("getDownloadBlockedReason", () => {
       "PURGE_PENDING",
       "DELETED",
     ] as const) {
-      expect(getDownloadBlockedReason(state)).toBeTruthy();
+      expect(getDownloadBlockedReason(t, state)).toBeTruthy();
     }
   });
 });
@@ -132,7 +137,7 @@ describe("state presentation", () => {
       "PURGE_PENDING",
       "DELETED",
     ] as const) {
-      const meta = getMaterialStateMeta(state);
+      const meta = getMaterialStateMeta(t, state);
       expect(meta.label.length).toBeGreaterThan(0);
       expect(meta.description.length).toBeGreaterThan(0);
       expect(meta.icon).toBeTruthy();
@@ -146,15 +151,15 @@ describe("formatting", () => {
     [4096, "كيلوبايت"],
     [26_214_400, "ميجابايت"],
   ])("renders %i bytes in a readable unit", (bytes, unit) => {
-    expect(formatBytes(bytes)).toContain(unit);
+    expect(formatBytes(t, bytes)).toContain(unit);
   });
 
   it("shows an unrecognised format as itself rather than dropping it", () => {
     // Raising the server allowlist must not silently hide a format from the
     // upload form.
-    expect(formatMimeType("application/vnd.oasis.opendocument.text")).toBe(
+    expect(formatMimeType(t, "application/vnd.oasis.opendocument.text")).toBe(
       "application/vnd.oasis.opendocument.text",
     );
-    expect(formatMimeType("application/pdf")).toBe("PDF");
+    expect(formatMimeType(t, "application/pdf")).toBe("PDF");
   });
 });

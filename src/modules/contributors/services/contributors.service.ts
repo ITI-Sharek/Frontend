@@ -2,6 +2,7 @@ import { isAxiosError } from "axios";
 
 import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
+import i18n from "@/lib/i18n";
 
 import type {
   ContributorGithubInstallationDto,
@@ -18,7 +19,7 @@ function normalizeContributorProfileError(error: unknown): never {
     // auth/token problem, so don't lump it in with the generic message.
     if (status === undefined) {
       throw new ContributorProfileError(
-        "تعذر الاتصال بالخادم. تأكد من تشغيل الخادم الخلفي واتصالك بالإنترنت، ثم حاول مرة أخرى.",
+        i18n.t("contributor.errors.networkUnavailable"),
         "unavailable",
       );
     }
@@ -26,7 +27,7 @@ function normalizeContributorProfileError(error: unknown): never {
     const message =
       typeof error.response?.data?.message === "string"
         ? error.response.data.message
-        : "تعذر تحميل ملف المساهم.";
+        : i18n.t("contributor.errors.profileLoadFailed");
 
     if (status === 401) {
       throw new ContributorProfileError(message, "unauthenticated");
@@ -45,7 +46,10 @@ function normalizeContributorProfileError(error: unknown): never {
     }
   }
 
-  throw new ContributorProfileError("تعذر تحميل ملف المساهم.", "unavailable");
+  throw new ContributorProfileError(
+    i18n.t("contributor.errors.profileLoadFailed"),
+    "unavailable",
+  );
 }
 
 /** Normalize older responses defensively while all environments migrate. */

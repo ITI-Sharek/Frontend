@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { StatusChipTone } from "@/shared/components/data-display/status-chip";
 
 import type {
@@ -13,63 +14,109 @@ interface SourceStatusMeta {
   tone: StatusChipTone;
 }
 
-const SYNC_STATUS_META: Record<ProjectSourceSyncStatus, SourceStatusMeta> = {
-  fresh: { label: "محدَّث", tone: "positive" },
-  stale: { label: "قديم — يحتاج تحديثاً", tone: "attention" },
-  refreshing: { label: "جارٍ التحديث", tone: "waiting" },
-  partial: { label: "تحديث جزئي", tone: "attention" },
-  failed: { label: "فشل آخر تحديث", tone: "negative" },
-  authorization_revoked: { label: "أُلغي التفويض", tone: "negative" },
+const SYNC_STATUS_TONE: Record<ProjectSourceSyncStatus, StatusChipTone> = {
+  fresh: "positive",
+  stale: "attention",
+  refreshing: "waiting",
+  partial: "attention",
+  failed: "negative",
+  authorization_revoked: "negative",
 };
 
-const AUTHORIZATION_STATUS_META: Record<
+const SYNC_STATUS_LABEL_KEYS: Record<ProjectSourceSyncStatus, string> = {
+  fresh: "project.source.fresh",
+  stale: "project.source.stale",
+  refreshing: "project.source.refreshing",
+  partial: "project.source.partial",
+  failed: "project.source.failed",
+  authorization_revoked: "project.source.authorizationRevoked",
+};
+
+const AUTHORIZATION_STATUS_TONE: Record<
   ProjectSourceAuthorizationStatus,
-  SourceStatusMeta
+  StatusChipTone
 > = {
-  public_read: { label: "قراءة عامة", tone: "neutral" },
-  authorized: { label: "مُفوَّض", tone: "positive" },
-  authorization_required: { label: "يتطلب تفويضاً", tone: "attention" },
-  revoked: { label: "أُلغي التفويض", tone: "negative" },
-  unknown: { label: "غير معروف", tone: "neutral" },
+  public_read: "neutral",
+  authorized: "positive",
+  authorization_required: "attention",
+  revoked: "negative",
+  unknown: "neutral",
 };
 
-const SELECTION_STATUS_META: Record<
+const AUTHORIZATION_STATUS_LABEL_KEYS: Record<
+  ProjectSourceAuthorizationStatus,
+  string
+> = {
+  public_read: "project.source.publicRead",
+  authorized: "project.source.authorized",
+  authorization_required: "project.source.authorizationRequired",
+  revoked: "project.source.authorizationRevoked",
+  unknown: "project.source.unknown",
+};
+
+const SELECTION_STATUS_TONE: Record<
   ProjectSourceSelectionStatus,
-  SourceStatusMeta
+  StatusChipTone
 > = {
-  not_required: { label: "غير مطلوب", tone: "neutral" },
-  selected: { label: "مُحدَّد", tone: "positive" },
-  unselected: { label: "غير محدَّد", tone: "attention" },
-  revoked: { label: "أُلغي", tone: "negative" },
-  unknown: { label: "غير معروف", tone: "neutral" },
+  not_required: "neutral",
+  selected: "positive",
+  unselected: "attention",
+  revoked: "negative",
+  unknown: "neutral",
 };
 
-const OWNER_TYPE_LABELS: Record<ProjectRepositoryOwnerType, string> = {
-  organization: "منظمة",
-  user: "حساب شخصي",
-  unknown: "نوع الحساب غير معروف",
+const SELECTION_STATUS_LABEL_KEYS: Record<
+  ProjectSourceSelectionStatus,
+  string
+> = {
+  not_required: "project.source.selectionNotRequired",
+  selected: "project.source.selected",
+  unselected: "project.source.unselected",
+  revoked: "project.source.selectionRevoked",
+  unknown: "project.source.unknown",
 };
 
-export function getOwnerTypeLabel(ownerType: ProjectRepositoryOwnerType): string {
-  return OWNER_TYPE_LABELS[ownerType];
+const OWNER_TYPE_LABEL_KEYS: Record<ProjectRepositoryOwnerType, string> = {
+  organization: "project.source.ownerTypeOrganization",
+  user: "project.source.ownerTypeUser",
+  unknown: "project.source.ownerTypeUnknown",
+};
+
+export function getOwnerTypeLabel(
+  t: TFunction,
+  ownerType: ProjectRepositoryOwnerType,
+): string {
+  return t(OWNER_TYPE_LABEL_KEYS[ownerType]);
 }
 
 export function getSourceSyncStatusMeta(
+  t: TFunction,
   status: ProjectSourceSyncStatus,
 ): SourceStatusMeta {
-  return SYNC_STATUS_META[status];
+  return {
+    label: t(SYNC_STATUS_LABEL_KEYS[status]),
+    tone: SYNC_STATUS_TONE[status],
+  };
 }
 
 export function getSourceAuthorizationStatusMeta(
+  t: TFunction,
   status: ProjectSourceAuthorizationStatus,
 ): SourceStatusMeta {
-  return AUTHORIZATION_STATUS_META[status];
+  return {
+    label: t(AUTHORIZATION_STATUS_LABEL_KEYS[status]),
+    tone: AUTHORIZATION_STATUS_TONE[status],
+  };
 }
 
 export function getSourceSelectionStatusMeta(
+  t: TFunction,
   status: ProjectSourceSelectionStatus,
 ): SourceStatusMeta {
-  return SELECTION_STATUS_META[status];
+  return {
+    label: t(SELECTION_STATUS_LABEL_KEYS[status]),
+    tone: SELECTION_STATUS_TONE[status],
+  };
 }
 
 /**

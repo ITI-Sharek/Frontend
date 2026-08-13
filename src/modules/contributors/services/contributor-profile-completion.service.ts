@@ -5,6 +5,7 @@ import type {
 } from "../types/contributor-profile.types";
 import { API_BASE_URL } from "@/config/env";
 import { axiosInstance } from "@/lib/axios/axios-instance";
+import i18n from "@/lib/i18n";
 
 export interface UpdateProfileDetailsPayload {
   bio?: string | null;
@@ -68,7 +69,6 @@ export interface SkillsGenerationRequestResult {
 export async function requestSkillsGeneration(): Promise<SkillsGenerationRequestResult> {
   return {
     status: "queued",
-    message:
-      "بدأ تحليل نشاطك على GitHub. ستظهر المهارات هنا بعد اكتمال التحليل ومراجعة الفريق.",
+    message: i18n.t("contributor.errors.skillsGenerationQueued"),
   };
 }

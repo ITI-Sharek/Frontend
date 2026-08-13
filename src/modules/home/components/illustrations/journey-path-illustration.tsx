@@ -1,5 +1,6 @@
 /**
- * مسار الرحلة: أربع محطات تنتهي بختم تحقق — صدى بصري لخطوات القسم.
+ * The journey path: four stations ending in a verification seal — a visual
+ * echo of the section steps.
  */
 export function JourneyPathIllustration({ className }: { className?: string }) {
   const steps = [24, 88, 152] as const;
@@ -41,7 +42,7 @@ export function JourneyPathIllustration({ className }: { className?: string }) {
           />
         </g>
       ))}
-      {/* المحطة الأخيرة: ختم التحقق */}
+      {/* Final station: verification seal */}
       <circle
         cx="188"
         cy="216"

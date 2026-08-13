@@ -1,5 +1,6 @@
 import { Github, Star } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ export function ContributorReputationStrip({
 }: {
   profile: ContributorProfileDto;
 }) {
+  const { t } = useTranslation();
   const {
     rating,
     reviewsCount,
@@ -29,12 +31,14 @@ export function ContributorReputationStrip({
   return (
     <div className="h-full overflow-hidden rounded-card border border-border bg-card">
       <h2 className="border-b border-border bg-background px-5 py-3.5 text-base font-bold text-foreground">
-        إحصائيات
+        {t("contributor.reputation.title")}
       </h2>
       <dl className="px-5">
-        <StatRow label="التقييمات">
+        <StatRow label={t("contributor.reputation.ratings")}>
           {rating === null ? (
-            <span className="text-sm text-muted-foreground">جديد</span>
+            <span className="text-sm text-muted-foreground">
+              {t("contributor.reputation.new")}
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
               <StarRating rating={rating} />
@@ -45,44 +49,48 @@ export function ContributorReputationStrip({
           )}
         </StatRow>
 
-        <StatRow label="المساهمات المكتملة">
+        <StatRow label={t("contributor.reputation.completedContributions")}>
           <span className="text-sm font-bold text-foreground">
             {completedContributions}
           </span>
         </StatRow>
 
-        <StatRow label="معدل النجاح">
+        <StatRow label={t("contributor.reputation.successRate")}>
           <span dir="ltr" className="text-sm font-bold text-foreground">
             {formatPercentage(successRate)}
           </span>
         </StatRow>
 
-        <StatRow label="المهام المسندة">
+        <StatRow label={t("contributor.reputation.assignedTasks")}>
           <span className="text-sm font-medium text-foreground">
             {totalAssignedTasks}
           </span>
         </StatRow>
 
-        <StatRow label="الإتاحة">
+        <StatRow label={t("contributor.reputation.availability")}>
           <span className="text-sm font-medium text-foreground">
-            {profile.availability ?? "غير محددة"}
+            {profile.availability ?? t("common.notSpecified")}
           </span>
         </StatRow>
 
-        <StatRow label="حساب GitHub" last>
+        <StatRow label={t("contributor.reputation.githubAccount")} last>
           {profile.githubStatus.connected ? (
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
               <Github className="size-4" />
-              متصل
+              {t("common.connected")}
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">غير متصل</span>
+            <span className="text-sm text-muted-foreground">
+              {t("common.disconnected")}
+            </span>
           )}
         </StatRow>
       </dl>
 
       <div className="border-t border-border px-5 py-4">
-        <h3 className="text-sm font-bold text-foreground">أكثر المهارات توثيقاً</h3>
+        <h3 className="text-sm font-bold text-foreground">
+          {t("contributor.reputation.topVerifiedSkills")}
+        </h3>
         {topVerifiedSkills.length > 0 ? (
           <ol className="mt-3 flex flex-col gap-3">
             {topVerifiedSkills.map((skill) => (
@@ -94,14 +102,16 @@ export function ContributorReputationStrip({
                   {skill.name}
                 </span>
                 <span className="text-end text-xs text-muted-foreground">
-                  {skill.verifiedContributionCount} مساهمات موثقة
+                  {t("contributor.reputation.verifiedContributions", {
+                    count: skill.verifiedContributionCount,
+                  })}
                 </span>
               </li>
             ))}
           </ol>
         ) : (
           <p className="mt-2 text-xs text-muted-foreground">
-            لا توجد مهارات موثقة بعد
+            {t("contributor.reputation.noVerifiedSkills")}
           </p>
         )}
       </div>
@@ -132,13 +142,16 @@ function StatRow({
 }
 
 function StarRating({ rating }: { rating: number }) {
+  const { t } = useTranslation();
   const filled = Math.round(rating);
   return (
     <span
       dir="ltr"
       className="inline-flex"
       role="img"
-      aria-label={`التقييم ${rating.toFixed(1)} من 5`}
+      aria-label={t("contributor.reputation.ratingAria", {
+        rating: rating.toFixed(1),
+      })}
     >
       {Array.from({ length: 5 }, (_, index) => (
         <Star

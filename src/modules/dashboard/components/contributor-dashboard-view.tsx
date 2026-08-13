@@ -1,6 +1,7 @@
 import { ArrowLeft, BadgeCheck, Compass, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -26,24 +27,26 @@ export function ContributorDashboardView({
   deliveryLifecycleSlot?: ReactNode;
   recommendedSlot?: ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
       <header className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold text-primary">
-            لوحة المساهم
+            {t("dashboard.title")}
           </p>
           <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            أهلاً، {dashboard.greetingName}
+            {t("dashboard.greeting", { name: dashboard.greetingName })}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            ابدأ بما يحتاج قراراً منك، ثم راجع فرص المساهمة المطابقة لمهاراتك.
+            {t("dashboard.description")}
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
           <Link to={ROUTES.tasks}>
             <Compass className="size-4" aria-hidden />
-            استكشف طلبات المساهمة
+            {t("dashboard.exploreRequests")}
             <ArrowLeft className="size-4" aria-hidden />
           </Link>
         </Button>
@@ -62,18 +65,19 @@ export function ContributorDashboardView({
             />
             <p className="flex items-center gap-2 text-sm font-semibold text-evidence-teal-foreground dark:text-evidence-teal">
               <BadgeCheck className="size-4" />
-              ملفك موثق
+              {t("dashboard.profileVerified")}
             </p>
             <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-tight text-foreground">
-              {dashboard.fullyMatchedTasksCount} مهام تطابق مهاراتك بالكامل
-              اليوم
+              {t("dashboard.matchedTasksToday", {
+                count: dashboard.fullyMatchedTasksCount,
+              })}
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              ملفك جاهز. راجع النطاق والمتطلبات قبل أن تختار أول مساهمة لك.
+              {t("dashboard.verifiedDescription")}
             </p>
             <Button asChild size="sm" className="mt-5">
               <Link to={ROUTES.tasks}>
-                اعرض المطابقات
+                {t("dashboard.viewThem")}
                 <ArrowLeft className="size-4" />
               </Link>
             </Button>
@@ -90,26 +94,26 @@ export function ContributorDashboardView({
       {dashboard.state === "active" && (
         <>
           <nav
-            aria-label="أقسام لوحة التحكم"
+            aria-label={t("dashboard.sectionsAria")}
             className="-mt-2 flex gap-1 overflow-x-auto border-b border-border"
           >
             <a
               href="#attention"
               className="shrink-0 border-b-2 border-primary px-3 py-3 text-sm font-semibold text-primary"
             >
-              يحتاج انتباهك
+              {t("dashboard.attentionHeading")}
             </a>
             <a
               href="#matches"
               className="shrink-0 border-b-2 border-transparent px-3 py-3 text-sm text-muted-foreground hover:text-foreground"
             >
-              فرص مناسبة
+              {t("dashboard.matchesTab")}
             </a>
             <a
               href="#record"
               className="shrink-0 border-b-2 border-transparent px-3 py-3 text-sm text-muted-foreground hover:text-foreground"
             >
-              سجلك
+              {t("dashboard.recordTab")}
             </a>
           </nav>
           <AttentionFeed items={dashboard.attentionItems} />
@@ -128,8 +132,7 @@ export function ContributorDashboardView({
               className="mt-0.5 size-4 shrink-0 text-evidence-teal"
               aria-hidden
             />
-            تظهر المطابقات بناءً على المهارات الموثقة، لكنها تظل إرشادية. راجع
-            متطلبات كل طلب قبل التقديم.
+            {t("dashboard.advisoryNote")}
           </p>
         </>
       )}

@@ -1,6 +1,8 @@
 import { Loader2 } from "lucide-react";
+import type { TFunction } from "i18next";
 import { useId, useState } from "react";
 import type { FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -27,6 +29,7 @@ export function ProposalEditor({
   error: string | null;
   onSubmit: (fields: ContributionProposalFields) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [fields, setFields] = useState(() => toProposalFields(initialValue));
   const [acknowledged, setAcknowledged] = useState(false);
   const [errors, setErrors] = useState<ProposalFieldErrors>({});
@@ -43,9 +46,9 @@ export function ProposalEditor({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalized = toProposalFields(fields);
-    const nextErrors = validateProposalFields(normalized);
+    const nextErrors = validateProposalFields(t, normalized);
     if (requiresDisclosure && !acknowledged) {
-      nextErrors.disclosure = "يلزم تأكيد الإفصاح قبل إرسال المقترح.";
+      nextErrors.disclosure = t("proposalEditor.disclosureRequired");
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -58,50 +61,52 @@ export function ProposalEditor({
       onSubmit={(event) => {
         setUnexpectedError(null);
         void submit(event).catch(() => {
-          setUnexpectedError(
-            "تعذر إرسال النموذج الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى.",
-          );
+          setUnexpectedError(t("proposalEditor.unexpectedError"));
         });
       }}
       className="space-y-5"
     >
       <ProposalTextField
         id={`${formId}-title`}
-        label="عنوان المقترح"
+        label={t("proposalEditor.title")}
         value={fields.title}
         error={errors.title}
         minLength={5}
         maxLength={255}
+        lengthHelp={t("proposalEditor.lengthHelp", { min: 5, max: 255 })}
         onChange={(value) => update("title", value)}
       />
       <ProposalTextField
         id={`${formId}-problem`}
-        label="المشكلة أو الفرصة"
+        label={t("proposalEditor.problemOrOpportunity")}
         value={fields.problemOrOpportunity}
         error={errors.problemOrOpportunity}
         minLength={20}
         maxLength={5000}
         multiline
+        lengthHelp={t("proposalEditor.lengthHelp", { min: 20, max: 5000 })}
         onChange={(value) => update("problemOrOpportunity", value)}
       />
       <ProposalTextField
         id={`${formId}-outcome`}
-        label="النتيجة المقترحة"
+        label={t("proposalEditor.proposedOutcome")}
         value={fields.proposedOutcome}
         error={errors.proposedOutcome}
         minLength={20}
         maxLength={5000}
         multiline
+        lengthHelp={t("proposalEditor.lengthHelp", { min: 20, max: 5000 })}
         onChange={(value) => update("proposedOutcome", value)}
       />
       <ProposalTextField
         id={`${formId}-benefit`}
-        label="فائدة المقترح للمشروع"
+        label={t("proposalEditor.projectBenefit")}
         value={fields.projectBenefit}
         error={errors.projectBenefit}
         minLength={20}
         maxLength={3000}
         multiline
+        lengthHelp={t("proposalEditor.lengthHelp", { min: 20, max: 3000 })}
         onChange={(value) => update("projectBenefit", value)}
       />
 
@@ -123,9 +128,7 @@ export function ProposalEditor({
               className="mt-1 size-4 shrink-0 accent-primary"
             />
             <span id={`${formId}-disclosure-copy`}>
-              أفهم أن قبول المقترح ينشئ مسودة يملك صاحب المشروع تحريرها ونشرها،
-              ويحفظ لي الإسناد المعنوي فقط. لا يمنحني القبول إسناد العمل أو
-              أولوية الاختيار، وقد ينفذ العمل مساهم آخر.
+              {t("proposalEditor.disclosureText")}
             </span>
           </label>
           {errors.disclosure && (
@@ -159,6 +162,7 @@ function ProposalTextField({
   maxLength,
   multiline = false,
   onChange,
+  lengthHelp,
 }: {
   id: string;
   label: string;
@@ -168,6 +172,7 @@ function ProposalTextField({
   maxLength: number;
   multiline?: boolean;
   onChange: (value: string) => void;
+  lengthHelp: string;
 }) {
   const describedBy = error ? `${id}-help ${id}-error` : `${id}-help`;
   return (
@@ -197,7 +202,7 @@ function ProposalTextField({
         />
       )}
       <div id={`${id}-help`} className="mt-1 flex justify-between gap-3 text-xs text-muted-foreground">
-        <span>من {minLength} إلى {maxLength} حرفًا.</span>
+        <span>{lengthHelp}</span>
         <span>{value.length}/{maxLength}</span>
       </div>
       {error && <p id={`${id}-error`} role="alert" className="mt-1 text-sm text-destructive">{error}</p>}
@@ -206,46 +211,55 @@ function ProposalTextField({
 }
 
 function validateProposalFields(
+  t: TFunction,
   fields: ContributionProposalFields,
 ): ProposalFieldErrors {
   const errors: ProposalFieldErrors = {};
-  validateLength(errors, "title", fields.title, 5, 255, "العنوان");
+  validateLength(t, errors, "title", fields.title, 5, 255, "proposalEditor.title");
   validateLength(
+    t,
     errors,
     "problemOrOpportunity",
     fields.problemOrOpportunity,
     20,
     5000,
-    "المشكلة أو الفرصة",
+    "proposalEditor.problemOrOpportunity",
   );
   validateLength(
+    t,
     errors,
     "proposedOutcome",
     fields.proposedOutcome,
     20,
     5000,
-    "النتيجة المقترحة",
+    "proposalEditor.proposedOutcome",
   );
   validateLength(
+    t,
     errors,
     "projectBenefit",
     fields.projectBenefit,
     20,
     3000,
-    "فائدة المشروع",
+    "proposalEditor.projectBenefit",
   );
   return errors;
 }
 
 function validateLength(
+  t: TFunction,
   errors: ProposalFieldErrors,
   field: ProposalField,
   value: string,
   min: number,
   max: number,
-  label: string,
+  labelKey: string,
 ) {
   if (value.length < min || value.length > max) {
-    errors[field] = `${label} يجب أن يكون بين ${min} و${max} حرفًا.`;
+    errors[field] = t("proposalEditor.lengthError", {
+      label: t(labelKey),
+      min,
+      max,
+    });
   }
 }

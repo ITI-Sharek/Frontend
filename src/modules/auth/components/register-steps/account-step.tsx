@@ -1,4 +1,5 @@
 import { Mail, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { UsernameAvailabilityReason } from "../../types/auth.types";
 import type { SignupRole } from "../../types/signup.types";
@@ -40,35 +41,39 @@ export function AccountStep({
   onChange,
   usernameStatus,
 }: AccountStepProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-1 text-right">
-        <h2 className="text-lg font-bold text-foreground">بيانات الحساب</h2>
+        <h2 className="text-lg font-bold text-foreground">
+          {t("register.account.title")}
+        </h2>
         <p className="text-sm text-muted-foreground">
-          أنشئ بيانات الدخول الخاصة بحسابك.
+          {t("register.account.subtitle")}
         </p>
       </div>
 
       <SocialAuthButtons intent="register" role={role ?? "contributor"} />
-      <AuthDivider label="أو عبر البريد" />
+      <AuthDivider label={t("register.account.orViaEmail")} />
 
       <div className="grid w-full grid-cols-2 gap-4">
         <AuthTextField
           id="firstName"
-          label="الاسم الأول"
+          label={t("register.account.firstName")}
           icon={User}
           dir="rtl"
-          placeholder="محمد"
+          placeholder={t("register.account.firstNamePlaceholder")}
           autoComplete="given-name"
           value={firstName}
           onChange={(e) => onChange("firstName", e.target.value)}
         />
         <AuthTextField
           id="lastName"
-          label="الاسم الأخير"
+          label={t("register.account.lastName")}
           icon={User}
           dir="rtl"
-          placeholder="أحمد"
+          placeholder={t("register.account.lastNamePlaceholder")}
           autoComplete="family-name"
           value={lastName}
           onChange={(e) => onChange("lastName", e.target.value)}
@@ -90,7 +95,7 @@ export function AccountStep({
       )}
       <AuthTextField
         id="email"
-        label="البريد الإلكتروني"
+        label={t("auth.email")}
         icon={Mail}
         placeholder="name@company.com"
         autoComplete="email"
@@ -98,7 +103,7 @@ export function AccountStep({
         onChange={(e) => onChange("email", e.target.value)}
       />
       <AuthPasswordField
-        label="كلمة المرور"
+        label={t("auth.password")}
         autoComplete="new-password"
         value={password}
         onChange={(e) => onChange("password", e.target.value)}

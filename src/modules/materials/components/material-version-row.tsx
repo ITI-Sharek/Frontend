@@ -1,5 +1,6 @@
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { Button } from "@/shared/components/ui/button";
@@ -27,13 +28,14 @@ export function MaterialVersionRow({
   isCurrent,
   onDownload,
 }: MaterialVersionRowProps) {
+  const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const state = getMaterialVersionState(material, version);
-  const meta = getMaterialStateMeta(state);
+  const meta = getMaterialStateMeta(t, state);
   const downloadable = canDownloadVersion(material, version);
-  const blockedReason = getDownloadBlockedReason(state);
+  const blockedReason = getDownloadBlockedReason(t, state);
 
   async function handleDownload() {
     setIsDownloading(true);
@@ -44,7 +46,7 @@ export function MaterialVersionRow({
       setError(
         downloadError instanceof Error
           ? downloadError.message
-          : "تعذّر تنزيل الملف.",
+          : t("material.errors.downloadFailed"),
       );
     } finally {
       setIsDownloading(false);
@@ -56,10 +58,10 @@ export function MaterialVersionRow({
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium">
-            النسخة {version.version}
+            {t("material.versionNumber", { version: version.version })}
             {isCurrent && (
               <span className="ms-2 text-xs text-muted-foreground">
-                (الأحدث)
+                {t("material.versionCurrent")}
               </span>
             )}
           </span>
@@ -72,8 +74,8 @@ export function MaterialVersionRow({
           </StatusChip>
         </div>
         <p className="truncate text-xs text-muted-foreground">
-          {version.originalFilename} — {formatMimeType(version.mimeType)} —{" "}
-          {formatBytes(version.byteSize)}
+          {version.originalFilename} — {formatMimeType(t, version.mimeType)} —{" "}
+          {formatBytes(t, version.byteSize)}
         </p>
         {/* The state is always said in words as well as shown as a chip, so it
             never depends on colour or on recognising an icon. */}
@@ -99,7 +101,7 @@ export function MaterialVersionRow({
             ) : (
               <Download className="size-4" aria-hidden />
             )}
-            {isDownloading ? "جارٍ التنزيل…" : "تنزيل"}
+            {isDownloading ? t("material.downloading") : t("material.download")}
           </Button>
         ) : (
           /*
@@ -117,7 +119,7 @@ export function MaterialVersionRow({
             title={blockedReason ?? undefined}
           >
             <Download className="size-4" aria-hidden />
-            التنزيل غير متاح
+            {t("material.downloadUnavailable")}
           </Button>
         )}
       </div>

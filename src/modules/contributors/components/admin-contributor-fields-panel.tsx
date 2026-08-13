@@ -1,5 +1,6 @@
 import { Check, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
@@ -14,6 +15,7 @@ const INPUT_CLASS_NAME =
   "min-h-11 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary";
 
 export function AdminContributorFieldsPanel() {
+  const { t } = useTranslation();
   const fields = useAdminContributorFieldsQuery();
   const createField = useCreateContributorFieldMutation();
   const updateField = useUpdateContributorFieldMutation();
@@ -30,11 +32,10 @@ export function AdminContributorFieldsPanel() {
     >
       <div className="border-b border-border p-5 md:p-6">
         <h2 id="contributor-fields-heading" className="text-lg font-bold text-foreground">
-          مجالات المساهمين
+          {t("contributor.admin.contributorFieldsTitle")}
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          تظهر المجالات النشطة كخيارات موحدة في إعدادات المساهم. تعطيل مجال لا
-          يحذفه ولا يمحو اختيارات سابقة.
+          {t("contributor.admin.contributorFieldsDescription")}
         </p>
       </div>
 
@@ -57,47 +58,47 @@ export function AdminContributorFieldsPanel() {
         }}
       >
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          الاسم العربي
+          {t("contributor.admin.arabicName")}
           <input
             dir="rtl"
             name="labelAr"
             required
             maxLength={100}
-            placeholder="تطوير الويب"
+            placeholder={t("contributor.admin.fieldArPlaceholder")}
             value={labelAr}
             onChange={(event) => setLabelAr(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-right`}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          الاسم الإنجليزي
+          {t("contributor.admin.englishName")}
           <input
             dir="ltr"
             name="labelEn"
             required
             maxLength={100}
-            placeholder="Web development"
+            placeholder={t("contributor.admin.fieldEnPlaceholder")}
             value={labelEn}
             onChange={(event) => setLabelEn(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-left`}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold text-foreground">
-          المفتاح البرمجي
+          {t("contributor.admin.codeKey")}
           <input
             dir="ltr"
             name="fieldKey"
             required
             maxLength={50}
             pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-            title="استخدم حروفاً إنجليزية صغيرة وأرقاماً وشرطات فقط"
+            title={t("contributor.admin.keyPatternHint")}
             placeholder="web-development"
             value={key}
             onChange={(event) => setKey(event.target.value)}
             className={`${INPUT_CLASS_NAME} text-left`}
           />
           <span className="text-xs font-normal text-muted-foreground">
-            حروف صغيرة وأرقام وشرطات فقط
+            {t("contributor.admin.keyPatternHelp")}
           </span>
         </label>
         <Button type="submit" disabled={createField.isPending}>
@@ -106,20 +107,22 @@ export function AdminContributorFieldsPanel() {
           ) : (
             <Plus className="size-4" aria-hidden="true" />
           )}
-          {createField.isPending ? "جارٍ الإضافة…" : "إضافة مجال"}
+          {createField.isPending
+            ? t("contributor.admin.adding")
+            : t("contributor.admin.addField")}
         </Button>
       </form>
 
       {error && (
         <p role="alert" className="border-b border-border px-5 py-4 text-sm text-destructive md:px-6">
-          {getApiErrorMessage(error, "تعذر تحديث المجالات.")}
+          {getApiErrorMessage(error, t("contributor.admin.updateFieldsError"))}
         </p>
       )}
 
       <div className="divide-y divide-border">
         {fields.isPending ? (
           <p role="status" aria-live="polite" className="p-6 text-sm text-muted-foreground">
-            جارٍ تحميل المجالات…
+            {t("contributor.admin.loadingFields")}
           </p>
         ) : fields.data?.length ? (
           fields.data.map((field) => (
@@ -137,9 +140,9 @@ export function AdminContributorFieldsPanel() {
                 </p>
               </div>
               <label className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
-                ترتيب الظهور
+                {t("contributor.admin.sortOrder")}
                 <input
-                  aria-label={`ترتيب ${field.labelAr}`}
+                  aria-label={t("contributor.admin.sortOrderAria", { name: field.labelAr })}
                   type="number"
                   min={0}
                   max={10000}
@@ -172,15 +175,17 @@ export function AdminContributorFieldsPanel() {
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input border border-border px-3 text-sm font-semibold text-foreground hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {field.active && <Check className="size-4 text-primary" aria-hidden="true" />}
-                {field.active ? "نشط" : "غير نشط"}
+                {field.active
+                  ? t("contributor.admin.active")
+                  : t("contributor.admin.inactive")}
               </button>
             </div>
           ))
         ) : fields.isError ? null : (
           <div className="p-6">
-            <p className="font-semibold text-foreground">لا توجد مجالات بعد</p>
+            <p className="font-semibold text-foreground">{t("contributor.admin.noFieldsTitle")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              أضف أول مجال من النموذج أعلاه ليصبح متاحاً في إعدادات المساهم.
+              {t("contributor.admin.noFieldsDescription")}
             </p>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { TFunction } from "i18next";
 
 import { ROUTES } from "@/config/routes.config";
 
@@ -7,6 +8,9 @@ import {
   getMemberNavigation,
 } from "./workspace-navigation";
 
+// Minimal mock that returns the key as the label so tests remain key-independent.
+const t = ((key: string) => key) as unknown as TFunction;
+
 describe("workspace navigation", () => {
   it("keeps owner navigation inside owner and shared routes", () => {
     const navigation = getMemberNavigation({
@@ -14,6 +18,7 @@ describe("workspace navigation", () => {
       pathname: ROUTES.myProjects,
       username: null,
       unreadCount: 2,
+      t,
     });
 
     expect(navigation.map((item) => item.to)).toEqual([
@@ -33,6 +38,7 @@ describe("workspace navigation", () => {
       pathname: ROUTES.dashboard,
       username: "sara",
       unreadCount: 0,
+      t,
     });
 
     expect(navigation.some((item) => item.to === ROUTES.dashboard)).toBe(true);
@@ -41,10 +47,10 @@ describe("workspace navigation", () => {
       navigation.some((item) => item.to === ROUTES.contributorProfile("sara")),
     ).toBe(true);
     expect(navigation.find((item) => item.to === ROUTES.tasks)?.label).toBe(
-      "طلبات المساهمة",
+      "navigation.tasks",
     );
     expect(navigation.find((item) => item.to === ROUTES.proposals)?.label).toBe(
-      "مقترحاتي",
+      "navigation.proposals",
     );
   });
 
@@ -53,6 +59,7 @@ describe("workspace navigation", () => {
       pathname: ROUTES.adminNotifications,
       unreadCount: 3,
       pendingReviewsCount: 4,
+      t,
     });
 
     const notificationItem = navigation.find(
@@ -69,10 +76,11 @@ describe("workspace navigation", () => {
       pathname: ROUTES.adminProjectOwners,
       unreadCount: 0,
       pendingReviewsCount: 2,
+      t,
     });
 
     expect(navigation.find((item) => item.to === ROUTES.adminProjectOwners)).toMatchObject({
-      label: "ملاك المشاريع",
+      label: "navigation.adminProjectOwners",
       active: true,
     });
     expect(navigation.some((item) => item.to === ROUTES.adminProfileFields)).toBe(true);

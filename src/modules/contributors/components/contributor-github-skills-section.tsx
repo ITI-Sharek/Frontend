@@ -6,6 +6,7 @@ import {
   Github,
   Sparkles,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import type { StatusChipTone } from "@/shared/components/data-display/status-chip";
@@ -21,16 +22,16 @@ export const GITHUB_SKILL_ANALYSIS_PATH = "/profile/github";
 
 const INSTALLATION_STATUS_LABEL: Record<
   ContributorGithubInstallationDto["status"],
-  { label: string; tone: StatusChipTone; icon: typeof CheckCircle2 }
+  { labelKey: string; tone: StatusChipTone; icon: typeof CheckCircle2 }
 > = {
-  active: { label: "مُفعّل", tone: "positive", icon: CheckCircle2 },
-  disconnected: { label: "مفصول محلياً", tone: "neutral", icon: CircleSlash },
+  active: { labelKey: "contributor.githubSkills.statusActive", tone: "positive", icon: CheckCircle2 },
+  disconnected: { labelKey: "contributor.githubSkills.statusDisconnected", tone: "neutral", icon: CircleSlash },
   reauthorization_required: {
-    label: "يحتاج إعادة تفويض",
+    labelKey: "contributor.githubSkills.statusReauth",
     tone: "attention",
     icon: CircleAlert,
   },
-  revoked: { label: "ملغى من GitHub", tone: "negative", icon: CircleSlash },
+  revoked: { labelKey: "contributor.githubSkills.statusRevoked", tone: "negative", icon: CircleSlash },
 };
 
 /**
@@ -62,6 +63,7 @@ export function ContributorGithubSkillsSection({
 }: {
   profile: ContributorProfileDto;
 }) {
+  const { t } = useTranslation();
   const model = getGithubSkillsSectionModel(profile);
   if (!model.visible) return null;
 
@@ -72,15 +74,13 @@ export function ContributorGithubSkillsSection({
           <Sparkles className="mt-0.5 size-5 shrink-0 text-primary" />
           <div>
             <h2 className="text-base font-bold text-foreground">
-              تحليل المهارات عبر GitHub
+              {t("contributor.githubSkills.title")}
               <span className="ms-2 rounded-full border border-border px-2 py-0.5 align-middle text-[11px] font-normal text-muted-foreground">
-                اختياري
+                {t("contributor.githubSkills.optional")}
               </span>
             </h2>
             <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-              اربط تطبيق GitHub واختر مستودعاتك بنفسك لاستخراج مهارات مرشحة من
-              مساهماتك. الربط وحده لا يبدأ أي تحليل، والمهارات المستخرجة تبقى
-              بانتظار اعتماد الإدارة قبل ظهورها في ملفك العام.
+              {t("contributor.githubSkills.description")}
             </p>
           </div>
         </div>
@@ -93,8 +93,8 @@ export function ContributorGithubSkillsSection({
           <Link to={GITHUB_SKILL_ANALYSIS_PATH}>
             <Github className="size-4" />
             {model.installations.length > 0
-              ? "إدارة تحليل المهارات"
-              : "ابدأ تحليل المهارات"}
+              ? t("contributor.githubSkills.manage")
+              : t("contributor.githubSkills.start")}
           </Link>
         </Button>
       </div>
@@ -110,7 +110,7 @@ export function ContributorGithubSkillsSection({
                     {installation.accountLogin}
                   </span>
                   <StatusChip tone={meta.tone} icon={meta.icon}>
-                    {meta.label}
+                    {t(meta.labelKey)}
                   </StatusChip>
                 </div>
                 {installation.repositories.length > 0 && (
@@ -138,8 +138,7 @@ export function ContributorGithubSkillsSection({
 
       {model.installations.length === 0 && (
         <p className="mt-4 text-xs text-muted-foreground">
-          لا يوجد أي ربط لتطبيق GitHub حالياً. يمكنك متابعة استخدام Share-k
-          بالكامل بدونه.
+          {t("contributor.githubSkills.empty")}
         </p>
       )}
     </Card>

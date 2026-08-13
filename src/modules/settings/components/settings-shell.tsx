@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -23,13 +24,17 @@ export function SettingsShell({
   onSelectSection: (id: string) => void;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:flex-row md:items-start md:px-8">
       <aside className="w-full shrink-0 md:sticky md:top-24 md:w-56">
-        <h1 className="mb-4 text-2xl font-bold text-foreground">الإعدادات</h1>
+        <h1 className="mb-4 text-2xl font-bold text-foreground">
+          {t("settings.title")}
+        </h1>
         <nav
           className="flex flex-row gap-1 overflow-x-auto md:flex-col md:overflow-visible"
-          aria-label="أقسام الإعدادات"
+          aria-label={t("settings.nav")}
         >
           {sections.map((section) => {
             const isActive = section.id === activeSectionId;

@@ -7,6 +7,7 @@ import {
   ShieldQuestion,
   Trash2,
 } from "lucide-react";
+import type { TFunction } from "i18next";
 import type { ComponentType } from "react";
 
 import type { StatusChipTone } from "@/shared/components/data-display/status-chip";
@@ -44,59 +45,61 @@ export interface MaterialStateMeta {
   description: string;
 }
 
-const STATE_META: Record<MaterialVersionState, MaterialStateMeta> = {
+interface MaterialStateCopy {
+  tone: StatusChipTone;
+  icon: ComponentType<{ className?: string }>;
+  labelKey: string;
+  descriptionKey: string;
+}
+
+const STATE_META: Record<MaterialVersionState, MaterialStateCopy> = {
   UPLOADING: {
     tone: "waiting",
     icon: CloudUpload,
-    label: "جارٍ الرفع",
-    description: "يجري رفع الملف إلى الخادم. لا تغلق الصفحة قبل اكتماله.",
+    labelKey: "material.state.uploading",
+    descriptionKey: "material.state.uploadingDescription",
   },
   QUARANTINED: {
     tone: "waiting",
     icon: ShieldQuestion,
-    label: "في الحجر",
-    description:
-      "الملف محفوظ وبانتظار الفحص الأمني. لا يمكن تنزيله قبل اجتياز الفحص.",
+    labelKey: "material.state.quarantined",
+    descriptionKey: "material.state.quarantinedDescription",
   },
   SCANNING: {
     tone: "waiting",
     icon: Loader2,
-    label: "قيد الفحص",
-    description: "يجري فحص الملف الآن. سيصبح متاحًا للتنزيل بعد اجتياز الفحص.",
+    labelKey: "material.state.scanning",
+    descriptionKey: "material.state.scanningDescription",
   },
   SCAN_UNAVAILABLE: {
     tone: "attention",
     icon: ShieldAlert,
-    label: "تعذّر الفحص",
-    description:
-      "تعذّر إتمام الفحص الأمني بعد عدة محاولات، ولذلك يبقى الملف غير قابل للتنزيل. هذا لا يعني أن الملف ضار. ارفع نسخة جديدة أو تواصل مع الدعم.",
+    labelKey: "material.state.scanUnavailable",
+    descriptionKey: "material.state.scanUnavailableDescription",
   },
   READY: {
     tone: "positive",
     icon: FileCheck2,
-    label: "جاهز",
-    description: "اجتاز الملف الفحص الأمني وأصبح متاحًا لمن يملك صلاحية الوصول.",
+    labelKey: "material.state.ready",
+    descriptionKey: "material.state.readyDescription",
   },
   REJECTED: {
     tone: "negative",
     icon: CircleSlash,
-    label: "مرفوض",
-    description:
-      "رصد الفحص الأمني محتوى ضارًا في هذه النسخة، ولن تكون متاحة للتنزيل إطلاقًا.",
+    labelKey: "material.state.rejected",
+    descriptionKey: "material.state.rejectedDescription",
   },
   PURGE_PENDING: {
     tone: "negative",
     icon: Trash2,
-    label: "قيد الحذف",
-    description:
-      "أُلغي وصول الجميع إلى هذه المادة فورًا، ويجري الآن حذف محتواها نهائيًا.",
+    labelKey: "material.state.purgePending",
+    descriptionKey: "material.state.purgePendingDescription",
   },
   DELETED: {
     tone: "negative",
     icon: Trash2,
-    label: "محذوف",
-    description:
-      "حُذف محتوى هذه المادة نهائيًا. يبقى سجل العمليات محفوظًا للمراجعة دون المحتوى.",
+    labelKey: "material.state.deleted",
+    descriptionKey: "material.state.deletedDescription",
   },
 };
 
@@ -121,9 +124,16 @@ export function getMaterialVersionState(
 }
 
 export function getMaterialStateMeta(
+  t: TFunction,
   state: MaterialVersionState,
 ): MaterialStateMeta {
-  return STATE_META[state];
+  const copy = STATE_META[state];
+  return {
+    tone: copy.tone,
+    icon: copy.icon,
+    label: t(copy.labelKey),
+    description: t(copy.descriptionKey),
+  };
 }
 
 /**
@@ -146,52 +156,57 @@ export function canDownloadVersion(
  * nothing about what would change it.
  */
 export function getDownloadBlockedReason(
+  t: TFunction,
   state: MaterialVersionState,
 ): string | null {
   if (state === "READY") return null;
-  return getMaterialStateMeta(state).description;
+  return getMaterialStateMeta(t, state).description;
 }
 
 const VISIBILITY_COPY: Record<
   MaterialDto["visibility"],
-  { label: string; description: string }
+  { labelKey: string; descriptionKey: string }
 > = {
   PUBLIC: {
-    label: "عام داخل المشروع",
-    description:
-      "متاح لأي مستخدم يستطيع رؤية المشروع المنشور. ليس متاحًا خارج المنصة.",
+    labelKey: "material.visibility.public",
+    descriptionKey: "material.visibility.publicDescription",
   },
   RESTRICTED_PROJECT: {
-    label: "مقيّد بالمشروع",
-    description:
-      "متاح فقط لمن تمنحه صلاحية صريحة، وبشرط أن يكون مسندًا إليه عمل قائم في المشروع. ينتهي الوصول فور سحب الصلاحية أو انتهاء الإسناد.",
+    labelKey: "material.visibility.restrictedProject",
+    descriptionKey: "material.visibility.restrictedProjectDescription",
   },
   ASSIGNMENT: {
-    label: "خاص بالإسناد",
-    description:
-      "متاح لك وحدك قبل وجود إسناد، ثم لك وللمساهم المسنَد إليه الطلب. ينتهي وصوله عند انتهاء الإسناد.",
+    labelKey: "material.visibility.assignment",
+    descriptionKey: "material.visibility.assignmentDescription",
   },
 };
 
-export function getVisibilityCopy(visibility: MaterialDto["visibility"]) {
-  return VISIBILITY_COPY[visibility];
+export function getVisibilityCopy(
+  t: TFunction,
+  visibility: MaterialDto["visibility"],
+) {
+  const copy = VISIBILITY_COPY[visibility];
+  return {
+    label: t(copy.labelKey),
+    description: t(copy.descriptionKey),
+  };
 }
 
 /** Bytes as the server states them, in units a person reads. */
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} بايت`;
+export function formatBytes(t: TFunction, bytes: number): string {
+  if (bytes < 1024) return `${bytes} ${t("material.bytesUnit")}`;
   const kilobytes = bytes / 1024;
-  if (kilobytes < 1024) return `${Math.round(kilobytes)} كيلوبايت`;
+  if (kilobytes < 1024) return `${Math.round(kilobytes)} ${t("material.kilobytesUnit")}`;
   const megabytes = kilobytes / 1024;
-  return `${megabytes.toFixed(megabytes < 10 ? 1 : 0)} ميجابايت`;
+  return `${megabytes.toFixed(megabytes < 10 ? 1 : 0)} ${t("material.megabytesUnit")}`;
 }
 
-const MIME_LABELS: Record<string, string> = {
-  "application/pdf": "PDF",
+const MIME_LABELS: Record<string, string | undefined> = {
+  "application/pdf": "material.mime.pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-    "DOCX",
-  "text/markdown": "Markdown",
-  "text/plain": "نص",
+    "material.mime.docx",
+  "text/markdown": "material.mime.markdown",
+  "text/plain": "material.mime.textPlain",
 };
 
 /**
@@ -199,6 +214,7 @@ const MIME_LABELS: Record<string, string> = {
  * an unrecognised type is shown as itself rather than dropped, so raising the
  * allowlist server-side cannot silently hide a format from the form.
  */
-export function formatMimeType(mimeType: string): string {
-  return MIME_LABELS[mimeType] ?? mimeType;
+export function formatMimeType(t: TFunction, mimeType: string): string {
+  const key = MIME_LABELS[mimeType];
+  return key === undefined ? mimeType : t(key);
 }

@@ -16,6 +16,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import type { TFunction } from "i18next";
 
 import { ROUTES } from "@/config/routes.config";
 
@@ -26,12 +27,14 @@ interface MemberNavigationOptions {
   pathname: string;
   username: string | null;
   unreadCount: number;
+  t: TFunction;
 }
 
 interface AdminNavigationOptions {
   pathname: string;
   unreadCount: number;
   pendingReviewsCount: number;
+  t: TFunction;
 }
 
 function isActivePath(pathname: string, route: string, exact = false): boolean {
@@ -43,28 +46,29 @@ export function getMemberNavigation({
   pathname,
   username,
   unreadCount,
+  t,
 }: MemberNavigationOptions): AppShellNavItem[] {
   const homeItem: AppShellNavItem = {
-    label: "الرئيسية",
+    label: t("navigation.home"),
     to: ROUTES.home,
     icon: House,
     active: isActivePath(pathname, ROUTES.home, true),
   };
   const discussionsItem: AppShellNavItem = {
-    label: "النقاشات",
+    label: t("navigation.discussions"),
     to: ROUTES.discussions,
     icon: Newspaper,
     active: isActivePath(pathname, ROUTES.discussions),
   };
   const settingsItem: AppShellNavItem = {
-    label: "الإعدادات",
+    label: t("navigation.settings"),
     to: ROUTES.settings,
     icon: Settings,
     active: isActivePath(pathname, ROUTES.settings),
     secondary: true,
   };
   const supportItem: AppShellNavItem = {
-    label: "الدعم",
+    label: t("navigation.support"),
     to: ROUTES.support,
     icon: MessageCircleQuestion,
     active: isActivePath(pathname, ROUTES.support),
@@ -76,14 +80,14 @@ export function getMemberNavigation({
     return [
       homeItem,
       {
-        label: "مشاريعي",
+        label: t("navigation.myProjects"),
         to: ROUTES.myProjects,
         icon: BriefcaseBusiness,
         active: isActivePath(pathname, ROUTES.myProjects),
       },
       discussionsItem,
       {
-        label: "الإشعارات",
+        label: t("navigation.notifications"),
         to: ROUTES.notifications,
         icon: Bell,
         active: isActivePath(pathname, ROUTES.notifications),
@@ -97,49 +101,49 @@ export function getMemberNavigation({
   return [
     homeItem,
     {
-      label: "لوحة التحكم",
+      label: t("navigation.dashboard"),
       to: ROUTES.dashboard,
       icon: LayoutDashboard,
       active: isActivePath(pathname, ROUTES.dashboard),
     },
     {
-      label: "استكشاف",
+      label: t("navigation.explore"),
       to: ROUTES.explore,
       icon: Compass,
       active: isActivePath(pathname, ROUTES.explore),
     },
     {
-      label: "طلبات المساهمة",
+      label: t("navigation.tasks"),
       to: ROUTES.tasks,
       icon: ListTodo,
       active: isActivePath(pathname, ROUTES.tasks),
     },
     {
-      label: "مقترحاتي",
+      label: t("navigation.proposals"),
       to: ROUTES.proposals,
       icon: NotebookPen,
       active: isActivePath(pathname, ROUTES.proposals),
     },
     discussionsItem,
     {
-      label: "تحليل المهارات",
+      label: t("navigation.skillAnalysis"),
       to: ROUTES.githubSkillAnalysis,
       icon: Github,
       active: isActivePath(pathname, ROUTES.githubSkillAnalysis),
       hideOnMobile: true,
     },
     {
-      label: "الملف الشخصي",
+      label: t("navigation.profile"),
       to: username ? ROUTES.contributorProfile(username) : ROUTES.dashboard,
       icon: UserRound,
       active:
         pathname.startsWith("/profile/") &&
         !isActivePath(pathname, ROUTES.githubSkillAnalysis),
       disabled: username === null,
-      statusLabel: username === null ? "جارٍ التحميل" : undefined,
+      statusLabel: username === null ? t("navigation.profileLoading") : undefined,
     },
     {
-      label: "الإشعارات",
+      label: t("navigation.notifications"),
       to: ROUTES.notifications,
       icon: Bell,
       active: isActivePath(pathname, ROUTES.notifications),
@@ -155,52 +159,53 @@ export function getAdminNavigation({
   pathname,
   unreadCount,
   pendingReviewsCount,
+  t,
 }: AdminNavigationOptions): AppShellNavItem[] {
   return [
     {
-      label: "نظرة عامة",
+      label: t("navigation.adminOverview"),
       to: ROUTES.admin,
       icon: LayoutDashboard,
       active: isActivePath(pathname, ROUTES.admin, true),
     },
     {
-      label: "مراجعة المهارات",
+      label: t("navigation.adminSkillReviews"),
       to: ROUTES.adminSkillReviews,
       icon: ClipboardCheck,
       active: isActivePath(pathname, ROUTES.adminSkillReviews),
       badge: pendingReviewsCount,
     },
     {
-      label: "مجالات المساهمين",
+      label: t("navigation.adminProfileFields"),
       to: ROUTES.adminProfileFields,
       icon: PanelsTopLeft,
       active: isActivePath(pathname, ROUTES.adminProfileFields),
     },
     {
-      label: "مستويات الخبرة",
+      label: t("navigation.adminExperienceLevels"),
       to: ROUTES.adminExperienceLevels,
       icon: TrendingUp,
       active: isActivePath(pathname, ROUTES.adminExperienceLevels),
     },
     {
-      label: "ملاك المشاريع",
+      label: t("navigation.adminProjectOwners"),
       to: ROUTES.adminProjectOwners,
       icon: BriefcaseBusiness,
       active: isActivePath(pathname, ROUTES.adminProjectOwners),
     },
     {
-      label: "الإشعارات",
+      label: t("navigation.adminNotifications"),
       to: ROUTES.adminNotifications,
       icon: Bell,
       active: isActivePath(pathname, ROUTES.adminNotifications),
       badge: unreadCount,
     },
     {
-      label: "المستخدمون",
+      label: t("navigation.adminUsers"),
       to: ROUTES.admin,
       icon: Users,
       disabled: true,
-      statusLabel: "قريباً",
+      statusLabel: t("common.comingSoon"),
       hideOnMobile: true,
     },
   ];

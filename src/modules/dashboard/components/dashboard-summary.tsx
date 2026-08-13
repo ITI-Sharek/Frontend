@@ -1,4 +1,5 @@
 import { ClipboardList, Sparkles, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type {
   ApplicationsSummaryDto,
@@ -19,6 +20,8 @@ export function DashboardSummary({
   applications: ApplicationsSummaryDto;
   showGrowthPath?: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <section
       id="record"
@@ -26,26 +29,28 @@ export function DashboardSummary({
       aria-labelledby="record-heading"
     >
       <div>
-        <p className="text-xs font-semibold text-primary">تقدم موثّق</p>
+        <p className="text-xs font-semibold text-primary">
+          {t("dashboard.growth.verifiedProgress")}
+        </p>
         <h2
           id="record-heading"
           className="mt-1 text-xl font-bold text-foreground"
         >
-          سجل مساهماتك
+          {t("dashboard.growth.recordTitle")}
         </h2>
       </div>
       <div className="mt-4 grid overflow-hidden rounded-card border border-border bg-card md:grid-cols-[1.45fr_0.55fr] md:divide-x md:divide-x-reverse md:divide-border">
         <div className="p-5 sm:p-6">
           {showGrowthPath ? (
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              سمعتك تُبنى من التسليمات المعتمدة وتقييمات أصحاب المشاريع. الخطوة
-              الأولى: قدّم على مهمة مطابقة لمهاراتك الموثقة — أول مساهمة معتمدة
-              تبدأ سجلّك.
+              {t("dashboard.growth.growthPath")}
             </p>
           ) : (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">تقييم المساهمات</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.growth.rating")}
+                </p>
                 <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-foreground">
                   <span dir="ltr" className="inline-flex items-center gap-1.5">
                     {growth.ratingPrevious?.toFixed(1)} ←{" "}
@@ -57,14 +62,16 @@ export function DashboardSummary({
               <dl className="grid grid-cols-2 gap-6 text-sm">
                 <div>
                   <dt className="text-xs text-muted-foreground">
-                    مساهمات مكتملة
+                    {t("contributor.reputation.completedContributions")}
                   </dt>
                   <dd className="mt-1 text-lg font-bold text-foreground">
                     {growth.completedCount}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">معدل النجاح</dt>
+                  <dt className="text-xs text-muted-foreground">
+                    {t("contributor.reputation.successRate")}
+                  </dt>
                   <dd className="mt-1 text-lg font-bold text-foreground">
                     {growth.successRate}٪
                   </dd>
@@ -75,7 +82,9 @@ export function DashboardSummary({
           {!showGrowthPath && (
             <p className="mt-5 flex items-center gap-2 border-t border-border pt-4 text-sm text-evidence-teal-foreground dark:text-evidence-teal">
               <Sparkles className="size-4" aria-hidden />+
-              {growth.skillsVerifiedThisMonth} مهارة موثقة هذا الشهر
+              {t("dashboard.growth.skillsThisMonth", {
+                count: growth.skillsVerifiedThisMonth,
+              })}
             </p>
           )}
         </div>
@@ -85,7 +94,7 @@ export function DashboardSummary({
           <dl className="mt-4">
             <div>
               <dt className="text-sm text-muted-foreground">
-                بانتظار صاحب المشروع
+                {t("dashboard.applications.pendingOwnerReview")}
               </dt>
               <dd className="mt-1 text-3xl font-bold text-foreground">
                 {applications.pendingOwnerReviewCount}
@@ -93,7 +102,7 @@ export function DashboardSummary({
             </div>
           </dl>
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            سنخبرك فور اتخاذ قرار. لا تحتاج إلى إعادة التقديم.
+            {t("dashboard.applications.decisionNote")}
           </p>
         </div>
       </div>

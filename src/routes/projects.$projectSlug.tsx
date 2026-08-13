@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/projects/$projectSlug")({
 });
 
 function PublicProjectDetailsPage() {
+  const { t } = useTranslation();
   const { projectSlug } = Route.useParams();
   const projectQuery = usePublicProjectBySlugQuery(projectSlug);
   const currentUserQuery = useCurrentUserQuery();
@@ -32,7 +34,7 @@ function PublicProjectDetailsPage() {
     return (
       <PublicProjectsShell>
         <div className="flex min-h-[60vh] items-center justify-center text-sm text-muted-foreground">
-          جارٍ تحميل المشروع...
+          {t("project.loading")}
         </div>
       </PublicProjectsShell>
     );
@@ -42,12 +44,14 @@ function PublicProjectDetailsPage() {
     return (
       <PublicProjectsShell>
         <div className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center gap-3 px-4 text-center">
-          <h1 className="text-xl font-bold text-foreground">لم نعثر على هذا المشروع</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            {t("project.errors.projectNotFound")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            {getProjectApiErrorMessage(projectQuery.error)}
+            {getProjectApiErrorMessage(t, projectQuery.error)}
           </p>
           <Link to={ROUTES.publicProjects} className="rounded-input bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-            العودة إلى المشاريع
+            {t("proposalSubmission.backToProjects")}
           </Link>
         </div>
       </PublicProjectsShell>
@@ -65,10 +69,10 @@ function PublicProjectDetailsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-bold text-foreground">
-                  لديك فكرة عمل جديدة لهذا المشروع؟
+                  {t("project.detail.newIdeaTitle")}
                 </h2>
                 <p className="mt-1 text-xs leading-6 text-muted-foreground">
-                  أرسلها كمقترح خاص منفصل عن التقديم على طلبات المساهمة المنشورة.
+                  {t("project.detail.newIdeaDescription")}
                 </p>
               </div>
               <Link
@@ -79,7 +83,7 @@ function PublicProjectDetailsPage() {
                 }}
                 className="rounded-input bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
               >
-                إرسال مقترح مساهمة
+                {t("project.detail.submitContributionProposal")}
               </Link>
             </div>
           ) : null

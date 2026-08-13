@@ -5,6 +5,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 
 import { StatusChip } from "@/shared/components/data-display/status-chip";
@@ -29,12 +30,6 @@ const STATUS_ICON = {
   failed: CircleSlash,
 } as const satisfies Record<SkillProfileGenerationStatus, typeof Clock>;
 
-const PROFICIENCY_LABEL = {
-  beginner: "مبتدئ",
-  intermediate: "متوسط",
-  advanced: "متقدم",
-} as const;
-
 interface SkillGenerationStatusPanelProps {
   generation: SkillProfileGenerationDto;
   onRetry: () => void;
@@ -58,7 +53,8 @@ export function SkillGenerationStatusPanel({
   retryDisabled = false,
   retryConsentSlot = null,
 }: SkillGenerationStatusPanelProps) {
-  const meta = getGenerationStatusMeta(generation.status);
+  const { t } = useTranslation();
+  const meta = getGenerationStatusMeta(t, generation.status);
   const Icon = STATUS_ICON[generation.status];
   const percent = getGenerationProgressPercent(generation);
   const showRetry = canRetryGeneration(generation);
@@ -66,7 +62,9 @@ export function SkillGenerationStatusPanel({
   return (
     <div className="rounded-card border border-border bg-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-sm font-bold text-foreground">حالة التحليل</h3>
+        <h3 className="text-sm font-bold text-foreground">
+          {t("skillProfile.status.title")}
+        </h3>
         <StatusChip tone={meta.tone} icon={Icon}>
           {meta.label}
         </StatusChip>
@@ -92,7 +90,7 @@ export function SkillGenerationStatusPanel({
           aria-valuenow={percent}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="تقدم التحليل"
+          aria-label={t("skillProfile.status.progressAriaLabel")}
         >
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-500"
@@ -100,8 +98,10 @@ export function SkillGenerationStatusPanel({
           />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          {generation.progress.snapshottedRepositoryCount} من{" "}
-          {generation.progress.selectedRepositoryCount} مستودع تمت معالجته
+          {t("skillProfile.status.repositoriesProcessed", {
+            snapshotted: generation.progress.snapshottedRepositoryCount,
+            selected: generation.progress.selectedRepositoryCount,
+          })}
         </p>
       </div>
 
@@ -122,7 +122,9 @@ export function SkillGenerationStatusPanel({
       {generation.status === "pending_review" && generation.skills.length > 0 && (
         <div className="mt-5">
           <p className="text-xs font-semibold text-foreground">
-            مهارات مرشحة بانتظار الاعتماد ({generation.skills.length})
+            {t("skillProfile.status.candidateSkills", {
+              count: generation.skills.length,
+            })}
           </p>
           <ul className="mt-2 flex flex-col gap-2">
             {generation.skills.map((skill) => (
@@ -132,9 +134,11 @@ export function SkillGenerationStatusPanel({
               >
                 <span className="text-sm text-foreground">{skill.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  {PROFICIENCY_LABEL[skill.proficiency]}
+                  {t(`skillProfile.proficiency.${skill.proficiency}`)}
                   {" · "}
-                  {skill.status === "approved" ? "معتمدة" : "قيد المراجعة"}
+                  {skill.status === "approved"
+                    ? t("skillProfile.status.approved")
+                    : t("skillProfile.status.pendingReview")}
                 </span>
               </li>
             ))}
@@ -157,7 +161,9 @@ export function SkillGenerationStatusPanel({
               onClick={onRetry}
               disabled={isRetrying || retryDisabled}
             >
-              {isRetrying ? "جارٍ إعادة المحاولة..." : "إعادة المحاولة"}
+              {isRetrying
+                ? t("skillProfile.status.retrying")
+                : t("skillProfile.status.retry")}
             </Button>
           </div>
         </div>

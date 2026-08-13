@@ -1,11 +1,12 @@
 import { ArrowRight, ExternalLink } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";
+import { getCategoryLabel, getDifficultyLabel } from "./explore-filters";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
-function formatPublishedDate(publishedAt: string): string {
-  return new Date(publishedAt).toLocaleDateString("ar", {
+function formatPublishedDate(publishedAt: string, locale: string): string {
+  return new Date(publishedAt).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -32,6 +33,7 @@ export function PublicProjectDetailView({
   proposalAction,
   materialsSlot,
 }: PublicProjectDetailViewProps) {
+  const { t, i18n } = useTranslation();
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
       <a
@@ -39,7 +41,7 @@ export function PublicProjectDetailView({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowRight className="size-4" />
-        العودة إلى الاستكشاف
+        {t("project.detail.backToExplore")}
       </a>
 
       <header className="rounded-card border border-border bg-card p-6">
@@ -52,12 +54,12 @@ export function PublicProjectDetailView({
           </h1>
           {project.difficulty !== null && (
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-              {DIFFICULTY_LABELS[project.difficulty]}
+              {getDifficultyLabel(t, project.difficulty)}
             </span>
           )}
           {project.category !== null && (
             <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-              {CATEGORY_LABELS[project.category]}
+              {getCategoryLabel(t, project.category)}
             </span>
           )}
           {project.source.attributionStatus === "public" && (
@@ -69,13 +71,15 @@ export function PublicProjectDetailView({
               className="ms-auto inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.65px] text-muted-foreground transition-colors hover:text-foreground"
             >
               <ExternalLink className="size-3.5" />
-              فتح على GitHub
+              {t("project.detail.openOnGithub")}
             </a>
           )}
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          نُشر في {formatPublishedDate(project.publishedAt)}
+          {t("project.detail.publishedOn", {
+            date: formatPublishedDate(project.publishedAt, i18n.language),
+          })}
         </p>
 
         {(project.technologies.length > 0 || project.tags.length > 0) && (
@@ -108,14 +112,14 @@ export function PublicProjectDetailView({
       )}
 
       <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-lg font-bold text-foreground">نظرة عامة</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("project.detail.overview")}</h2>
         <p className="mt-3 leading-8 text-muted-foreground">
-          {project.description ?? "لا يوجد وصف لهذا المشروع بعد."}
+          {project.description ?? t("explore.noDescription")}
         </p>
       </section>
 
       <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-sm font-bold text-foreground">مصدر المشروع</h2>
+        <h2 className="text-sm font-bold text-foreground">{t("project.source.title")}</h2>
         {project.source.attributionStatus === "public" ? (
           <>
             <p
@@ -126,14 +130,14 @@ export function PublicProjectDetailView({
             </p>
             {project.source.fetchedAt && (
               <p className="mt-1 text-xs text-muted-foreground">
-                آخر جلب للبيانات:{" "}
-                {new Date(project.source.fetchedAt).toLocaleString("ar")}
+                {t("project.detail.lastFetched")}{" "}
+                {new Date(project.source.fetchedAt).toLocaleString(i18n.language)}
               </p>
             )}
           </>
         ) : (
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            تفاصيل مصدر هذا المشروع غير متاحة للعرض حالياً.
+            {t("project.detail.sourceUnavailable")}
           </p>
         )}
       </section>
