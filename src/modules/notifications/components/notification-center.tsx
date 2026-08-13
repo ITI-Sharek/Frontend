@@ -1,5 +1,6 @@
 import { Bell, Check, CheckCheck, ChevronDown, WifiOff } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/providers/notifications-provider";
@@ -34,6 +35,7 @@ import {
 type ReadStateFilter = "all" | "read" | "unread";
 
 export function NotificationCenter() {
+  const { t } = useTranslation();
   const [readState, setReadState] = useState<ReadStateFilter>("all");
   const [type, setType] = useState<NotificationType | "all">("all");
   const { connectionStatus } = useNotifications();
@@ -59,11 +61,11 @@ export function NotificationCenter() {
   const hasUnread = (unreadCountQuery.data?.unreadCount ?? 0) > 0;
 
   return (
-    <div dir="rtl">
+    <div>
       <PageContainer>
         <PageHeader
-          title="الإشعارات"
-          description="تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك."
+          title={t("notifications.center.title")}
+          description={t("notifications.center.description")}
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <ConnectionStatus status={connectionStatus} />
@@ -75,26 +77,26 @@ export function NotificationCenter() {
                 onClick={() => markAllMutation.mutate()}
               >
                 <CheckCheck className="size-4" aria-hidden="true" />
-                تحديد الكل كمقروء
+                {t("notifications.markAllRead")}
               </Button>
             </div>
           }
         />
 
       <div
-        aria-label="فلاتر الإشعارات"
+        aria-label={t("notifications.center.filters")}
         className="mt-6 flex flex-col gap-4 border-b border-border sm:flex-row sm:items-end sm:justify-between"
       >
         <div
           role="tablist"
-          aria-label="حالة قراءة الإشعارات"
+          aria-label={t("notifications.center.readState")}
           className="flex gap-1 overflow-x-auto"
         >
           {(
             [
-              { id: "all", label: "الكل" },
-              { id: "unread", label: "غير مقروءة" },
-              { id: "read", label: "مقروءة" },
+              { id: "all", label: t("notifications.center.all") },
+              { id: "unread", label: t("notifications.center.unread") },
+              { id: "read", label: t("notifications.center.read") },
             ] as const
           ).map((tab) => {
             const selected = readState === tab.id;
@@ -123,7 +125,7 @@ export function NotificationCenter() {
           })}
         </div>
         <label className="grid gap-1.5 pb-3 text-xs font-semibold text-foreground">
-          النوع
+          {t("notifications.center.type")}
           <span className="relative">
             <select
               name="notification-type"
@@ -133,10 +135,10 @@ export function NotificationCenter() {
               }
               className="min-h-10 appearance-none rounded-input border border-border bg-card py-2 pe-9 ps-3 text-sm font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <option value="all">كل الأنواع</option>
+              <option value="all">{t("notifications.center.allTypes")}</option>
               {NOTIFICATION_TYPES.map((notificationType) => (
                 <option key={notificationType} value={notificationType}>
-                  {getNotificationTypeLabel(notificationType)}
+                  {getNotificationTypeLabel(t, notificationType)}
                 </option>
               ))}
             </select>
@@ -154,21 +156,21 @@ export function NotificationCenter() {
           aria-live="polite"
           className="mt-6 flex min-h-64 items-center justify-center rounded-card border border-border bg-card px-6 py-10 text-sm text-muted-foreground"
         >
-          جارٍ تحميل الإشعارات…
+          {t("notifications.loading")}
         </div>
       ) : listQuery.isError ? (
         <div role="alert" className="mt-6">
           <PageFeedback
             icon={WifiOff}
-            title="تعذّر تحميل الإشعارات"
-            description="يمكنك إعادة المحاولة الآن؛ ستظل الإشعارات قابلة للاسترداد عند عودة الاتصال."
+            title={t("notifications.loadError")}
+            description={t("notifications.center.loadErrorDescription")}
             action={
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => void listQuery.refetch()}
               >
-                إعادة المحاولة
+                {t("common.retry")}
               </Button>
             }
           />
@@ -177,11 +179,11 @@ export function NotificationCenter() {
         <PageFeedback
           className="mt-6"
           icon={connectionStatus === "connected" ? Bell : WifiOff}
-          title="لا توجد إشعارات بعد"
+          title={t("notifications.emptyTitle")}
           description={
             connectionStatus === "connected"
-              ? "ستظهر نتائج المراجعات والأحداث المهمة هنا فور وصولها."
-              : "سيتم تحميل الإشعارات المحفوظة عند استعادة الاتصال بالخادم."
+              ? t("notifications.center.emptyConnected")
+              : t("notifications.center.emptyOffline")
           }
         />
       ) : (
@@ -211,8 +213,8 @@ export function NotificationCenter() {
                 onClick={() => void listQuery.fetchNextPage()}
               >
                 {listQuery.isFetchingNextPage
-                  ? "جارٍ التحميل…"
-                  : "تحميل المزيد"}
+                  ? t("common.loading")
+                  : t("notifications.center.loadMore")}
               </Button>
             </div>
           )}
@@ -232,7 +234,8 @@ function NotificationRow({
   isPending: boolean;
   onSetReadState: (state: "read" | "unread") => void;
 }) {
-  const content = getNotificationContent(notification);
+  const { t, i18n } = useTranslation();
+  const content = getNotificationContent(t, notification);
   const deepLink = getSafeNotificationLink(
     notification.deepLink,
     typeof window === "undefined" ? "http://localhost" : window.location.origin,
@@ -251,14 +254,14 @@ function NotificationRow({
             {!notification.isRead && (
               <span
                 className="size-2 rounded-full bg-primary"
-                aria-label="غير مقروء"
+                aria-label={t("notifications.unread")}
               />
             )}
             <span className="text-xs font-medium text-muted-foreground">
-              {getNotificationTypeLabel(notification.type)}
+              {getNotificationTypeLabel(t, notification.type)}
             </span>
             <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-              {getNotificationPriorityLabel(notification.priority)}
+              {getNotificationPriorityLabel(t, notification.priority)}
             </span>
             <span aria-hidden="true" className="text-border">
               ·
@@ -267,7 +270,7 @@ function NotificationRow({
               dateTime={notification.createdAt}
               className="font-mono text-[11px] text-muted-foreground"
             >
-              {formatNotificationDate(notification.createdAt)}
+              {formatNotificationDate(notification.createdAt, i18n.language)}
             </time>
           </div>
           <h2 className="mt-2 break-words text-base font-bold text-foreground">
@@ -282,11 +285,11 @@ function NotificationRow({
               onClick={() => onSetReadState("read")}
               className="mt-3 inline-flex min-h-9 items-center rounded-input px-2 text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              فتح الإشعار
+              {t("notifications.open")}
             </a>
           ) : (
             <span className="mt-3 inline-flex text-xs text-muted-foreground">
-              الهدف غير متاح
+              {t("notifications.targetUnavailable")}
             </span>
           )}
         </div>
@@ -300,7 +303,7 @@ function NotificationRow({
           className="inline-flex min-h-10 shrink-0 touch-manipulation items-center justify-center gap-2 self-start rounded-input px-3 text-xs font-semibold text-foreground transition-colors duration-150 hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <Check className="size-4" aria-hidden="true" />
-          {notification.isRead ? "تحديد كغير مقروء" : "تحديد كمقروء"}
+          {notification.isRead ? t("notifications.markUnread") : t("notifications.markRead")}
         </button>
       </article>
     </li>
@@ -312,6 +315,7 @@ function ConnectionStatus({
 }: {
   status: ReturnType<typeof useNotifications>["connectionStatus"];
 }) {
+  const { t } = useTranslation();
   const isConnected = status === "connected";
 
   return (
@@ -326,17 +330,7 @@ function ConnectionStatus({
           isConnected ? "bg-emerald-500" : "bg-amber-500",
         )}
       />
-      {getStatusCopy(status)}
+      {t(`notifications.connection.${status}`)}
     </span>
   );
-}
-
-function getStatusCopy(
-  status: ReturnType<typeof useNotifications>["connectionStatus"],
-): string {
-  if (status === "connected") return "متصل مباشرة";
-  if (status === "connecting") return "جارٍ الاتصال…";
-  if (status === "synchronizing") return "جارٍ مزامنة الإشعارات…";
-  if (status === "unauthorized") return "الجلسة غير مخولة";
-  return "غير متصل";
 }

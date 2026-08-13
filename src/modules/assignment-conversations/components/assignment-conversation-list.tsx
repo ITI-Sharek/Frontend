@@ -1,4 +1,5 @@
 import type { AssignmentConversationDto } from "../types/assignment-conversation.types";
+import { useTranslation } from "react-i18next";
 
 export function AssignmentConversationList({
   conversations,
@@ -15,14 +16,20 @@ export function AssignmentConversationList({
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <aside
       className="border-b border-border lg:border-b-0 lg:border-e"
-      aria-label="قائمة المحادثات"
+      aria-label={t("assignmentConversations.list.ariaLabel")}
     >
       <div className="border-b border-border p-4">
-        <h2 className="text-sm font-bold text-foreground">Assignments</h2>
-        <p className="mt-1 text-xs text-muted-foreground">محادثاتك الخاصة</p>
+        <h2 className="text-sm font-bold text-foreground">
+          {t("assignmentConversations.list.title")}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("assignmentConversations.list.description")}
+        </p>
       </div>
       <div className="flex max-h-56 overflow-x-auto lg:max-h-[28rem] lg:flex-col lg:overflow-y-auto">
         {conversations.map((conversation) => {
@@ -40,7 +47,9 @@ export function AssignmentConversationList({
                 {conversation.ownerName} ↔ {conversation.contributorName}
               </span>
               <span className="mt-1 block text-xs text-muted-foreground">
-                {conversation.status === "active" ? "مفتوحة" : "للقراءة فقط"}
+                {conversation.status === "active"
+                  ? t("assignmentConversations.status.active")
+                  : t("assignmentConversations.status.readOnly")}
               </span>
             </button>
           );
@@ -53,7 +62,9 @@ export function AssignmentConversationList({
           onClick={onLoadMore}
           className="min-h-10 w-full border-t border-border px-3 text-xs font-semibold text-foreground hover:bg-primary/[0.04] disabled:opacity-60"
         >
-          {isFetchingNextPage ? "جارٍ التحميل…" : "تحميل محادثات أقدم"}
+          {isFetchingNextPage
+            ? t("common.loading_ellipsis")
+            : t("assignmentConversations.list.loadOlder")}
         </button>
       )}
     </aside>

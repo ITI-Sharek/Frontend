@@ -1,4 +1,5 @@
 import { CircleAlert, Compass, Loader2, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
@@ -13,6 +14,7 @@ function scoreLabel(score: number) {
 }
 
 function RecommendationCard({ recommendation }: { recommendation: RecommendedTaskDto }) {
+  const { t } = useTranslation();
   return (
     <article className="grid gap-3 rounded-card border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -36,7 +38,7 @@ function RecommendationCard({ recommendation }: { recommendation: RecommendedTas
         href={ROUTES.task(recommendation.requestId)}
         className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline"
       >
-        عرض طلب المساهمة والتقديم
+        {t("matching.recommendations.viewRequest")}
         <Compass className="size-4" aria-hidden />
       </a>
     </article>
@@ -44,13 +46,14 @@ function RecommendationCard({ recommendation }: { recommendation: RecommendedTas
 }
 
 export function RecommendedTasksSection() {
+  const { t } = useTranslation();
   const query = useRecommendedTasksQuery();
 
   if (query.isPending) {
     return (
       <Card className="flex items-center gap-2 shadow-none" role="status">
         <Loader2 className="size-4 animate-spin" aria-hidden />
-        جارٍ إعداد التوصيات من مهاراتك المعتمدة…
+        {t("matching.recommendations.loading")}
       </Card>
     );
   }
@@ -60,10 +63,10 @@ export function RecommendedTasksSection() {
       <Card className="grid gap-3 border-dashed shadow-none">
         <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
           <Sparkles className="size-5 text-primary" aria-hidden />
-          توصيات مخصصة لك
+          {t("matching.recommendations.gatedTitle")}
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          التوصيات الشخصية غير متاحة ضمن خطتك الحالية. يمكنك استكشاف كل الطلبات والتقديم وفق القواعد العادية.
+          {t("matching.recommendations.gatedDescription")}
         </p>
       </Card>
     );
@@ -74,10 +77,10 @@ export function RecommendedTasksSection() {
       <Card className="grid gap-3 shadow-none" role="alert">
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <CircleAlert className="size-4" aria-hidden />
-          تعذّر تحميل التوصيات.
+          {t("matching.recommendations.loadError")}
         </p>
         <Button type="button" variant="outline" className="w-fit" onClick={() => void query.refetch()}>
-          إعادة المحاولة
+          {t("common.retry")}
         </Button>
       </Card>
     );
@@ -88,19 +91,19 @@ export function RecommendedTasksSection() {
       <div>
         <p className="flex items-center gap-2 text-xs font-semibold text-primary">
           <Sparkles className="size-4" aria-hidden />
-          Gold · توصيات مبنية على الأدلة
+          {t("matching.recommendations.eyebrow")}
         </p>
         <h2 id="recommended-tasks-title" className="mt-1 text-xl font-bold text-foreground">
-          موصى بها لك
+          {t("matching.recommendations.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          تظهر هذه الطلبات بسبب مهاراتك المعتمدة وتاريخ مساهماتك. التوصيات إرشادية فقط.
+          {t("matching.recommendations.description")}
         </p>
       </div>
       {query.data.recommendations.length === 0 ? (
         <Card className="border-dashed shadow-none">
           <p className="text-sm leading-6 text-muted-foreground">
-            لا توجد توصيات جديدة الآن. يمكنك استكشاف الطلبات المنشورة يدويًا.
+            {t("matching.recommendations.empty")}
           </p>
         </Card>
       ) : (
@@ -111,7 +114,7 @@ export function RecommendedTasksSection() {
         </div>
       )}
       <p className="text-xs leading-5 text-muted-foreground">
-        التقديم متاح وفق القواعد العادية ولا يرتبط بحصة خطة المساهم.
+        {t("matching.recommendations.quotaNote")}
       </p>
     </section>
   );

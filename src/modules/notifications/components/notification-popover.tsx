@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, BellRing, WifiOff } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function NotificationPopover({
 }: {
   allNotificationsHref?: string;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [popoverPosition, setPopoverPosition] =
     useState<PopoverPosition | null>(null);
@@ -122,7 +124,9 @@ export function NotificationPopover({
       <button
         type="button"
         aria-label={
-          unreadCount > 0 ? `الإشعارات، ${unreadCount} غير مقروءة` : "الإشعارات"
+          unreadCount > 0
+            ? t("notifications.popover.triggerUnread", { count: unreadCount })
+            : t("notifications.center.title")
         }
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
@@ -141,7 +145,7 @@ export function NotificationPopover({
         <div
           id={popoverId}
           role="dialog"
-          aria-label="آخر الإشعارات"
+          aria-label={t("notifications.popover.latest")}
           ref={popoverRef}
           style={
             popoverPosition
@@ -151,14 +155,13 @@ export function NotificationPopover({
                 }
               : { visibility: "hidden" }
           }
-          dir="rtl"
-          className="fixed z-40 w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-5rem)] overflow-hidden rounded-card border border-border bg-card text-right shadow-md"
+          className="fixed z-40 w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-5rem)] overflow-hidden rounded-card border border-border bg-card text-start shadow-md"
         >
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div>
-              <p className="text-sm font-bold text-foreground">الإشعارات</p>
+              <p className="text-sm font-bold text-foreground">{t("notifications.center.title")}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {getConnectionCopy(connectionStatus)}
+                {t(`notifications.connection.${connectionStatus}`)}
               </p>
             </div>
             {unreadCount > 0 && (
@@ -168,7 +171,7 @@ export function NotificationPopover({
                 onClick={() => markAllMutation.mutate()}
                 className="min-h-9 rounded-input px-2 text-xs font-semibold text-foreground transition-colors duration-150 hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                تحديد الكل كمقروء
+                {t("notifications.markAllRead")}
               </button>
             )}
           </div>
@@ -176,17 +179,17 @@ export function NotificationPopover({
           <div className="max-h-80 overscroll-contain overflow-y-auto p-2">
             {latestQuery.isLoading ? (
               <p role="status" className="px-4 py-8 text-center text-sm text-muted-foreground">
-                جارٍ تحميل الإشعارات…
+                {t("notifications.loading")}
               </p>
             ) : latestQuery.isError ? (
               <div role="alert" className="px-4 py-8 text-center text-sm text-muted-foreground">
-                تعذّر تحميل الإشعارات
+                {t("notifications.loadError")}
                 <button
                   type="button"
                   onClick={() => void latestQuery.refetch()}
                   className="mt-3 block w-full font-semibold text-foreground underline-offset-4 hover:underline"
                 >
-                  إعادة المحاولة
+                  {t("common.retry")}
                 </button>
               </div>
             ) : latestNotifications.length === 0 ? (
@@ -196,13 +199,13 @@ export function NotificationPopover({
                   aria-hidden="true"
                 />
                 <p className="text-sm text-muted-foreground">
-                  لا توجد إشعارات في هذه الجلسة بعد.
+                  {t("notifications.popover.empty")}
                 </p>
               </div>
             ) : (
               <div className="flex flex-col gap-1">
                 {latestNotifications.slice(0, 5).map((notification) => {
-                  const content = getNotificationContent(notification);
+                  const content = getNotificationContent(t, notification);
                   const deepLink = getSafeNotificationLink(
                     notification.deepLink,
                     safeOrigin,
@@ -211,15 +214,15 @@ export function NotificationPopover({
                     <article
                       key={notification.notificationId}
                       className={cn(
-                        "rounded-input p-3 text-right transition-colors duration-150",
+                        "rounded-input p-3 text-start transition-colors duration-150",
                         notification.isRead
                           ? "hover:bg-border/25"
                           : "bg-primary/10 hover:bg-primary/15",
                       )}
                     >
                       <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>{getNotificationTypeLabel(notification.type)}</span>
-                        <span>{getNotificationPriorityLabel(notification.priority)}</span>
+                        <span>{getNotificationTypeLabel(t, notification.type)}</span>
+                        <span>{getNotificationPriorityLabel(t, notification.priority)}</span>
                       </div>
                       <span className="mt-1 block truncate text-sm font-semibold text-foreground">
                         {content.title}
@@ -239,11 +242,11 @@ export function NotificationPopover({
                             }
                             className="text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
-                            فتح الإشعار
+                            {t("notifications.open")}
                           </a>
                         ) : (
                           <span className="text-xs text-muted-foreground">
-                            الهدف غير متاح
+                            {t("notifications.targetUnavailable")}
                           </span>
                         )}
                         <button
@@ -258,8 +261,8 @@ export function NotificationPopover({
                           className="text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                           {notification.isRead
-                            ? "تحديد كغير مقروء"
-                            : "تحديد كمقروء"}
+                            ? t("notifications.markUnread")
+                            : t("notifications.markRead")}
                         </button>
                       </div>
                     </article>
@@ -274,20 +277,10 @@ export function NotificationPopover({
             onClick={() => setOpen(false)}
             className="block border-t border-border px-4 py-3 text-center text-sm font-semibold text-foreground transition-colors duration-150 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
           >
-            عرض كل الإشعارات
+            {t("notifications.popover.viewAll")}
           </Link>
         </div>
       )}
     </div>
   );
-}
-
-function getConnectionCopy(
-  status: ReturnType<typeof useNotifications>["connectionStatus"],
-): string {
-  if (status === "connected") return "متصل مباشرة";
-  if (status === "connecting") return "جارٍ الاتصال…";
-  if (status === "synchronizing") return "جارٍ مزامنة الإشعارات…";
-  if (status === "unauthorized") return "الجلسة لا تسمح بالإشعارات";
-  return "سيتم التحديث عند استعادة الاتصال";
 }

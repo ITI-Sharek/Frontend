@@ -1,5 +1,6 @@
 import { MessageCircle, RefreshCw, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -26,6 +27,7 @@ export function AssignmentConversationWorkspace({
   currentUserId?: string;
   onSelectConversation: (conversationId: string) => void;
 }) {
+  const { t } = useTranslation();
   const [messageQuery, setMessageQuery] = useState("");
   const conversationsQuery = useAssignmentConversationsQuery();
   const selectedConversationQuery = useAssignmentConversationQuery(
@@ -66,7 +68,7 @@ export function AssignmentConversationWorkspace({
   }, [conversationId, onSelectConversation, selectedConversationId]);
 
   if (conversationsQuery.isLoading) {
-    return <WorkspaceState title="جارٍ تحميل المحادثات…" />;
+    return <WorkspaceState title={t("assignmentConversations.workspace.loading")} />;
   }
 
   if (conversationsQuery.isError) {
@@ -74,8 +76,8 @@ export function AssignmentConversationWorkspace({
       <PageContainer>
         <PageFeedback
           icon={WifiOff}
-          title="تعذّر تحميل المحادثات"
-          description="تحقق من الاتصال ثم أعد المحاولة. لا تظهر المحادثات إلا للمشاركين في Assignment."
+          title={t("assignmentConversations.workspace.loadErrorTitle")}
+          description={t("assignmentConversations.workspace.loadErrorDescription")}
           action={
             <Button
               type="button"
@@ -83,7 +85,7 @@ export function AssignmentConversationWorkspace({
               onClick={() => void conversationsQuery.refetch()}
             >
               <RefreshCw className="size-4" aria-hidden="true" />
-              إعادة المحاولة
+              {t("common.retry")}
             </Button>
           }
         />
@@ -96,7 +98,7 @@ export function AssignmentConversationWorkspace({
     !selectedFromList &&
     selectedConversationQuery.isLoading
   ) {
-    return <WorkspaceState title="جارٍ فتح المحادثة…" />;
+    return <WorkspaceState title={t("assignmentConversations.workspace.opening")} />;
   }
 
   if (
@@ -108,8 +110,8 @@ export function AssignmentConversationWorkspace({
       <PageContainer>
         <PageFeedback
           icon={MessageCircle}
-          title="المحادثة غير متاحة"
-          description="قد تكون المحادثة غير موجودة أو لم تعد مخولًا للوصول إليها."
+          title={t("assignmentConversations.workspace.unavailableTitle")}
+          description={t("assignmentConversations.workspace.unavailableDescription")}
         />
       </PageContainer>
     );
@@ -119,14 +121,14 @@ export function AssignmentConversationWorkspace({
     return (
       <PageContainer>
         <PageHeader
-          title="المحادثات"
-          description="محادثات خاصة بين مالك المشروع والمساهم المعيّن بعد قبول Assignment."
+          title={t("assignmentConversations.workspace.title")}
+          description={t("assignmentConversations.workspace.emptyIntro")}
         />
         <PageFeedback
           className="mt-6"
           icon={MessageCircle}
-          title="لا توجد محادثات بعد"
-          description="ستظهر هنا المحادثة الخاصة عند قبول طلب مساهمة وإنشاء Assignment."
+          title={t("assignmentConversations.workspace.emptyTitle")}
+          description={t("assignmentConversations.workspace.emptyDescription")}
         />
       </PageContainer>
     );
@@ -135,8 +137,8 @@ export function AssignmentConversationWorkspace({
   return (
     <PageContainer>
       <PageHeader
-        title="المحادثات"
-        description="تواصل مباشرة مع الطرف الآخر في Assignments الخاصة بك."
+        title={t("assignmentConversations.workspace.title")}
+        description={t("assignmentConversations.workspace.description")}
       />
 
       <div className="mt-6 grid min-h-[32rem] overflow-hidden rounded-card border border-border bg-card lg:grid-cols-[18rem_minmax(0,1fr)]">
