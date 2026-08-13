@@ -83,9 +83,9 @@ export function HomeHeader({
             className="flex size-11 items-center justify-center rounded-input text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             {mounted && resolvedTheme === "dark" ? (
-              <Sun className="size-4" />
+              <Sun className="size-4" aria-hidden="true" />
             ) : (
-              <Moon className="size-4" />
+              <Moon className="size-4" aria-hidden="true" />
             )}
           </button>
           {user && onLogout ? (

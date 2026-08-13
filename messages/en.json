@@ -35,6 +35,9 @@
     "previous": "Previous",
     "page": "Page {{current}} of {{total}}",
     "comingSoon": "Coming soon",
+    "notSpecified": "Not specified",
+    "connected": "Connected",
+    "disconnected": "Not connected",
     "loading_session": "Verifying session…",
     "loading_admin_session": "Verifying admin session…",
     "loading_ellipsis": "Loading…"
@@ -183,6 +186,10 @@
     "badgeAriaLabel_other": "{{count}} items need action"
   },
   "home": {
+    "ownerSpace": "Project owner space",
+    "contributorSpace": "Contributor space",
+    "ownerSubtitle": "Review your projects and start a new contribution request from the project context.",
+    "contributorSubtitle": "Track your record and discover open work that fits your current experience.",
     "greeting": "Hello, {{name}}",
     "subtitle": "Everything you need to get started in one place.",
     "addProject": "Add a project",
@@ -203,13 +210,23 @@
   "dashboard": {
     "greeting": "Good morning, {{name}}",
     "title": "Dashboard",
+    "description": "Start with what needs your decision, then review contribution opportunities that match your skills.",
+    "exploreRequests": "Explore contribution requests",
     "loading": "Loading dashboard...",
     "profileVerified": "Profile verified",
     "matchedTasksToday": "{{count}} tasks fully match your skills today",
     "viewThem": "View them",
+    "verifiedDescription": "Your profile is ready. Review the scope and requirements before choosing your first contribution.",
+    "sectionsAria": "Dashboard sections",
+    "matchesTab": "Matching opportunities",
+    "recordTab": "Your record",
+    "advisoryNote": "Matches are based on verified skills, but remain advisory. Review every request before applying.",
     "attentionHeading": "Needs your attention",
     "growth": {
       "title": "Your growth",
+      "verifiedProgress": "Verified progress",
+      "recordTitle": "Your contribution record",
+      "rating": "Contribution rating",
       "growthPath": "Your reputation is built from approved deliveries and project owner ratings. First step: apply to a task that matches your verified skills — your first approved contribution starts your record.",
       "completedContributions": "{{count}} completed contributions · {{rate}}% success rate",
       "skillsThisMonth": "+{{count}} skills verified this month"
@@ -217,9 +234,11 @@
     "applications": {
       "title": "Applications",
       "viewAll": "View all",
-      "pendingOwnerReview": "Awaiting project owner"
+      "pendingOwnerReview": "Awaiting project owner",
+      "decisionNote": "We will notify you as soon as a decision is made. You do not need to apply again."
     },
     "onboarding": {
+      "activation": "Activate your account",
       "title": "Complete setup ({{done}} of {{total}})",
       "meanwhile": "In the meantime:",
       "exploreProjects": "Explore projects",
@@ -237,6 +256,7 @@
       "profile": "Profile",
       "github": "GitHub",
       "language": "Language",
+      "notifications": "Notifications",
       "subscription": "Subscription"
     },
     "language": {
@@ -319,6 +339,7 @@
     "rewardLabel": "Reward"
   },
   "explore": {
+    "registryLabel": "Open project registry",
     "title": "Explore Projects",
     "description": "Find an open source project that fits your skills — each project is published with its technologies, category, and difficulty level.",
     "searchPlaceholder": "Search by name or description",
@@ -420,6 +441,8 @@
     "from": "From {{proposer}}",
     "version": "Version {{version}} · {{date}}",
     "revisionWaiting": "A revision request is waiting for a new version from the contributor.",
+    "statusTabsAria": "Contribution proposal statuses",
+    "emptyStatus": "No proposals in this section.",
     "loadMore": "Load more"
   },
   "proposalSubmission": {
@@ -660,8 +683,14 @@
       "new": "New",
       "verifiedSkills": "Verified skills",
       "completedContributions": "Completed contributions",
+      "successRate": "Success rate",
+      "assignedTasks": "Assigned tasks",
       "availability": "Availability",
       "githubAccount": "GitHub account",
+      "topVerifiedSkills": "Top verified skills",
+      "verifiedContributions_one": "{{count}} verified contribution",
+      "verifiedContributions_other": "{{count}} verified contributions",
+      "noVerifiedSkills": "No verified skills yet",
       "ratingAria": "Rating {{rating}} out of 5"
     },
     "profileView": {
@@ -1144,6 +1173,13 @@
     "owner": {
       "myProjects": "My projects",
       "contributionRequestsLink": "Contribution requests for this project",
+      "workspaceTabsAria": "Project management sections",
+      "overviewTab": "Overview",
+      "materialsTab": "Materials",
+      "analysisTab": "Analysis",
+      "proposalsTab": "Proposals",
+      "contributionRequestsCount_one": "{{count}} contribution request",
+      "contributionRequestsCount_other": "{{count}} contribution requests",
       "revision": "Revision #{{revision}}",
       "publishTitle": "Publishing",
       "publishDescription": "After publishing, the project appears to all contributors. You can archive it later at any time, but it cannot be returned to a draft.",

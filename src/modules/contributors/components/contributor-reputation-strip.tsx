@@ -9,9 +9,9 @@ import type { ContributorProfileDto } from "../types/contributor-profile.types";
 /**
  * Stats side panel (screen-inventory §1.8 reputation data), styled as a
  * freelance-marketplace stats box: header bar, divider rows with the label
- * at the start and the value at the end, star rating, and percentage chips.
- * Only real API data — success rate (FR-070) is omitted until the backend
- * exposes it.
+ * at the start and the value at the end, star rating, and percentage values.
+ * All contribution metrics come from the backend's verified reputation
+ * projection; the client does not derive reputation from profile history.
  */
 export function ContributorReputationStrip({
   profile,
@@ -19,14 +19,14 @@ export function ContributorReputationStrip({
   profile: ContributorProfileDto;
 }) {
   const { t } = useTranslation();
-  const { rating, reviewsCount } = profile.reputationSummary;
-  const verifiedCount = profile.skills.filter(
-    (skill) => skill.status === "approved",
-  ).length;
-  const verifiedPercent =
-    profile.skills.length === 0
-      ? null
-      : Math.round((verifiedCount / profile.skills.length) * 100);
+  const {
+    rating,
+    reviewsCount,
+    completedContributions,
+    totalAssignedTasks,
+    successRate,
+    topVerifiedSkills,
+  } = profile.reputationSummary;
 
   return (
     <div className="h-full overflow-hidden rounded-card border border-border bg-card">
@@ -36,7 +36,9 @@ export function ContributorReputationStrip({
       <dl className="px-5">
         <StatRow label={t("contributor.reputation.ratings")}>
           {rating === null ? (
-            <span className="text-sm text-muted-foreground">{t("contributor.reputation.new")}</span>
+            <span className="text-sm text-muted-foreground">
+              {t("contributor.reputation.new")}
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5">
               <StarRating rating={rating} />
@@ -47,23 +49,27 @@ export function ContributorReputationStrip({
           )}
         </StatRow>
 
-        <StatRow label={t("contributor.reputation.verifiedSkills")}>
-          {verifiedPercent === null ? (
-            <span className="text-sm text-muted-foreground">—</span>
-          ) : (
-            <PercentChip percent={verifiedPercent} />
-          )}
-        </StatRow>
-
         <StatRow label={t("contributor.reputation.completedContributions")}>
           <span className="text-sm font-bold text-foreground">
-            {profile.contributionHistory.length}
+            {completedContributions}
+          </span>
+        </StatRow>
+
+        <StatRow label={t("contributor.reputation.successRate")}>
+          <span dir="ltr" className="text-sm font-bold text-foreground">
+            {formatPercentage(successRate)}
+          </span>
+        </StatRow>
+
+        <StatRow label={t("contributor.reputation.assignedTasks")}>
+          <span className="text-sm font-medium text-foreground">
+            {totalAssignedTasks}
           </span>
         </StatRow>
 
         <StatRow label={t("contributor.reputation.availability")}>
           <span className="text-sm font-medium text-foreground">
-            {profile.availability ?? t("contributor.profile.unspecified")}
+            {profile.availability ?? t("common.notSpecified")}
           </span>
         </StatRow>
 
@@ -71,13 +77,44 @@ export function ContributorReputationStrip({
           {profile.githubStatus.connected ? (
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
               <Github className="size-4" />
-              {t("contributor.githubStatus.connected")}
+              {t("common.connected")}
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">{t("contributor.githubStatus.disconnected")}</span>
+            <span className="text-sm text-muted-foreground">
+              {t("common.disconnected")}
+            </span>
           )}
         </StatRow>
       </dl>
+
+      <div className="border-t border-border px-5 py-4">
+        <h3 className="text-sm font-bold text-foreground">
+          {t("contributor.reputation.topVerifiedSkills")}
+        </h3>
+        {topVerifiedSkills.length > 0 ? (
+          <ol className="mt-3 flex flex-col gap-3">
+            {topVerifiedSkills.map((skill) => (
+              <li
+                key={skill.name}
+                className="flex items-center justify-between gap-3"
+              >
+                <span dir="ltr" className="font-mono text-xs text-foreground">
+                  {skill.name}
+                </span>
+                <span className="text-end text-xs text-muted-foreground">
+                  {t("contributor.reputation.verifiedContributions", {
+                    count: skill.verifiedContributionCount,
+                  })}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("contributor.reputation.noVerifiedSkills")}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -131,18 +168,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function PercentChip({ percent }: { percent: number }) {
-  return (
-    <span
-      dir="ltr"
-      className={cn(
-        "inline-block min-w-14 rounded-sm px-2 py-1 text-center font-mono text-[11px] leading-none tracking-[0.65px]",
-        percent >= 60
-          ? "bg-evidence-teal/15 text-evidence-teal"
-          : "bg-border/60 text-muted-foreground",
-      )}
-    >
-      {percent}%
-    </span>
-  );
+function formatPercentage(value: number): string {
+  return `${value.toFixed(1).replace(/\.0$/, "")}%`;
 }

@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
-import { useCurrentUserQuery } from "@/modules/auth";
+import {
+  LanguageSettingsSection,
+  useCurrentUserQuery,
+} from "@/modules/auth";
 import {
   ContributorGithubSettingsSection,
   ContributorProfileSettingsSection,
@@ -12,14 +15,17 @@ import {
   disconnectGitHubAccount,
   startGitHubConnect,
 } from "@/modules/github";
-import {
-  LanguageSettingsSection,
-  SettingsShell,
-  SubscriptionSettingsSection,
-} from "@/modules/settings";
+import { SettingsShell } from "@/modules/settings";
+import { NotificationPreferencesPanel } from "@/modules/notifications";
+import { SubscriptionSettingsSection } from "@/modules/subscriptions";
 import type { SettingsSectionItem } from "@/modules/settings";
 
-type SettingsSectionId = "profile" | "github" | "language" | "subscription";
+type SettingsSectionId =
+  | "profile"
+  | "github"
+  | "language"
+  | "subscription"
+  | "notifications";
 
 interface SettingsSearch {
   section?: SettingsSectionId;
@@ -33,7 +39,8 @@ export const Route = createFileRoute("/_appLayout/settings")({
       section === "profile" ||
       section === "github" ||
       section === "language" ||
-      section === "subscription";
+      section === "subscription" ||
+      section === "notifications";
     return isValid ? { section } : {};
   },
   component: SettingsPage,
@@ -54,10 +61,11 @@ function SettingsPage() {
     ...(isContributor
       ? [
           { id: "profile", label: t("settings.sections.profile") },
-          { id: "github", label: t("settings.sections.github") },
+          { id: "github", label: "GitHub" },
         ]
       : []),
     { id: "language", label: t("settings.sections.language") },
+    { id: "notifications", label: t("settings.sections.notifications") },
     { id: "subscription", label: t("settings.sections.subscription") },
   ];
 
@@ -79,7 +87,7 @@ function SettingsPage() {
             <ContributorProfileSettingsSection profile={profileQuery.data} />
           ) : (
             <p className="text-sm text-muted-foreground">
-              {t("settings.loadingProfile")}
+              جارٍ تحميل بيانات ملفك...
             </p>
           )}
         </>
@@ -103,13 +111,14 @@ function SettingsPage() {
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              {t("settings.loadingProfile")}
+              جارٍ تحميل بيانات ملفك...
             </p>
           )}
         </>
       )}
 
       {activeSectionId === "language" && <LanguageSettingsSection />}
+      {activeSectionId === "notifications" && <NotificationPreferencesPanel />}
       {activeSectionId === "subscription" && <SubscriptionSettingsSection />}
     </SettingsShell>
   );

@@ -1,5 +1,5 @@
+import { ArrowLeft, ExternalLink, Star } from "lucide-react";
 import type { TFunction } from "i18next";
-import { Bookmark, ExternalLink, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
@@ -35,20 +35,17 @@ function getStars(project: DiscoveredProjectDto): number | null {
   return typeof stars === "number" ? stars : null;
 }
 
-function formatPublishedAgo(
-  t: TFunction,
-  publishedAt: string | null,
-): string | null {
+function formatPublishedAgo(t: TFunction, publishedAt: string | null): string | null {
   if (publishedAt === null) return null;
   const days = Math.floor(
     (Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60 * 24),
   );
   if (days <= 0) return t("explore.publishedToday");
-  if (days === 1) return t("explore.publishedDaysAgo_one", { count: 1 });
-  if (days < 30) return t("explore.publishedDaysAgo_other", { count: days });
+  if (days === 1) return t("explore.publishedDaysAgo", { count: 1 });
+  if (days < 30) return t("explore.publishedDaysAgo", { count: days });
   const months = Math.floor(days / 30);
   return months === 1
-    ? t("explore.publishedMonthAgo", { count: 1 })
+    ? t("explore.publishedMonthAgo")
     : t("explore.publishedMonthsAgo", { count: months });
 }
 
@@ -56,18 +53,23 @@ function formatPublishedAgo(
  * WF-03 card anatomy (comparison surface): title → difficulty + category
  * chips → description → language bar + tech tags → stats · owner repo link.
  */
-export function ExploreProjectCard({ project }: { project: DiscoveredProjectDto }) {
+export function ExploreProjectCard({
+  project,
+}: {
+  project: DiscoveredProjectDto;
+}) {
   const { t } = useTranslation();
   const languages = getLanguageShares(project.languages);
-  const otherPercent = 100 - languages.reduce((sum, lang) => sum + lang.percent, 0);
+  const otherPercent =
+    100 - languages.reduce((sum, lang) => sum + lang.percent, 0);
   const stars = getStars(project);
   const publishedAgo = formatPublishedAgo(t, project.publishedAt);
   const repoOwner = project.githubRepoUrl.split("/").slice(-2, -1)[0] ?? "";
 
   return (
-    <article className="flex flex-col rounded-card border border-border bg-card p-5 transition-colors hover:border-primary/50">
+    <article className="group flex flex-col rounded-card border border-border bg-card p-5 transition-[border-color,background-color] hover:border-primary/40 hover:bg-primary/[0.018] sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <h3 dir="ltr" className="font-mono text-[15px] font-bold tracking-[0.65px] text-foreground">
+        <h3 className="text-lg font-bold leading-snug text-foreground">
           {project.title}
         </h3>
         {project.difficulty !== null && (
@@ -80,13 +82,6 @@ export function ExploreProjectCard({ project }: { project: DiscoveredProjectDto 
             {getCategoryLabel(t, project.category)}
           </span>
         )}
-        <button
-          type="button"
-          aria-label={t("explore.saveProjectAria")}
-          className="ms-auto text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <Bookmark className="size-4.5" />
-        </button>
       </div>
 
       <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
@@ -95,20 +90,29 @@ export function ExploreProjectCard({ project }: { project: DiscoveredProjectDto 
 
       {languages.length > 0 && (
         <>
-          <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-border/50" aria-hidden>
+          <div
+            className="mt-4 flex h-1 overflow-hidden bg-border/50"
+            aria-hidden
+          >
             {languages.map((lang, index) => (
               <span
                 key={lang.name}
                 style={{
                   width: `${lang.percent}%`,
-                  background: LANGUAGE_BAR_COLORS[index % LANGUAGE_BAR_COLORS.length],
+                  background:
+                    LANGUAGE_BAR_COLORS[index % LANGUAGE_BAR_COLORS.length],
                 }}
               />
             ))}
             {otherPercent > 0 && <span style={{ width: `${otherPercent}%` }} />}
           </div>
-          <p dir="ltr" className="mt-1.5 text-end font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-            {languages.map((lang) => `${lang.name} ${lang.percent}%`).join(" · ")}
+          <p
+            dir="ltr"
+            className="mt-1.5 text-end font-mono text-[11px] tracking-[0.65px] text-muted-foreground"
+          >
+            {languages
+              .map((lang) => `${lang.name} ${lang.percent}%`)
+              .join(" · ")}
           </p>
         </>
       )}
@@ -148,13 +152,21 @@ export function ExploreProjectCard({ project }: { project: DiscoveredProjectDto 
         )}
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <Button asChild size="sm" className="flex-1">
+      <div className="mt-auto pt-5">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="w-full justify-between border-primary/25 text-primary group-hover:border-primary/50"
+        >
           {/* URL contract per DEC-025: /projects/:projectSlug */}
-          <a href={`/projects/${project.slug}`}>{t("explore.openProject")}</a>
-        </Button>
-        <Button size="sm" variant="outline">
-          {t("explore.saveProject")}
+          <a href={`/projects/${project.slug}`}>
+            {t("explore.openProject")}
+            <ArrowLeft
+              className="size-4 transition-transform group-hover:-translate-x-1"
+              aria-hidden
+            />
+          </a>
         </Button>
       </div>
     </article>

@@ -14,14 +14,16 @@ import {
   useCurrentUserQuery,
   useLogoutMutation,
 } from "@/modules/auth";
-import { NotificationPopover } from "@/modules/notifications";
+import {
+  NotificationPopover,
+  useUnreadNotificationCountQuery,
+} from "@/modules/notifications";
 import { useAdminPendingSkillReviewsQuery } from "@/modules/skill-profiles";
-import { useNotifications } from "@/providers/notifications-provider";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
+import { PageTransition } from "@/shared/components/layout/page-transition";
 import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
-import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
 import { Button } from "@/shared/components/ui/button";
 
 export const beforeLoadAdminRoute = requireAdminRoute;
@@ -33,7 +35,8 @@ export const Route = createFileRoute("/_adminLayout")({
 
 function AdminLayout() {
   const { t } = useTranslation();
-  const { unreadCount } = useNotifications();
+  const unreadCountQuery = useUnreadNotificationCountQuery();
+  const unreadCount = unreadCountQuery.data?.unreadCount ?? 0;
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -73,18 +76,17 @@ function AdminLayout() {
     <AppShell
       nav={navigation}
       brand={{
-        title: t("workspace.adminBrand"),
-        subtitle: t("workspace.adminBrandSubtitle"),
+        title: "إدارة شارك",
+        subtitle: "Review operations",
         icon: ShieldCheck,
       }}
-      navigationLabel={t("workspace.adminNavigation")}
+      navigationLabel="تنقل الإدارة"
       topBar={
         <WorkspaceTopBar
-          title={t("workspace.adminOffice")}
-          description={t("workspace.adminQueues")}
+          title="مكتب المراجعة"
+          description="طوابير الثقة والسلامة"
           actions={
             <>
-              <LanguageSwitcher />
               <NotificationPopover
                 allNotificationsHref={ROUTES.adminNotifications}
               />
@@ -95,7 +97,7 @@ function AdminLayout() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label={t("workspace.logoutAriaLabel")}
+                aria-label="تسجيل الخروج"
                 disabled={logoutMutation.isPending}
                 onClick={() => {
                   logoutMutation.mutate(undefined, {
@@ -112,20 +114,21 @@ function AdminLayout() {
         />
       }
     >
-      <Outlet />
+      <PageTransition routeKey={pathname}>
+        <Outlet />
+      </PageTransition>
     </AppShell>
   );
 }
 
 function AdminSessionLoadingState() {
-  const { t } = useTranslation();
   return (
     <div
       role="status"
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      {t("common.loading_admin_session")}
+      جارٍ التحقق من صلاحية الإدارة…
     </div>
   );
 }

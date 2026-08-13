@@ -35,6 +35,9 @@
     "previous": "السابق",
     "page": "صفحة {{current}} من {{total}}",
     "comingSoon": "قريباً",
+    "notSpecified": "غير محددة",
+    "connected": "متصل",
+    "disconnected": "غير متصل",
     "loading_session": "جارٍ التحقق من صلاحية الجلسة…",
     "loading_admin_session": "جارٍ التحقق من صلاحية الإدارة…",
     "loading_ellipsis": "جارٍ التحميل…"
@@ -183,6 +186,10 @@
     "badgeAriaLabel_other": "{{count}} عناصر تحتاج إلى إجراء"
   },
   "home": {
+    "ownerSpace": "مساحة صاحب المشروع",
+    "contributorSpace": "مساحة المساهم",
+    "ownerSubtitle": "راجع مشاريعك وابدأ طلب مساهمة جديداً من سياق المشروع نفسه.",
+    "contributorSubtitle": "تابع سجلك، واكتشف عملاً مفتوحاً يناسب خبرتك الحالية.",
     "greeting": "أهلاً، {{name}}",
     "subtitle": "كل ما تحتاجه للبدء في مكان واحد.",
     "addProject": "أضف مشروعاً",
@@ -203,13 +210,23 @@
   "dashboard": {
     "greeting": "صباح الخير، {{name}}",
     "title": "لوحة التحكم",
+    "description": "ابدأ بما يحتاج قراراً منك، ثم راجع فرص المساهمة المطابقة لمهاراتك.",
+    "exploreRequests": "استكشف طلبات المساهمة",
     "loading": "جارٍ تحميل لوحة التحكم...",
     "profileVerified": "ملفك موثق",
     "matchedTasksToday": "{{count}} مهام تطابق مهاراتك بالكامل اليوم",
     "viewThem": "اعرضها",
+    "verifiedDescription": "ملفك جاهز. راجع النطاق والمتطلبات قبل أن تختار أول مساهمة لك.",
+    "sectionsAria": "أقسام لوحة التحكم",
+    "matchesTab": "فرص مناسبة",
+    "recordTab": "سجلك",
+    "advisoryNote": "تظهر المطابقات بناءً على المهارات الموثقة، لكنها تظل إرشادية. راجع متطلبات كل طلب قبل التقديم.",
     "attentionHeading": "يحتاج انتباهك",
     "growth": {
       "title": "نموك",
+      "verifiedProgress": "تقدم موثّق",
+      "recordTitle": "سجل مساهماتك",
+      "rating": "تقييم المساهمات",
       "growthPath": "سمعتك تُبنى من التسليمات المعتمدة وتقييمات أصحاب المشاريع. الخطوة الأولى: قدّم على مهمة مطابقة لمهاراتك الموثقة — أول مساهمة معتمدة تبدأ سجلّك.",
       "completedContributions": "{{count}} مساهمات مكتملة · معدل نجاح {{rate}}٪",
       "skillsThisMonth": "+{{count}} مهارة موثقة هذا الشهر"
@@ -217,9 +234,11 @@
     "applications": {
       "title": "طلبات الانضمام",
       "viewAll": "عرض الكل",
-      "pendingOwnerReview": "بانتظار صاحب المشروع"
+      "pendingOwnerReview": "بانتظار صاحب المشروع",
+      "decisionNote": "سنخبرك فور اتخاذ قرار. لا تحتاج إلى إعادة التقديم."
     },
     "onboarding": {
+      "activation": "تفعيل حسابك",
       "title": "أكمل الإعداد ({{done}} من {{total}})",
       "meanwhile": "في هذه الأثناء:",
       "exploreProjects": "استكشاف المشاريع",
@@ -237,6 +256,7 @@
       "profile": "الملف الشخصي",
       "github": "GitHub",
       "language": "اللغة",
+      "notifications": "الإشعارات",
       "subscription": "الاشتراك"
     },
     "language": {
@@ -319,6 +339,7 @@
     "rewardLabel": "المكافأة"
   },
   "explore": {
+    "registryLabel": "سجل المشاريع المفتوحة",
     "title": "استكشاف المشاريع",
     "description": "اعثر على مشروع مفتوح المصدر يناسب مهاراتك — كل مشروع منشور بتقنياته وتصنيفه ومستوى صعوبته.",
     "searchPlaceholder": "ابحث بالاسم أو الوصف",
@@ -420,6 +441,8 @@
     "from": "من {{proposer}}",
     "version": "النسخة {{version}} · {{date}}",
     "revisionWaiting": "يوجد طلب مراجعة ينتظر نسخة جديدة من المساهم.",
+    "statusTabsAria": "حالات مقترحات المساهمة",
+    "emptyStatus": "لا توجد مقترحات في هذا القسم.",
     "loadMore": "تحميل المزيد"
   },
   "proposalSubmission": {
@@ -660,8 +683,18 @@
       "new": "جديد",
       "verifiedSkills": "المهارات الموثقة",
       "completedContributions": "المساهمات المكتملة",
+      "successRate": "معدل النجاح",
+      "assignedTasks": "المهام المسندة",
       "availability": "الإتاحة",
       "githubAccount": "حساب GitHub",
+      "topVerifiedSkills": "أكثر المهارات توثيقاً",
+      "verifiedContributions_zero": "لا توجد مساهمات موثقة",
+      "verifiedContributions_one": "مساهمة موثقة واحدة",
+      "verifiedContributions_two": "مساهمتان موثقتان",
+      "verifiedContributions_few": "{{count}} مساهمات موثقة",
+      "verifiedContributions_many": "{{count}} مساهمة موثقة",
+      "verifiedContributions_other": "{{count}} مساهمة موثقة",
+      "noVerifiedSkills": "لا توجد مهارات موثقة بعد",
       "ratingAria": "التقييم {{rating}} من 5"
     },
     "profileView": {
@@ -1144,6 +1177,17 @@
     "owner": {
       "myProjects": "مشاريعي",
       "contributionRequestsLink": "طلبات المساهمة لهذا المشروع",
+      "workspaceTabsAria": "أقسام إدارة المشروع",
+      "overviewTab": "نظرة عامة",
+      "materialsTab": "المواد",
+      "analysisTab": "التحليل",
+      "proposalsTab": "المقترحات",
+      "contributionRequestsCount_zero": "لا توجد طلبات مساهمة",
+      "contributionRequestsCount_one": "طلب مساهمة واحد",
+      "contributionRequestsCount_two": "طلبا مساهمة",
+      "contributionRequestsCount_few": "{{count}} طلبات مساهمة",
+      "contributionRequestsCount_many": "{{count}} طلب مساهمة",
+      "contributionRequestsCount_other": "{{count}} طلب مساهمة",
       "revision": "الإصدار #{{revision}}",
       "publishTitle": "النشر",
       "publishDescription": "بعد النشر يظهر المشروع لكل المساهمين. يمكنك أرشفته لاحقاً في أي وقت، لكن لا يمكن إعادته إلى مسودة.",

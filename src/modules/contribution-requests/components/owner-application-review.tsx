@@ -9,6 +9,7 @@ import {
 import { useRef, useState } from "react";
 
 import { Button } from "@/shared/components/ui/button";
+import { ROUTES } from "@/config/routes.config";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
@@ -248,12 +249,13 @@ function ApplicationReviewRecord({
               {application.contributor.displayName}
             </h3>
             {application.contributor.username && (
-              <bdi
-                dir="ltr"
-                className="font-mono text-xs tracking-[0.35px] text-muted-foreground"
+              <a
+                href={ROUTES.contributorProfile(application.contributor.username)}
+                className="font-mono text-xs tracking-[0.35px] text-primary underline-offset-4 hover:underline"
               >
-                @{application.contributor.username}
-              </bdi>
+                <bdi dir="ltr">@{application.contributor.username}</bdi>
+                <span className="sr-only"> — فتح ملف المساهم وسمعته</span>
+              </a>
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
