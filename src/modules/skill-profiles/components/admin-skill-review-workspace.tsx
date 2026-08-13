@@ -7,6 +7,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 
 import { ROUTES } from "@/config/routes.config";
@@ -19,9 +21,9 @@ import {
 import { Button } from "@/shared/components/ui/button";
 
 import {
-  PROFICIENCY_LABEL,
   formatConfidence,
   formatWaitingAge,
+  getProficiencyLabel,
   groupPendingSkillReviews,
   renderEvidenceSources,
 } from "./admin-skill-review-presenter";
@@ -49,9 +51,10 @@ export function AdminSkillReviewWorkspace({
   contributorId: string;
   reviews: PendingSkillReviewsDto;
 }) {
+  const { t } = useTranslation();
   const groups = useMemo(
-    () => groupPendingSkillReviews(reviews.items),
-    [reviews.items],
+    () => groupPendingSkillReviews(t, reviews.items),
+    [t, reviews.items],
   );
   const group = groups.find((item) => item.contributorId === contributorId);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(
@@ -70,11 +73,13 @@ export function AdminSkillReviewWorkspace({
       <PageContainer>
         <PageFeedback
           icon={ClipboardList}
-          title="لا توجد مهارات معلقة لهذا المساهم"
-          description="قد تكون المهارات تمت مراجعتها بالفعل أو أُعيد توليد الملف."
+          title={t("skillProfile.reviewWorkspace.notFoundTitle")}
+          description={t("skillProfile.reviewWorkspace.notFoundDescription")}
           action={
             <Button asChild variant="outline">
-              <Link to={ROUTES.adminSkillReviews}>العودة إلى قائمة المراجعة</Link>
+              <Link to={ROUTES.adminSkillReviews}>
+                {t("skillProfile.reviewWorkspace.backToList")}
+              </Link>
             </Button>
           }
         />
@@ -108,7 +113,9 @@ export function AdminSkillReviewWorkspace({
   return (
     <PageContainer className="max-w-7xl">
       <PageHeader
-        title={`مراجعة ${group.contributorName}`}
+        title={t("skillProfile.reviewWorkspace.reviewTitle", {
+          contributorName: group.contributorName,
+        })}
         description={
           group.contributorUsername
             ? `@${group.contributorUsername}`
@@ -120,18 +127,24 @@ export function AdminSkillReviewWorkspace({
             className="inline-flex min-h-10 items-center gap-2 rounded-input px-3 text-sm font-semibold text-foreground transition-colors duration-150 hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ArrowRight className="size-4" aria-hidden="true" />
-            العودة إلى الطابور
+            {t("skillProfile.reviewWorkspace.backToQueue")}
           </Link>
         }
       />
 
       <dl className="mt-5 grid overflow-hidden rounded-card border border-border bg-card sm:grid-cols-3">
-        <Metric label="المهارات المعلقة" value={group.skills.length.toString()} />
         <Metric
-          label="متوسط الثقة"
+          label={t("skillProfile.reviewWorkspace.pendingSkillsMetric")}
+          value={group.skills.length.toString()}
+        />
+        <Metric
+          label={t("skillProfile.reviewWorkspace.averageConfidenceMetric")}
           value={formatConfidence(group.averageConfidence)}
         />
-        <Metric label="مدة الانتظار" value={formatWaitingAge(group.oldestCreatedAt)} />
+        <Metric
+          label={t("skillProfile.reviewWorkspace.waitingAgeMetric")}
+          value={formatWaitingAge(t, group.oldestCreatedAt)}
+        />
       </dl>
 
       <div className="mt-5 grid gap-4 md:grid-cols-[1fr_1.2fr] xl:grid-cols-[0.9fr_1.2fr_0.8fr]">
@@ -141,10 +154,10 @@ export function AdminSkillReviewWorkspace({
         >
           <div className="border-b border-border p-4">
             <h2 id="pending-skills-heading" className="font-bold text-foreground">
-              المهارات المعلقة
+              {t("skillProfile.reviewWorkspace.pendingSkillsTitle")}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              اختر مهارة لقراءة الأدلة واتخاذ القرار.
+              {t("skillProfile.reviewWorkspace.pendingSkillsHelp")}
             </p>
           </div>
           <div className="flex max-h-[32rem] flex-col overflow-y-auto">
@@ -167,7 +180,7 @@ export function AdminSkillReviewWorkspace({
                   {skill.skillName}
                 </span>
                 <span className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                  <span>{PROFICIENCY_LABEL[skill.proficiencyLevel]}</span>
+                  <span>{getProficiencyLabel(t, skill.proficiencyLevel)}</span>
                   <span dir="ltr" className="font-mono">
                     {formatConfidence(skill.confidence)}
                   </span>
@@ -177,17 +190,18 @@ export function AdminSkillReviewWorkspace({
           </div>
         </section>
 
-        <EvidencePanel skill={selectedSkill} />
+        <EvidencePanel skill={selectedSkill} t={t} />
 
         <aside className="rounded-card border border-border bg-card p-4 md:col-span-2 xl:col-span-1">
-          <h2 className="text-lg font-bold text-foreground">قرار المراجعة</h2>
+          <h2 className="text-lg font-bold text-foreground">
+            {t("skillProfile.reviewWorkspace.reviewDecisionTitle")}
+          </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            الملاحظة تظهر للمساهم في حالات الرفض أو تعديل المستوى، فاكتبها كشرح
-            واضح لا كتعليق داخلي.
+            {t("skillProfile.reviewWorkspace.reviewDecisionHelp")}
           </p>
 
           <label className="mt-5 block text-sm font-semibold text-foreground">
-            مستوى المهارة
+            {t("skillProfile.reviewWorkspace.proficiencyLabel")}
             <select
               name="review-proficiency"
               value={selectedProficiency}
@@ -201,14 +215,14 @@ export function AdminSkillReviewWorkspace({
             >
               {PROFICIENCY_OPTIONS.map((proficiency) => (
                 <option key={proficiency} value={proficiency}>
-                  {PROFICIENCY_LABEL[proficiency]}
+                  {getProficiencyLabel(t, proficiency)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="mt-4 block text-sm font-semibold text-foreground">
-            ملاحظات المراجعة
+            {t("skillProfile.reviewWorkspace.notesLabel")}
             <textarea
               name="review-notes"
               autoComplete="off"
@@ -218,7 +232,7 @@ export function AdminSkillReviewWorkspace({
               }
               rows={5}
               className="mt-2 w-full resize-y rounded-input border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              placeholder="مثال: الأدلة تدعم مستوى متوسط، بينما اقترح التحليل مستوى متقدماً…"
+              placeholder={t("skillProfile.reviewWorkspace.notesPlaceholder")}
             />
           </label>
 
@@ -237,7 +251,9 @@ export function AdminSkillReviewWorkspace({
               }
             >
               <BadgeCheck className="size-4" aria-hidden="true" />
-              {approveMutation.isPending ? "جارٍ الاعتماد…" : "اعتماد المهارة"}
+              {approveMutation.isPending
+                ? t("skillProfile.reviewWorkspace.approving")
+                : t("skillProfile.reviewWorkspace.approve")}
             </Button>
             <Button
               type="button"
@@ -255,8 +271,8 @@ export function AdminSkillReviewWorkspace({
             >
               <SlidersHorizontal className="size-4" aria-hidden="true" />
               {adjustMutation.isPending
-                ? "جارٍ حفظ التعديل…"
-                : "حفظ تعديل المستوى"}
+                ? t("skillProfile.reviewWorkspace.saving")
+                : t("skillProfile.reviewWorkspace.saveProficiency")}
             </Button>
             <Button
               type="button"
@@ -270,7 +286,9 @@ export function AdminSkillReviewWorkspace({
               }
             >
               <CircleSlash className="size-4" aria-hidden="true" />
-              {rejectMutation.isPending ? "جارٍ الرفض…" : "رفض المهارة"}
+              {rejectMutation.isPending
+                ? t("skillProfile.reviewWorkspace.rejecting")
+                : t("skillProfile.reviewWorkspace.reject")}
             </Button>
           </div>
 
@@ -281,14 +299,14 @@ export function AdminSkillReviewWorkspace({
               className="mt-5 rounded-input border border-primary/30 bg-primary/10 p-3 text-sm leading-6 text-foreground"
             >
               <Save className="mb-2 size-4 text-primary" aria-hidden="true" />
-              تم حفظ القرار وتسجيله في سجل المراجعة.
+              {t("skillProfile.reviewWorkspace.saved")}
               {(approveMutation.data ?? rejectMutation.data)?.notification && (
                 <span className="mt-1 block text-xs text-muted-foreground">
-                  تم إنشاء إشعار للمساهم. التسليم المباشر:{" "}
+                  {t("skillProfile.reviewWorkspace.notificationCreated")}
                   {(approveMutation.data ?? rejectMutation.data)?.notification
                     ?.deliveredRealtime
-                    ? "وصل الآن"
-                    : "سيظهر عند فتح الحساب"}
+                    ? t("skillProfile.reviewWorkspace.deliveredNow")
+                    : t("skillProfile.reviewWorkspace.deliveredLater")}
                 </span>
               )}
             </div>
@@ -299,29 +317,48 @@ export function AdminSkillReviewWorkspace({
   );
 }
 
-function EvidencePanel({ skill }: { skill: PendingSkillReviewItemDto }) {
+function EvidencePanel({
+  skill,
+  t,
+}: {
+  skill: PendingSkillReviewItemDto;
+  t: TFunction;
+}) {
   return (
     <section className="rounded-card border border-border bg-card p-5">
-      <p className="text-xs font-semibold text-muted-foreground">الأدلة</p>
+      <p className="text-xs font-semibold text-muted-foreground">
+        {t("skillProfile.reviewWorkspace.evidenceLabel")}
+      </p>
       <h2 className="mt-2 break-words text-xl font-bold text-foreground">
         {skill.skillName}
       </h2>
       <dl className="mt-4 grid grid-cols-2 overflow-hidden rounded-input border border-border text-sm">
-        <Info label="اقتراح AI" value={PROFICIENCY_LABEL[skill.proficiencyLevel]} />
-        <Info label="الثقة" value={formatConfidence(skill.confidence)} />
+        <Info
+          label={t("skillProfile.reviewWorkspace.aiSuggestion")}
+          value={getProficiencyLabel(t, skill.proficiencyLevel)}
+        />
+        <Info
+          label={t("skillProfile.reviewWorkspace.confidence")}
+          value={formatConfidence(skill.confidence)}
+        />
       </dl>
 
       <div className="mt-5 border-t border-border pt-4">
-        <h3 className="font-semibold text-foreground">ملخص الأدلة</h3>
+        <h3 className="font-semibold text-foreground">
+          {t("skillProfile.reviewWorkspace.evidenceSummaryTitle")}
+        </h3>
         <p className="mt-2 text-sm leading-7 text-muted-foreground">
-          {skill.evidenceSummary ?? "لا يوجد ملخص أدلة مفصل لهذه المهارة."}
+          {skill.evidenceSummary ??
+            t("skillProfile.reviewWorkspace.noEvidenceSummary")}
         </p>
       </div>
 
       <div className="mt-4 border-t border-border pt-4">
-        <h3 className="font-semibold text-foreground">المصادر</h3>
+        <h3 className="font-semibold text-foreground">
+          {t("skillProfile.reviewWorkspace.sourcesTitle")}
+        </h3>
         <p dir="ltr" className="mt-2 break-words font-mono text-[12px] leading-6 text-muted-foreground">
-          {renderEvidenceSources(skill.evidenceSources)}
+          {renderEvidenceSources(t, skill.evidenceSources)}
         </p>
       </div>
     </section>

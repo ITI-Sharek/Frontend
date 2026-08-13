@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 import type {
   PendingSkillReviewItemDto,
   SkillProfileReviewProficiency,
@@ -12,13 +14,15 @@ export interface ContributorReviewGroup {
   skills: PendingSkillReviewItemDto[];
 }
 
-export const PROFICIENCY_LABEL: Record<SkillProfileReviewProficiency, string> = {
-  beginner: "مبتدئ",
-  intermediate: "متوسط",
-  advanced: "متقدم",
-};
+export function getProficiencyLabel(
+  t: TFunction,
+  level: SkillProfileReviewProficiency,
+): string {
+  return t(`skillProfile.proficiency.${level}`);
+}
 
 export function groupPendingSkillReviews(
+  t: TFunction,
   items: PendingSkillReviewItemDto[],
 ): ContributorReviewGroup[] {
   const groups = new Map<string, PendingSkillReviewItemDto[]>();
@@ -37,7 +41,9 @@ export function groupPendingSkillReviews(
       );
       return {
         contributorId,
-        contributorName: sortedSkills[0]?.contributorName ?? "مساهم",
+        contributorName:
+          sortedSkills[0]?.contributorName ??
+          t("skillProfile.reviewGroup.fallbackName"),
         contributorUsername: sortedSkills[0]?.contributorUsername ?? null,
         oldestCreatedAt: sortedSkills[0]?.createdAt ?? "",
         averageConfidence:
@@ -57,13 +63,15 @@ export function formatConfidence(confidence: number): string {
   return `${Math.round(confidence * 100)}%`;
 }
 
-export function formatWaitingAge(createdAt: string): string {
+export function formatWaitingAge(t: TFunction, createdAt: string): string {
   const created = new Date(createdAt).getTime();
-  if (Number.isNaN(created)) return "غير معروف";
+  if (Number.isNaN(created)) return t("skillProfile.waitingAge.unknown");
   const hours = Math.max(0, Math.floor((Date.now() - created) / 3_600_000));
-  if (hours < 1) return "أقل من ساعة";
-  if (hours < 24) return `${hours} ساعة`;
-  return `${Math.floor(hours / 24)} يوم`;
+  if (hours < 1) return t("skillProfile.waitingAge.lessThanHour");
+  if (hours < 24) return t("skillProfile.waitingAge.hours", { hours });
+  return t("skillProfile.waitingAge.days", {
+    days: Math.floor(hours / 24),
+  });
 }
 
 export function getAgingBand(createdAt: string): "normal" | "due" | "overdue" | "critical" {
@@ -76,9 +84,12 @@ export function getAgingBand(createdAt: string): "normal" | "due" | "overdue" | 
   return "critical";
 }
 
-export function renderEvidenceSources(evidenceSources: unknown): string {
+export function renderEvidenceSources(
+  t: TFunction,
+  evidenceSources: unknown,
+): string {
   if (evidenceSources === null || evidenceSources === undefined) {
-    return "لا توجد مصادر مفصلة.";
+    return t("skillProfile.evidence.noSources");
   }
 
   if (typeof evidenceSources === "string") return evidenceSources;

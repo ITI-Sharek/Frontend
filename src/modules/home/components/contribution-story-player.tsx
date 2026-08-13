@@ -1,9 +1,11 @@
 import { Player } from "@remotion/player";
 import { useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 import { ContributionStory } from "../remotion/contribution-story";
 
 export default function ContributionStoryPlayer() {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion() ?? false;
 
   return (
@@ -30,10 +32,7 @@ export default function ContributionStoryPlayer() {
         style={{ width: "100%" }}
       />
       <p id="contribution-story-description" className="sr-only">
-        مشهد توضيحي صامت يبين رحلة مساهمة من فهم الملاءمة والمتطلبات، مروراً
-        بقرار صاحب المشروع والتسليم ومراجعة الأدلة، وصولاً إلى سجل مساهمة
-        متحقق منه. الذكاء الاصطناعي يرتب الإشارات ويشرح النقص، بينما يبقى
-        القرار والمراجعة للبشر.
+        {t("landing.storyPlayerDescription")}
       </p>
     </div>
   );

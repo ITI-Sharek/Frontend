@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import {
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/_adminLayout")({
 });
 
 function AdminLayout() {
+  const { t } = useTranslation();
   const unreadCountQuery = useUnreadNotificationCountQuery();
   const unreadCount = unreadCountQuery.data?.unreadCount ?? 0;
   const pathname = useRouterState({
@@ -67,6 +69,7 @@ function AdminLayout() {
     pathname,
     unreadCount,
     pendingReviewsCount: pendingReviews.data?.total ?? 0,
+    t,
   });
 
   return (

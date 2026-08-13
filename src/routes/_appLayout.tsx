@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import {
@@ -24,6 +25,7 @@ import { PageTransition } from "@/shared/components/layout/page-transition";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
 import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
 import { HeaderSearch } from "@/shared/components/navigation/header-search";
+import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
 import { ThemeSwitcher } from "@/shared/components/navigation/theme-switcher";
 
@@ -33,6 +35,7 @@ export const Route = createFileRoute("/_appLayout")({
 });
 
 function AppLayout() {
+  const { t } = useTranslation();
   const unreadCountQuery = useUnreadNotificationCountQuery();
   const unreadCount = unreadCountQuery.data?.unreadCount ?? 0;
   const conversationUnreadCountQuery = useUnreadNotificationCountQuery(
@@ -104,15 +107,16 @@ function AppLayout() {
     pathname,
     username,
     unreadCount,
+    t,
   });
   const displayName =
     [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
     currentUser.email;
   const profileItems = [
     ...(currentUser.role === "contributor" && username
-      ? [{ label: "عرض الملف الشخصي", to: ROUTES.contributorProfile(username) }]
+      ? [{ label: t("profile.viewProfile"), to: ROUTES.contributorProfile(username) }]
       : []),
-    { label: "الإعدادات", to: ROUTES.settings },
+    { label: t("navigation.settings"), to: ROUTES.settings },
   ];
 
   return (
@@ -120,11 +124,16 @@ function AppLayout() {
       nav={navigation}
       topBar={
         <WorkspaceTopBar
-          title={currentUser.role === "owner" ? "مساحة المشاريع" : "مساحة المساهم"}
-          description="كل ما يحتاج إلى انتباهك في مكان واحد"
+          title={
+            currentUser.role === "owner"
+              ? t("workspace.ownerSpace")
+              : t("workspace.memberSpace")
+          }
+          description={t("workspace.everythingInOnePlace")}
           search={<HeaderSearch />}
           actions={
             <>
+              <LanguageSwitcher />
               <ThemeSwitcher />
               <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
@@ -153,13 +162,14 @@ function AppLayout() {
 }
 
 function SessionLoadingState() {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      جارٍ التحقق من صلاحية الجلسة…
+      {t("common.loading_session")}
     </div>
   );
 }

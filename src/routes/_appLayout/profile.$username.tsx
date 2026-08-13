@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useLogoutMutation } from "@/modules/auth";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_appLayout/profile/$username")({
 });
 
 function ContributorProfilePage() {
+  const { t } = useTranslation();
   const { username } = Route.useParams();
   const navigate = useNavigate();
   const logoutMutation = useLogoutMutation();
@@ -48,7 +50,7 @@ function ContributorProfilePage() {
   if (routeState === "loading") {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4">
-        <p className="text-muted-foreground">جارٍ تحميل ملف المساهم...</p>
+        <p className="text-muted-foreground">{t("contributor.error.loading")}</p>
       </div>
     );
   }
@@ -65,7 +67,7 @@ function ContributorProfilePage() {
     if (routeState === "unauthenticated") {
       return (
         <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4">
-          <ContributorProfileErrorView message="انتهت الجلسة. سجل دخولك مجدداً لعرض ملف المساهم." />
+          <ContributorProfileErrorView message={t("contributor.error.sessionExpired")} />
         </div>
       );
     }

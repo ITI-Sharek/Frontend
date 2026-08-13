@@ -1,3 +1,5 @@
+import i18n from "@/lib/i18n";
+
 import type {
   OnboardingStateDto,
   OnboardingStep,
@@ -20,10 +22,26 @@ export async function getOnboardingState(
     analysis: {
       status: step === "analysis" ? "in_progress" : "completed",
       stages: [
-        { id: "fetch", label: "جلب المستودعات العامة", status: "done" },
-        { id: "languages", label: "تحليل اللغات والتقنيات", status: "done" },
-        { id: "skills", label: "استخراج المهارات مع الأدلة", status: "running" },
-        { id: "prepare", label: "تجهيز الملف للمراجعة", status: "todo" },
+        {
+          id: "fetch",
+          label: i18n.t("contributor.onboardingStages.fetch"),
+          status: "done",
+        },
+        {
+          id: "languages",
+          label: i18n.t("contributor.onboardingStages.languages"),
+          status: "done",
+        },
+        {
+          id: "skills",
+          label: i18n.t("contributor.onboardingStages.skills"),
+          status: "running",
+        },
+        {
+          id: "prepare",
+          label: i18n.t("contributor.onboardingStages.prepare"),
+          status: "todo",
+        },
       ],
     },
     generatedSkills: [

@@ -1,4 +1,5 @@
 import { Check, Circle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -9,14 +10,20 @@ import type { OnboardingStepDto } from "../types/dashboard.types";
  * Explore stays open meanwhile; applying unlocks after review.
  */
 export function OnboardingChecklist({ steps }: { steps: OnboardingStepDto[] }) {
+  const { t } = useTranslation();
   const doneCount = steps.filter((step) => step.status === "done").length;
 
   return (
     <section className="overflow-hidden rounded-card border border-border bg-card">
       <div className="border-b border-border bg-surface-fog p-5 sm:p-6">
-        <p className="text-xs font-semibold text-primary">تفعيل حسابك</p>
+        <p className="text-xs font-semibold text-primary">
+          {t("dashboard.onboarding.activation")}
+        </p>
         <h2 className="mt-1 text-xl font-bold text-foreground">
-          أكمل الإعداد ({doneCount} من {steps.length})
+          {t("dashboard.onboarding.title", {
+            done: doneCount,
+            total: steps.length,
+          })}
         </h2>
         <div
           className="mt-4 h-1.5 overflow-hidden rounded-full bg-border"
@@ -56,12 +63,14 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStepDto[] }) {
       </ol>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border bg-surface-fog px-5 py-4 sm:px-6">
-        <span className="text-sm text-muted-foreground">في هذه الأثناء:</span>
+        <span className="text-sm text-muted-foreground">
+          {t("dashboard.onboarding.meanwhile")}
+        </span>
         <Button size="sm" variant="outline">
-          استكشاف المشاريع
+          {t("dashboard.onboarding.exploreProjects")}
         </Button>
         <span className="text-xs text-muted-foreground">
-          (التقديم يُفتح بعد مراجعة ملفك المهاري)
+          {t("dashboard.onboarding.applyUnlockNote")}
         </span>
       </div>
     </section>

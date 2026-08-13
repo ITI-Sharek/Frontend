@@ -1,5 +1,6 @@
 import { AlertTriangle, Loader2, Lock, Search } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -16,17 +17,17 @@ import {
 } from "../../utils/project-error-presenter";
 import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
 import { getOwnerTypeLabel } from "../../utils/project-source-presenter";
-import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../explore-filters";
+import {
+  getCategoryLabel,
+  getDifficultyLabel,
+  PROJECT_CATEGORIES,
+  PROJECT_DIFFICULTIES,
+} from "../explore-filters";
 import type {
   ProjectCategory,
   ProjectDifficulty,
 } from "../../types/project.types";
 import type { PreviewGitHubRepositoryResponseDto } from "../../types/project-draft.types";
-
-const STEPS = ["إدخال المستودع", "مراجعة وحفظ كمسودة"] as const;
-
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
-const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
 
 export interface SuggestedRepository {
   fullName: string;
@@ -57,6 +58,7 @@ export function ImportProjectStepper({
   suggestedRepositoriesLoading = false,
   suggestedRepositoriesError = null,
 }: ImportProjectStepperProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState("");
   const [preview, setPreview] =
@@ -133,13 +135,16 @@ export function ImportProjectStepper({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">استيراد مشروع</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("project.import.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          من مستودع GitHub إلى مسودة تراجعها قبل النشر.
+          {t("project.import.description")}
         </p>
       </div>
 
-      <StepIndicator steps={STEPS} currentStep={step} />
+      <StepIndicator
+        steps={[t("project.import.stepRepository"), t("project.import.stepReview")]}
+        currentStep={step}
+      />
 
       {step === 0 && (
         <Card>
@@ -156,7 +161,7 @@ export function ImportProjectStepper({
                 dir="ltr"
                 value={reference}
                 onChange={(event) => setReference(event.target.value)}
-                placeholder="owner/repo أو رابط GitHub كامل"
+                placeholder={t("project.import.referencePlaceholder")}
                 className="w-full bg-transparent font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
               />
             </label>
@@ -168,20 +173,20 @@ export function ImportProjectStepper({
               {previewMutation.isPending && (
                 <Loader2 className="size-4 animate-spin" />
               )}
-              معاينة المستودع
+              {t("project.import.previewRepository")}
             </Button>
           </form>
 
           {previewMutation.isError && (
             <p className="mt-3 text-sm leading-6 text-destructive">
-              {getProjectApiErrorMessage(previewMutation.error)}
+              {getProjectApiErrorMessage(t, previewMutation.error)}
             </p>
           )}
 
           {suggestedRepositories.length > 0 && (
             <div className="mt-5 border-t border-border pt-4">
               <p className="text-xs font-medium text-muted-foreground">
-                أو اختر من مستودعاتك المربوطة
+                {t("project.import.chooseLinked")}
               </p>
               <div className="mt-2 flex flex-col gap-2">
                 {suggestedRepositories.map((repo) => (
@@ -211,7 +216,7 @@ export function ImportProjectStepper({
                     {repo.isPrivate && (
                       <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                         <Lock className="size-3.5" />
-                        خاص
+                        {t("project.source.private")}
                       </span>
                     )}
                   </button>
@@ -222,7 +227,7 @@ export function ImportProjectStepper({
 
           {suggestedRepositoriesLoading && (
             <p className="mt-4 text-xs text-muted-foreground">
-              جارٍ تحميل مستودعاتك المربوطة...
+              {t("project.import.loadingLinked")}
             </p>
           )}
           {suggestedRepositoriesError && (
@@ -238,7 +243,7 @@ export function ImportProjectStepper({
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-bold text-foreground">
-                بيانات المستودع
+                {t("project.import.repositoryData")}
               </h2>
               <span
                 className={cn(
@@ -249,8 +254,8 @@ export function ImportProjectStepper({
                 )}
               >
                 {preview.evidence.completeness === "complete"
-                  ? "بيانات كاملة"
-                  : "بيانات جزئية"}
+                  ? t("project.import.completeData")
+                  : t("project.import.partialData")}
               </span>
             </div>
             <p
@@ -260,12 +265,14 @@ export function ImportProjectStepper({
               {preview.source.fullName}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {preview.source.visibility === "private" ? "خاص" : "عام"} ·{" "}
-              {getOwnerTypeLabel(preview.source.ownerType)}
+              {preview.source.visibility === "private"
+                ? t("project.source.private")
+                : t("project.source.public")}{" "}
+              · {getOwnerTypeLabel(t, preview.source.ownerType)}
               {preview.source.defaultBranch && (
                 <>
                   {" "}
-                  · الفرع الافتراضي{" "}
+                  · {t("project.source.defaultBranch")}{" "}
                   <bdi dir="ltr">{preview.source.defaultBranch}</bdi>
                 </>
               )}
@@ -274,21 +281,23 @@ export function ImportProjectStepper({
             {preview.evidence.unavailableAreas.length > 0 && (
               <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
                 <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-                تعذّر جلب بعض البيانات حالياً (
-                {preview.evidence.unavailableAreas.join("، ")}) — يمكنك
-                إكمالها لاحقاً بالتحديث.
+                {t("project.import.unavailableWarning", {
+                  areas: preview.evidence.unavailableAreas.join("، "),
+                })}
               </p>
             )}
           </Card>
 
           <Card>
-            <h2 className="text-lg font-bold text-foreground">راجع بيانات المشروع</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              {t("project.import.reviewData")}
+            </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              عدّل القيم المقترحة من GitHub كما تريد قبل الحفظ كمسودة.
+              {t("project.import.reviewDescription")}
             </p>
 
             <div className="mt-4 flex flex-col gap-4">
-              <FieldLabel label="العنوان">
+              <FieldLabel label={t("project.fields.title")}>
                 <Input
                   dir="ltr"
                   value={title}
@@ -296,7 +305,7 @@ export function ImportProjectStepper({
                 />
               </FieldLabel>
 
-              <FieldLabel label="الوصف">
+              <FieldLabel label={t("project.fields.description")}>
                 <textarea
                   dir="rtl"
                   rows={3}
@@ -306,7 +315,7 @@ export function ImportProjectStepper({
                 />
               </FieldLabel>
 
-              <FieldLabel label="الوسوم" hint="مفصولة بفواصل">
+              <FieldLabel label={t("project.fields.tags")} hint={t("project.fields.commaSeparated")}>
                 <Input
                   dir="ltr"
                   value={tags}
@@ -315,7 +324,7 @@ export function ImportProjectStepper({
                 />
               </FieldLabel>
 
-              <FieldLabel label="التقنيات" hint="مفصولة بفواصل">
+              <FieldLabel label={t("project.fields.technologies")} hint={t("project.fields.commaSeparated")}>
                 <Input
                   dir="ltr"
                   value={technologies}
@@ -324,12 +333,12 @@ export function ImportProjectStepper({
                 />
               </FieldLabel>
 
-              <FieldLabel label="التصنيف" hint="مطلوب قبل النشر">
+              <FieldLabel label={t("project.fields.category")} hint={t("project.fields.requiredBeforePublish")}>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((item) => (
+                  {PROJECT_CATEGORIES.map((item) => (
                     <PillOption
                       key={item}
-                      label={CATEGORY_LABELS[item]}
+                      label={getCategoryLabel(t, item)}
                       selected={category === item}
                       onSelect={() => setCategory(item)}
                     />
@@ -337,12 +346,12 @@ export function ImportProjectStepper({
                 </div>
               </FieldLabel>
 
-              <FieldLabel label="مستوى الصعوبة" hint="مطلوب قبل النشر">
+              <FieldLabel label={t("project.fields.difficulty")} hint={t("project.fields.requiredBeforePublish")}>
                 <div className="flex flex-wrap gap-2">
-                  {DIFFICULTIES.map((item) => (
+                  {PROJECT_DIFFICULTIES.map((item) => (
                     <PillOption
                       key={item}
-                      label={DIFFICULTY_LABELS[item]}
+                      label={getDifficultyLabel(t, item)}
                       selected={difficulty === item}
                       onSelect={() => setDifficulty(item)}
                     />
@@ -353,7 +362,7 @@ export function ImportProjectStepper({
 
             {createDraftMutation.isError && (
               <p className="mt-4 text-sm leading-6 text-destructive">
-                {getProjectApiErrorMessage(createDraftMutation.error)}
+                {getProjectApiErrorMessage(t, createDraftMutation.error)}
               </p>
             )}
 
@@ -366,18 +375,18 @@ export function ImportProjectStepper({
                 {createDraftMutation.isPending && (
                   <Loader2 className="size-4 animate-spin" />
                 )}
-                حفظ كمسودة
+                {t("project.import.saveDraft")}
               </Button>
               <Button
                 variant="outline"
                 disabled={createDraftMutation.isPending}
                 onClick={() => setStep(0)}
               >
-                رجوع
+                {t("project.import.back")}
               </Button>
             </div>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              الحفظ الآن يُنشئ مسودة خاصة — النشر خطوة منفصلة لاحقاً.
+              {t("project.import.saveNote")}
             </p>
           </Card>
         </>

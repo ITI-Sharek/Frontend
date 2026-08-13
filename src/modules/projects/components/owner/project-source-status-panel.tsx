@@ -1,5 +1,6 @@
 import { CircleCheck, Loader2, RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -38,15 +39,16 @@ export function ProjectSourceStatusPanel({
   refreshError = null,
   recoverySlot = null,
 }: ProjectSourceStatusPanelProps) {
-  const syncMeta = getSourceSyncStatusMeta(status.syncStatus);
-  const authMeta = getSourceAuthorizationStatusMeta(status.authorizationStatus);
-  const selectionMeta = getSourceSelectionStatusMeta(status.selectionStatus);
+  const { t } = useTranslation();
+  const syncMeta = getSourceSyncStatusMeta(t, status.syncStatus);
+  const authMeta = getSourceAuthorizationStatusMeta(t, status.authorizationStatus);
+  const selectionMeta = getSourceSelectionStatusMeta(t, status.selectionStatus);
   const unavailableAreas = getSafeUnavailableAreas(status);
 
   return (
     <Card>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-bold text-foreground">مصدر المشروع</h2>
+        <h2 className="text-sm font-bold text-foreground">{t("project.source.title")}</h2>
         <Button
           type="button"
           size="sm"
@@ -59,7 +61,7 @@ export function ProjectSourceStatusPanel({
           ) : (
             <RefreshCw className="size-4" />
           )}
-          تحديث البيانات
+          {t("project.source.refresh")}
         </Button>
       </div>
 
@@ -67,12 +69,14 @@ export function ProjectSourceStatusPanel({
         {attribution.fullName}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {attribution.visibility === "private" ? "خاص" : "عام"} ·{" "}
-        {getOwnerTypeLabel(attribution.ownerType)}
+        {attribution.visibility === "private"
+          ? t("project.source.private")
+          : t("project.source.public")}{" "}
+        · {getOwnerTypeLabel(t, attribution.ownerType)}
         {attribution.defaultBranch && (
           <>
             {" "}
-            · الفرع الافتراضي{" "}
+            · {t("project.source.defaultBranch")}{" "}
             <bdi dir="ltr">{attribution.defaultBranch}</bdi>
           </>
         )}
@@ -92,17 +96,19 @@ export function ProjectSourceStatusPanel({
 
       {status.isStale && (
         <p className="mt-3 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
-          البيانات قديمة منذ آخر قراءة ناجحة
           {status.lastSuccessfulRefreshAt
-            ? ` في ${new Date(status.lastSuccessfulRefreshAt).toLocaleString("ar")}`
-            : ""}
-          . النشر يتطلب تحديثاً ناجحاً أولاً.
+            ? t("project.source.staleDataWithDate", {
+                date: new Date(status.lastSuccessfulRefreshAt).toLocaleString("ar"),
+              })
+            : t("project.source.staleDataWithoutDate")}
         </p>
       )}
 
       {unavailableAreas.length > 0 && (
         <p className="mt-2 text-xs text-muted-foreground">
-          بيانات غير متاحة حالياً: {unavailableAreas.join("، ")}
+          {t("project.source.unavailableAreas", {
+            areas: unavailableAreas.join("، "),
+          })}
         </p>
       )}
 

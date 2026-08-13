@@ -4,6 +4,7 @@ import type { Easing } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import {
@@ -78,9 +79,12 @@ export function AppShell({
   brand = DEFAULT_BRAND,
   planChip,
   topBar,
-  navigationLabel = "التنقل الرئيسي",
+  navigationLabel,
   children,
 }: AppShellProps) {
+  const { i18n, t } = useTranslation();
+  const resolvedNavigationLabel =
+    navigationLabel ?? t("navigation.mainNavigation");
   const sidebar = useSidebarState();
   const {
     collapsed,
@@ -102,13 +106,16 @@ export function AppShell({
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : width;
 
   return (
-    <div className="min-h-dvh bg-background text-foreground" dir="rtl">
+    <div
+      className="min-h-dvh bg-background text-foreground"
+      dir={i18n.language.startsWith("en") ? "ltr" : "rtl"}
+    >
       {/* Skip-link */}
       <a
         href="#main-content"
         className="fixed start-4 top-3 z-50 -translate-y-20 rounded-input bg-foreground px-4 py-2 text-sm font-semibold text-background transition-transform duration-200 focus-visible:translate-y-0"
       >
-        تخطي إلى المحتوى
+        {t("navigation.skipToContent")}
       </a>
 
       <div className="flex min-h-dvh">
@@ -118,7 +125,7 @@ export function AppShell({
           transition={{ type: "spring", stiffness: 320, damping: 32, mass: 0.9 }}
           className="sticky top-0 z-20 hidden h-dvh shrink-0 flex-col border-e border-border bg-card md:flex"
           style={{ minWidth: sidebarWidth, maxWidth: sidebarWidth }}
-          aria-label={navigationLabel}
+          aria-label={resolvedNavigationLabel}
         >
           {/* Brand header */}
           <SidebarBrand brand={brand} collapsed={collapsed} />
@@ -129,7 +136,7 @@ export function AppShell({
           {/* Nav items */}
           <nav
             className="flex flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden px-2 py-3 scrollbar-thin"
-            aria-label={navigationLabel}
+            aria-label={resolvedNavigationLabel}
           >
             {primaryItems.map((item) => (
               <SidebarItem key={item.label} item={item} collapsed={collapsed} />
@@ -226,7 +233,7 @@ export function AppShell({
       {mobileItems.length > 0 && (
         <nav
           className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
-          aria-label={navigationLabel}
+          aria-label={resolvedNavigationLabel}
         >
           {mobileItems.map((item) => (
             <MobileItem key={item.label} item={item} />

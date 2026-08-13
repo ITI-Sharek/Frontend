@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { FilePlus2, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
@@ -15,7 +16,7 @@ import type {
 import {
   formatProposalDate,
   formatProposerLabel,
-  PROPOSAL_STATUS_META,
+  getProposalStatusMeta,
 } from "../utils/proposal-presenter";
 
 export function ProposalListView({
@@ -39,6 +40,8 @@ export function ProposalListView({
   onLoadMore?: () => void;
   loadMoreError?: string | null;
 }) {
+  const { i18n, t } = useTranslation();
+  const statusMeta = getProposalStatusMeta(t);
   const [activeStatus, setActiveStatus] = useState<
     ContributionProposalStatus | "ALL"
   >("ALL");
@@ -46,7 +49,7 @@ export function ProposalListView({
   if (isLoading) {
     return (
       <p role="status" className="text-sm text-muted-foreground">
-        جارٍ تحميل المقترحات…
+        {t("proposalList.loading")}
       </p>
     );
   }
@@ -64,7 +67,7 @@ export function ProposalListView({
           className="mt-3"
           onClick={onRetry}
         >
-          <RotateCcw className="size-4" /> إعادة المحاولة
+          <RotateCcw className="size-4" /> {t("proposalList.retry")}
         </Button>
       </Card>
     );
@@ -79,13 +82,13 @@ export function ProposalListView({
         />
         <p className="mt-3 text-sm font-semibold text-foreground">
           {role === "owner"
-            ? "لا توجد مقترحات لهذا المشروع"
-            : "لم ترسل مقترحات بعد"}
+            ? t("proposalList.emptyOwnerTitle")
+            : t("proposalList.emptyContributorTitle")}
         </p>
         <p className="mt-1 text-xs leading-6 text-muted-foreground">
           {role === "owner"
-            ? "ستظهر هنا المقترحات الخاصة المرسلة إلى مشروعك."
-            : "ابدأ من الصفحة العامة لمشروع منشور يقبل المقترحات."}
+            ? t("proposalList.emptyOwnerDescription")
+            : t("proposalList.emptyContributorDescription")}
         </p>
       </Card>
     );
@@ -95,11 +98,11 @@ export function ProposalListView({
     id: ContributionProposalStatus | "ALL";
     label: string;
   }> = [
-    { id: "ALL", label: "الكل" },
-    { id: "PENDING", label: "قيد المراجعة" },
-    { id: "ACCEPTED", label: "مقبول" },
-    { id: "DECLINED", label: "مرفوض" },
-    { id: "WITHDRAWN", label: "مسحوب" },
+    { id: "ALL", label: t("common.viewAll") },
+    { id: "PENDING", label: statusMeta.PENDING.label },
+    { id: "ACCEPTED", label: statusMeta.ACCEPTED.label },
+    { id: "DECLINED", label: statusMeta.DECLINED.label },
+    { id: "WITHDRAWN", label: statusMeta.WITHDRAWN.label },
   ];
   const visibleProposals =
     activeStatus === "ALL"
@@ -110,7 +113,7 @@ export function ProposalListView({
     <div>
       <div
         role="tablist"
-        aria-label="حالات مقترحات المساهمة"
+        aria-label={t("proposalList.statusTabsAria")}
         className="mb-4 flex gap-1 overflow-x-auto border-b border-border"
       >
         {statusTabs.map((tab) => {
@@ -149,12 +152,12 @@ export function ProposalListView({
       >
         {visibleProposals.length === 0 ? (
           <p className="rounded-card border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-            لا توجد مقترحات في هذا القسم.
+            {t("proposalList.emptyStatus")}
           </p>
         ) : (
           <div className="space-y-3">
             {visibleProposals.map((proposal) => {
-              const status = PROPOSAL_STATUS_META[proposal.status];
+              const status = statusMeta[proposal.status];
               return (
                 <Link
                   key={proposal.id}
@@ -168,16 +171,22 @@ export function ProposalListView({
                       </h3>
                       {role === "owner" && (
                         <p className="mt-1 truncate text-xs font-medium text-foreground">
-                          من{" "}
-                          {formatProposerLabel(
-                            proposal.proposerName,
-                            proposal.proposerUsername,
-                          )}
+                          {t("proposalList.from", {
+                            proposer: formatProposerLabel(
+                              proposal.proposerName,
+                              proposal.proposerUsername,
+                            ),
+                          })}
                         </p>
                       )}
                       <p className="mt-1 text-xs text-muted-foreground">
-                        النسخة {proposal.currentVersion} ·{" "}
-                        {formatProposalDate(proposal.updatedAt)}
+                        {t("proposalList.version", {
+                          version: proposal.currentVersion,
+                          date: formatProposalDate(
+                            proposal.updatedAt,
+                            i18n.language,
+                          ),
+                        })}
                       </p>
                     </div>
                     <StatusChip tone={status.tone} icon={status.icon}>
@@ -187,7 +196,7 @@ export function ProposalListView({
                   {proposal.revisionRequestedAt &&
                     proposal.status === "PENDING" && (
                       <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
-                        يوجد طلب مراجعة ينتظر نسخة جديدة من المساهم.
+                        {t("proposalList.revisionWaiting")}
                       </p>
                     )}
                 </Link>
@@ -215,7 +224,7 @@ export function ProposalListView({
             {isLoadingMore && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            تحميل المزيد
+            {t("proposalList.loadMore")}
           </Button>
         </div>
       )}

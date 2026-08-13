@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Github, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { requireContributorRoute } from "@/modules/auth";
@@ -63,6 +64,7 @@ export const Route = createFileRoute("/_appLayout/profile/github")({
  * the contributor consents and presses Start.
  */
 function GithubSkillAnalysisPage() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const callbackPhase = getCallbackPhase(search);
@@ -225,7 +227,7 @@ function GithubSkillAnalysisPage() {
             setConsentAccepted(false);
             return;
           }
-          setActionError(getSkillProfileApiErrorMessage(error));
+          setActionError(getSkillProfileApiErrorMessage(t, error));
         },
       },
     );
@@ -249,7 +251,7 @@ function GithubSkillAnalysisPage() {
             setRetryConsentAccepted(false);
             return;
           }
-          setActionError(getSkillProfileApiErrorMessage(error));
+          setActionError(getSkillProfileApiErrorMessage(t, error));
         },
       },
     );

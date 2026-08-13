@@ -1,4 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { AppProviders } from "@/providers/app-providers";
 
@@ -34,9 +36,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="antialiased">
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <DocumentLangSync />
+          {children}
+        </AppProviders>
         <Scripts />
       </body>
     </html>
   );
+}
+
+function DocumentLangSync() {
+  const { i18n } = useTranslation();
+  const language = i18n.language.startsWith("en") ? "en" : "ar";
+  const direction = language === "en" ? "ltr" : "rtl";
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = direction;
+  }, [direction, language]);
+
+  return null;
 }

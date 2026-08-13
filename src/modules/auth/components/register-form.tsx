@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
@@ -43,23 +44,13 @@ export function RegisterForm({
   isExperienceLevelsLoading = false,
   onContributorDetailsCollected,
 }: {
-  /**
-   * Injected by the route (cross-module composition happens at the route
-   * layer): admin-managed experience-level options owned by the
-   * `contributors` module.
-   */
   experienceLevelOptions: ChipOption[];
   isExperienceLevelsLoading?: boolean;
-  /**
-   * Injected by the route (cross-module composition happens at the route
-   * layer): persists the details-step data (skills/experience/interests)
-   * to the contributor profile. Best-effort — a failure here must not block
-   * navigation to onboarding.
-   */
   onContributorDetailsCollected?: (
     details: ContributorSignupDetails,
   ) => Promise<void>;
 }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<SignupFormData>(
@@ -78,9 +69,6 @@ export function RegisterForm({
   }
 
   const usernameQuery = useUsernameAvailabilityQuery(formData.username);
-  // Block on a confirmed conflict or an in-flight/pending check; a network
-  // failure (isError) never blocks because the backend re-validates at submit
-  // time.
   const isUsernameOk =
     !REGISTER_USERNAME_FIELD_ENABLED ||
     (formData.username.trim() !== "" &&
@@ -103,14 +91,19 @@ export function RegisterForm({
   ];
   const isLastStep = step === TOTAL_STEPS - 1;
 
+  // Localised step labels
+  const localizedSteps = [
+    t("register.steps.role"),
+    t("register.steps.account"),
+    t("register.steps.details"),
+  ];
+
   async function handleVerified(session: AuthSessionDto) {
     storageService.setAccessToken(session.tokens.accessToken);
     storageService.setRefreshToken(session.tokens.refreshToken);
     if (session.user.username) {
       storageService.setUsername(session.user.username);
     }
-    // New contributors start at the activation stepper (CJ-1); everyone
-    // else follows the standard post-login path.
     if (session.user.role === "contributor") {
       const hasDetails =
         formData.contributorExperience !== "" ||
@@ -124,8 +117,7 @@ export function RegisterForm({
             skills: formData.contributorSkills,
           });
         } catch {
-          // Best-effort: the contributor still proceeds to onboarding even
-          // if persisting the details-step data failed.
+          // Best-effort: contributor still proceeds to onboarding.
         }
       }
       navigate({ to: ROUTES.onboarding });
@@ -152,19 +144,14 @@ export function RegisterForm({
         lastName: formData.lastName,
         username: formData.username.trim(),
         role: formData.role as "owner" | "contributor",
-        preferredLanguage: "ar",
+        preferredLanguage: i18n.language.startsWith("en") ? "en" : "ar",
       });
-      // The backend returns a pending user + OTP metadata, no tokens
-      // (docs/api-contracts.md) — the session arrives after verify-email.
       setPendingVerification({
         email: registration.user.email,
         verificationExpiresAt: registration.verificationExpiresAt,
       });
     } catch (error) {
-      const message = getApiErrorMessage(
-        error,
-        "تعذر إنشاء الحساب، حاول مرة أخرى.",
-      );
+      const message = getApiErrorMessage(error, t("register.createError"));
       const lower = message.toLowerCase();
       if (lower.includes("username") || lower.includes("email")) {
         setStep(ACCOUNT_STEP_INDEX);
@@ -192,9 +179,9 @@ export function RegisterForm({
         </Card>
 
         <p className="w-full text-center text-base">
-          <span className="text-muted-foreground">وصلك الرمز على بريد آخر؟ </span>
+          <span className="text-muted-foreground">{t("auth.verificationCodeSent")} </span>
           <Link to={ROUTES.login} className="font-bold text-primary">
-            تسجيل الدخول
+            {t("auth.loginLink")}
           </Link>
         </p>
       </>
@@ -204,7 +191,7 @@ export function RegisterForm({
   return (
     <>
       <Card className="flex flex-col gap-6">
-        <StepIndicator steps={SIGNUP_STEPS} currentStep={step} />
+        <StepIndicator steps={localizedSteps} currentStep={step} />
 
         <form
           className="flex w-full flex-col gap-6"
@@ -264,7 +251,7 @@ export function RegisterForm({
                 disabled={isSubmitting}
               >
                 <ArrowRight className="size-4" />
-                <span>رجوع</span>
+                <span>{t("register.backButton")}</span>
               </Button>
             )}
             <Button
@@ -275,10 +262,10 @@ export function RegisterForm({
               <ArrowLeft className="size-4" />
               <span>
                 {isSubmitting
-                  ? "جارٍ الإنشاء..."
+                  ? t("register.creating")
                   : isLastStep
-                    ? "إنشاء حسابي المجاني"
-                    : "التالي"}
+                    ? t("register.createFreeAccount")
+                    : t("common.next")}
               </span>
             </Button>
           </div>
@@ -286,9 +273,9 @@ export function RegisterForm({
       </Card>
 
       <p className="w-full text-center text-base">
-        <span className="text-muted-foreground">لديك حساب بالفعل؟ </span>
+        <span className="text-muted-foreground">{t("auth.alreadyHaveAccount")} </span>
         <Link to={ROUTES.login} className="font-bold text-primary">
-          تسجيل الدخول
+          {t("auth.login")}
         </Link>
       </p>
     </>

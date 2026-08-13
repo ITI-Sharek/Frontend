@@ -1,5 +1,6 @@
 import { Building2, Github, Globe } from "lucide-react";
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { TagInput } from "@/shared/components/forms/tag-input";
@@ -19,11 +20,6 @@ interface DetailsStepProps {
     field: TKey,
     value: SignupFormData[TKey],
   ) => void;
-  /**
-   * Admin-managed experience-level options (cross-module data owned by the
-   * `contributors` module) — injected by the route, not fetched here, per
-   * the one-way module dependency rule.
-   */
   experienceLevelOptions: ChipOption[];
   isExperienceLevelsLoading: boolean;
 }
@@ -34,17 +30,17 @@ export function DetailsStep({
   experienceLevelOptions,
   isExperienceLevelsLoading,
 }: DetailsStepProps) {
+  const { t } = useTranslation();
   const termsId = useId();
 
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-1 text-right">
         <h2 className="text-lg font-bold text-foreground">
-          أخبرنا المزيد عنك
+          {t("register.details.title")}
         </h2>
         <p className="text-sm text-muted-foreground">
-          حقول مخصصة بناءً على دورك المختار لمساعدتك في العثور على الفرص
-          المناسبة.
+          {t("register.details.subtitle")}
         </p>
       </div>
 
@@ -52,29 +48,29 @@ export function DetailsStep({
         <>
           <TagInput
             id="contributorSkills"
-            label="مهاراتك التقنية"
+            label={t("register.details.skills")}
             dir="rtl"
-            placeholder="اكتب مهارة واضغط Enter أو فاصلة (مثال: React)"
+            placeholder={t("register.details.skillsPlaceholder")}
             value={data.contributorSkills}
             onChange={(tags) => onFieldChange("contributorSkills", tags)}
           />
           <ChipSelect
-            label="سنوات الخبرة"
+            label={t("register.details.experience")}
             options={experienceLevelOptions}
             value={data.contributorExperience}
             onChange={(v) => onFieldChange("contributorExperience", v as string)}
           />
           {isExperienceLevelsLoading ? (
             <p className="text-right text-xs text-muted-foreground">
-              جارٍ تحميل مستويات الخبرة…
+              {t("register.details.loadingExperience")}
             </p>
           ) : experienceLevelOptions.length === 0 ? (
             <p className="text-right text-xs text-muted-foreground">
-              لم يضف المسؤول مستويات خبرة متاحة بعد.
+              {t("register.details.noExperienceLevels")}
             </p>
           ) : null}
           <ChipSelect
-            label="مجالات الاهتمام"
+            label={t("register.details.interests")}
             options={INTEREST_OPTIONS}
             value={data.contributorInterests}
             onChange={(v) =>
@@ -84,7 +80,7 @@ export function DetailsStep({
           />
           <AuthTextField
             id="contributorGithubUrl"
-            label="رابط GitHub (اختياري)"
+            label={t("register.details.githubUrl")}
             icon={Github}
             placeholder="https://github.com/username"
             value={data.contributorGithubUrl}
@@ -99,31 +95,31 @@ export function DetailsStep({
         <>
           <AuthTextField
             id="ownerOrganization"
-            label="اسم المشروع أو الشركة"
+            label={t("register.details.organization")}
             icon={Building2}
             dir="rtl"
-            placeholder="مثال: Share-k"
+            placeholder={t("register.details.organizationPlaceholder")}
             value={data.ownerOrganization}
             onChange={(e) => onFieldChange("ownerOrganization", e.target.value)}
           />
           <AuthTextField
             id="ownerIndustry"
-            label="مجال العمل"
+            label={t("register.details.industry")}
             icon={Building2}
             dir="rtl"
-            placeholder="مثال: تعليم، تقنية مالية"
+            placeholder={t("register.details.industryPlaceholder")}
             value={data.ownerIndustry}
             onChange={(e) => onFieldChange("ownerIndustry", e.target.value)}
           />
           <ChipSelect
-            label="حجم الفريق"
+            label={t("register.details.teamSize")}
             options={TEAM_SIZE_OPTIONS}
             value={data.ownerTeamSize}
             onChange={(v) => onFieldChange("ownerTeamSize", v as string)}
           />
           <AuthTextField
             id="ownerWebsite"
-            label="الموقع الإلكتروني (اختياري)"
+            label={t("register.details.website")}
             icon={Globe}
             placeholder="https://example.com"
             value={data.ownerWebsite}
@@ -145,15 +141,15 @@ export function DetailsStep({
           htmlFor={termsId}
           className="flex-1 text-right text-sm text-muted-foreground"
         >
-          أوافق على{" "}
+          {t("register.details.termsText")}{" "}
           <a href="#" className="font-semibold text-primary">
-            شروط الخدمة
+            {t("register.details.termsOfService")}
           </a>{" "}
-          و{" "}
+          {t("register.details.and")}{" "}
           <a href="#" className="font-semibold text-primary">
-            سياسة الخصوصية
+            {t("register.details.privacyPolicy")}
           </a>{" "}
-          الخاصة بـ Share-k.
+          {t("register.details.termsOf")}
         </label>
       </div>
     </div>

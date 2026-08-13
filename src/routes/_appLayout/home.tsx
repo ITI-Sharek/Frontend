@@ -6,6 +6,7 @@ import {
   MessageCircleQuestion,
   Plus,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -40,6 +41,7 @@ function HomeHubPage() {
 }
 
 function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
+  const { t } = useTranslation();
   const displayName =
     [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ") ||
     currentUser.email;
@@ -50,16 +52,16 @@ function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
         <div>
           <p className="text-xs font-semibold text-primary">
             {currentUser.role === "owner"
-              ? "مساحة صاحب المشروع"
-              : "مساحة المساهم"}
+              ? t("home.ownerSpace")
+              : t("home.contributorSpace")}
           </p>
           <h1 className="mt-2 text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            أهلاً، {displayName}
+            {t("home.greeting", { name: displayName })}
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
             {currentUser.role === "owner"
-              ? "راجع مشاريعك وابدأ طلب مساهمة جديداً من سياق المشروع نفسه."
-              : "تابع سجلك، واكتشف عملاً مفتوحاً يناسب خبرتك الحالية."}
+              ? t("home.ownerSubtitle")
+              : t("home.contributorSubtitle")}
           </p>
         </div>
         <Button asChild size="sm">
@@ -72,8 +74,8 @@ function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
               <Compass className="size-4" aria-hidden />
             )}
             {currentUser.role === "owner"
-              ? "أضف مشروعاً"
-              : "استكشف طلبات المساهمة"}
+              ? t("home.addProject")
+              : t("dashboard.exploreRequests")}
             <ArrowLeft className="size-4" aria-hidden />
           </Link>
         </Button>
@@ -92,6 +94,7 @@ function HomeHubView({ currentUser }: { currentUser: AuthUserDto }) {
 }
 
 function ExplorePreviewSection() {
+  const { t } = useTranslation();
   const exploreQuery = useExploreProjectsQuery({});
   const projects = exploreQuery.data?.projects.slice(0, 3) ?? [];
 
@@ -99,14 +102,14 @@ function ExplorePreviewSection() {
     <section className="flex flex-col gap-4">
       <SectionHeader
         icon={Compass}
-        title="استكشف المشاريع"
+        title={t("home.exploreProjects")}
         href={ROUTES.explore}
-        hrefLabel="عرض الكل"
+        hrefLabel={t("home.viewAll")}
       />
       {exploreQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : projects.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد مشاريع لعرضها حالياً." />
+        <EmptyPreviewCard label={t("home.noProjectsToShow")} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
@@ -127,6 +130,7 @@ function MyWorksSection({ currentUser }: { currentUser: AuthUserDto }) {
 }
 
 function OwnerWorksPreview() {
+  const { t } = useTranslation();
   const projectsQuery = useMyProjectsQuery();
   const projects = projectsQuery.data?.projects.slice(0, 3) ?? [];
 
@@ -134,14 +138,14 @@ function OwnerWorksPreview() {
     <section className="flex flex-col gap-4">
       <SectionHeader
         icon={BriefcaseBusiness}
-        title="أعمالي"
+        title={t("home.myWorks")}
         href={ROUTES.myProjects}
-        hrefLabel="عرض كل مشاريعي"
+        hrefLabel={t("home.viewAllMyProjects")}
       />
       {projectsQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : projects.length === 0 ? (
-        <EmptyPreviewCard label="لم تنشئ مشاريع بعد." />
+        <EmptyPreviewCard label={t("home.noProjects")} />
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
           {projects.map((project) => (
@@ -165,6 +169,7 @@ function OwnerWorksPreview() {
 }
 
 function ContributorWorksPreview({ username }: { username: string }) {
+  const { t } = useTranslation();
   const profileQuery = useContributorProfileQuery(username);
   const history = profileQuery.data?.contributionHistory.slice(0, 3) ?? [];
 
@@ -172,14 +177,14 @@ function ContributorWorksPreview({ username }: { username: string }) {
     <section className="flex flex-col gap-4">
       <SectionHeader
         icon={BriefcaseBusiness}
-        title="أعمالي"
+        title={t("home.myWorks")}
         href={ROUTES.contributorProfile(username)}
-        hrefLabel="عرض سجل مساهماتي"
+        hrefLabel={t("home.viewContributionHistory")}
       />
       {profileQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : history.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد مساهمات موثّقة بعد." />
+        <EmptyPreviewCard label={t("home.noContributions")} />
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
           {history.map((item) => (
@@ -203,6 +208,7 @@ function ContributorWorksPreview({ username }: { username: string }) {
 }
 
 function DiscussionsPreviewSection() {
+  const { t } = useTranslation();
   const postsQuery = useDiscussionPostsQuery();
   const posts = postsQuery.data?.slice(0, 2) ?? [];
 
@@ -210,14 +216,14 @@ function DiscussionsPreviewSection() {
     <section className="flex flex-col gap-4">
       <SectionHeader
         icon={MessageCircleQuestion}
-        title="النقاشات"
+        title={t("home.discussions")}
         href={ROUTES.discussions}
-        hrefLabel="عرض الكل"
+        hrefLabel={t("home.viewAll")}
       />
       {postsQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : posts.length === 0 ? (
-        <EmptyPreviewCard label="لا توجد منشورات بعد." />
+        <EmptyPreviewCard label={t("home.noPosts")} />
       ) : (
         <div className="flex flex-col gap-3">
           {posts.map((post) => (
@@ -230,21 +236,22 @@ function DiscussionsPreviewSection() {
 }
 
 function SupportPreviewCard() {
+  const { t } = useTranslation();
   return (
     <section className="flex flex-col gap-4">
       <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
         <MessageCircleQuestion className="size-4.5 text-primary" aria-hidden />
-        بحاجة مساعدة؟
+        {t("home.needHelp")}
       </h2>
       <Link
         to={ROUTES.support}
         className="flex flex-1 flex-col justify-between gap-3 rounded-card border border-border bg-surface-fog p-5 transition-colors hover:border-primary/40"
       >
         <p className="text-sm leading-6 text-muted-foreground">
-          راسل فريق الدعم أو اطّلع على أساسيات Sharek.
+          {t("home.supportDescription")}
         </p>
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-          الذهاب لصفحة الدعم
+          {t("home.goToSupport")}
           <ArrowLeft className="size-4" aria-hidden />
         </span>
       </Link>

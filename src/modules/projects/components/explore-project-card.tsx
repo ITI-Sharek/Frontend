@@ -1,8 +1,10 @@
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
-import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "./explore-filters";
+import { getCategoryLabel, getDifficultyLabel } from "./explore-filters";
 import type { DiscoveredProjectDto } from "../types/explore.types";
 
 const LANGUAGE_BAR_COLORS = [
@@ -33,16 +35,18 @@ function getStars(project: DiscoveredProjectDto): number | null {
   return typeof stars === "number" ? stars : null;
 }
 
-function formatPublishedAgo(publishedAt: string | null): string | null {
+function formatPublishedAgo(t: TFunction, publishedAt: string | null): string | null {
   if (publishedAt === null) return null;
   const days = Math.floor(
     (Date.now() - new Date(publishedAt).getTime()) / (1000 * 60 * 60 * 24),
   );
-  if (days <= 0) return "اليوم";
-  if (days === 1) return "منذ يوم";
-  if (days < 30) return `منذ ${days} أيام`;
+  if (days <= 0) return t("explore.publishedToday");
+  if (days === 1) return t("explore.publishedDaysAgo", { count: 1 });
+  if (days < 30) return t("explore.publishedDaysAgo", { count: days });
   const months = Math.floor(days / 30);
-  return months === 1 ? "منذ شهر" : `منذ ${months} أشهر`;
+  return months === 1
+    ? t("explore.publishedMonthAgo")
+    : t("explore.publishedMonthsAgo", { count: months });
 }
 
 /**
@@ -54,11 +58,12 @@ export function ExploreProjectCard({
 }: {
   project: DiscoveredProjectDto;
 }) {
+  const { t } = useTranslation();
   const languages = getLanguageShares(project.languages);
   const otherPercent =
     100 - languages.reduce((sum, lang) => sum + lang.percent, 0);
   const stars = getStars(project);
-  const publishedAgo = formatPublishedAgo(project.publishedAt);
+  const publishedAgo = formatPublishedAgo(t, project.publishedAt);
   const repoOwner = project.githubRepoUrl.split("/").slice(-2, -1)[0] ?? "";
 
   return (
@@ -69,18 +74,18 @@ export function ExploreProjectCard({
         </h3>
         {project.difficulty !== null && (
           <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-            {DIFFICULTY_LABELS[project.difficulty]}
+            {getDifficultyLabel(t, project.difficulty)}
           </span>
         )}
         {project.category !== null && (
           <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-            {CATEGORY_LABELS[project.category]}
+            {getCategoryLabel(t, project.category)}
           </span>
         )}
       </div>
 
       <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
-        {project.description ?? "لا يوجد وصف لهذا المشروع بعد."}
+        {project.description ?? t("explore.noDescription")}
       </p>
 
       {languages.length > 0 && (
@@ -131,7 +136,9 @@ export function ExploreProjectCard({
             <bdi>{stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}</bdi>
           </span>
         )}
-        {publishedAgo !== null && <span>نُشر {publishedAgo}</span>}
+        {publishedAgo !== null && (
+          <span>{t("explore.publishedAgo", { time: publishedAgo })}</span>
+        )}
         {repoOwner !== "" && (
           <a
             href={project.githubRepoUrl}
@@ -154,7 +161,7 @@ export function ExploreProjectCard({
         >
           {/* URL contract per DEC-025: /projects/:projectSlug */}
           <a href={`/projects/${project.slug}`}>
-            فتح سجل المشروع
+            {t("explore.openProject")}
             <ArrowLeft
               className="size-4 transition-transform group-hover:-translate-x-1"
               aria-hidden

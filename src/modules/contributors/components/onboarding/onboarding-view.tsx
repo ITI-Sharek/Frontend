@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
 
 import { AnalysisProgressStep } from "./analysis-progress-step";
@@ -18,12 +20,12 @@ const STEP_ORDER: OnboardingStep[] = [
   "review",
   "decision",
 ];
-const STEP_LABELS = [
-  "ربط GitHub",
-  "التحليل",
-  "المعاينة",
-  "المراجعة",
-  "القرار",
+const STEP_LABEL_KEYS = [
+  "contributor.onboarding.stepConnect",
+  "contributor.onboarding.stepAnalysis",
+  "contributor.onboarding.stepPreview",
+  "contributor.onboarding.stepReview",
+  "contributor.onboarding.stepDecision",
 ] as const;
 
 interface OnboardingViewProps {
@@ -49,18 +51,20 @@ export function OnboardingView({
   exploreHref,
   dashboardHref,
 }: OnboardingViewProps) {
+  const { t } = useTranslation();
   const currentIndex = STEP_ORDER.indexOf(state.step);
+  const stepLabels = STEP_LABEL_KEYS.map((key) => t(key));
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">تفعيل حسابك</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("contributor.onboarding.heading")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          من ربط GitHub إلى ملف مهاري موثق — خطوة بخطوة.
+          {t("contributor.onboarding.subheading")}
         </p>
       </div>
 
-      <StepIndicator steps={STEP_LABELS} currentStep={currentIndex} />
+      <StepIndicator steps={stepLabels} currentStep={currentIndex} />
 
       {state.step === "connect" && (
         <GithubConsentStep onConnectGitHub={onConnectGitHub} />

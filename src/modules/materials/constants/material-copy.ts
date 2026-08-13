@@ -1,4 +1,5 @@
 import { isAxiosError } from "axios";
+import type { TFunction } from "i18next";
 
 import {
   getApiErrorCode,
@@ -12,45 +13,31 @@ import { formatBytes } from "../utils/material-state";
  * branched on.
  */
 const ERROR_COPY: Record<string, string> = {
-  MATERIAL_FILE_REQUIRED: "اختر ملفًا قبل الرفع.",
-  MATERIAL_TYPE_UNSUPPORTED:
-    "صيغة الملف غير مدعومة. اختر ملفًا بإحدى الصيغ المذكورة أعلاه.",
-  MATERIAL_CONTENT_MISMATCH:
-    "محتوى الملف لا يطابق صيغته المعلنة. تأكد من أن الملف سليم وغير معاد تسميته.",
-  MATERIAL_VISIBILITY_SCOPE_MISMATCH:
-    "خيار «خاص بالإسناد» متاح لمواد طلب المساهمة فقط، لأن المشروع نفسه لا يحمل إسنادًا.",
-  MATERIAL_NOT_AUTHORIZED: "هذا الإجراء غير متاح لهذا الحساب.",
-  MATERIAL_NOT_FOUND: "المادة غير متاحة. ربما حُذفت أو لم تعد تملك صلاحية عليها.",
-  MATERIAL_VERSION_NOT_FOUND: "هذه النسخة لم تعد متاحة.",
-  MATERIAL_VERSION_NOT_DOWNLOADABLE:
-    "هذه النسخة غير متاحة للتنزيل لأنها لم تجتز الفحص الأمني.",
-  MATERIAL_GRANT_NOT_APPLICABLE:
-    "الصلاحيات الصريحة تخص المواد المقيّدة بالمشروع فقط. غيّر مستوى الظهور أولًا.",
-  MATERIAL_GRANT_NOT_ASSIGNEE:
-    "لا يمكن منح الصلاحية إلا لمساهم لديه إسناد قائم في هذا المشروع.",
-  MATERIAL_GRANT_ALREADY_LIVE: "هذا المساهم يملك صلاحية سارية بالفعل.",
-  MATERIAL_GRANT_SELF: "أنت مالك المادة ولديك صلاحية الوصول إليها أصلًا.",
-  MATERIAL_GRANT_NOT_FOUND: "لا توجد صلاحية سارية لسحبها لهذا المساهم.",
-  MATERIAL_VISIBILITY_UNCHANGED: "المادة تحمل مستوى الظهور هذا بالفعل.",
-  MATERIAL_VISIBILITY_CONFLICT:
-    "تغيّر مستوى الظهور أثناء تنفيذ الطلب. حدّث الصفحة وأعد المحاولة.",
-  MATERIAL_ALREADY_DELETED: "سبق حذف هذه المادة.",
-  MATERIAL_DOWNLOAD_TOKEN_EXPIRED:
-    "انتهت صلاحية رابط التنزيل. أعد المحاولة للحصول على رابط جديد.",
-  MATERIAL_DOWNLOAD_TOKEN_INVALID: "رابط التنزيل غير صالح. أعد المحاولة.",
+  MATERIAL_FILE_REQUIRED: "material.errors.fileRequired",
+  MATERIAL_TYPE_UNSUPPORTED: "material.errors.typeUnsupported",
+  MATERIAL_CONTENT_MISMATCH: "material.errors.contentMismatch",
+  MATERIAL_VISIBILITY_SCOPE_MISMATCH: "material.errors.visibilityScopeMismatch",
+  MATERIAL_NOT_AUTHORIZED: "material.errors.notAuthorized",
+  MATERIAL_NOT_FOUND: "material.errors.notFound",
+  MATERIAL_VERSION_NOT_FOUND: "material.errors.versionNotFound",
+  MATERIAL_VERSION_NOT_DOWNLOADABLE: "material.errors.versionNotDownloadable",
+  MATERIAL_GRANT_NOT_APPLICABLE: "material.errors.grantNotApplicable",
+  MATERIAL_GRANT_NOT_ASSIGNEE: "material.errors.grantNotAssignee",
+  MATERIAL_GRANT_ALREADY_LIVE: "material.errors.grantAlreadyLive",
+  MATERIAL_GRANT_SELF: "material.errors.grantSelf",
+  MATERIAL_GRANT_NOT_FOUND: "material.errors.grantNotFound",
+  MATERIAL_VISIBILITY_UNCHANGED: "material.errors.visibilityUnchanged",
+  MATERIAL_VISIBILITY_CONFLICT: "material.errors.visibilityConflict",
+  MATERIAL_ALREADY_DELETED: "material.errors.alreadyDeleted",
+  MATERIAL_DOWNLOAD_TOKEN_EXPIRED: "material.errors.downloadTokenExpired",
+  MATERIAL_DOWNLOAD_TOKEN_INVALID: "material.errors.downloadTokenInvalid",
   MATERIAL_DOWNLOAD_TOKEN_SUBJECT_MISMATCH:
-    "رابط التنزيل صادر لحساب آخر ولا يمكن استخدامه من هذا الحساب.",
-  MATERIAL_IDEMPOTENCY_KEY_REQUIRED:
-    "تعذّر تأمين الطلب لإعادة المحاولة. أعد فتح الإجراء وحاول مرة أخرى.",
-  MATERIAL_IDEMPOTENCY_CONFLICT:
-    "تعارض هذا الطلب مع محاولة سابقة. حدّث الصفحة قبل إعادة المحاولة.",
+    "material.errors.downloadTokenSubjectMismatch",
+  MATERIAL_IDEMPOTENCY_KEY_REQUIRED: "material.errors.idempotencyKeyRequired",
+  MATERIAL_IDEMPOTENCY_CONFLICT: "material.errors.idempotencyConflict",
 };
 
-const NETWORK_ERROR =
-  "تعذّر الاتصال بالخادم. تحقق من الاتصال ثم أعد المحاولة.";
-const UNKNOWN_ERROR = "تعذّر إتمام العملية. أعد المحاولة.";
-
-export function getMaterialErrorMessage(error: unknown): string {
+export function getMaterialErrorMessage(t: TFunction, error: unknown): string {
   const code = getApiErrorCode(error);
 
   // The limit is quoted from the rejection itself rather than from the
@@ -59,22 +46,15 @@ export function getMaterialErrorMessage(error: unknown): string {
   if (code === "MATERIAL_TOO_LARGE") {
     const maxBytes = getApiErrorMetadataNumber(error, "maxBytes");
     return maxBytes === null
-      ? "حجم الملف يتجاوز الحد المسموح به."
-      : `حجم الملف يتجاوز الحد المسموح به (${formatBytes(maxBytes)}).`;
+      ? t("material.errors.tooLarge")
+      : t("material.errors.tooLargeWithLimit", {
+          maxBytes: formatBytes(t, maxBytes),
+        });
   }
 
-  if (code && code in ERROR_COPY) return ERROR_COPY[code];
-  if (isAxiosError(error) && error.response === undefined) return NETWORK_ERROR;
-  return UNKNOWN_ERROR;
+  if (code && code in ERROR_COPY) return t(ERROR_COPY[code]);
+  if (isAxiosError(error) && error.response === undefined) {
+    return t("material.errors.network");
+  }
+  return t("material.errors.unknown");
 }
-
-export const MATERIAL_COPY = {
-  sectionTitle: "المواد والمستندات",
-  sectionDescription:
-    "ارفع مستندات المشروع وشاركها مع من تختاره. رفع الملف هنا لا يعني الموافقة على معالجته بالذكاء الاصطناعي.",
-  uploadTitle: "رفع مادة جديدة",
-  emptyOwner: "لم ترفع أي مادة بعد.",
-  emptyReader: "لا توجد مواد متاحة لك في هذا المشروع.",
-  loading: "جارٍ تحميل المواد…",
-  loadFailed: "تعذّر تحميل المواد. حدّث الصفحة وأعد المحاولة.",
-} as const;

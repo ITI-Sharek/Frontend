@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import i18n from "@/lib/i18n";
+
 import {
   formatConfidence,
   formatWaitingAge,
@@ -8,6 +10,8 @@ import {
   renderEvidenceSources,
 } from "./admin-skill-review-presenter";
 import type { PendingSkillReviewItemDto } from "../types/admin-skill-review.types";
+
+const t = i18n.t;
 
 function makeItem(
   overrides: Partial<PendingSkillReviewItemDto>,
@@ -40,7 +44,7 @@ describe("admin skill review presenter", () => {
   });
 
   it("groups pending skill rows by contributor oldest first", () => {
-    const groups = groupPendingSkillReviews([
+    const groups = groupPendingSkillReviews(t, [
       makeItem({
         skillProfileId: "skill-b",
         contributorId: "user-2",
@@ -63,13 +67,15 @@ describe("admin skill review presenter", () => {
 
   it("formats confidence and waiting age for queue display", () => {
     expect(formatConfidence(0.915)).toBe("92%");
-    expect(formatWaitingAge("2026-07-18T00:00:00.000Z")).toBe("1 يوم");
+    expect(formatWaitingAge(t, "2026-07-18T00:00:00.000Z")).toBe("1 يوم");
     expect(getAgingBand("2026-07-16T00:00:00.000Z")).toBe("critical");
   });
 
   it("renders backend evidence ids compactly", () => {
     expect(
-      renderEvidenceSources({ evidenceIds: ["github:sara/app", "repo:api"] }),
+      renderEvidenceSources(t, {
+        evidenceIds: ["github:sara/app", "repo:api"],
+      }),
     ).toBe("github:sara/app · repo:api");
   });
 });

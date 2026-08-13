@@ -1,7 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { FileText, FolderOpen, NotebookPen, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
+import i18n from "@/lib/i18n";
 import {
   GitHubAppDisconnectConfirm,
   GitHubAppInstallationList,
@@ -50,7 +52,7 @@ function validateSearch(search: Record<string, unknown>): {
 }
 
 export const Route = createFileRoute("/_appLayout/my-projects/$projectId/")({
-  head: () => ({ meta: [{ title: "إدارة المشروع | Sharek" }] }),
+  head: () => ({ meta: [{ title: i18n.t("pageTitle.projectManagement") }] }),
   validateSearch,
   component: OwnerProjectManagementPage,
 });
@@ -67,6 +69,7 @@ function useProjectActionKey(operation: string, revision: number) {
 }
 
 function OwnerProjectManagementPage() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const { tab } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -84,7 +87,7 @@ function OwnerProjectManagementPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center">
         <p className="max-w-md text-sm leading-6 text-destructive">
-          {getProjectApiErrorMessage(projectQuery.error)}
+          {getProjectApiErrorMessage(t, projectQuery.error)}
         </p>
       </div>
     );
@@ -113,6 +116,7 @@ function OwnerProjectManagement({
   activeTab: ProjectWorkspaceTab;
   onTabChange: (tab: ProjectWorkspaceTab) => void;
 }) {
+  const { t } = useTranslation();
   const editMutation = useEditProjectMutation();
   const refreshMutation = useRefreshProjectSourceMutation();
   const publishMutation = usePublishProjectMutation();
@@ -136,30 +140,30 @@ function OwnerProjectManagement({
     <>
       <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6">
         <nav
-          aria-label="أقسام إدارة المشروع"
+          aria-label={t("project.owner.workspaceTabsAria")}
           className="flex gap-1 overflow-x-auto border-b border-border"
         >
           <ProjectTabButton
             icon={FileText}
-            label="نظرة عامة"
+            label={t("project.owner.overviewTab")}
             selected={activeTab === "overview"}
             onClick={() => onTabChange("overview")}
           />
           <ProjectTabButton
             icon={FolderOpen}
-            label="المواد"
+            label={t("project.owner.materialsTab")}
             selected={activeTab === "materials"}
             onClick={() => onTabChange("materials")}
           />
           <ProjectTabButton
             icon={Sparkles}
-            label="التحليل"
+            label={t("project.owner.analysisTab")}
             selected={activeTab === "analysis"}
             onClick={() => onTabChange("analysis")}
           />
           <ProjectTabButton
             icon={NotebookPen}
-            label="المقترحات"
+            label={t("project.owner.proposalsTab")}
             selected={activeTab === "proposals"}
             onClick={() => onTabChange("proposals")}
           />
@@ -167,9 +171,11 @@ function OwnerProjectManagement({
             to={ROUTES.ownerContributionRequests(projectId)}
             className="flex min-h-12 shrink-0 items-center gap-2 border-b-2 border-transparent px-4 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            طلبات المساهمة
+            {t("project.owner.contributionRequestsLink")}
             <span
-              aria-label={`${contributionRequestsQuery.data?.totalCount ?? 0} طلبات مساهمة`}
+              aria-label={t("project.owner.contributionRequestsCount", {
+                count: contributionRequestsQuery.data?.totalCount ?? 0,
+              })}
               className="inline-flex min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-primary"
             >
               {contributionRequestsQuery.data?.totalCount ?? "…"}
@@ -192,7 +198,7 @@ function OwnerProjectManagement({
           isSavingEdit={editMutation.isPending}
           editError={
             editMutation.isError
-              ? getProjectApiErrorMessage(editMutation.error)
+              ? getProjectApiErrorMessage(t, editMutation.error)
               : null
           }
           onRestoreField={(field) => {
@@ -222,7 +228,7 @@ function OwnerProjectManagement({
           isRefreshing={refreshMutation.isPending}
           refreshError={
             refreshMutation.isError
-              ? getProjectApiErrorMessage(refreshMutation.error)
+              ? getProjectApiErrorMessage(t, refreshMutation.error)
               : null
           }
           onPublish={() => {
@@ -236,7 +242,7 @@ function OwnerProjectManagement({
           isPublishing={publishMutation.isPending}
           publishError={
             publishMutation.isError
-              ? getProjectApiErrorMessage(publishMutation.error)
+              ? getProjectApiErrorMessage(t, publishMutation.error)
               : null
           }
           onArchive={() => {
@@ -250,7 +256,7 @@ function OwnerProjectManagement({
           isArchiving={archiveMutation.isPending}
           archiveError={
             archiveMutation.isError
-              ? getProjectApiErrorMessage(archiveMutation.error)
+              ? getProjectApiErrorMessage(t, archiveMutation.error)
               : null
           }
           recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}

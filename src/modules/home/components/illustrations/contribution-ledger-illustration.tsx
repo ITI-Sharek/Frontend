@@ -1,12 +1,16 @@
+import { useTranslation } from "react-i18next";
+
 /**
- * السجل المهني كدفتر قيود: ملف شخصي تتراكم تحته المساهمات،
- * ولكل سطر حالة صادقة — متحقق منها أو ما تزال قيد المراجعة.
+ * The professional record as a ledger: a profile card that contributions
+ * accumulate under, with each row carrying an honest status — verified or
+ * still under review.
  */
 export function ContributionLedgerIllustration({
   className,
 }: {
   className?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <svg
       viewBox="0 0 520 444"
@@ -14,7 +18,7 @@ export function ContributionLedgerIllustration({
       focusable="false"
       className={className}
     >
-      {/* عمود القيد الذي يصل المساهمات بالملف */}
+      {/* Ledger column linking contributions to the profile */}
       <line
         x1="452"
         y1="112"
@@ -24,7 +28,7 @@ export function ContributionLedgerIllustration({
         strokeWidth="1.5"
       />
 
-      {/* بطاقة الملف الشخصي */}
+      {/* Profile card */}
       <g>
         <rect
           x="36"
@@ -77,18 +81,18 @@ export function ContributionLedgerIllustration({
           fontWeight="600"
           fill="var(--primary)"
         >
-          سجل مهني
+          {t("landing.illustrationLedgerProfessionalRecord")}
         </text>
       </g>
 
-      {/* سطر: مساهمة متحقق منها */}
-      <LedgerRow y={140} tone="verified" label="متحقق منها" titleWidth={216} metaWidth={132} />
-      {/* سطر: مساهمة متحقق منها */}
-      <LedgerRow y={216} tone="verified" label="متحقق منها" titleWidth={176} metaWidth={104} />
-      {/* سطر: مساهمة قيد المراجعة */}
-      <LedgerRow y={292} tone="review" label="قيد المراجعة" titleWidth={196} metaWidth={148} />
+      {/* Row: verified contribution */}
+      <LedgerRow y={140} tone="verified" label={t("landing.illustrationLedgerVerified")} titleWidth={216} metaWidth={132} />
+      {/* Row: verified contribution */}
+      <LedgerRow y={216} tone="verified" label={t("landing.illustrationLedgerVerified")} titleWidth={176} metaWidth={104} />
+      {/* Row: contribution under review */}
+      <LedgerRow y={292} tone="review" label={t("landing.illustrationLedgerInReview")} titleWidth={196} metaWidth={148} />
 
-      {/* السطر القادم: دعوة لا ادعاء */}
+      {/* Next row: an invitation, not a claim */}
       <g>
         <rect
           x="36"
@@ -109,7 +113,7 @@ export function ContributionLedgerIllustration({
           fontWeight="600"
           fill="var(--muted-foreground)"
         >
-          مساهمتك التالية
+          {t("landing.illustrationLedgerYourNextContribution")}
         </text>
       </g>
     </svg>

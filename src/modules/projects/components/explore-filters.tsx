@@ -1,5 +1,7 @@
+import type { TFunction } from "i18next";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -9,22 +11,33 @@ import type {
   ProjectDifficulty,
 } from "../types/explore.types";
 
-export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
-  web: "ويب",
-  mobile: "موبايل",
-  ai_ml: "ذكاء اصطناعي",
-  devops: "DevOps",
-  tools_utilities: "أدوات",
-};
+export const PROJECT_CATEGORIES: ProjectCategory[] = [
+  "web",
+  "mobile",
+  "ai_ml",
+  "devops",
+  "tools_utilities",
+];
 
-export const DIFFICULTY_LABELS: Record<ProjectDifficulty, string> = {
-  beginner: "مبتدئ",
-  intermediate: "متوسط",
-  advanced: "متقدم",
-};
+export const PROJECT_DIFFICULTIES: ProjectDifficulty[] = [
+  "beginner",
+  "intermediate",
+  "advanced",
+];
 
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProjectCategory[];
-const DIFFICULTIES = Object.keys(DIFFICULTY_LABELS) as ProjectDifficulty[];
+export function getCategoryLabel(
+  t: TFunction,
+  category: ProjectCategory,
+): string {
+  return t(`project.category.${category}`);
+}
+
+export function getDifficultyLabel(
+  t: TFunction,
+  difficulty: ProjectDifficulty,
+): string {
+  return t(`project.difficulty.${difficulty}`);
+}
 
 interface ExploreFiltersProps {
   params: ExploreSearchParamsDto;
@@ -39,6 +52,7 @@ interface ExploreFiltersProps {
  * follow-up) — contributors type the technology name directly.
  */
 export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProps) {
+  const { t } = useTranslation();
   const selectedTech = params.technologies ?? [];
   const [techDraft, setTechDraft] = useState("");
 
@@ -61,7 +75,7 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
 
   return (
     <div className="flex flex-col gap-1">
-      <FilterGroup title="التقنية" first>
+      <FilterGroup title={t("project.filters.technology")} first>
         <form
           className="flex gap-1.5"
           onSubmit={(event) => {
@@ -72,7 +86,7 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
           <input
             value={techDraft}
             onChange={(event) => setTechDraft(event.target.value)}
-            placeholder="مثال: React"
+            placeholder={t("project.filters.technologyPlaceholder")}
             dir="ltr"
             className="w-full rounded-input border border-border bg-background px-2.5 py-1.5 font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
           />
@@ -80,7 +94,7 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
             type="submit"
             className="shrink-0 rounded-input border border-border px-2.5 text-xs font-medium text-foreground hover:bg-border/20"
           >
-            إضافة
+            {t("project.filters.addTechnology")}
           </button>
         </form>
         {selectedTech.length > 0 && (
@@ -100,32 +114,32 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
         )}
       </FilterGroup>
 
-      <FilterGroup title="التصنيف">
+      <FilterGroup title={t("project.filters.category")}>
         <RadioOption
-          label="الكل"
+          label={t("project.filters.allCategories")}
           checked={params.category === undefined}
           onSelect={() => onChange({ category: undefined })}
         />
-        {CATEGORIES.map((category) => (
+        {PROJECT_CATEGORIES.map((category) => (
           <RadioOption
             key={category}
-            label={CATEGORY_LABELS[category]}
+            label={getCategoryLabel(t, category)}
             checked={params.category === category}
             onSelect={() => onChange({ category })}
           />
         ))}
       </FilterGroup>
 
-      <FilterGroup title="مستوى الصعوبة">
+      <FilterGroup title={t("project.filters.difficulty")}>
         <RadioOption
-          label="أي مستوى"
+          label={t("project.filters.anyDifficulty")}
           checked={params.difficulty === undefined}
           onSelect={() => onChange({ difficulty: undefined })}
         />
-        {DIFFICULTIES.map((difficulty) => (
+        {PROJECT_DIFFICULTIES.map((difficulty) => (
           <RadioOption
             key={difficulty}
-            label={DIFFICULTY_LABELS[difficulty]}
+            label={getDifficultyLabel(t, difficulty)}
             checked={params.difficulty === difficulty}
             onSelect={() => onChange({ difficulty })}
           />
@@ -137,7 +151,7 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
         onClick={onReset}
         className="mt-3 self-start rounded-input border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-border/20"
       >
-        إعادة تعيين الفلاتر
+        {t("project.filters.resetFilters")}
       </button>
     </div>
   );
