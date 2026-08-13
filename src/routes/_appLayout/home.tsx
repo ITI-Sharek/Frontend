@@ -24,7 +24,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_appLayout/home")({
-  head: () => ({ meta: [{ title: "الرئيسية | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: HomeHubPage,
 });
 

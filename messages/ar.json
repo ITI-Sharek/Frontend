@@ -33,6 +33,9 @@
     "publish": "نشر",
     "unpublish": "إلغاء النشر",
     "previous": "السابق",
+    "optional": "(اختياري)",
+    "required": "(مطلوب)",
+    "saving": "جارٍ الحفظ…",
     "page": "صفحة {{current}} من {{total}}",
     "comingSoon": "قريباً",
     "notSpecified": "غير محددة",
@@ -69,6 +72,9 @@
     "adminNotifications": "الإشعارات"
   },
   "auth": {
+    "callback": { "retryAccountError": "تعذر إعادة فتح اختيار حساب GitHub. حاول مرة أخرى.", "missingProviderData": "لم تصل بيانات تسجيل الدخول من مزود الحساب.", "sessionExpired": "انتهت جلسة تسجيل الدخول عبر مزود الحساب. ابدأ من جديد.", "githubEmailConflict": "يوجد حساب Sharek بهذا البريد، لكن حساب GitHub المختار غير مرتبط به. سجّل الدخول إلى Sharek أولًا ثم اربط GitHub من الإعدادات، أو اختر حساب GitHub آخر.", "githubAccountMismatch": "حساب Sharek هذا مرتبط بحساب GitHub مختلف. اختر حساب GitHub المتصل به، أو سجّل الدخول يدويًا لتغيير الربط.", "githubAccountTaken": "حساب GitHub الذي اخترته مرتبط بحساب Sharek آخر. اختر حساب GitHub مختلفًا للمتابعة.", "loginError": "تعذر إكمال تسجيل الدخول عبر مزود الحساب.", "unknownProvider": "مزود تسجيل الدخول غير معروف.", "chooseProviderAccount": "اختر حساب {{provider}}", "title": "إكمال تسجيل الدخول", "demoSubtext": "محاكاة تجريبية لاختيار الحساب", "processingSubtext": "نعالج رد مزود الحساب", "chooseAnotherGithub": "اختيار حساب GitHub آخر", "backToLogin": "العودة لتسجيل الدخول", "completing": "جارٍ إكمال تسجيل الدخول...", "chooseAccount": "اختر الحساب الذي تريد المتابعة به", "demoDescription": "هذه شاشة demo محلية بدل نافذة {{provider}} الحقيقية." },
+    "devLogin": { "title": "دخول سريع (وضع التطوير فقط)", "contributor": "مساهم", "owner": "مالك مشروع", "admin": "أدمن", "serverUnavailable": "تعذر الاتصال بالخادم على المنفذ 4000. تأكد من تشغيل الواجهة الخلفية ثم أعد المحاولة.", "loginError": "تعذر الدخول بحساب التطوير. تأكد من تشغيل seed في السيرفر." },
+    "username": { "label": "اسم المستخدم", "invalidFormat": "٣ إلى ٣٠ حرفًا، حروف/أرقام/شرطات/شرطات سفلية فقط، بدون بداية أو نهاية بحرف خاص.", "reserved": "هذا الاسم محجوز ولا يمكن استخدامه.", "taken": "هذا الاسم غير متاح.", "checking": "جارٍ التحقق من التوفر...", "checkFailed": "تعذر التحقق من التوفر الآن، يمكنك المتابعة.", "available": "هذا الاسم متاح.", "try": "جرّب:" },
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
     "register": "إنشاء حساب",
@@ -117,7 +123,9 @@
     "role": {
       "title": "ما هو دورك في Share-k؟",
       "subtitle": "سيساعدنا هذا في تخصيص تجربتك وعرض الحقول المناسبة لك.",
-      "disclaimer": "اختر طريقة استخدامك لـ Share-k في البداية. قد تتم إضافة أدوار إضافية لاحقًا."
+      "disclaimer": "اختر طريقة استخدامك لـ Share-k في البداية. قد تتم إضافة أدوار إضافية لاحقًا.",
+      "contributorDescription": "أرغب في المساهمة في مشاريع مفتوحة المصدر وتطوير مهاراتي",
+      "ownerDescription": "أمتلك مشروعًا أو فكرة وأبحث عن مساهمين لبنائها"
     },
     "account": {
       "title": "بيانات الحساب",
@@ -148,7 +156,10 @@
       "termsOfService": "شروط الخدمة",
       "and": "و",
       "privacyPolicy": "سياسة الخصوصية",
-      "termsOf": "الخاصة بـ Share-k."
+      "termsOf": "الخاصة بـ Share-k.",
+      "teamSizes": { "solo": "أعمل بمفردي", "large": "أكثر من 50" },
+      "availability": { "fullTime": "دوام كامل", "freelance": "عمل حر", "both": "كلاهما" },
+      "interestsOptions": { "web": "تطوير الويب", "mobile": "تطبيقات الجوال", "ai": "الذكاء الاصطناعي", "docs": "توثيق ومحتوى" }
     },
     "verify": {
       "title": "تحقق من بريدك",
@@ -183,8 +194,19 @@
   "shell": {
     "skipToContent": "تخطي إلى المحتوى",
     "badgeAriaLabel_one": "{{count}} عنصر يحتاج إلى إجراء",
-    "badgeAriaLabel_other": "{{count}} عناصر تحتاج إلى إجراء"
+    "badgeAriaLabel_other": "{{count}} عناصر تحتاج إلى إجراء",
+    "resizeSidebar": "تغيير عرض القائمة الجانبية",
+    "sidebarWidth": "{{width}} بكسل",
+    "collapseSidebar": "طي القائمة الجانبية",
+    "expandSidebar": "توسيع القائمة الجانبية"
   },
+  "sidePanel": { "closePanel": "إغلاق اللوحة" },
+  "tagInput": { "remove": "إزالة {{tag}}" },
+  "applicationRoute": { "verifyingAccount": "جارٍ التحقق من الحساب…", "ownerOpenError": "تعذر فتح طلب المساهمة من هذا الإشعار.", "openingRequest": "جارٍ فتح طلب المساهمة…", "redirecting": "جارٍ تحويلك إلى الصفحة المناسبة لحسابك…" },
+  "forgotPassword": { "title": "نسيت كلمة المرور", "description": "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور." },
+  "publicProjects": { "loadError": "تعذر تحميل المشاريع المنشورة.", "loading": "جارٍ تحميل المشاريع المنشورة..." },
+  "settings": { "loadingProfile": "جارٍ تحميل بيانات ملفك..." },
+  "importProject": { "loadRepositoriesError": "تعذر تحميل مستودعاتك المربوطة." },
   "home": {
     "ownerSpace": "مساحة صاحب المشروع",
     "contributorSpace": "مساحة المساهم",
@@ -222,6 +244,48 @@
     "recordTab": "سجلك",
     "advisoryNote": "تظهر المطابقات بناءً على المهارات الموثقة، لكنها تظل إرشادية. راجع متطلبات كل طلب قبل التقديم.",
     "attentionHeading": "يحتاج انتباهك",
+    "attention": {
+      "eyebrow": "الأولوية الآن",
+      "title": "يحتاج انتباهك",
+      "count_zero": "لا توجد إجراءات",
+      "count_one": "إجراء واحد",
+      "count_two": "إجراءان",
+      "count_few": "{{count}} إجراءات",
+      "count_many": "{{count}} إجراء",
+      "count_other": "{{count}} إجراء"
+    },
+    "matches": {
+      "eyebrow": "مبني على سجل مهاراتك",
+      "title": "فرص مناسبة لك",
+      "reason": "السبب: {{reason}}",
+      "viewAll": "عرض كل الطلبات",
+      "fit": "توافق {{matched}}/{{required}}",
+      "review": "راجع التفاصيل"
+    },
+    "mock": {
+      "attention": {
+        "changesTitle": "مطلوب تعديلات على تسليم «إضافة مصادقة JWT»",
+        "changesSubtitle": "ملاحظات صاحب المشروع مرفقة",
+        "changesAction": "افتح وعدّل",
+        "acceptedTitle": "تم قبولك في «إصلاح تخطيط RTL»",
+        "acceptedSubtitle": "الموعد النهائي خلال 6 أيام",
+        "acceptedAction": "تسليم طلب السحب (PR)"
+      },
+      "matchReason": "مهاراتك الموثقة في React وNode.js",
+      "tasks": {
+        "notifications": "بناء لوحة إشعارات فورية",
+        "performance": "تحسين أداء قوائم المهام",
+        "integration": "إضافة اختبارات تكامل للواجهة"
+      },
+      "onboarding": {
+        "account": "إنشاء الحساب",
+        "github": "ربط GitHub",
+        "analysis": "التحليل قيد التنفيذ…",
+        "analysisHint": "(~دقيقتان) — سنخبرك عند الانتهاء",
+        "review": "مراجعة فريق المراجعة",
+        "reviewHint": "بعد اكتمال التحليل"
+      }
+    },
     "growth": {
       "title": "نموك",
       "verifiedProgress": "تقدم موثّق",
@@ -262,6 +326,8 @@
     "language": {
       "title": "اللغة",
       "description": "لغة عرض الواجهة.",
+      "saving": "جارٍ حفظ اللغة…",
+      "saveError": "تعذّر حفظ اللغة؛ تمت استعادة اختيارك السابق.",
       "options": {
         "ar": "العربية",
         "en": "English"
@@ -272,31 +338,6 @@
       "description": "خطتك الحالية وحدود الاستخدام لهذا الشهر.",
       "requestsToday": "{{used}} من {{total}} طلبات اليوم",
       "upgradeDisabled": "الترقية للخطط الأعلى غير مفعّلة حاليًا."
-    }
-  },
-  "notifications": {
-    "title": "الإشعارات",
-    "description": "تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك.",
-    "markAllRead": "تحديد الكل كمقروء",
-    "markRead": "تحديد كمقروء",
-    "unread": "غير مقروء",
-    "noNotifications": "لا توجد إشعارات بعد",
-    "noNotificationsConnected": "ستظهر نتائج المراجعات والأحداث المهمة هنا فور وصولها.",
-    "noNotificationsDisconnected": "ستظهر الأحداث الجديدة هنا بعد استعادة الاتصال بالخادم.",
-    "noNotificationsSession": "لا توجد إشعارات في هذه الجلسة بعد.",
-    "viewAll": "عرض كل الإشعارات",
-    "dialog": {
-      "title": "آخر الإشعارات",
-      "ariaLabel_unread": "الإشعارات، {{count}} غير مقروءة",
-      "ariaLabel": "الإشعارات"
-    },
-    "connection": {
-      "connected": "متصل مباشرة",
-      "connecting": "جارٍ الاتصال…",
-      "unauthorized": "الجلسة لا تسمح بالإشعارات",
-      "unauthorized_full": "الجلسة غير مخولة",
-      "disconnected": "غير متصل",
-      "reconnecting": "سيتم التحديث عند استعادة الاتصال"
     }
   },
   "proposals": {
@@ -372,8 +413,18 @@
   "myProjects": {
     "title": "مشاريعي",
     "loading": "جارٍ تحميل مشاريعك...",
-    "loadError": "تعذر تحميل مشاريعك — حاول مرة أخرى."
+    "loadError": "تعذر تحميل مشاريعك — حاول مرة أخرى.",
+    "monthlyQuota": "{{used}} من {{total}} طلب مساهمة هذا الشهر",
+    "importProject": "استيراد مشروع",
+    "emptyTitle": "استورد مشروعك الأول من GitHub",
+    "emptyDescription": "نجلب البيانات تلقائيًا من المستودع، تراجعها وتنشرها — ثم تنشئ طلبات مساهمة يراها مساهمون مؤهلون.",
+    "projectSummary": "{{open}} طلبات مساهمة مفتوحة · {{pending}} طلبات بانتظار قرارك · آخر نشاط {{activity}}",
+    "status": { "draft": "مسودة", "published": "منشور", "archived": "مؤرشف" },
+    "manage": "إدارة",
+    "loadMore": "تحميل المزيد"
   },
+  "projectOwners": { "title": "ملاك لديهم مشاريع منشورة", "description": "أحدث ملاك المشاريع المنشورة، مع عدد مشاريع كل مالك وآخر مشروع نشره.", "visibleOwners_zero": "لا يوجد ملاك ظاهرون", "visibleOwners_one": "مالك ظاهر", "visibleOwners_two": "مالكان ظاهران", "visibleOwners_few": "{{count}} ملاك ظاهرون", "visibleOwners_many": "{{count}} مالكًا ظاهرًا", "visibleOwners_other": "{{count}} مالك ظاهر", "loading": "جارٍ تحميل ملاك المشاريع المنشورة…", "loadError": "تعذر تحميل ملاك المشاريع", "loadErrorHelp": "أعد المحاولة دون التأثير في طابور مراجعة المهارات.", "publishedProjects": "مشاريع منشورة", "opensRepository": "يفتح مستودع المشروع في نافذة جديدة", "latestPublished": "آخر نشر:", "emptyTitle": "لا توجد مشاريع منشورة", "emptyDescription": "سيظهر هنا الملاك بعد نشر أول مشروع تدعمه العقود الحالية." },
+  "project": { "ownerRoute": { "loadingTitle": "جارٍ تحميل المشروع", "loadingDescription": "نتأكد من ملكية المشروع.", "verifyingTitle": "جارٍ التحقق من المشروع", "verifyingDescription": "نتأكد من ملكية المشروع وحالة نشره.", "loadErrorTitle": "تعذر تحميل المشروع", "untitled": "بلا عنوان", "createPanelDescription": "أنشئ مسودة داخل مشروع «{{project}}» من دون مغادرة قائمة الطلبات.", "notPublishedTitle": "المشروع غير منشور", "notFoundTitle": "لم نعثر على المشروع", "notPublishedDescription": "انشر المشروع أولًا؛ لا يمكن إنشاء طلب مساهمة من مشروع مسودة أو مؤرشف.", "notFoundDescription": "المشروع غير موجود أو لا يخص هذا الحساب." }, "repositoryRecovery": { "title": "يلزم التحقق من التحكم بالمستودع", "description": "مستودع منظمة أو مستودع مشترك يتطلب تثبيتاً نشطاً لتطبيق GitHub مع اختيار صريح لهذا المستودع. مستودع شخصي يتطلب أن تطابق هوية GitHub الموثقة مالك المستودع. أعد الربط أو الاختيار أدناه ثم حدّث بيانات المصدر.", "manageLinks": "إدارة كل روابط GitHub" } },
   "admin": {
     "dashboard": {
       "title": "مركز عمليات المراجعة",
@@ -554,6 +605,55 @@
     "resolving": "جارٍ التحقق من الحساب…",
     "notAvailable": "المقترح غير متاح",
     "notAvailableDescription": "هذا المسار مخصص لأطراف المقترح."
+  },
+  "assignmentConversations": {
+    "status": {
+      "active": "مفتوحة",
+      "readOnly": "للقراءة فقط"
+    },
+    "button": {
+      "openAria": "فتح المحادثات",
+      "unreadAria": "فتح المحادثات، {{count}} غير مقروءة"
+    },
+    "list": {
+      "ariaLabel": "قائمة المحادثات",
+      "title": "Assignments",
+      "description": "محادثاتك الخاصة",
+      "loadOlder": "تحميل محادثات أقدم"
+    },
+    "workspace": {
+      "title": "المحادثات",
+      "loading": "جارٍ تحميل المحادثات…",
+      "opening": "جارٍ فتح المحادثة…",
+      "loadErrorTitle": "تعذّر تحميل المحادثات",
+      "loadErrorDescription": "تحقق من الاتصال ثم أعد المحاولة. لا تظهر المحادثات إلا للمشاركين في Assignment.",
+      "unavailableTitle": "المحادثة غير متاحة",
+      "unavailableDescription": "قد تكون المحادثة غير موجودة أو لم تعد مخولًا للوصول إليها.",
+      "emptyIntro": "محادثات خاصة بين مالك المشروع والمساهم المعيّن بعد قبول Assignment.",
+      "emptyTitle": "لا توجد محادثات بعد",
+      "emptyDescription": "ستظهر هنا المحادثة الخاصة عند قبول طلب مساهمة وإنشاء Assignment.",
+      "description": "تواصل مباشرة مع الطرف الآخر في Assignments الخاصة بك."
+    },
+    "thread": {
+      "ariaLabel": "محادثة Assignment",
+      "activeDescription": "المحادثة متاحة للطرفين",
+      "readOnlyDescription": "هذه المحادثة محفوظة للقراءة فقط",
+      "searchLabel": "البحث في الرسائل",
+      "searchPlaceholder": "ابحث داخل رسائل المحادثة…",
+      "loadingMessages": "جارٍ تحميل الرسائل…",
+      "loadError": "تعذّر تحميل رسائل المحادثة.",
+      "loadOlder": "تحميل رسائل أقدم",
+      "empty": "ابدأ أول رسالة في هذه المحادثة.",
+      "messageFrom": "رسالة من {{sender}}",
+      "you": "أنت"
+    },
+    "composer": {
+      "label": "نص الرسالة",
+      "readOnlyPlaceholder": "المحادثة للقراءة فقط",
+      "placeholder": "اكتب رسالتك…",
+      "sendAria": "إرسال الرسالة",
+      "sendError": "تعذّر إرسال الرسالة."
+    }
   },
   "__application__": {},
   "__contributionRequest__": {},
@@ -752,10 +852,10 @@
       "saving": "جارٍ الحفظ...",
       "saved": "تم الحفظ",
       "saveChanges": "حفظ التغييرات",
-  "githubConnectHint": "اربط حسابك لبناء ملف مهاري موثق تلقائيًا.",
-  "githubChangeAccount": "تغيير الحساب",
-  "githubConnectAccount": "ربط الحساب",
-  "githubConnectError": "تعذر فتح ربط GitHub. حاول مرة أخرى.",
+      "githubConnectHint": "اربط حسابك لبناء ملف مهاري موثق تلقائيًا.",
+      "githubChangeAccount": "تغيير الحساب",
+      "githubConnectAccount": "ربط الحساب",
+      "githubConnectError": "تعذر فتح ربط GitHub. حاول مرة أخرى.",
       "aiSkillsAnalysisTitle": "تحليل المهارات بالذكاء الاصطناعي",
       "aiSkillsAnalysisDescription": "تحليل المهارات يستخدم ربط تطبيق GitHub وصلاحية مستقلة تماماً عن تسجيل الدخول عبر GitHub. تختار المستودعات وتوافق صراحةً قبل بدء أي تحليل، ويراجع الفريق المهارات قبل اعتمادها — لا شيء يُنشر تلقائيًا.",
       "redirecting": "جارٍ التحويل...",
@@ -802,8 +902,108 @@
       "skillsGenerationQueued": "بدأ تحليل نشاطك على GitHub. ستظهر المهارات هنا بعد اكتمال التحليل ومراجعة الفريق."
     }
   },
-  "__discussion__": {},
-  "__githubApp__": {},
+  "discussions": {
+    "title": "النقاشات",
+    "description": "مقالات وخبرات يشاركها أصحاب المشاريع والمساهمون، مع تعليقات مفتوحة.",
+    "roles": {
+      "owner": "صاحب مشروع",
+      "contributor": "مساهم"
+    },
+    "commentCount_zero": "لا توجد تعليقات",
+    "commentCount_one": "تعليق واحد",
+    "commentCount_two": "تعليقان",
+    "commentCount_few": "{{count}} تعليقات",
+    "commentCount_many": "{{count}} تعليقًا",
+    "commentCount_other": "{{count}} تعليق",
+    "newPost": "منشور جديد",
+    "panelDescription": "شارك سؤالاً أو خبرة مع مجتمع Sharek من دون مغادرة قائمة النقاشات.",
+    "loading": "جارٍ تحميل النقاشات…",
+    "empty": "لا توجد منشورات بعد. كن أول من يبدأ نقاشًا.",
+    "back": "العودة للنقاشات",
+    "commentsTitle_zero": "التعليقات (0)",
+    "commentsTitle_one": "التعليقات (1)",
+    "commentsTitle_two": "التعليقات (2)",
+    "commentsTitle_few": "التعليقات ({{count}})",
+    "commentsTitle_many": "التعليقات ({{count}})",
+    "commentsTitle_other": "التعليقات ({{count}})",
+    "commentPlaceholder": "أضف تعليقًا…",
+    "sending": "جارٍ الإرسال…",
+    "composer": {
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "عنوان يلخّص الموضوع",
+      "bodyLabel": "المحتوى",
+      "bodyPlaceholder": "شارك خبرتك أو اطرح سؤالاً على مجتمع Sharek",
+      "publishing": "جارٍ النشر…"
+    },
+    "mock": { "sara": "سارة يوسف", "omar": "عمر خالد", "postNotFound": "المنشور غير موجود.", "post1": { "title": "كيف تكتب وصف مهمة يجذب المساهم المناسب؟", "excerpt": "نطاق عمل واضح ومعايير مراجعة معلنة يقللان الغموض قبل أن يتقدم أحد.", "body": "نطاق عمل واضح ومعايير مراجعة معلنة يقللان الغموض قبل أن يتقدم أحد. جرّبنا في هذا المشروع كتابة كل مهمة بثلاثة أسطر: ما المطلوب، كيف نراجعه، وما الدليل المتوقع. النتيجة كانت تقليل الأسئلة المتكررة إلى النصف تقريبًا.", "comment1": "هذا بالضبط ما كنت أبحث عنه، شكرًا على المشاركة.", "comment2": "سعيدة أنه أفادك! لو جربته أخبرني بالنتيجة." }, "post2": { "title": "تجربتي في توثيق أول مساهمة مفتوحة المصدر", "excerpt": "الدليل المكتوب أثناء العمل أسهل من إعادة بنائه لاحقًا.", "body": "الدليل المكتوب أثناء العمل أسهل من إعادة بنائه لاحقًا. بدل ما أجمع لقطات الشاشة والشرح في آخر يوم، صرت أكتب ملاحظة قصيرة بعد كل خطوة مهمة. لما وصلت لمراجعة صاحب المشروع كان عندي سجل جاهز." } }
+  },
+  "githubApp": {
+    "errors": {
+      "GITHUB_APP_NOT_CONFIGURED": "ربط GitHub غير مُهيأ على الخادم حالياً. تواصل مع الدعم.",
+      "GITHUB_APP_STATE_INVALID": "انتهت صلاحية محاولة الربط أو أنها غير صالحة. ابدأ الربط من جديد.",
+      "GITHUB_APP_STATE_USER_MISMATCH": "محاولة الربط تخص جلسة أخرى. ابدأ الربط من جديد من حسابك.",
+      "GITHUB_APP_INSTALLATION_NOT_VERIFIED": "تعذّر التحقق من التثبيت على GitHub. أعد المحاولة.",
+      "GITHUB_APP_INSTALLATION_ACCESS_NOT_VERIFIED": "لم نتمكن من تأكيد صلاحيتك على هذا التثبيت. أعد التفويض من GitHub.",
+      "GITHUB_APP_INSTALLATION_INACTIVE": "هذا الربط غير مُفعّل. أعد التفويض أو اختر تثبيتاً آخر.",
+      "GITHUB_APP_REPOSITORY_NOT_SELECTED": "أحد المستودعات لم يعد ضمن المستودعات المسموح بها في تثبيت GitHub. حدّث الاختيار من GitHub ثم أعد المحاولة.",
+      "GITHUB_APP_REPOSITORY_ACCESS_REVOKED": "أُلغي وصول Share-k إلى أحد المستودعات المختارة. راجع إعدادات التثبيت على GitHub.",
+      "GITHUB_APP_PROVIDER_UNAVAILABLE": "خدمة GitHub غير متاحة حالياً. أعد المحاولة بعد قليل.",
+      "GITHUB_APP_PROVIDER_INVALID_RESPONSE": "وصل رد غير متوقع من GitHub. أعد المحاولة بعد قليل.",
+      "GITHUB_REPOSITORY_OAUTH_MIGRATED": "تم استبدال طريقة ربط المستودعات القديمة. استخدم ربط تطبيق GitHub من هذه الصفحة.",
+      "unknown": "تعذّر إكمال العملية مع GitHub. أعد المحاولة."
+    },
+    "restart": "إعادة بدء الربط",
+    "accountType": {
+      "user": "حساب شخصي",
+      "organization": "منظمة"
+    },
+    "candidates": {
+      "emptyTitle": "لم نجد أي تثبيت متاح",
+      "emptyDescription": "لم يُرجع GitHub أي حساب أو منظمة يمكن ربطها بهذه المحاولة. ابدأ الربط من جديد وتأكد من تثبيت التطبيق على الحساب الصحيح.",
+      "title": "اختر الحساب أو المنظمة",
+      "description": "تم تثبيت تطبيق GitHub على أكثر من حساب. اختر الحساب الذي تريد ربطه بـ Share-k الآن."
+    },
+    "repositories": {
+      "title": "اختر المستودعات",
+      "selectedCount": "{{selected}} / {{max}} مستودع",
+      "description": "اختر من مستودع واحد حتى {{max}} مستودعات تُظهر مساهماتك البرمجية بوضوح. لن يبدأ أي تحليل قبل ضغطك على زر البدء.",
+      "loading": "جارٍ تحميل المستودعات…",
+      "empty": "لا توجد مستودعات متاحة عبر هذا الربط. حدّث المستودعات المسموح بها من إعدادات التثبيت على GitHub.",
+      "private": "خاص",
+      "public": "عام",
+      "limit": "وصلت إلى الحد الأقصى ({{max}} مستودعات). ألغِ اختيار مستودع لإضافة غيره.",
+      "page": "صفحة {{page}}"
+    },
+    "installations": {
+      "allRepositories": "كل المستودعات",
+      "selectedRepositories": "مستودعات محددة",
+      "selected": "محدد للتحليل",
+      "use": "استخدام هذا الربط",
+      "reauthorize": "إعادة التفويض",
+      "manage": "إدارة أو إزالة التطبيق من GitHub",
+      "disconnect": "فصل محلي"
+    },
+    "disconnectDialog": { "aria": "تأكيد فصل ربط GitHub", "title": "فصل الربط مع", "description": "الفصل يزيل ارتباط Share-k المحلي بالمستودعات فقط. لا يقوم بإلغاء تثبيت تطبيق GitHub ولا بفصل تسجيل الدخول عبر GitHub.", "confirm": "تأكيد الفصل المحلي" },
+    "status": {
+      "active": {
+        "label": "مُفعّل",
+        "description": "يمكن لـ Share-k قراءة المستودعات المحددة عبر هذا الربط."
+      },
+      "disconnected": {
+        "label": "مفصول محلياً",
+        "description": "أوقفت قراءة Share-k عبر هذا الربط. تطبيق GitHub قد يكون ما زال مثبتاً على حسابك."
+      },
+      "reauthorizationRequired": {
+        "label": "يحتاج إعادة تفويض",
+        "description": "انتهت صلاحية تفويضك لهذا التثبيت. أعد التفويض للمتابعة دون إعادة التثبيت."
+      },
+      "revoked": {
+        "label": "ملغى من GitHub",
+        "description": "أُلغي التفويض من جهة GitHub. أعد الربط لاستئناف تحليل المهارات."
+      }
+    }
+  },
+  "githubSkillPage": { "title": "تحليل المهارات عبر GitHub", "description": "هذه الخطوة اختيارية بالكامل ولا تؤثر على التسجيل أو توثيق البريد أو إدارة ملفك أو استكشاف المشاريع. ربط تطبيق GitHub منفصل تماماً عن تسجيل الدخول عبر GitHub، ولا يبدأ أي تحليل تلقائياً.", "restart": "إعادة بدء الربط", "dismiss": "تجاهل", "completing": "جارٍ إكمال الربط مع GitHub...", "installations": "روابط تطبيق GitHub", "connectAccount": "ربط حساب أو منظمة", "loadingInstallations": "جارٍ تحميل روابط GitHub...", "emptyInstallations": "لا يوجد أي ربط حتى الآن. يمكنك ربط أكثر من حساب شخصي أو منظمة، وكل ربط يُدار بشكل مستقل.", "starting": "جارٍ البدء...", "start": "بدء تحليل المهارات", "startHelp": "لن يُرسل أي طلب تحليل قبل ضغطك على هذا الزر." },
   "landing": {
     "heroEyebrow": "مساحة تعاون تحفظ أثر العمل الحقيقي",
     "heroTitle": "ساهم في عملٍ حقيقي. وابنِ سجلاً يمكن التحقق منه.",
@@ -1368,6 +1568,766 @@
       "sourcesTitle": "المصادر"
     }
   },
-  "__support__": {},
+  "support": {
+    "title": "الدعم",
+    "description": "لديك سؤال أو مشكلة تحتاج مساعدة؟ فريقنا هنا للمساعدة.",
+    "contactTitle": "تواصل معنا",
+    "contactDescription": "أرسل رسالة إلى فريق الدعم وسنرد عليك عبر البريد الإلكتروني. الدردشة المباشرة داخل التطبيق قريبًا.",
+    "emailAction": "راسلنا على {{email}}",
+    "aboutTitle": "عن Sharek",
+    "points": {
+      "evidence": {
+        "title": "دليل قبل الادعاء",
+        "body": "كل مساهمة موثقة تعود إلى دليل يمكن مراجعته: طلب دمج، وصف عمل، أو إفادة صاحب المشروع."
+      },
+      "human": {
+        "title": "القرار يبقى للبشر",
+        "body": "التحليل الآلي استشاري فقط. صاحب المشروع يقرر القبول، والمراجعة البشرية تؤكد النتيجة."
+      },
+      "record": {
+        "title": "سجل مهني حقيقي",
+        "body": "Sharek يحوّل عملك المكتمل إلى سجل قابل للفهم والمشاركة، لا إلى شارات أو نقاط."
+      }
+    }
+  },
+  "footer": {
+    "description": "مساحة تعاون تحفظ دليلاً موثوقاً على العمل المكتمل."
+  },
+  "theme": {
+    "toggle": "تبديل المظهر",
+    "light": "الوضع النهاري",
+    "dark": "الوضع الليلي",
+    "system": "تلقائي (النظام)"
+  },
+  "pageTitles": {
+    "home": "الرئيسية",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب جديد",
+    "forgotPassword": "نسيت كلمة المرور",
+    "dashboard": "لوحة التحكم",
+    "contributionRequests": "طلبات المساهمة",
+    "contributionRequest": "طلب مساهمة",
+    "application": "حالة طلب التقديم",
+    "myProjects": "مشاريعي",
+    "project": "المشروع",
+    "newContributionRequest": "إنشاء طلب مساهمة",
+    "importProject": "استيراد مشروع",
+    "projects": "المشاريع المنشورة",
+    "notifications": "الإشعارات",
+    "messages": "المحادثات",
+    "discussions": "النقاشات",
+    "discussion": "نقاش",
+    "settings": "الإعدادات",
+    "support": "الدعم",
+    "onboarding": "تفعيل الحساب",
+    "githubSkills": "تحليل المهارات عبر GitHub",
+    "explore": "استكشاف المشاريع",
+    "admin": "لوحة الإدارة",
+    "skillReviews": "مراجعة المهارات",
+    "projectOwners": "ملاك المشاريع المنشورة",
+    "profileFields": "مجالات المساهمين",
+    "experienceLevels": "مستويات الخبرة",
+    "adminNotifications": "إشعارات الإدارة"
+  },
+  "adminLayout": { "brandTitle": "إدارة شارك", "navigationLabel": "تنقل الإدارة", "workspaceTitle": "مكتب المراجعة", "workspaceDescription": "طوابير الثقة والسلامة" },
+  "adminReview": { "workspaceTitle": "مساحة مراجعة المساهم", "loadingDescription": "جارٍ تحميل المهارات والأدلة…", "loading": "جارٍ تحميل مساحة المراجعة…", "loadErrorTitle": "تعذر تحميل بيانات المراجعة", "loadErrorDescription": "تحقق من الاتصال ثم أعد المحاولة. لم يتم حفظ أي قرار جديد." },
+  "adminPages": { "experienceLevelsTitle": "إدارة مستويات الخبرة", "experienceLevelsDescription": "أضف مستويات الخبرة التي يختار منها المستخدمون وحدد ترتيب ظهورها وحالتها.", "profileFieldsTitle": "إدارة مجالات المساهمين", "profileFieldsDescription": "أضف المجالات التي يختار منها المساهمون وحدد ترتيب ظهورها وحالتها.", "projectOwnersTitle": "ملاك المشاريع المنشورة", "projectOwnersDescription": "راجع من نشر مشاريع فعلية وعدد المشاريع وآخر مشروع منشور.", "hideNotificationPreferences": "إخفاء تفضيلات الإشعارات", "manageNotificationPreferences": "إدارة تفضيلات الإشعارات" },
+  "application": {
+    "errors": {
+      "APPLICATION_DECISION_FEEDBACK_REQUIRED": "اكتب ملاحظات واضحة تشرح قرار عدم الاختيار.",
+      "APPLICATION_TERMINAL": "تغيّرت حالة طلب التقديم ولم يعد القرار متاحًا. حدّثنا البيانات الحالية.",
+      "APPLICATION_CONCURRENT_MODIFICATION": "سبق إجراء تغيير على طلب التقديم. حدّثنا الحالة الحالية لتجنب قرار مكرر.",
+      "REQUEST_CANCELLED": "أُلغي طلب المساهمة، لذلك لم يعد من الممكن تسجيل هذا القرار.",
+      "REQUEST_TERMINAL": "انتقل طلب المساهمة إلى حالة نهائية ولا يمكن إنشاء قرار جديد.",
+      "APPLICATION_NOT_AUTHORIZED": "طلب التقديم غير متاح لهذا الحساب.",
+      "APPLICATION_IDEMPOTENCY_KEY_REQUIRED": "تعذر تأمين القرار لإعادة المحاولة. أعد فتح الإجراء وحاول مرة أخرى.",
+      "APPLICATION_IDEMPOTENCY_CONFLICT": "تعارض هذا القرار مع محاولة سابقة. راجع الحالة الحالية قبل المحاولة.",
+      "ASSESSMENT_ALREADY_ACTIVE": "يوجد تقييم قيد المعالجة بالفعل. حدّث الحالة الحالية.",
+      "ASSESSMENT_RETRY_IN_PROGRESS": "بدأت إعادة التقييم بالفعل. حدّث الحالة الحالية.",
+      "ASSESSMENT_RETRY_LIMIT_REACHED": "استُخدمت محاولة إعادة التقييم المتاحة. يمكنك متابعة قرارك دون تقييم.",
+      "OWNER_DECISION_REPORT_ALREADY_EXISTS": "أُرسل بلاغ عن هذه الملاحظات من قبل، وهو محفوظ للمراجعة.",
+      "sessionExpired": "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.",
+      "unknown": "تعذر إكمال العملية الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى."
+    },
+    "submissionErrors": {
+      "ALREADY_APPLIED": "لديك طلب تقديم سابق لهذا الطلب. يُسمح بطلب واحد فقط، ولا يتيح سحب الطلب إرسال طلب جديد.",
+      "APPLICATIONS_CLOSED": "أُغلق التقديم على طلب المساهمة ولم يعد يقبل طلبات جديدة.",
+      "REQUEST_CANCELLED": "ألغى صاحب المشروع طلب المساهمة، لذلك لم يعد التقديم متاحًا.",
+      "REQUEST_TERMINAL": "انتقل طلب المساهمة إلى حالة نهائية ولم يعد يقبل طلبات تقديم.",
+      "APPLICATION_NOT_AUTHORIZED": "هذا الحساب غير مخوّل لإرسال طلب تقديم إلى طلب المساهمة.",
+      "APPLICATION_IDEMPOTENCY_CONFLICT": "تعارضت محاولة سابقة مع هذه البيانات. عدّل نهج المساهمة أو مدة التسليم ثم أعد الإرسال.",
+      "unknown": "تعذر إرسال طلب التقديم الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى."
+    },
+    "status": {
+      "pending": {
+        "label": "بانتظار مراجعة صاحب المشروع",
+        "description": "أُرسل طلب التقديم مباشرة إلى صاحب المشروع. يمكنك سحبه قبل صدور قرار المالك."
+      },
+      "accepted": {
+        "label": "تم قبول طلب التقديم",
+        "description": "اختارك صاحب المشروع لهذا الطلب. راجع تفاصيل الإسناد وموعد التسليم المتفق عليه."
+      },
+      "declined": {
+        "label": "اعتذر صاحب المشروع عن قبول الطلب",
+        "description": "هذا قرار بشري خاص بهذا الطلب، ولا يؤثر في ملفك أو أهليتك أو سمعتك أو طلباتك الأخرى."
+      },
+      "notSelected": {
+        "label": "تم اختيار مساهم آخر",
+        "description": "أُغلق هذا الطلب بعد اختيار مساهم آخر. لا يؤثر ذلك في ملفك أو أهليتك أو سمعتك."
+      },
+      "expired": {
+        "label": "انتهت مهلة المراجعة",
+        "description": "انتهت مهلة مراجعة صاحب المشروع دون قرار. لا يُعد ذلك رفضًا ولا يؤثر في سمعتك."
+      },
+      "withdrawn": {
+        "label": "سحبت طلب التقديم",
+        "description": "انتهى طلب التقديم بناءً على اختيارك. السحب نهائي، ولا يمكنك إرسال طلب تقديم جديد لهذا الطلب."
+      },
+      "cancelled": {
+        "label": "أُلغي طلب المساهمة",
+        "description": "أنهى صاحب المشروع طلب المساهمة. لا يحمل هذا الإغلاق حكمًا عليك ولا يؤثر في ملفك أو سمعتك."
+      }
+    },
+    "presenter": {
+      "pending": {
+        "label": "بانتظار قرار المالك",
+        "title": "طلب التقديم قيد المراجعة",
+        "description": "وصل طلب التقديم إلى صاحب المشروع، والاختيار قرار بشري لا يتوقف على تقييم آلي."
+      },
+      "accepted": {
+        "label": "تم الاختيار",
+        "title": "اختارك صاحب المشروع",
+        "description": "أُنشئ إسناد العمل وفق مدة التسليم المقترحة في طلب التقديم."
+      },
+      "declined": {
+        "label": "لم يختر المالك هذا الطلب",
+        "title": "اتخذ صاحب المشروع قرارًا بشأن هذا الطلب",
+        "description": "هذا قرار بشري يخص طلب التقديم وسياق طلب المساهمة فقط.",
+        "neutralEffect": "لا يؤثر هذا القرار في ملفك أو أهليتك أو سمعتك أو طلبات تقديم أخرى."
+      },
+      "notSelected": {
+        "label": "تم اختيار مساهم آخر",
+        "title": "أُغلق طلب التقديم بعد اختيار مساهم آخر",
+        "description": "هذه نتيجة نظامية بعد قبول طلب تقديم آخر، وليست رفضًا من المالك أو حكمًا على قدراتك.",
+        "neutralEffect": "لا تؤثر هذه النتيجة في ملفك أو أهليتك أو سمعتك أو طلبات تقديم أخرى."
+      },
+      "expired": {
+        "label": "انتهت فترة المراجعة",
+        "title": "انتهى طلب التقديم دون قرار من المالك",
+        "description": "انتهت نافذة مراجعة المالك تلقائيًا. هذه النتيجة ليست رفضًا من صاحب المشروع.",
+        "neutralEffect": "لا يؤثر انتهاء المراجعة في ملفك أو أهليتك أو سمعتك."
+      },
+      "withdrawn": {
+        "label": "تم السحب",
+        "title": "سحبت طلب التقديم",
+        "description": "أنهيت هذا الطلب قبل تسجيل قرار من صاحب المشروع.",
+        "neutralEffect": "لا يؤثر السحب في ملفك أو أهليتك أو سمعتك."
+      },
+      "cancelled": {
+        "label": "أُلغي طلب المساهمة",
+        "title": "انتهى طلب التقديم بسبب إلغاء العمل",
+        "description": "ألغى صاحب المشروع طلب المساهمة؛ هذه النتيجة لا تصف جودة طلب تقديمك.",
+        "neutralEffect": "لا يؤثر إلغاء العمل في ملفك أو أهليتك أو سمعتك."
+      },
+      "expiredAt": "انتهت في {{date}}",
+      "overdue": {
+        "label": "تحتاج قرارًا الآن",
+        "detail": "تنتهي فترة المراجعة في {{date}}"
+      },
+      "awaiting": {
+        "label": "بانتظار المراجعة",
+        "detail": "موعد متابعة المراجعة {{date}}"
+      }
+    },
+    "view": { "loadingTitle": "جارٍ تحميل طلب التقديم", "loadingDescription": "نسترجع الحالة الحالية والقرار المحفوظ.", "loadErrorTitle": "تعذر فتح طلب التقديم", "backToRequests": "العودة إلى طلبات المساهمة", "reportSent": "أُرسل البلاغ للمراجعة الإشرافية. لم تتغير حالة طلب التقديم أو تُفتح من جديد.", "reportSentShort": "تم إرسال البلاغ", "contributionApproach": "نهج المساهمة", "noApproach": "لا يوجد نهج محفوظ في هذا السجل.", "proposedDuration": "مدة التسليم المقترحة", "submittedAt": "تاريخ التقديم", "reviewWindowEnd": "نهاية نافذة المراجعة", "ownerDecisionTime": "وقت قرار المالك", "evidenceBase": "أساس المراجعة المثبت", "requiredRequirements": "المتطلبات المطلوبة", "preferredRequirements": "المتطلبات المفضلة", "evidenceSummaries": "ملخصات الأدلة", "evidenceBaseHelp": "هذه لقطة محفوظة وقت التقديم. لا تعني ترتيبًا أو درجة أهلية أو قرارًا آليًا.", "assignment": "إسناد العمل", "agreedDuration": "مدة التسليم المتفق عليها", "agreedDueDate": "موعد التسليم المتفق عليه", "ownerFeedback": "ملاحظات صاحب المشروع", "ownerFeedbackHelp": "ملاحظات بشرية مرتبطة بقرار المالك، وليست نتيجة تقييم استشاري.", "reportHelp": "يمكنك الإبلاغ عن الإساءة أو المحتوى غير المناسب للمراجعة الإشرافية. البلاغ ليس استئنافًا ولا يعيد فتح القرار.", "report": "الإبلاغ عن الملاحظات", "backToRequest": "العودة إلى طلب المساهمة" },
+    "withdrawal": { "notPending": "لم يعد طلب التقديم بانتظار المراجعة، لذلك لا يمكن سحبه.", "error": "تعذر سحب طلب التقديم الآن. حاول مرة أخرى.", "title": "التحكم في الطلب", "description": "يمكنك سحب طلب التقديم قبل صدور قرار صاحب المشروع. السحب نهائي، ولن تتمكن من التقديم على طلب المساهمة نفسه مرة أخرى.", "trigger": "سحب طلب التقديم", "confirmTitle": "تأكيد سحب طلب التقديم", "confirmDescription": "هل تريد سحب طلب التقديم نهائيًا؟ لن تتمكن من إرسال طلب تقديم جديد لهذا الطلب.", "withdrawing": "جارٍ السحب…", "confirm": "تأكيد السحب" }
+  },
+  "advisoryFit": {
+    "title": "التقييم الاستشاري", "description": "تحليل اختياري للأدلة المثبتة وقت التقديم. لا يقرر القبول أو الرفض ولا يستبدل قرارك البشري.", "loading": "جارٍ تحميل حالة التقييم…", "loadError": "تعذر تحميل حالة التقييم", "summary": "خلاصة التقييم", "band": "النطاق الاستشاري: {{band}}", "bandHelp": "هذا نطاق مشتق من المتطلبات المطلوبة فقط. المتطلبات المفضلة معروضة للفهم ولا تغيّر النطاق.", "required": "المتطلبات المطلوبة", "preferred": "المتطلبات المفضلة", "retryUsed": "لا يؤثر عدم اكتمال التقييم في قرارك ولا يصف قدرة المساهم. استُخدمت محاولة إعادة التقييم المتاحة، ويمكنك متابعة قرارك دون تقييم.", "request": "طلب تقييم استشاري", "retry": "إعادة طلب التقييم", "refresh": "تحديث الحالة", "noRequirements": "لا توجد متطلبات في هذه الفئة.", "noFinding": "لم يرد Finding لهذا المتطلب في النتيجة الحالية.", "confidence": "الثقة: {{value}}", "evidenceIds": "معرّفات الأدلة", "uncertainty": "عدم اليقين", "bands": { "STRONG": "قوي", "PARTIAL": "جزئي", "LIMITED": "محدود", "UNKNOWN": "غير حاسم", "UNAVAILABLE": "غير متاح" }, "findings": { "SUPPORTED": "مدعوم", "PARTIALLY_SUPPORTED": "مدعوم جزئيًا", "NOT_EVIDENCED": "لا يوجد دليل كافٍ", "INCONCLUSIVE": "غير حاسم" }, "confidences": { "HIGH": "عالية", "MEDIUM": "متوسطة", "LOW": "منخفضة" }, "status": { "NOT_REQUESTED": { "title": "لم يُطلب تقييم استشاري بعد", "description": "يمكنك طلب تحليل اختياري للأدلة المثبتة دون أن يصبح شرطًا للقبول أو الرفض.", "label": "لم يُطلب" }, "REQUESTED": { "title": "التقييم قيد المعالجة", "description": "يجري تجهيز النتيجة. يمكنك اتخاذ قرارك البشري دون انتظارها.", "label": "قيد المعالجة" }, "NOT_STARTED_SYSTEM_LIMIT": { "title": "تعذر بدء التقييم بسبب حد تقني مؤقت", "description": "لا يقول هذا شيئًا عن ملاءمة المساهم. يمكنك إعادة الطلب لاحقًا.", "label": "حد تقني" }, "NOT_STARTED_NO_ASSESSABLE_EVIDENCE": { "title": "لا توجد أدلة قابلة للتقييم", "description": "لا يؤثر غياب الدليل في قرارك ولا يصف قدرة المساهم.", "label": "لا توجد أدلة قابلة للتقييم" }, "CANCELLED_NOT_NEEDED": { "title": "أُلغي التقييم لأنه لم يعد مطلوبًا", "description": "أصبحت حالة طلب التقديم نهائية قبل الحاجة إلى تقييم جديد. لا يؤثر ذلك في المساهم.", "label": "لم يعد مطلوبًا" }, "UNAVAILABLE": { "title": "لم يكتمل تقييم صالح", "description": "لا يؤثر عدم اكتمال التقييم في قرارك ولا يصف قدرة المساهم. يمكنك إعادة الطلب.", "label": "غير متاح" }, "COMPLETED": { "title": "اكتمل التقييم", "description": "", "label": "اكتمل" } }
+  },
+  "contributionRequests": {
+    "days_zero": "{{count}} يوم",
+    "days_one": "يوم واحد",
+    "days_two": "يومان",
+    "days_few": "{{count}} أيام",
+    "days_many": "{{count}} يومًا",
+    "days_other": "{{count}} يوم",
+    "unspecified": "غير محددة في هذا السجل",
+    "dateUnspecified": "غير محدد",
+    "rewardUnspecified": "لا توجد مكافأة معلنة",
+    "status": {
+      "draft": "مسودة",
+      "published": "منشور",
+      "assigned": "مُسنَد",
+      "completed": "مكتمل",
+      "cancelled": "مُلغى",
+      "discarded": "تم التجاهل",
+      "applicationsClosed": "التقديم مغلق"
+    },
+    "errors": {
+      "CONTRIBUTION_REQUEST_OWNER_ACCESS_REQUIRED": "هذه الصفحة متاحة فقط لحساب صاحب مشروع نشط.",
+      "CONTRIBUTION_REQUEST_PROJECT_NOT_FOUND": "لم نعثر على المشروع، أو أنه غير متاح لهذا الحساب.",
+      "CONTRIBUTION_REQUEST_PROJECT_NOT_PUBLISHED": "انشر المشروع أولًا قبل إنشاء طلب مساهمة.",
+      "CONTRIBUTION_REQUEST_NOT_FOUND": "لم نعثر على طلب المساهمة، أو أنه غير متاح لهذا الحساب.",
+      "CONTRIBUTION_REQUEST_UPDATE_EMPTY": "لم تُجرَ أي تغييرات قابلة للحفظ.",
+      "CONTRIBUTION_REQUEST_DRAFT_NOT_EDITABLE": "لم يعد طلب المساهمة مسودة قابلة للتعديل.",
+      "CONTRIBUTION_REQUEST_REQUIRED_REQUIREMENT_MISSING": "أضف متطلبًا مطلوبًا واحدًا على الأقل.",
+      "CONTRIBUTION_REQUEST_REQUIREMENT_DUPLICATE": "لا يمكن تكرار المتطلب أو وضعه كمطلوب ومفضل معًا.",
+      "CONTRIBUTION_REQUEST_REQUIREMENT_INPUT_INVALID": "صيغة المتطلبات غير صالحة. راجع كل متطلب وحاول مرة أخرى.",
+      "CONTRIBUTION_REQUEST_CLOSE_TIME_REQUIRED": "حدد وقت إغلاق التقديم.",
+      "CONTRIBUTION_REQUEST_CLOSE_TIME_INVALID": "يجب أن يكون وقت إغلاق التقديم في المستقبل.",
+      "CONTRIBUTION_REQUEST_DATE_ORDER_INVALID": "يجب أن يكون تاريخ الإنجاز المستهدف بعد وقت إغلاق التقديم.",
+      "CONTRIBUTION_REQUEST_REWARD_INVALID": "تحقق من قيمة المكافأة ورمز العملة.",
+      "CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION": "تغيرت المسودة أثناء التعديل. احتفظنا بمدخلاتك؛ افتح أحدث نسخة في نافذة أخرى وقارنها قبل إعادة المحاولة.",
+      "CONTRIBUTION_REQUEST_IDEMPOTENCY_KEY_INVALID": "تعذر تأمين إعادة المحاولة. غيّر البيانات وحاول مرة أخرى.",
+      "CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT": "تعارضت محاولة سابقة مع هذه البيانات. راجع الحقول ثم أعد الإرسال.",
+      "CONTRIBUTION_REQUEST_DRAFT_NOT_PUBLISHABLE": "أكمل عقد العمل (العنوان والوصف ومتطلب مطلوب واحد على الأقل ووقت إغلاق تقديم مستقبلي) قبل النشر.",
+      "CONTRIBUTION_REQUEST_LIMIT_REACHED": "بلغت الحد الشهري لنشر طلبات المساهمة الخاص بباقتك.",
+      "CONTRIBUTION_REQUEST_NOT_CANCELLABLE": "لا يمكن إلغاء هذا الطلب في حالته الحالية.",
+      "sessionExpired": "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.",
+      "unknown": "تعذر إكمال العملية الآن. حاول مرة أخرى."
+    },
+    "detail": {
+      "loadingTitle": "جارٍ تحميل طلب المساهمة",
+      "loadingDescription": "نسترجع أحدث نسخة يملكها هذا الحساب.",
+      "loadErrorTitle": "تعذر فتح طلب المساهمة",
+      "backToProjects": "العودة إلى مشاريعي",
+      "backToProject": "العودة إلى المشروع",
+      "lifecycle": { "draft": "مسودة خاصة بصاحب المشروع. لا تظهر للمساهمين قبل النشر.", "published": "منشور ومرئي للمساهمين حتى وقت إغلاق التقديم.", "assigned": "أُسنِد هذا الطلب لمساهم. لم تعد إجراءات النشر أو الإلغاء متاحة.", "in_progress": "قيد التنفيذ حاليًا.", "awaiting_delivery": "بانتظار تسليم العمل.", "delivery_submitted": "تم تقديم التسليم للمراجعة.", "completed": "أُنجز هذا الطلب.", "cancelled": "أُلغي هذا الطلب المنشور. يبقى سجل الطلبات والقرارات محفوظًا.", "expired": "انتهت صلاحية هذا الطلب.", "discarded": "تم تجاهل هذه المسودة قبل نشرها. يبقى سجلها محفوظًا للعرض فقط." },
+      "applicationsClosedSince": "منشور، لكن التقديم مغلق منذ {{date}}.",
+      "sections": "أقسام طلب المساهمة",
+      "tabs": { "details": "التفاصيل", "applications": "طلبات التقديم", "matches": "المطابقات", "delivery": "التسليم", "materials": "المواد" },
+      "discardedTitle": "مسودة متجاهلة — للعرض فقط",
+      "discardedDescription": "تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من هذه الواجهة.",
+      "cancelledTitle": "طلب ملغى — للعرض فقط",
+      "cancelledDescription": "تم إلغاء هذا الطلب المنشور. طلبات التقديم والتقييمات والقرارات السابقة محفوظة ولم تُحذف.",
+      "saved": "حُفظت أحدث تغييرات المسودة.",
+      "saveChanges": "حفظ التغييرات",
+      "publishTitle": "نشر الطلب",
+      "publishDescription": "يصبح الطلب مرئيًا للمساهمين فورًا ويخضع لحد النشر الشهري المرتبط بباقتك.",
+      "publish": "نشر الطلب",
+      "discardTitle": "إنهاء المسودة",
+      "discardDescription": "التجاهل نهائي ولا يحذف السجل أو يحوله إلى إلغاء منشور.",
+      "discard": "تجاهل المسودة",
+      "applicationsClosedHelp": "لا يستقبل طلبات تقديم جديدة بعد انتهاء مهلة التقديم. تظل الطلبات السابقة محفوظة ويمكنك مراجعتها واتخاذ القرار بشأنها.",
+      "cancelTitle": "إلغاء الطلب",
+      "cancelDescription": "الإلغاء نهائي، يوقف استقبال طلبات تقديم جديدة، ويحافظ على سجل الطلبات والقرارات السابقة.",
+      "cancel": "إلغاء الطلب",
+      "readOnlyTitle": "طلب غير قابل للتعديل",
+      "readOnlyDescription": "حالة هذا السجل ({{status}}) لا تتيح إجراءات نشر أو إلغاء أو تعديل من هذه الواجهة.",
+      "acceptedProposal": "مقترح مقبول من مساهم",
+      "attributionHelp": "الإسناد اعتراف بالفكرة، ولا يمنح إسناد عمل ولا أولوية اختيار."
+    },
+    "contributorDetail": {
+      "loadingTitle": "جارٍ تحميل طلب المساهمة",
+      "loadingDescription": "نسترجع عقد العمل وحالة التقديم من الخادم.",
+      "unavailableTitle": "طلب المساهمة غير متاح",
+      "unavailableDescription": "قد يكون التقديم أُغلق أو أُلغي، أو لم يعد المشروع منشورًا.",
+      "availableRequests": "عرض الطلبات المتاحة",
+      "backToRequests": "العودة إلى طلبات المساهمة",
+      "checkingApplication": "جارٍ التحقق من حالة طلب التقديم السابق...",
+      "applicationStatus": "حالة طلب التقديم",
+      "withdrawnNotice": "لا يمكنك إرسال طلب تقديم جديد لهذا الطلب بعد السحب.",
+      "oneApplicationNotice": "يمكنك إرسال طلب تقديم واحد فقط لكل طلب مساهمة.",
+      "openApplication": "فتح حالة طلب التقديم",
+      "proposedBy": "اقترحه",
+      "attributionHelp": "الإسناد المعنوي يحفظ مصدر الاقتراح، ولا يعني ملكية العمل أو إسناده أو أولوية الاختيار.",
+      "requiredHelp": "عناصر أساسية لإتمام العمل.",
+      "preferredHelp": "عناصر مفيدة لكنها ليست بديلًا عن المتطلبات المطلوبة.",
+      "noItems": "لا توجد عناصر.",
+      "metadata": "تفاصيل الوقت والمكافأة",
+      "submitTitle": "إرسال طلب تقديم",
+      "submitDescription": "يُرسل طلب التقديم مباشرة إلى صاحب المشروع بحالة انتظار المراجعة. لا يبدأ أي تقييم تلقائي عند الإرسال.",
+      "approach": "نهج المساهمة",
+      "approachPlaceholder": "اشرح كيف ستنفذ العمل وما الذي ستسلّمه.",
+      "approachHelp": "هذا سياق يكتبه المساهم لصاحب المشروع، وليس دليل مهارة موثقًا.",
+      "proposedDuration": "مدة التسليم المقترحة (بالأيام)",
+      "submitting": "جارٍ الإرسال...",
+      "submit": "إرسال إلى صاحب المشروع",
+      "submitHelp": "ستنتقل بعد الإرسال إلى صفحة حالة طلبك.",
+      "existingApplicationRecovery": "افتح رابط الحالة من إشعار تأكيد الإرسال السابق.",
+      "backToAvailable": "العودة إلى الطلبات المتاحة",
+      "reviewAccount": "مراجعة حالة الحساب",
+      "editRecovery": "غيّر نهج المساهمة أو مدة التسليم قبل إعادة الإرسال."
+      ,"validation": "اكتب نهج مساهمة من 10 إلى 5000 حرف، وحدد مدة تسليم كاملة بين يوم واحد و365 يومًا."
+    },
+    "ownerReview": {
+      "accepted": "تم اختيار {{name}} وإنشاء إسناد العمل.",
+      "declined": "سُجّل قرار عدم اختيار طلب {{name}}.",
+      "title": "طلبات التقديم التي تحتاج قرارك",
+      "description": "تظهر كل الطلبات المعلقة فورًا. يمكنك اتخاذ قرارك دون تقييم استشاري أو أثناء انتظاره؛ القرار النهائي مسؤوليتك أنت.",
+      "pendingCount_zero": "لا توجد طلبات قيد المراجعة",
+      "pendingCount_one": "طلب واحد قيد المراجعة",
+      "pendingCount_two": "طلبان قيد المراجعة",
+      "pendingCount_few": "{{count}} طلبات قيد المراجعة",
+      "pendingCount_many": "{{count}} طلبًا قيد المراجعة",
+      "pendingCount_other": "{{count}} طلب قيد المراجعة",
+      "loading": "جارٍ تحميل طلبات التقديم…",
+      "loadError": "تعذر تحميل طلبات التقديم",
+      "emptyTitle": "لا توجد طلبات معلقة الآن",
+      "emptyDescription": "ستظهر هنا طلبات التقديم الجديدة مباشرة عند وصولها إلى صاحب المشروع.",
+      "openContributorProfile": "فتح ملف المساهم وسمعته",
+      "submittedAt": "أُرسل في {{date}}",
+      "noApproach": "لم يُحفظ نهج مساهمة في هذا السجل.",
+      "proposedDuration": "مدة التسليم المقترحة:",
+      "profileContext": "سياق الملف وقت التقديم",
+      "experience": "الخبرة",
+      "availability": "التوفر",
+      "fields": "المجالات",
+      "evidenceSummary": "ملخص الأدلة المثبت وقت التقديم",
+      "noEvidence": "لا يتضمن هذا السجل ملخص أدلة معتمدًا. غياب الدليل ليس حكمًا على القدرة ولا يمنعك من اتخاذ قرارك.",
+      "noEvidenceText": "لا يوجد ملخص نصي إضافي.",
+      "evidenceLimitations": "حدود الدليل",
+      "advisoryHelp": "التقييم الاستشاري اختياري. لا يظهر هنا كشرط أو توصية أو ترتيب.",
+      "decline": "عدم الاختيار مع ملاحظات",
+      "accept": "اختيار وإنشاء إسناد"
+    },
+    "ownerWorkspace": {
+      "loadingTitle": "جارٍ تحميل طلبات المساهمة",
+      "loadingDescription": "نسترجع طلبات هذا المشروع من كل الحالات.",
+      "loadErrorTitle": "تعذر تحميل طلبات المساهمة",
+      "title": "طلبات المساهمة — {{project}}",
+      "description": "كل طلبات المساهمة لهذا المشروع مجمّعة حسب حالتها، مع توضيح الطلبات التي أُغلق التقديم عليها.",
+      "newRequest": "طلب مساهمة جديد",
+      "emptyTitle": "لا توجد طلبات مساهمة بعد",
+      "canCreateDescription": "أنشئ أول طلب مساهمة لهذا المشروع.",
+      "cannotCreateDescription": "انشر المشروع أولًا لتتمكن من إنشاء طلب مساهمة.",
+      "createRequest": "إنشاء طلب مساهمة",
+      "statuses": "حالات طلبات المساهمة",
+      "sections": { "published": "منشور", "applicationsClosed": "التقديم مغلق", "drafts": "مسودات", "assigned": "مُسنَد", "completed": "مكتمل", "cancelled": "مُلغى", "discarded": "متجاهل" },
+      "requests": "الطلبات",
+      "emptySection": "لا توجد طلبات في هذه الحالة.",
+      "closedAt": "أُغلق التقديم: {{date}}",
+      "closeAt": "إغلاق التقديم: {{date}}",
+      "noCloseTime": "لم يُحدَّد وقت إغلاق التقديم",
+      "closedHelp": "لا يستقبل طلبات تقديم جديدة، والطلبات السابقة محفوظة للمراجعة."
+    },
+    "create": {
+      "title": "إنشاء طلب مساهمة",
+      "description": "أنشئ مسودة خاصة داخل مشروع «{{project}}». بعد حفظ المسودة يمكنك مراجعتها ثم نشرها للمساهمين بإجراء منفصل.",
+      "draftDetails": "تفاصيل المسودة",
+      "ownerProjectNotice": "المالك والمشروع يُحددان من جلسة الدخول ولا يُرسلان كحقول قابلة للتعديل.",
+      "saveDraft": "حفظ المسودة"
+    },
+    "form": {
+      "title": "العنوان",
+      "description": "الوصف",
+      "requiredRequirements": "المتطلبات المطلوبة",
+      "requiredDescription": "قدرات أو نتائج أساسية لإنجاز طلب المساهمة. الترتيب محفوظ.",
+      "preferredRequirements": "المتطلبات المفضلة",
+      "preferredDescription": "عناصر مفيدة لكنها ليست شرطًا أساسيًا.",
+      "tags": "وسوم التقنيات (اختياري)",
+      "tagsHelp": "اكتب التقنية واضغط Enter. الوسوم وصفية ولا تحل محل المتطلبات.",
+      "removeTag": "إزالة {{tag}}",
+      "closeTime": "وقت إغلاق التقديم",
+      "targetDate": "تاريخ الإنجاز المستهدف (اختياري)",
+      "difficulty": "مستوى الصعوبة (اختياري)",
+      "none": "بدون تحديد",
+      "difficulties": {
+        "beginner": "مبتدئ",
+        "intermediate": "متوسط",
+        "advanced": "متقدم"
+      },
+      "reward": "المكافأة (اختياري)",
+      "rewardHelp": "أدخل القيمة والعملة معًا. لا تترك أحد الحقلين منفردًا.",
+      "amount": "القيمة",
+      "currency": "العملة",
+      "moveUp": "تحريك لأعلى",
+      "moveDown": "تحريك لأسفل",
+      "removeRequirement": "إزالة المتطلب",
+      "addRequirement": "إضافة متطلب"
+    },
+    "validation": {
+      "title": "يجب أن يكون العنوان بين 3 و255 حرفًا.",
+      "description": "يجب أن يكون الوصف بين 10 و5000 حرف.",
+      "requiredCount": "أضف متطلبًا مطلوبًا واحدًا على الأقل، وبحد أقصى 20.",
+      "preferredCount": "يمكن إضافة 20 متطلبًا مفضلًا كحد أقصى.",
+      "requirementLength": "يجب أن يكون كل متطلب بين حرفين و500 حرف.",
+      "duplicate": "لا يمكن تكرار المتطلب أو وضعه كمطلوب ومفضل معًا.",
+      "tags": "يمكن إضافة 20 تقنية كحد أقصى، من 1 إلى 50 حرفًا لكل تقنية.",
+      "closeRequired": "حدد وقت إغلاق التقديم.",
+      "closeFuture": "يجب أن يكون وقت إغلاق التقديم في المستقبل.",
+      "targetOrder": "يجب أن يكون تاريخ الإنجاز المستهدف بعد وقت إغلاق التقديم.",
+      "reward": "أدخل مكافأة من 0.01 إلى 99,999,999.99 وبحد أقصى منزلتين عشريتين.",
+      "rewardPair": "أدخل قيمة المكافأة وعملتها معًا، أو اتركهما معًا فارغين.",
+      "currency": "استخدم رمز عملة من ثلاثة أحرف مثل USD."
+    },
+    "acceptDialog": {
+      "title": "اختيار {{name}}؟",
+      "description": "سينشئ هذا القرار إسناد عمل واحدًا لهذا المساهم، وتتحول جميع طلبات التقديم الأخرى المعلقة لهذا العمل إلى «تم اختيار مساهم آخر».",
+      "duration": "مدة التسليم المتفق عليها",
+      "reviewAgain": "مراجعة الطلب مرة أخرى",
+      "confirm": "تأكيد الاختيار وإنشاء الإسناد"
+    },
+    "declineDialog": {
+      "title": "عدم اختيار هذا الطلب",
+      "description": "القرار بشري ويخص هذا العمل فقط. اكتب ملاحظات محترمة ومفيدة؛ ستظهر للمساهم منفصلة عن أي نتائج تقييم استشاري.",
+      "feedback": "ملاحظات صاحب المشروع",
+      "help": "لا تستخدم معلومات خاصة أو أحكامًا على أهلية المساهم.",
+      "feedbackRequired": "اكتب ملاحظات واضحة للمساهم قبل تسجيل القرار.",
+      "confirm": "تسجيل قرار عدم الاختيار"
+    },
+    "cancelDialog": {
+      "title": "إلغاء طلب المساهمة المنشور؟",
+      "description": "هذا إجراء نهائي يوقف استقبال طلبات تقديم جديدة، لكنه يحافظ على سجل الطلبات والتقييمات والقرارات السابقة دون حذفها.",
+      "reason": "السبب (اختياري)",
+      "reasonError": "اكتب حرفين على الأقل أو اترك السبب فارغًا.",
+      "confirm": "إلغاء الطلب"
+    },
+    "discardDialog": {
+      "title": "تجاهل هذه المسودة؟",
+      "description": "هذا إجراء نهائي، لكنه لا يحذف السجل. ستبقى المسودة محفوظة للعرض فقط.",
+      "confirm": "تجاهل المسودة"
+    },
+    "publishDialog": {
+      "title": "نشر طلب المساهمة؟",
+      "description": "سيصبح الطلب مرئيًا للمساهمين فورًا ويبدأ استقبال طلبات التقديم حتى وقت إغلاق التقديم المحدد.",
+      "confirm": "نشر الطلب"
+    },
+    "reportDialog": {
+      "title": "الإبلاغ عن ملاحظات القرار",
+      "description": "هذا بلاغ للمراجعة الإشرافية وليس استئنافًا للقرار. لن يعيد فتح طلب التقديم أو يغيّر نتيجته تلقائيًا.",
+      "reason": "سبب البلاغ",
+      "details": "وصف ما حدث",
+      "help": "صف الملاحظات وسياقها دون إضافة بيانات خاصة غير لازمة.",
+      "descriptionError": "اكتب وصفًا واقعيًا من 10 أحرف على الأقل.",
+      "confirm": "إرسال البلاغ للمراجعة",
+      "reasons": {
+        "harassment": "إساءة أو مضايقة",
+        "misuse": "استخدام غير مناسب للملاحظات",
+        "fraud": "اشتباه في احتيال",
+        "reputation_manipulation": "محاولة التأثير في السمعة",
+        "inaccurate_ai": "إشارة غير دقيقة إلى تقييم آلي",
+        "other": "سبب آخر"
+      }
+    }
+  },
+  "skillGuidance": {
+    "eyebrow": "تغطية المتطلبات",
+    "title": "إرشاد مرتبط بالمصادر",
+    "description": "استخدم المتطلبات المنشورة ومهاراتك المعتمدة للحصول على خطوات تعلم عملية. هذا الإرشاد تعليمي وليس قرارًا بشأن أهليتك أو طلب التقديم.",
+    "preparing": "جارٍ إعداد الإرشاد…",
+    "action": "إرشاد مرتبط بالمصادر",
+    "error": "تعذّر إعداد الإرشاد. يمكنك المحاولة مرة أخرى.",
+    "noEvidence": "لا توجد أدلة قابلة للتقييم في النطاق المصرح به بعد.",
+    "systemLimit": "الإرشاد متوقف مؤقتًا بسبب حد تقني. لم يتغير طلب التقديم.",
+    "gapsTitle": "فجوات تحتاج إلى تعلم",
+    "noGaps": "لم تظهر فجوات ضمن الأدلة الحالية.",
+    "resourcesTitle": "موارد مرتبطة بالمصادر"
+  },
+  "materials": {
+    "analysis": {
+      "preparing": "جارٍ تجهيز تحليل المواد...",
+      "loadError": "تعذر تحميل إعدادات تحليل المواد.",
+      "title": "مسودة من مواد المشروع",
+      "description": "اختر إصدارات جاهزة لإنشاء اقتراحات خاصة بك. لا يتم تعديل المشروع أو إنشاء طلب مساهمة قبل اعتمادك الصريح.",
+      "noReadyVersions": "لا توجد إصدارات مفحوصة وجاهزة للتحليل.",
+      "version": "{{filename}} · الإصدار {{version}}",
+      "starting": "جارٍ بدء التحليل...",
+      "start": "حلّل {{count}} إصدارات محددة",
+      "startSelectedVersions": "حلّل الإصدارات المحددة",
+      "selectedVersions": "الإصدارات المحددة",
+      "startError": "تعذر بدء التحليل. تحقق من الاشتراك وحالة الإصدارات ثم أعد المحاولة.",
+      "adoptionError": "تعذر اعتماد الاقتراح. راجع البيانات وحاول مرة أخرى.",
+      "failed": "فشل التحليل ({{code}})",
+      "unknown": "غير معروف",
+      "running": "حالة التحليل: قيد التنفيذ...",
+      "suggestionsTitle": "اقتراحات تحتاج مراجعتك",
+      "noSuggestions": "لم ينتج التحليل اقتراحات قابلة للإسناد.",
+      "projectUpdate": "تحديث مشروع",
+      "contributionRequest": "طلب مساهمة",
+      "closeTime": "موعد إغلاق التقديم",
+      "publishFirst": "انشر المشروع أولاً لإنشاء طلب مساهمة.",
+      "adoptProject": "اعتماد تحديث المشروع",
+      "createDraft": "إنشاء طلب مساهمة كمسودة",
+      "reject": "رفض"
+    }
+  },
+  "matching": {
+    "confidence": {
+      "HIGH": "عالية",
+      "MEDIUM": "متوسطة",
+      "LOW": "منخفضة"
+    },
+    "recommendations": {
+      "viewRequest": "عرض طلب المساهمة والتقديم",
+      "loading": "جارٍ إعداد التوصيات من مهاراتك المعتمدة…",
+      "gatedTitle": "توصيات مخصصة لك",
+      "gatedDescription": "التوصيات الشخصية غير متاحة ضمن خطتك الحالية. يمكنك استكشاف كل الطلبات والتقديم وفق القواعد العادية.",
+      "loadError": "تعذّر تحميل التوصيات.",
+      "eyebrow": "Gold · توصيات مبنية على الأدلة",
+      "title": "موصى بها لك",
+      "description": "تظهر هذه الطلبات بسبب مهاراتك المعتمدة وتاريخ مساهماتك. التوصيات إرشادية فقط.",
+      "empty": "لا توجد توصيات جديدة الآن. يمكنك استكشاف الطلبات المنشورة يدويًا.",
+      "quotaNote": "التقديم متاح وفق القواعد العادية ولا يرتبط بحصة خطة المساهم."
+    },
+    "owner": {
+      "relevance": "الأهمية: {{score}}",
+      "confidence": "الثقة: {{confidence}}",
+      "evidenceSources_zero": "مصادر الأدلة: {{count}}",
+      "evidenceSources_one": "مصدر الأدلة: {{count}}",
+      "evidenceSources_two": "مصادر الأدلة: {{count}}",
+      "evidenceSources_few": "مصادر الأدلة: {{count}}",
+      "evidenceSources_many": "مصدر الأدلة: {{count}}",
+      "evidenceSources_other": "مصادر الأدلة: {{count}}",
+      "invited": "تم إرسال الدعوة",
+      "invite": "دعوة للتقديم",
+      "loading": "جارٍ تحميل المطابقات باستخدام الأدلة المعتمدة…",
+      "gatedTitle": "المطابقة بالذكاء الاصطناعي متاحة مع Silver وGold",
+      "gatedDescription": "هذه المعاينة لا تعرض هويات أو أدلة للمطابقات غير المتاحة. يمكنك متابعة مراجعة طلبات التقديم بالطريقة العادية.",
+      "loadError": "تعذّر تحميل المطابقات.",
+      "inviteError": "تعذّر إرسال الدعوة. يمكنك المحاولة مرة أخرى.",
+      "goldLimit": "Gold · حتى 10 مطابَقات",
+      "silverLimit": "Silver · حتى 5 مطابَقات",
+      "title": "مساهمون مطابقون",
+      "description": "اقتراحات إرشادية مبنية على المهارات المعتمدة وسمعة المساهم والأدلة المصرح بها. القرار لك، والمطابقة ليست اختيارًا.",
+      "generate": "توليد المطابقات",
+      "systemLimit": "المطابقة متوقفة مؤقتًا بسبب حد تقني. لم يتغير الطلب ويمكنك إعادة المحاولة.",
+      "empty": "لا توجد اقتراحات مطابقة بعد. يمكنك الاستمرار في مراجعة طلبات التقديم العادية."
+    }
+  },
+  "subscriptions": {
+    "loading": "جارٍ تحميل حالة الاشتراك…",
+    "loadError": "تعذّر تحميل حالة الاشتراك.",
+    "title": "الاشتراك والمزايا",
+    "description": "حالة الخطة والمزايا الحالية تأتي من حسابك على الخادم.",
+    "currentPlan": "خطتك الحالية",
+    "active": "نشطة",
+    "usageTitle": "استخدام طلبات المساهمة هذا الشهر",
+    "usage": "{{used}} من {{limit}}",
+    "usageAria": "استخدام طلبات المساهمة",
+    "renews": "يتجدد الحد في {{date}}.",
+    "noQuota": "التقديم على طلبات المساهمة متاح وفق القواعد العادية، ولا توجد حصة يومية مرتبطة بخطة المساهم.",
+    "benefits": "المزايا",
+    "upgradeUnavailable": "الترقية غير متاحة في معاينة MVP",
+    "purchaseUnavailable": "شراء الخطط غير متاح خلال معاينة MVP."
+  },
+  "deliveryReviews": {
+    "lifecycle": {
+      "pendingOwnerReview": "طلب التقديم بانتظار قرار صاحب المشروع",
+      "declinedByOwner": "لم يتم اختيار طلب التقديم",
+      "notSelected": "تم اختيار مساهم آخر",
+      "expired": "انتهت مهلة طلب التقديم",
+      "withdrawn": "تم سحب طلب التقديم",
+      "requestCancelled": "أُلغي طلب المساهمة",
+      "awaitingDelivery": "بانتظار تسليم العمل",
+      "deliverySubmitted": "التسليم بانتظار المراجعة",
+      "changesRequested": "طُلبت تغييرات على التسليم",
+      "deliveryRejected": "رُفض التسليم",
+      "completed": "اكتملت المساهمة"
+    },
+    "contributorLifecycle": {
+      "title": "مسار مساهماتك",
+      "description": "تابع قرار التقديم والتسليم والمراجعة من مكان واحد.",
+      "loading": "جارٍ تحميل مسار المساهمات…",
+      "loadError": "تعذر تحميل مسار المساهمات.",
+      "emptyTitle": "لا توجد مساهمات جارية بعد",
+      "emptyDescription": "ستظهر هنا حالة طلباتك وتسليماتك بعد التقديم.",
+      "dueAt": "موعد التسليم: {{date}}",
+      "open": "فتح المساهمة"
+    },
+    "ownerInbox": {
+      "title": "متابعة التسليمات",
+      "description": "راجع التسليمات الجديدة وتابع دورة كل مساهمة مقبولة.",
+      "needsReviewCount_zero": "لا توجد تسليمات تحتاج مراجعتك",
+      "needsReviewCount_one": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_two": "{{count}} تحتاجان مراجعتك",
+      "needsReviewCount_few": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_many": "{{count}} تحتاج مراجعتك",
+      "needsReviewCount_other": "{{count}} تحتاج مراجعتك",
+      "loading": "جارٍ تحميل التسليمات…",
+      "loadError": "تعذر تحميل متابعة التسليمات.",
+      "empty": "لا توجد تسليمات أو إسنادات بعد",
+      "needsReview": "تحتاج مراجعة",
+      "lastSubmission": "آخر تسليم: {{date}}",
+      "review": "مراجعة التسليم",
+      "openRequest": "فتح الطلب"
+    },
+    "panel": {
+      "loading": "جارٍ تحميل حالة التسليم…",
+      "loadError": "تعذر تحميل حالة التسليم. حاول مرة أخرى.",
+      "title": "تسليم العمل",
+      "submissionNumber": "الإرسال رقم {{number}}",
+      "history": "سجل التسليم والمراجعة",
+      "ratingOutOfFive": "{{rating}} من 5",
+      "editLink": "تعديل رابط التسليم",
+      "updatedPullRequestUrl": "رابط Pull Request المحدّث",
+      "updateNotes": "ملاحظات التحديث (اختياري)",
+      "sending": "جارٍ الإرسال…",
+      "resubmit": "إعادة إرسال التسليم",
+      "saveLink": "حفظ رابط التسليم",
+      "invalidUrl": "أدخل رابط Pull Request صالحًا من GitHub.",
+      "submitError": "تعذر إرسال التسليم الآن. حاول مرة أخرى.",
+      "description": "أرسل رابط Pull Request على GitHub ليبدأ صاحب المشروع المراجعة البشرية.",
+      "pullRequestUrl": "رابط Pull Request",
+      "reviewerNotes": "ملاحظات للمراجع (اختياري)",
+      "submit": "إرسال التسليم",
+      "status": {
+        "submitted": "بانتظار مراجعة صاحب المشروع",
+        "changesRequested": "طلب صاحب المشروع تغييرات",
+        "approved": "اعتمد صاحب المشروع التسليم",
+        "rejected": "رفض صاحب المشروع التسليم"
+      },
+      "review": {
+        "approvedByOwner": "اعتماد صاحب المشروع",
+        "changesRequested": "طلب تغييرات",
+        "rejectedByOwner": "رفض صاحب المشروع"
+      }
+    },
+    "ownerReview": {
+      "loadError": "تعذر تحميل مساحة مراجعة التسليم.",
+      "noAssignment": "لا يوجد إسناد عمل مرتبط بهذا الطلب.",
+      "delivery": "التسليم",
+      "awaitingContributor": "بانتظار أن يرسل المساهم رابط Pull Request.",
+      "completedTitle": "اكتمل طلب المساهمة",
+      "completedDescription": "اعتمدت التسليم وسُجل التقييم في سجل المراجعة.",
+      "statusTitle": "حالة التسليم",
+      "awaitingResubmission": "بانتظار إعادة إرسال المساهم بعد طلب التغييرات.",
+      "rejectedStatus": "تم رفض التسليم مع حفظ الملاحظات.",
+      "ratingRequired": "اختر تقييمًا من نجمة واحدة إلى خمس نجوم قبل الاعتماد.",
+      "feedbackRequired": "اكتب ملاحظات واضحة للمساهم قبل إرسال هذا القرار.",
+      "saveError": "تعذر حفظ قرار المراجعة الآن. حاول مرة أخرى.",
+      "approveDelivery": "اعتماد التسليم",
+      "requestChanges": "طلب تغييرات",
+      "rejectDelivery": "رفض التسليم",
+      "reviewTitle": "مراجعة تسليم {{name}}",
+      "viewContributor": "عرض ملف المساهم وسمعته",
+      "submittedMeta": "أُرسل في {{date}} · الإرسال رقم {{number}}",
+      "unavailableTime": "وقت غير متاح",
+      "contributorNotes": "ملاحظات المساهم",
+      "requirements": "متطلبات المراجعة",
+      "loadingHistory": "جارٍ تحميل سجل التسليم…",
+      "historyMeta": "الإرسال رقم {{number}} · {{date}}",
+      "approve": "اعتماد",
+      "reject": "رفض",
+      "decision": "قرار المراجعة",
+      "rating": "التقييم",
+      "chooseRating": "اختر التقييم",
+      "stars_zero": "{{count}} نجوم",
+      "stars_one": "نجمة واحدة",
+      "stars_two": "نجمتان",
+      "stars_few": "{{count}} نجوم",
+      "stars_many": "{{count}} نجمة",
+      "stars_other": "{{count}} نجمة",
+      "feedback": "ملاحظات المراجعة",
+      "saving": "جارٍ حفظ القرار…"
+    }
+  },
+  "notifications": {
+    "fallback": "إشعار",
+    "types": {
+      "application_status": "حالة الطلب",
+      "proposal_status": "حالة المقترح",
+      "assignment_status": "حالة الإسناد",
+      "material_status": "حالة المادة",
+      "skill_review": "مراجعة المهارات",
+      "skill_profile_generation": "تحليل المهارات",
+      "delivery_update": "تحديث التسليم",
+      "match_found": "مطابقة",
+      "task_recommendation": "ترشيح مهمة",
+      "plan_limit": "حدود الخطة",
+      "moderation": "إشعار إشراف",
+      "account_security": "أمان الحساب",
+      "conversation_activity": "نشاط المحادثة",
+      "assignment_call": "مكالمة الإسناد",
+      "system": "النظام"
+    },
+    "priorities": {
+      "urgent": "عاجل",
+      "attention": "يحتاج انتباهًا",
+      "ambient": "للعلم"
+    },
+    "skillProfile": {
+      "adminReadyTitle": "تحليل مهارات جديد للمراجعة",
+      "adminReadyMessage_zero": "يوجد تحليل مهارات مكتمل من أحد المساهمين ولا يحتوي مهارات في انتظار مراجعتك.",
+      "adminReadyMessage_one": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على مهارة واحدة في انتظار مراجعتك.",
+      "adminReadyMessage_two": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على مهارتين في انتظار مراجعتك.",
+      "adminReadyMessage_few": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارات في انتظار مراجعتك.",
+      "adminReadyMessage_many": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارة في انتظار مراجعتك.",
+      "adminReadyMessage_other": "يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على {{count}} مهارة في انتظار مراجعتك.",
+      "readyTitle": "تحليل المهارات جاهز للمراجعة",
+      "readyMessage_zero": "اكتمل تحليل مهاراتك ولا توجد مهارات في انتظار المراجعة.",
+      "readyMessage_one": "اكتمل تحليل مهاراتك. توجد مهارة واحدة في انتظار مراجعة الإدارة.",
+      "readyMessage_two": "اكتمل تحليل مهاراتك. توجد مهارتان في انتظار مراجعة الإدارة.",
+      "readyMessage_few": "اكتمل تحليل مهاراتك. توجد {{count}} مهارات في انتظار مراجعة الإدارة.",
+      "readyMessage_many": "اكتمل تحليل مهاراتك. توجد {{count}} مهارة في انتظار مراجعة الإدارة.",
+      "readyMessage_other": "اكتمل تحليل مهاراتك. توجد {{count}} مهارة في انتظار مراجعة الإدارة.",
+      "moreEvidenceTitle": "نحتاج إلى أدلة إضافية",
+      "moreEvidenceMessage": "اكتمل تحليل المهارات، لكن الأدلة المتاحة غير كافية. اختر مستودعات إضافية أو أعد المحاولة.",
+      "failedTitle": "تعذر إكمال تحليل المهارات",
+      "failedMessage": "حدثت مشكلة أثناء التحليل. أعد المحاولة من صفحة تحليل المهارات."
+    },
+    "center": {
+      "title": "الإشعارات",
+      "description": "تابع تغييرات الحساب ونتائج المراجعات والأحداث التي تحتاج إلى انتباهك.",
+      "filters": "فلاتر الإشعارات",
+      "readState": "حالة قراءة الإشعارات",
+      "all": "الكل",
+      "unread": "غير مقروءة",
+      "read": "مقروءة",
+      "type": "النوع",
+      "allTypes": "كل الأنواع",
+      "loadErrorDescription": "يمكنك إعادة المحاولة الآن؛ ستظل الإشعارات قابلة للاسترداد عند عودة الاتصال.",
+      "emptyConnected": "ستظهر نتائج المراجعات والأحداث المهمة هنا فور وصولها.",
+      "emptyOffline": "سيتم تحميل الإشعارات المحفوظة عند استعادة الاتصال بالخادم.",
+      "loadMore": "تحميل المزيد"
+    },
+    "popover": {
+      "triggerUnread_zero": "الإشعارات، لا توجد غير مقروءة",
+      "triggerUnread_one": "الإشعارات، إشعار واحد غير مقروء",
+      "triggerUnread_two": "الإشعارات، إشعاران غير مقروءين",
+      "triggerUnread_few": "الإشعارات، {{count}} غير مقروءة",
+      "triggerUnread_many": "الإشعارات، {{count}} غير مقروء",
+      "triggerUnread_other": "الإشعارات، {{count}} غير مقروء",
+      "latest": "آخر الإشعارات",
+      "empty": "لا توجد إشعارات في هذه الجلسة بعد.",
+      "viewAll": "عرض كل الإشعارات"
+    },
+    "preferences": {
+      "loading": "جارٍ تحميل تفضيلات الإشعارات…",
+      "loadError": "تعذّر تحميل تفضيلات الإشعارات.",
+      "title": "تفضيلات الإشعارات",
+      "description": "تحكم في مدة الاحتفاظ والتنبيهات الاختيارية وساعات الهدوء.",
+      "retention": "مدة الاحتفاظ",
+      "days_zero": "{{count}} يوم",
+      "days_one": "يوم واحد",
+      "days_two": "يومان",
+      "days_few": "{{count}} أيام",
+      "days_many": "{{count}} يومًا",
+      "days_other": "{{count}} يوم",
+      "quietHours": "ساعات الهدوء",
+      "enableQuietHours": "تفعيل ساعات الهدوء",
+      "start": "البداية",
+      "end": "النهاية",
+      "timeZone": "المنطقة الزمنية",
+      "quietHoursHelp": "يمكن أن تمتد الساعات عبر منتصف الليل، مثل 22:00 إلى 06:00.",
+      "categories": "فئات التنبيه داخل التطبيق",
+      "required": "لا يمكن تعطيل التنبيهات الأساسية.",
+      "browserTitle": "إشعارات المتصفح",
+      "browserLater": "متاحة في شريحة لاحقة",
+      "browserHelp": "لن نطلب إذن المتصفح أو نسجل Service Worker في هذه المرحلة.",
+      "save": "حفظ تفضيلات الإشعارات",
+      "saved": "تم حفظ التفضيلات.",
+      "conflict": "تغيّرت التفضيلات في جلسة أخرى؛ تم تحديث النموذج.",
+      "saveError": "تعذّر الحفظ؛ تمت استعادة آخر إعدادات محفوظة."
+    },
+    "loading": "جارٍ تحميل الإشعارات…",
+    "loadError": "تعذّر تحميل الإشعارات",
+    "emptyTitle": "لا توجد إشعارات بعد",
+    "unread": "غير مقروء",
+    "markAllRead": "تحديد الكل كمقروء",
+    "markRead": "تحديد كمقروء",
+    "markUnread": "تحديد كغير مقروء",
+    "open": "فتح الإشعار",
+    "targetUnavailable": "الهدف غير متاح",
+    "connection": {
+      "idle": "غير متصل",
+      "connected": "متصل مباشرة",
+      "connecting": "جارٍ الاتصال…",
+      "synchronizing": "جارٍ مزامنة الإشعارات…",
+      "unauthorized": "الجلسة غير مخولة",
+      "delayed": "غير متصل"
+    }
+  },
   "__sharedUi__": {}
 }

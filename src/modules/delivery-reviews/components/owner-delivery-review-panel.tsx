@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleAlert, ExternalLink, Loader2, Star } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -24,6 +25,7 @@ export function OwnerDeliveryReviewPanel({
   requestId: string;
   client?: DeliveryClient;
 }) {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const lifecycleQuery = useQuery({
     queryKey: deliveryKeys.ownerLifecycle(),
@@ -78,7 +80,7 @@ export function OwnerDeliveryReviewPanel({
     return (
       <p role="status" className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin" aria-hidden />
-        جارٍ تحميل حالة التسليم…
+        {t("deliveryReviews.panel.loading")}
       </p>
     );
   }
@@ -88,7 +90,7 @@ export function OwnerDeliveryReviewPanel({
       <Card className="mt-6 border-destructive/25 p-5">
         <p role="alert" className="flex items-center gap-2 text-sm text-destructive">
           <CircleAlert className="size-4" aria-hidden />
-          تعذر تحميل مساحة مراجعة التسليم.
+          {t("deliveryReviews.ownerReview.loadError")}
         </p>
         <Button
           type="button"
@@ -100,7 +102,7 @@ export function OwnerDeliveryReviewPanel({
             void queueQuery.refetch();
           }}
         >
-          إعادة المحاولة
+          {t("common.retry")}
         </Button>
       </Card>
     );
@@ -110,7 +112,7 @@ export function OwnerDeliveryReviewPanel({
     return (
       <Card className="mt-6 p-5">
         <p className="text-sm text-muted-foreground">
-          لا يوجد إسناد عمل مرتبط بهذا الطلب.
+          {t("deliveryReviews.ownerReview.noAssignment")}
         </p>
       </Card>
     );
@@ -119,9 +121,9 @@ export function OwnerDeliveryReviewPanel({
   if (!delivery) {
     return (
       <Card className="mt-6 p-5">
-        <h2 className="font-bold text-foreground">التسليم</h2>
+        <h2 className="font-bold text-foreground">{t("deliveryReviews.ownerReview.delivery")}</h2>
         <p role="status" className="mt-2 text-sm text-muted-foreground">
-          بانتظار أن يرسل المساهم رابط Pull Request.
+          {t("deliveryReviews.ownerReview.awaitingContributor")}
         </p>
       </Card>
     );
@@ -135,9 +137,9 @@ export function OwnerDeliveryReviewPanel({
   if (delivery.status === "APPROVED") {
     return (
       <Card className="mt-6 border-evidence-teal/30 bg-evidence-teal/5 p-5">
-        <h2 className="font-bold text-foreground">اكتمل طلب المساهمة</h2>
+        <h2 className="font-bold text-foreground">{t("deliveryReviews.ownerReview.completedTitle")}</h2>
         <p role="status" className="mt-2 text-sm text-muted-foreground">
-          اعتمدت التسليم وسُجل التقييم في سجل المراجعة.
+          {t("deliveryReviews.ownerReview.completedDescription")}
         </p>
       </Card>
     );
@@ -146,11 +148,11 @@ export function OwnerDeliveryReviewPanel({
   if (delivery.status === "CHANGES_REQUESTED" || delivery.status === "REJECTED") {
     return (
       <Card className="mt-6 p-5">
-        <h2 className="font-bold text-foreground">حالة التسليم</h2>
+        <h2 className="font-bold text-foreground">{t("deliveryReviews.ownerReview.statusTitle")}</h2>
         <p role="status" className="mt-2 text-sm text-muted-foreground">
           {delivery.status === "CHANGES_REQUESTED"
-            ? "بانتظار إعادة إرسال المساهم بعد طلب التغييرات."
-            : "تم رفض التسليم مع حفظ الملاحظات."}
+            ? t("deliveryReviews.ownerReview.awaitingResubmission")
+            : t("deliveryReviews.ownerReview.rejectedStatus")}
         </p>
       </Card>
     );
@@ -167,41 +169,41 @@ export function OwnerDeliveryReviewPanel({
     setValidationError(null);
     setReviewError(null);
     if (outcome === "APPROVED" && !["1", "2", "3", "4", "5"].includes(rating)) {
-      setValidationError("اختر تقييمًا من نجمة واحدة إلى خمس نجوم قبل الاعتماد.");
+      setValidationError(t("deliveryReviews.ownerReview.ratingRequired"));
       return;
     }
     if (outcome !== "APPROVED" && !feedback.trim()) {
-      setValidationError("اكتب ملاحظات واضحة للمساهم قبل إرسال هذا القرار.");
+      setValidationError(t("deliveryReviews.ownerReview.feedbackRequired"));
       return;
     }
     try {
       await reviewMutation.mutateAsync();
     } catch {
-      setReviewError("تعذر حفظ قرار المراجعة الآن. حاول مرة أخرى.");
+      setReviewError(t("deliveryReviews.ownerReview.saveError"));
     }
   }
 
   const actionLabel = {
-    APPROVED: "اعتماد التسليم",
-    CHANGES_REQUESTED: "طلب تغييرات",
-    REJECTED: "رفض التسليم",
+    APPROVED: t("deliveryReviews.ownerReview.approveDelivery"),
+    CHANGES_REQUESTED: t("deliveryReviews.ownerReview.requestChanges"),
+    REJECTED: t("deliveryReviews.ownerReview.rejectDelivery"),
   }[outcome];
 
   return (
     <Card className="mt-6 p-5 md:p-6">
       <h2 className="text-lg font-bold text-foreground">
-        مراجعة تسليم {contributor.displayName}
+        {t("deliveryReviews.ownerReview.reviewTitle", { name: contributor.displayName })}
       </h2>
       {contributor.username && (
         <a
           href={ROUTES.contributorProfile(contributor.username)}
           className="mt-1 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
-          عرض ملف المساهم وسمعته
+          {t("deliveryReviews.ownerReview.viewContributor")}
         </a>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
-        أُرسل في {formatDeliveryDate(delivery.submittedAt) ?? "وقت غير متاح"} · الإرسال رقم {delivery.submissionNumber}
+        {t("deliveryReviews.ownerReview.submittedMeta", { date: formatDeliveryDate(delivery.submittedAt, i18n.language) ?? t("deliveryReviews.ownerReview.unavailableTime"), number: delivery.submissionNumber })}
       </p>
       <a
         href={delivery.pullRequestUrl}
@@ -216,7 +218,7 @@ export function OwnerDeliveryReviewPanel({
 
       {delivery.contributorNotes && (
         <section aria-labelledby="delivery-notes-heading" className="mt-5 rounded-input bg-border/20 p-4">
-          <h3 id="delivery-notes-heading" className="font-semibold text-foreground">ملاحظات المساهم</h3>
+          <h3 id="delivery-notes-heading" className="font-semibold text-foreground">{t("deliveryReviews.ownerReview.contributorNotes")}</h3>
           <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
             {delivery.contributorNotes}
           </p>
@@ -226,7 +228,7 @@ export function OwnerDeliveryReviewPanel({
       {queueDelivery && queueDelivery.contributionRequest.requirements.length > 0 && (
         <section aria-labelledby="delivery-requirements-heading" className="mt-5">
           <h3 id="delivery-requirements-heading" className="font-semibold text-foreground">
-            متطلبات المراجعة
+            {t("deliveryReviews.ownerReview.requirements")}
           </h3>
           <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-muted-foreground">
             {queueDelivery.contributionRequest.requirements.map((requirement) => (
@@ -241,13 +243,13 @@ export function OwnerDeliveryReviewPanel({
       {detailQuery.isPending && (
         <p role="status" className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" aria-hidden />
-          جارٍ تحميل سجل التسليم…
+          {t("deliveryReviews.ownerReview.loadingHistory")}
         </p>
       )}
 
       {detailQuery.data && (
         <section aria-labelledby="owner-delivery-history-heading" className="mt-5">
-          <h3 id="owner-delivery-history-heading" className="font-semibold text-foreground">سجل التسليم والمراجعة</h3>
+          <h3 id="owner-delivery-history-heading" className="font-semibold text-foreground">{t("deliveryReviews.panel.history")}</h3>
           <ol className="mt-2 space-y-3">
             {detailQuery.data.submissions.map((submission) => {
               const review = detailQuery.data.reviews.find(
@@ -256,7 +258,7 @@ export function OwnerDeliveryReviewPanel({
               return (
                 <li key={submission.submissionNumber} className="rounded-input border border-border p-4 text-sm">
                   <p className="font-semibold text-foreground">
-                    الإرسال رقم {submission.submissionNumber} · {formatDeliveryDate(submission.submittedAt) ?? "وقت غير متاح"}
+                    {t("deliveryReviews.ownerReview.historyMeta", { number: submission.submissionNumber, date: formatDeliveryDate(submission.submittedAt, i18n.language) ?? t("deliveryReviews.ownerReview.unavailableTime") })}
                   </p>
                   {submission.contributorNotes && (
                     <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{submission.contributorNotes}</p>
@@ -265,11 +267,11 @@ export function OwnerDeliveryReviewPanel({
                     <div className="mt-3 border-t border-border pt-3">
                       <p className="font-medium text-foreground">
                         {{
-                          APPROVED: "اعتماد",
-                          CHANGES_REQUESTED: "طلب تغييرات",
-                          REJECTED: "رفض",
+                          APPROVED: t("deliveryReviews.ownerReview.approve"),
+                          CHANGES_REQUESTED: t("deliveryReviews.ownerReview.requestChanges"),
+                          REJECTED: t("deliveryReviews.ownerReview.reject"),
                         }[review.outcome]}
-                        {review.rating !== null && ` — ${review.rating} من 5`}
+                        {review.rating !== null && ` — ${t("deliveryReviews.panel.ratingOutOfFive", { rating: review.rating })}`}
                       </p>
                       {review.feedback && <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{review.feedback}</p>}
                     </div>
@@ -286,7 +288,7 @@ export function OwnerDeliveryReviewPanel({
         onSubmit={(event) => void submitReview(event)}
       >
         <div>
-          <Label htmlFor="delivery-review-outcome">قرار المراجعة</Label>
+          <Label htmlFor="delivery-review-outcome">{t("deliveryReviews.ownerReview.decision")}</Label>
           <select
             id="delivery-review-outcome"
             name="outcome"
@@ -295,15 +297,15 @@ export function OwnerDeliveryReviewPanel({
             disabled={reviewMutation.isPending}
             onChange={(event) => changeOutcome(event.target.value as ReviewOutcome)}
           >
-            <option value="APPROVED">اعتماد</option>
-            <option value="CHANGES_REQUESTED">طلب تغييرات</option>
-            <option value="REJECTED">رفض</option>
+            <option value="APPROVED">{t("deliveryReviews.ownerReview.approve")}</option>
+            <option value="CHANGES_REQUESTED">{t("deliveryReviews.ownerReview.requestChanges")}</option>
+            <option value="REJECTED">{t("deliveryReviews.ownerReview.reject")}</option>
           </select>
         </div>
 
         {outcome === "APPROVED" && (
           <div>
-            <Label htmlFor="delivery-review-rating">التقييم</Label>
+            <Label htmlFor="delivery-review-rating">{t("deliveryReviews.ownerReview.rating")}</Label>
             <div className="relative mt-2">
               <Star className="pointer-events-none absolute end-4 top-4 size-4 text-muted-foreground" aria-hidden />
               <select
@@ -318,10 +320,10 @@ export function OwnerDeliveryReviewPanel({
                   setValidationError(null);
                 }}
               >
-                <option value="">اختر التقييم</option>
+                <option value="">{t("deliveryReviews.ownerReview.chooseRating")}</option>
                 {[1, 2, 3, 4, 5].map((value) => (
                   <option key={value} value={value}>
-                    {value} {value === 1 ? "نجمة" : "نجوم"}
+                    {t("deliveryReviews.ownerReview.stars", { count: value })}
                   </option>
                 ))}
               </select>
@@ -331,7 +333,7 @@ export function OwnerDeliveryReviewPanel({
 
         <div>
           <Label htmlFor="delivery-review-feedback">
-            ملاحظات المراجعة {outcome === "APPROVED" ? "(اختياري)" : "(مطلوب)"}
+            {t("deliveryReviews.ownerReview.feedback")} {outcome === "APPROVED" ? t("common.optional") : t("common.required")}
           </Label>
           <textarea
             id="delivery-review-feedback"
@@ -352,7 +354,7 @@ export function OwnerDeliveryReviewPanel({
         {validationError && <p role="alert" className="text-sm text-destructive">{validationError}</p>}
         {reviewError && <p role="alert" className="text-sm text-destructive">{reviewError}</p>}
         <Button type="submit" disabled={reviewMutation.isPending}>
-          {reviewMutation.isPending ? "جارٍ حفظ القرار…" : actionLabel}
+          {reviewMutation.isPending ? t("deliveryReviews.ownerReview.saving") : actionLabel}
         </Button>
       </form>
     </Card>

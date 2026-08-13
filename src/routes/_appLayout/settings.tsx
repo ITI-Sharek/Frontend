@@ -32,7 +32,7 @@ interface SettingsSearch {
 }
 
 export const Route = createFileRoute("/_appLayout/settings")({
-  head: () => ({ meta: [{ title: "الإعدادات | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): SettingsSearch => {
     const section = search.section;
     const isValid =
@@ -87,7 +87,7 @@ function SettingsPage() {
             <ContributorProfileSettingsSection profile={profileQuery.data} />
           ) : (
             <p className="text-sm text-muted-foreground">
-              جارٍ تحميل بيانات ملفك...
+              {t("settings.loadingProfile")}
             </p>
           )}
         </>
@@ -111,7 +111,7 @@ function SettingsPage() {
             />
           ) : (
             <p className="text-sm text-muted-foreground">
-              جارٍ تحميل بيانات ملفك...
+              {t("settings.loadingProfile")}
             </p>
           )}
         </>

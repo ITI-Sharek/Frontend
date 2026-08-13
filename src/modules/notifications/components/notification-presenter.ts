@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 import type {
   NotificationPriority,
   NotificationPresentationDto,
@@ -6,41 +8,18 @@ import type {
   NotificationType,
 } from "../types/notification.types";
 
-const typeLabels: Record<NotificationType, string> = {
-  application_status: "حالة الطلب",
-  proposal_status: "حالة المقترح",
-  assignment_status: "حالة الإسناد",
-  material_status: "حالة المادة",
-  skill_review: "مراجعة المهارات",
-  skill_profile_generation: "تحليل المهارات",
-  delivery_update: "تحديث التسليم",
-  match_found: "مطابقة",
-  task_recommendation: "ترشيح مهمة",
-  plan_limit: "حدود الخطة",
-  moderation: "إشعار إشراف",
-  account_security: "أمان الحساب",
-  conversation_activity: "نشاط المحادثة",
-  assignment_call: "مكالمة الإسناد",
-  system: "النظام",
-};
-
-const priorityLabels: Partial<Record<NotificationPriority, string>> = {
-  urgent: "عاجل",
-  attention: "يحتاج انتباهًا",
-  ambient: "للعلم",
-};
-
 export function getNotificationTypeLabel(
+  t: TFunction,
   type: NotificationPresentationType,
 ): string {
-  if (type in typeLabels) return typeLabels[type as NotificationType];
-  return "إشعار";
+  return t(`notifications.types.${type as NotificationType}`, { defaultValue: t("notifications.fallback") });
 }
 
 export function getNotificationPriorityLabel(
+  t: TFunction,
   priority: NotificationPriority | string,
 ): string {
-  return priorityLabels[priority as NotificationPriority] ?? "إشعار";
+  return t(`notifications.priorities.${priority as NotificationPriority}`, { defaultValue: t("notifications.fallback") });
 }
 
 export interface NotificationContent {
@@ -54,6 +33,7 @@ export interface NotificationContent {
  * original metadata used by other clients.
  */
 export function getNotificationContent(
+  t: TFunction,
   notification: NotificationPresentationDto | RealtimeNotificationDto,
 ): NotificationContent {
   const fallbackMessage =
@@ -75,28 +55,27 @@ export function getNotificationContent(
     const skillCount = toNonNegativeInteger(metadata.skillCount);
     if (metadata.audience === "admin") {
       return {
-        title: "تحليل مهارات جديد للمراجعة",
-        message: `يوجد تحليل مهارات مكتمل من أحد المساهمين ويحتوي على ${skillCount} ${skillCount === 1 ? "مهارة" : "مهارات"} في انتظار مراجعتك.`,
+        title: t("notifications.skillProfile.adminReadyTitle"),
+        message: t("notifications.skillProfile.adminReadyMessage", { count: skillCount }),
       };
     }
     return {
-      title: "تحليل المهارات جاهز للمراجعة",
-      message: `اكتمل تحليل مهاراتك. توجد ${skillCount} ${skillCount === 1 ? "مهارة" : "مهارات"} في انتظار مراجعة الإدارة.`,
+      title: t("notifications.skillProfile.readyTitle"),
+      message: t("notifications.skillProfile.readyMessage", { count: skillCount }),
     };
   }
 
   if (status === "needs_more_evidence") {
     return {
-      title: "نحتاج إلى أدلة إضافية",
-      message:
-        "اكتمل تحليل المهارات، لكن الأدلة المتاحة غير كافية. اختر مستودعات إضافية أو أعد المحاولة.",
+      title: t("notifications.skillProfile.moreEvidenceTitle"),
+      message: t("notifications.skillProfile.moreEvidenceMessage"),
     };
   }
 
   if (status === "failed") {
     return {
-      title: "تعذر إكمال تحليل المهارات",
-      message: "حدثت مشكلة أثناء التحليل. أعد المحاولة من صفحة تحليل المهارات.",
+      title: t("notifications.skillProfile.failedTitle"),
+      message: t("notifications.skillProfile.failedMessage"),
     };
   }
 
@@ -118,11 +97,11 @@ function toNonNegativeInteger(value: unknown): number {
     : 0;
 }
 
-export function formatNotificationDate(createdAt: string): string {
+export function formatNotificationDate(createdAt: string, locale: string): string {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return createdAt;
 
-  return new Intl.DateTimeFormat("ar-EG", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);

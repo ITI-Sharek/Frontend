@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Avatar } from "@/shared/components/ui/avatar";
@@ -9,13 +10,8 @@ import { Button } from "@/shared/components/ui/button";
 import { useAddDiscussionCommentMutation } from "../api/mutations/use-add-discussion-comment-mutation";
 import type { DiscussionAuthorDto, DiscussionPostDetailDto } from "../types/discussion.types";
 
-const ROLE_LABEL = {
-  owner: "صاحب مشروع",
-  contributor: "مساهم",
-} as const;
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("ar-EG", {
+function formatDateTime(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
@@ -28,6 +24,7 @@ export function DiscussionPostDetailView({
   post: DiscussionPostDetailDto;
   currentAuthor: DiscussionAuthorDto;
 }) {
+  const { i18n, t } = useTranslation();
   const commentMutation = useAddDiscussionCommentMutation();
   const [comment, setComment] = useState("");
 
@@ -38,7 +35,7 @@ export function DiscussionPostDetailView({
         className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowRight className="size-4" aria-hidden />
-        العودة للنقاشات
+        {t("discussions.back")}
       </Link>
 
       <article className="flex flex-col gap-4 rounded-card border border-border bg-card p-6">
@@ -54,7 +51,8 @@ export function DiscussionPostDetailView({
               {post.author.displayName}
             </p>
             <p className="text-xs text-muted-foreground">
-              {ROLE_LABEL[post.author.role]} · {formatDateTime(post.publishedAt)}
+              {t(`discussions.roles.${post.author.role}`)} ·{" "}
+              {formatDateTime(post.publishedAt, i18n.language)}
             </p>
           </div>
         </div>
@@ -67,7 +65,7 @@ export function DiscussionPostDetailView({
 
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-bold text-foreground">
-          التعليقات ({post.comments.length})
+          {t("discussions.commentsTitle", { count: post.comments.length })}
         </h2>
 
         <form
@@ -87,7 +85,7 @@ export function DiscussionPostDetailView({
             onChange={(event) => setComment(event.target.value)}
             rows={3}
             className="w-full resize-y rounded-input border border-border bg-input-bg p-3 text-sm leading-6 text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary"
-            placeholder="أضف تعليقًا..."
+            placeholder={t("discussions.commentPlaceholder")}
           />
           <Button
             type="submit"
@@ -95,7 +93,9 @@ export function DiscussionPostDetailView({
             className="self-end"
             disabled={comment.trim() === "" || commentMutation.isPending}
           >
-            {commentMutation.isPending ? "جارٍ الإرسال..." : "إرسال"}
+            {commentMutation.isPending
+              ? t("discussions.sending")
+              : t("common.submit")}
           </Button>
         </form>
 
@@ -113,7 +113,7 @@ export function DiscussionPostDetailView({
                   <span className="font-semibold text-foreground">
                     {item.author.displayName}
                   </span>
-                  · {formatDateTime(item.createdAt)}
+                  · {formatDateTime(item.createdAt, i18n.language)}
                 </p>
                 <p className="mt-1 text-sm leading-6 text-foreground">{item.body}</p>
               </div>

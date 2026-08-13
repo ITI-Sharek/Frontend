@@ -12,7 +12,7 @@ import {
 
 export const Route = createFileRoute("/_authLayout/register")({
   head: () => ({
-    meta: [{ title: "إنشاء حساب جديد | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: RegisterPage,
 });

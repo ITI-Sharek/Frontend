@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import i18n from "@/lib/i18n";
 
 import {
   formatNotificationDate,
@@ -11,25 +12,25 @@ import { NOTIFICATION_TYPES } from "../types/notification.types";
 describe("notification presenter", () => {
   it("labels every semantic notification category", () => {
     for (const category of NOTIFICATION_TYPES) {
-      expect(getNotificationTypeLabel(category)).not.toBe("");
+      expect(getNotificationTypeLabel(i18n.t, category)).not.toBe("");
     }
-    expect(getNotificationTypeLabel("skill_profile_generation")).toBe(
+    expect(getNotificationTypeLabel(i18n.t, "skill_profile_generation")).toBe(
       "تحليل المهارات",
     );
-    expect(getNotificationTypeLabel("unknown")).toBe("إشعار");
+    expect(getNotificationTypeLabel(i18n.t, "unknown")).toBe("إشعار");
   });
 
   it("presents priority as text and preserves long localized dates", () => {
-    expect(getNotificationPriorityLabel("urgent")).toBe("عاجل");
-    expect(getNotificationPriorityLabel("attention")).toBe("يحتاج انتباهًا");
-    expect(getNotificationPriorityLabel("ambient")).toBe("للعلم");
-    expect(getNotificationPriorityLabel("unknown")).toBe("إشعار");
-    expect(formatNotificationDate("not-a-date")).toBe("not-a-date");
+    expect(getNotificationPriorityLabel(i18n.t, "urgent")).toBe("عاجل");
+    expect(getNotificationPriorityLabel(i18n.t, "attention")).toBe("يحتاج انتباهًا");
+    expect(getNotificationPriorityLabel(i18n.t, "ambient")).toBe("للعلم");
+    expect(getNotificationPriorityLabel(i18n.t, "unknown")).toBe("إشعار");
+    expect(formatNotificationDate("not-a-date", "ar-EG")).toBe("not-a-date");
   });
 
   it("presents persisted skill-generation copy in Arabic", () => {
     expect(
-      getNotificationContent({
+      getNotificationContent(i18n.t, {
         notificationId: "notification-1",
         userId: "user-1",
         type: "skill_profile_generation",
@@ -45,13 +46,13 @@ describe("notification presenter", () => {
       }),
     ).toEqual({
       title: "تحليل المهارات جاهز للمراجعة",
-      message: "اكتمل تحليل مهاراتك. توجد 2 مهارات في انتظار مراجعة الإدارة.",
+      message: "اكتمل تحليل مهاراتك. توجد مهارتان في انتظار مراجعة الإدارة.",
     });
   });
 
   it("presents skill-generation notifications for admins distinctly", () => {
     expect(
-      getNotificationContent({
+      getNotificationContent(i18n.t, {
         notificationId: "notification-admin-1",
         userId: "admin-1",
         type: "skill_profile_generation",

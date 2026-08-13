@@ -1,5 +1,6 @@
 import { ArrowLeft, CheckCircle2, TriangleAlert } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
@@ -11,6 +12,7 @@ import type { AttentionItemDto } from "../types/dashboard.types";
  * amber for revise-and-resubmit, teal for accepted-start-working.
  */
 export function AttentionFeed({ items }: { items: AttentionItemDto[] }) {
+  const { t } = useTranslation();
   if (items.length === 0) return null;
 
   return (
@@ -22,17 +24,17 @@ export function AttentionFeed({ items }: { items: AttentionItemDto[] }) {
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold text-review-amber">
-            الأولوية الآن
+            {t("dashboard.attention.eyebrow")}
           </p>
           <h2
             id="attention-heading"
             className="mt-1 text-xl font-bold text-foreground"
           >
-            يحتاج انتباهك
+            {t("dashboard.attention.title")}
           </h2>
         </div>
         <span className="font-mono text-xs text-muted-foreground">
-          {items.length} إجراء
+          {t("dashboard.attention.count", { count: items.length })}
         </span>
       </div>
       <div className="mt-4 divide-y divide-border overflow-hidden rounded-card border border-border bg-card">

@@ -1,23 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Avatar } from "@/shared/components/ui/avatar";
 
 import type { DiscussionPostDto } from "../types/discussion.types";
 
-const ROLE_LABEL = {
-  owner: "صاحب مشروع",
-  contributor: "مساهم",
-} as const;
-
-function formatPublishedAt(value: string) {
-  return new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium" }).format(
+function formatPublishedAt(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
     new Date(value),
   );
 }
 
 export function DiscussionPostCard({ post }: { post: DiscussionPostDto }) {
+  const { i18n, t } = useTranslation();
   return (
     <Link
       to={ROUTES.discussion(post.id)}
@@ -35,7 +32,8 @@ export function DiscussionPostCard({ post }: { post: DiscussionPostDto }) {
             {post.author.displayName}
           </p>
           <p className="text-xs text-muted-foreground">
-            {ROLE_LABEL[post.author.role]} · {formatPublishedAt(post.publishedAt)}
+            {t(`discussions.roles.${post.author.role}`)} ·{" "}
+            {formatPublishedAt(post.publishedAt, i18n.language)}
           </p>
         </div>
       </div>
@@ -47,7 +45,7 @@ export function DiscussionPostCard({ post }: { post: DiscussionPostDto }) {
 
       <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
         <MessageCircle className="size-3.5" aria-hidden />
-        {post.commentCount} تعليق
+        {t("discussions.commentCount", { count: post.commentCount })}
       </p>
     </Link>
   );

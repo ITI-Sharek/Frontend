@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export function SiteFooter() {
+  const { t } = useTranslation();
   return (
     <footer className="w-full border-t border-border bg-footer-bg">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
@@ -14,7 +17,7 @@ export function SiteFooter() {
             Sharek
           </span>
         </div>
-        <p>مساحة تعاون تحفظ دليلاً موثوقاً على العمل المكتمل.</p>
+        <p>{t("footer.description")}</p>
         <p dir="ltr" className="font-mono text-xs">
           © 2026 Sharek
         </p>

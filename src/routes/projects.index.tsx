@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { PublicProjectsListView, usePublicProjectsQuery } from "@/modules/projects";
 import type { PublicProjectListItemDto } from "@/modules/projects";
@@ -8,11 +9,12 @@ import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { PublicProjectsShell } from "./-public-projects-shell";
 
 export const Route = createFileRoute("/projects/")({
-  head: () => ({ meta: [{ title: "المشاريع المنشورة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: PublicProjectsPage,
 });
 
 function PublicProjectsPage() {
+  const { t } = useTranslation();
   const [cursor, setCursor] = useState<string | undefined>();
   const [loadedProjects, setLoadedProjects] = useState<PublicProjectListItemDto[]>([]);
   const projectsQuery = usePublicProjectsQuery({ cursor });
@@ -21,7 +23,7 @@ function PublicProjectsPage() {
     return (
       <PublicProjectsShell>
         <div className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4 text-center text-sm text-destructive">
-          {getApiErrorMessage(projectsQuery.error, "تعذر تحميل المشاريع المنشورة.")}
+          {getApiErrorMessage(projectsQuery.error, t("publicProjects.loadError"))}
         </div>
       </PublicProjectsShell>
     );
@@ -31,7 +33,7 @@ function PublicProjectsPage() {
     return (
       <PublicProjectsShell>
         <div className="flex min-h-[60vh] items-center justify-center text-sm text-muted-foreground">
-          جارٍ تحميل المشاريع المنشورة...
+          {t("publicProjects.loading")}
         </div>
       </PublicProjectsShell>
     );

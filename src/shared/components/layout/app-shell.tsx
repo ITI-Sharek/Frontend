@@ -52,7 +52,7 @@ interface AppShellProps {
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const DEFAULT_BRAND: AppShellBrand = {
-  title: "شارك",
+  title: "Sharek",
   subtitle: "Sharek",
   logoSrc: "/logo-1.png",
 };
@@ -176,11 +176,11 @@ export function AppShell({
             <div
               role="separator"
               aria-orientation="vertical"
-              aria-label="تغيير عرض القائمة الجانبية"
+              aria-label={t("shell.resizeSidebar")}
               aria-valuemin={SIDEBAR_MIN_WIDTH}
               aria-valuemax={SIDEBAR_MAX_WIDTH}
               aria-valuenow={Math.round(width)}
-              aria-valuetext={`${Math.round(width)} بكسل`}
+              aria-valuetext={t("shell.sidebarWidth", { width: Math.round(width) })}
               tabIndex={0}
               onPointerDown={startResize}
               onPointerMove={handleResizeMove}
@@ -301,12 +301,14 @@ function SidebarBrand({ brand, collapsed }: { brand: AppShellBrand; collapsed: b
 // ─── CollapseToggle ────────────────────────────────────────────────────────────
 
 function CollapseToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  const { t } = useTranslation();
+  const label = collapsed ? t("shell.expandSidebar") : t("shell.collapseSidebar");
   return (
     <button
       type="button"
       onClick={onToggle}
-      aria-label={collapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
-      title={collapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
+      aria-label={label}
+      title={label}
       className={cn(
         "hidden md:flex w-full items-center justify-end gap-2 border-b border-border/60 px-3 py-2",
         "text-muted-foreground transition-colors duration-150 hover:bg-border/20 hover:text-foreground",
@@ -315,7 +317,7 @@ function CollapseToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       )}
     >
       {!collapsed && (
-        <span className="text-[11px] font-medium">طي القائمة</span>
+        <span className="text-[11px] font-medium">{t("shell.collapseSidebar")}</span>
       )}
       {collapsed ? (
         <ChevronLeft className="size-4 shrink-0" aria-hidden />
@@ -478,12 +480,13 @@ function MobileItem({ item }: { item: AppShellNavItem }) {
 // ─── NavBadge ──────────────────────────────────────────────────────────────────
 
 function NavBadge({ count, compact = false }: { count?: number; compact?: boolean }) {
+  const { t } = useTranslation();
   if (count === undefined || count <= 0) return null;
   const visible = count > 99 ? "99+" : count;
 
   return (
     <span
-      aria-label={`${count} عناصر تحتاج إلى إجراء`}
+      aria-label={t("shell.badgeAriaLabel", { count })}
       className={cn(
         "inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white",
         compact && "absolute -start-3 -top-2",

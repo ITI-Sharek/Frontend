@@ -1,5 +1,6 @@
 import { isAxiosError } from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { storageService } from "@/services/storage.service";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
@@ -14,31 +15,32 @@ interface DevLoginButtonsProps {
 
 const DEV_ACCOUNTS: Array<{
   role: UserRole;
-  label: string;
+  labelKey: string;
   email: string;
   password: string;
 }> = [
   {
     role: "contributor",
-    label: "مساهم",
+    labelKey: "contributor",
     email: "contributor@sharek.local",
     password: "Admin@1234",
   },
   {
     role: "owner",
-    label: "مالك مشروع",
+    labelKey: "owner",
     email: "owner@sharek.local",
     password: "Admin@1234",
   },
   {
     role: "admin",
-    label: "أدمن",
+    labelKey: "admin",
     email: "admin@sharek.local",
     password: "Admin@1234",
   },
 ];
 
 export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
+  const { t } = useTranslation();
   const [pendingRole, setPendingRole] = useState<UserRole | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,10 +66,10 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
       const apiIsUnreachable = isAxiosError(err) && err.response === undefined;
       setError(
         apiIsUnreachable
-          ? "تعذر الاتصال بالخادم على المنفذ 4000. تأكد من تشغيل الواجهة الخلفية ثم أعد المحاولة."
+          ? t("auth.devLogin.serverUnavailable")
           : getApiErrorMessage(
               err,
-              "تعذر الدخول بحساب التطوير. تأكد من تشغيل seed في السيرفر.",
+              t("auth.devLogin.loginError"),
             ),
       );
     } finally {
@@ -78,7 +80,7 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
   return (
     <div className="w-full rounded-card border border-dashed border-border p-4">
       <p className="text-center text-xs text-muted-foreground">
-        دخول سريع (وضع التطوير فقط)
+        {t("auth.devLogin.title")}
       </p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {DEV_ACCOUNTS.map((account) => (
@@ -92,7 +94,7 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
               void handleDevLogin(account);
             }}
           >
-            {pendingRole === account.role ? "..." : account.label}
+            {pendingRole === account.role ? "..." : t(`auth.devLogin.${account.labelKey}`)}
           </Button>
         ))}
       </div>

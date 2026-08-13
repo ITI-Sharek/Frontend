@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
@@ -22,19 +23,19 @@ import { useSubmitApplicationMutation } from "../api/mutations/use-submit-applic
 import { useApplicationQuery } from "../api/queries/use-application-query";
 import { useContributionRequestDetailsQuery } from "../api/queries/use-contribution-request-details-query";
 import { useRememberedApplicationId } from "../hooks/use-remembered-application-id";
-import { applicationSubmissionSchema } from "../schemas/application-submission.schema";
+import { getApplicationSubmissionSchema } from "../schemas/application-submission.schema";
 import type {
   ApplicationSubmissionInput,
   ApplicationSubmissionValues,
 } from "../schemas/application-submission.schema";
 import {
-  APPLICATION_STATUS_COPY,
-  APPLICATION_SUBMISSION_ERROR_META,
   getApplicationSubmissionErrorMessage,
+  getApplicationStatusCopy,
+  getApplicationSubmissionErrorMeta,
   isApplicationApiErrorCode,
 } from "../constants/application-copy";
 import {
-  CONTRIBUTION_REQUEST_DIFFICULTY_LABELS,
+  getContributionRequestDifficultyLabel,
   formatContributionDate,
   formatContributionDateTime,
   formatContributionReward,
@@ -64,6 +65,7 @@ export function ContributorContributionRequestDetailView({
   materialsSlot?: ReactNode;
   guidanceSlot?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const query = useContributionRequestDetailsQuery(requestId);
 
   if (query.isPending) {
@@ -71,8 +73,8 @@ export function ContributorContributionRequestDetailView({
       <PageContainer className="max-w-4xl">
         <PageFeedback
           icon={Loader2}
-          title="جارٍ تحميل طلب المساهمة"
-          description="نسترجع عقد العمل وحالة التقديم من الخادم."
+          title={t("contributionRequests.contributorDetail.loadingTitle")}
+          description={t("contributionRequests.contributorDetail.loadingDescription")}
         />
       </PageContainer>
     );
@@ -82,11 +84,11 @@ export function ContributorContributionRequestDetailView({
       <PageContainer className="max-w-4xl">
         <PageFeedback
           icon={CircleAlert}
-          title="طلب المساهمة غير متاح"
-          description="قد يكون التقديم أُغلق أو أُلغي، أو لم يعد المشروع منشورًا."
+          title={t("contributionRequests.contributorDetail.unavailableTitle")}
+          description={t("contributionRequests.contributorDetail.unavailableDescription")}
           action={
             <Button asChild size="sm">
-              <a href={requestsHref}>عرض الطلبات المتاحة</a>
+              <a href={requestsHref}>{t("contributionRequests.contributorDetail.availableRequests")}</a>
             </Button>
           }
         />
@@ -102,7 +104,7 @@ export function ContributorContributionRequestDetailView({
         className="inline-flex min-h-8 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowRight className="size-4" aria-hidden="true" />
-        العودة إلى طلبات المساهمة
+        {t("contributionRequests.contributorDetail.backToRequests")}
       </a>
       <RequestOverview request={request} projectHref={projectHref} />
       <RequirementSections requirements={request.requirements} />
@@ -176,6 +178,7 @@ function ExistingApplicationNotice({
   applicationHref: (applicationId: string) => string;
   onInvalidApplication: () => void;
 }) {
+  const { t } = useTranslation();
   const applicationQuery = useApplicationQuery(applicationId);
   const rememberedApplicationRequestId =
     applicationQuery.data?.contributionRequestId;
@@ -192,7 +195,7 @@ function ExistingApplicationNotice({
     return (
       <Card className="mt-5 flex items-center gap-3 p-5 text-sm text-muted-foreground shadow-none">
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        جارٍ التحقق من حالة طلب التقديم السابق...
+        {t("contributionRequests.contributorDetail.checkingApplication")}
       </Card>
     );
   }
@@ -200,12 +203,12 @@ function ExistingApplicationNotice({
   if (isInvalidApplication) return null;
 
   const application = applicationQuery.data;
-  const statusCopy = APPLICATION_STATUS_COPY[application.status];
+  const statusCopy = getApplicationStatusCopy()[application.status];
 
   return (
     <Card className="mt-5 p-5 shadow-none">
       <p className="text-xs font-semibold text-muted-foreground">
-        حالة طلب التقديم
+        {t("contributionRequests.contributorDetail.applicationStatus")}
       </p>
       <h2 className="mt-1 text-lg font-bold text-foreground">
         {statusCopy.label}
@@ -215,15 +218,15 @@ function ExistingApplicationNotice({
       </p>
       {application.status === "WITHDRAWN" ? (
         <p className="mt-4 rounded-input border border-border bg-border/20 p-3 text-sm font-medium text-foreground">
-          لا يمكنك إرسال طلب تقديم جديد لهذا الطلب بعد السحب.
+          {t("contributionRequests.contributorDetail.withdrawnNotice")}
         </p>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">
-          يمكنك إرسال طلب تقديم واحد فقط لكل طلب مساهمة.
+          {t("contributionRequests.contributorDetail.oneApplicationNotice")}
         </p>
       )}
       <Button asChild className="mt-4">
-        <a href={applicationHref(application.id)}>فتح حالة طلب التقديم</a>
+        <a href={applicationHref(application.id)}>{t("contributionRequests.contributorDetail.openApplication")}</a>
       </Button>
     </Card>
   );
@@ -236,6 +239,7 @@ function RequestOverview({
   request: ContributionRequestDetailDto;
   projectHref: (projectSlug: string) => string;
 }) {
+  const { t } = useTranslation();
   return (
     <header className="mt-4 rounded-card border border-border bg-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -253,7 +257,7 @@ function RequestOverview({
         </div>
         {request.difficulty && (
           <span className="rounded-full bg-border/40 px-3 py-1 text-xs font-semibold text-muted-foreground">
-            {CONTRIBUTION_REQUEST_DIFFICULTY_LABELS[request.difficulty]}
+            {getContributionRequestDifficultyLabel(request.difficulty)}
           </span>
         )}
       </div>
@@ -263,7 +267,7 @@ function RequestOverview({
       {request.attribution && (
         <div className="mt-4 rounded-input border border-primary/20 bg-primary/5 p-3 text-sm">
           <p className="font-semibold text-foreground">
-            اقترحه{" "}
+            {t("contributionRequests.contributorDetail.proposedBy")} {" "}
             <span dir="ltr">
               {request.attribution.contributorUsername
                 ? `@${request.attribution.contributorUsername}`
@@ -271,13 +275,13 @@ function RequestOverview({
             </span>
           </p>
           <p className="mt-1 text-xs leading-6 text-muted-foreground">
-            الإسناد المعنوي يحفظ مصدر الاقتراح، ولا يعني ملكية العمل أو إسناده أو أولوية الاختيار.
+            {t("contributionRequests.contributorDetail.attributionHelp")}
           </p>
         </div>
       )}
       <div className="mt-4 flex flex-wrap gap-1.5">
         <span className="text-xs font-semibold text-muted-foreground">
-          التقنيات:
+          {t("tasks.technologies")}:
         </span>
         {request.technologyTags.map((technology) => (
           <span
@@ -298,6 +302,7 @@ function RequirementSections({
 }: {
   requirements: RequirementDto[];
 }) {
+  const { t } = useTranslation();
   const required = requirements.filter(
     (requirement) => requirement.classification === "required",
   );
@@ -307,13 +312,13 @@ function RequirementSections({
   return (
     <section className="mt-5 grid gap-4 md:grid-cols-2">
       <Requirements
-        title="المتطلبات المطلوبة"
-        description="عناصر أساسية لإتمام العمل."
+        title={t("contributionRequests.form.requiredRequirements")}
+        description={t("contributionRequests.contributorDetail.requiredHelp")}
         requirements={required.map((requirement) => requirement.text)}
       />
       <Requirements
-        title="المتطلبات المفضلة"
-        description="عناصر مفيدة لكنها ليست بديلًا عن المتطلبات المطلوبة."
+        title={t("contributionRequests.form.preferredRequirements")}
+        description={t("contributionRequests.contributorDetail.preferredHelp")}
         requirements={preferred.map((requirement) => requirement.text)}
       />
     </section>
@@ -329,6 +334,7 @@ function Requirements({
   description: string;
   requirements: string[];
 }) {
+  const { t } = useTranslation();
   return (
     <Card className="p-5 shadow-none">
       <h2 className="font-bold text-foreground">{title}</h2>
@@ -345,27 +351,28 @@ function Requirements({
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">لا توجد عناصر.</p>
+        <p className="mt-4 text-sm text-muted-foreground">{t("contributionRequests.contributorDetail.noItems")}</p>
       )}
     </Card>
   );
 }
 
 function RequestMetadata({ request }: { request: ContributionRequestDetailDto }) {
+  const { t } = useTranslation();
   return (
     <Card className="mt-5 p-5 shadow-none">
-      <h2 className="font-bold text-foreground">تفاصيل الوقت والمكافأة</h2>
+      <h2 className="font-bold text-foreground">{t("contributionRequests.contributorDetail.metadata")}</h2>
       <dl className="mt-4 grid gap-4 sm:grid-cols-3">
         <Detail
-          label="وقت إغلاق التقديم"
+          label={t("contributionRequests.form.closeTime")}
           value={formatContributionDateTime(request.applicationsCloseAt)}
         />
         <Detail
-          label="تاريخ الإنجاز المستهدف"
+          label={t("contributionRequests.form.targetDate")}
           value={formatContributionDate(request.targetCompletionDate)}
         />
         <Detail
-          label="المكافأة"
+          label={t("tasks.reward")}
           value={formatContributionReward(request.reward)}
         />
       </dl>
@@ -386,6 +393,7 @@ function ApplicationSubmissionForm({
   onSubmitted: (application: ApplicationDto) => void;
   onApplicationRemembered: (applicationId: string) => void;
 }) {
+  const { t } = useTranslation();
   const submitMutation = useSubmitApplicationMutation();
   const submissionCommand = useRef<{
     fingerprint: string;
@@ -397,7 +405,7 @@ function ApplicationSubmissionForm({
     formState: { errors },
   } = useForm<ApplicationSubmissionInput, unknown, ApplicationSubmissionValues>(
     {
-      resolver: zodResolver(applicationSubmissionSchema),
+      resolver: zodResolver(getApplicationSubmissionSchema(t)),
       defaultValues: {
         contributionApproach: "",
         proposedDeliveryDurationDays: "7",
@@ -446,10 +454,9 @@ function ApplicationSubmissionForm({
 
   return (
     <Card className="mt-5 p-5 shadow-none">
-      <h2 className="text-lg font-bold text-foreground">إرسال طلب تقديم</h2>
+      <h2 className="text-lg font-bold text-foreground">{t("contributionRequests.contributorDetail.submitTitle")}</h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        يُرسل طلب التقديم مباشرة إلى صاحب المشروع بحالة انتظار المراجعة. لا
-        يبدأ أي تقييم تلقائي عند الإرسال.
+        {t("contributionRequests.contributorDetail.submitDescription")}
       </p>
       <form
         className="mt-5 grid gap-4"
@@ -460,7 +467,7 @@ function ApplicationSubmissionForm({
             htmlFor="contribution-approach"
             className="text-sm font-semibold text-foreground"
           >
-            نهج المساهمة
+            {t("contributionRequests.contributorDetail.approach")}
           </label>
           <textarea
             id="contribution-approach"
@@ -471,14 +478,14 @@ function ApplicationSubmissionForm({
             aria-invalid={Boolean(errors.contributionApproach)}
             aria-describedby={`contribution-approach-help${errors.contributionApproach ? " contribution-approach-error" : ""}`}
             className="mt-2 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            placeholder="اشرح كيف ستنفذ العمل وما الذي ستسلّمه."
+            placeholder={t("contributionRequests.contributorDetail.approachPlaceholder")}
             {...register("contributionApproach")}
           />
           <p
             id="contribution-approach-help"
             className="mt-1 text-xs text-muted-foreground"
           >
-            هذا سياق يكتبه المساهم لصاحب المشروع، وليس دليل مهارة موثقًا.
+            {t("contributionRequests.contributorDetail.approachHelp")}
           </p>
           {errors.contributionApproach && (
             <p
@@ -494,7 +501,7 @@ function ApplicationSubmissionForm({
             htmlFor="proposed-delivery-duration"
             className="text-sm font-semibold text-foreground"
           >
-            مدة التسليم المقترحة (بالأيام)
+            {t("contributionRequests.contributorDetail.proposedDuration")}
           </label>
           <input
             id="proposed-delivery-duration"
@@ -532,11 +539,11 @@ function ApplicationSubmissionForm({
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={submitMutation.isPending}>
             {submitMutation.isPending
-              ? "جارٍ الإرسال..."
-              : "إرسال إلى صاحب المشروع"}
+              ? t("contributionRequests.contributorDetail.submitting")
+              : t("contributionRequests.contributorDetail.submit")}
           </Button>
           <p className="text-xs text-muted-foreground">
-            ستنتقل بعد الإرسال إلى صفحة حالة طلبك.
+            {t("contributionRequests.contributorDetail.submitHelp")}
           </p>
         </div>
       </form>
@@ -555,8 +562,9 @@ function SubmissionError({
   requestsHref: string;
   dashboardHref: string;
 }) {
+  const { t } = useTranslation();
   const recovery = isApplicationApiErrorCode(code)
-    ? APPLICATION_SUBMISSION_ERROR_META[code].recovery
+    ? getApplicationSubmissionErrorMeta()[code].recovery
     : null;
   return (
     <div
@@ -567,22 +575,22 @@ function SubmissionError({
       <p className="text-sm text-destructive">{message}</p>
       {recovery === "existing_application" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          افتح رابط الحالة من إشعار تأكيد الإرسال السابق.
+          {t("contributionRequests.contributorDetail.existingApplicationRecovery")}
         </p>
       )}
       {recovery === "available_requests" && (
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <a href={requestsHref}>العودة إلى الطلبات المتاحة</a>
+          <a href={requestsHref}>{t("contributionRequests.contributorDetail.backToAvailable")}</a>
         </Button>
       )}
       {recovery === "account" && (
         <Button asChild variant="outline" size="sm" className="mt-3">
-          <a href={dashboardHref}>مراجعة حالة الحساب</a>
+          <a href={dashboardHref}>{t("contributionRequests.contributorDetail.reviewAccount")}</a>
         </Button>
       )}
       {recovery === "edit" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          غيّر نهج المساهمة أو مدة التسليم قبل إعادة الإرسال.
+          {t("contributionRequests.contributorDetail.editRecovery")}
         </p>
       )}
     </div>

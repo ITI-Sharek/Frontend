@@ -24,7 +24,7 @@ const SEARCH_STATE_MAP: Record<
 
 export const Route = createFileRoute("/_appLayout/dashboard")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "لوحة التحكم | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): DashboardSearch => {
     const state = search.state;
     return state === "onboarding" || state === "empty" ? { state } : {};

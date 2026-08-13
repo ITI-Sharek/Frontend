@@ -1,5 +1,6 @@
 import { ArrowLeft, BadgeCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ export function MatchedTasksSection({
   tasks: MatchedTaskDto[];
   matchReason: string;
 }) {
+  const { t } = useTranslation();
   return (
     <section
       id="matches"
@@ -26,23 +28,23 @@ export function MatchedTasksSection({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-evidence-teal-foreground dark:text-evidence-teal">
-            مبني على سجل مهاراتك
+            {t("dashboard.matches.eyebrow")}
           </p>
           <h2
             id="matched-heading"
             className="mt-1 text-xl font-bold text-foreground"
           >
-            فرص مناسبة لك
+            {t("dashboard.matches.title")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            السبب: {matchReason}
+            {t("dashboard.matches.reason", { reason: matchReason })}
           </p>
         </div>
         <Link
           to={ROUTES.tasks}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-input px-2 text-sm font-semibold text-primary hover:bg-primary/[0.06]"
         >
-          عرض كل الطلبات
+          {t("dashboard.matches.viewAll")}
           <ArrowLeft className="size-4" />
         </Link>
       </div>
@@ -65,7 +67,7 @@ export function MatchedTasksSection({
                 )}
               >
                 {fullMatch && <BadgeCheck className="size-3.5" />}
-                توافق {task.matchedCount}/{task.requiredCount}
+                {t("dashboard.matches.fit", { matched: task.matchedCount, required: task.requiredCount })}
               </span>
               <h3 className="mt-3 font-semibold text-foreground">
                 {task.title}
@@ -88,7 +90,7 @@ export function MatchedTasksSection({
                 ))}
               </div>
               <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-                راجع التفاصيل
+                {t("dashboard.matches.review")}
                 <ArrowLeft
                   className="size-4 transition-transform group-hover:-translate-x-1"
                   aria-hidden

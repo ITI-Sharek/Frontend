@@ -1,15 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { useCurrentUserQuery } from "@/modules/auth";
 import { DiscussionPostDetailView, useDiscussionPostQuery } from "@/modules/discussions";
 import type { DiscussionAuthorDto } from "@/modules/discussions";
 
 export const Route = createFileRoute("/_appLayout/discussions/$postId")({
-  head: () => ({ meta: [{ title: "نقاش | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: DiscussionPostPage,
 });
 
 function DiscussionPostPage() {
+  const { t } = useTranslation();
   const { postId } = Route.useParams();
   const routeContext = Route.useRouteContext();
   const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
@@ -23,7 +25,7 @@ function DiscussionPostPage() {
   if (postQuery.data === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-muted-foreground">جارٍ تحميل المنشور...</p>
+        <p className="text-sm text-muted-foreground">{t("discussions.loading")}</p>
       </div>
     );
   }
@@ -31,7 +33,7 @@ function DiscussionPostPage() {
   if (postQuery.data === null) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center">
-        <p className="text-sm text-muted-foreground">هذا المنشور غير موجود.</p>
+        <p className="text-sm text-muted-foreground">{t("discussions.mock.postNotFound")}</p>
       </div>
     );
   }

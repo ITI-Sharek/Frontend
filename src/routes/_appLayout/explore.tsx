@@ -53,7 +53,7 @@ function validateSearch(search: Record<string, unknown>): ExploreSearchParamsDto
 
 export const Route = createFileRoute("/_appLayout/explore")({
   beforeLoad: requireMemberRoute,
-  head: () => ({ meta: [{ title: "استكشاف المشاريع | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch,
   component: ExplorePage,
 });

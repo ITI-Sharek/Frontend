@@ -1,11 +1,13 @@
 import { Search } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 
 /** Submits into explore's existing `q` filter — no separate search backend. */
 export function HeaderSearch() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,8 +52,8 @@ export function HeaderSearch() {
         type="search"
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        placeholder="ابحث عن مشروع أو تقنية..."
-        aria-label="بحث عن مشاريع"
+        placeholder={t("header.search.placeholder")}
+        aria-label={t("header.search.ariaLabel")}
         className="min-h-10 w-full rounded-input border border-border bg-input-bg ps-9 pe-14 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-input-placeholder focus:border-primary/50 focus:ring-3 focus:ring-primary/10"
       />
       <kbd

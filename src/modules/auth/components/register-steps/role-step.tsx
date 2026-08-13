@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import {
-  ROLE_OPTIONS,
-} from "../../constants/signup.constants";
+import { getRoleOptions } from "../../constants/signup.constants";
 import type { SignupRole } from "../../types/signup.types";
 import { RoleOptionCard } from "../role-option-card";
 
@@ -25,10 +23,10 @@ export function RoleStep({ role, onSelect }: RoleStepProps) {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {ROLE_OPTIONS.map((option) => (
+        {getRoleOptions(t).map((option) => (
           <RoleOptionCard
             key={option.value}
-            title={t(`auth.role.${option.value}`)}
+            title={option.title}
             description={option.description}
             icon={option.icon}
             selected={role === option.value}

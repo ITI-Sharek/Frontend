@@ -1,15 +1,10 @@
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const THEMES = ["light", "dark", "system"] as const;
 type Theme = (typeof THEMES)[number];
-
-const LABELS: Record<Theme, string> = {
-  light: "الوضع النهاري",
-  dark: "الوضع الليلي",
-  system: "تلقائي (النظام)",
-};
 
 const ICONS: Record<Theme, React.ReactNode> = {
   light: <Sun className="size-4.5" aria-hidden="true" />,
@@ -19,6 +14,7 @@ const ICONS: Record<Theme, React.ReactNode> = {
 
 /** Cycles through light → dark → system on each click. */
 export function ThemeSwitcher() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   // Avoid hydration mismatch — render nothing on first paint.
   const [mounted, setMounted] = useState(false);
@@ -31,6 +27,7 @@ export function ThemeSwitcher() {
   }
 
   const current = (THEMES.includes(theme as Theme) ? theme : "system") as Theme;
+  const label = t(`theme.${current}`);
 
   function cycle() {
     const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
@@ -41,8 +38,8 @@ export function ThemeSwitcher() {
     <button
       type="button"
       onClick={cycle}
-      title={LABELS[current]}
-      aria-label={LABELS[current]}
+      title={label}
+      aria-label={label}
       className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-input border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
     >
       {ICONS[current]}

@@ -2,6 +2,7 @@ import type {
   ContributorDashboardDto,
   DashboardLifecycleState,
 } from "../types/dashboard.types";
+import type { TFunction } from "i18next";
 
 /**
  * MOCK SERVICE — no dashboard endpoint exists in the backend yet.
@@ -11,31 +12,32 @@ import type {
  * the `state` override parameter is a dev/demo affordance only.
  */
 
-const BASE_MOCK: Omit<ContributorDashboardDto, "state"> = {
-  greetingName: "سارة",
+function getBaseMock(t: TFunction): Omit<ContributorDashboardDto, "state"> {
+  return {
+  greetingName: "Sara",
   unreadNotifications: 2,
   quota: { planName: "Bronze", usedToday: 1, dailyLimit: 2 },
   attentionItems: [
     {
       id: "attention-1",
       kind: "changes_requested",
-      title: "مطلوب تعديلات على تسليم «إضافة مصادقة JWT»",
-      subtitle: "ملاحظات صاحب المشروع مرفقة",
-      actionLabel: "افتح وعدّل",
+      title: t("dashboard.mock.attention.changesTitle"),
+      subtitle: t("dashboard.mock.attention.changesSubtitle"),
+      actionLabel: t("dashboard.mock.attention.changesAction"),
     },
     {
       id: "attention-2",
       kind: "accepted",
-      title: "تم قبولك في «إصلاح تخطيط RTL»",
-      subtitle: "الموعد النهائي خلال 6 أيام",
-      actionLabel: "تسليم طلب السحب (PR)",
+      title: t("dashboard.mock.attention.acceptedTitle"),
+      subtitle: t("dashboard.mock.attention.acceptedSubtitle"),
+      actionLabel: t("dashboard.mock.attention.acceptedAction"),
     },
   ],
-  matchReason: "مهاراتك الموثقة في React وNode.js",
+  matchReason: t("dashboard.mock.matchReason"),
   matchedTasks: [
     {
       id: "task-1",
-      title: "بناء لوحة إشعارات فورية",
+      title: t("dashboard.mock.tasks.notifications"),
       projectName: "sharek-backend",
       requiredSkills: ["React", "Node.js", "WebSocket"],
       matchedCount: 3,
@@ -43,7 +45,7 @@ const BASE_MOCK: Omit<ContributorDashboardDto, "state"> = {
     },
     {
       id: "task-2",
-      title: "تحسين أداء قوائم المهام",
+      title: t("dashboard.mock.tasks.performance"),
       projectName: "masar-transit",
       requiredSkills: ["React", "TypeScript", "SQLite"],
       matchedCount: 2,
@@ -51,7 +53,7 @@ const BASE_MOCK: Omit<ContributorDashboardDto, "state"> = {
     },
     {
       id: "task-3",
-      title: "إضافة اختبارات تكامل للواجهة",
+      title: t("dashboard.mock.tasks.integration"),
       projectName: "hisab-ledger",
       requiredSkills: ["React", "Node.js", "Vitest"],
       matchedCount: 3,
@@ -67,26 +69,28 @@ const BASE_MOCK: Omit<ContributorDashboardDto, "state"> = {
   },
   applications: { pendingOwnerReviewCount: 2 },
   onboardingSteps: [
-    { id: "account", label: "إنشاء الحساب", status: "done", hint: null },
-    { id: "github", label: "ربط GitHub", status: "done", hint: null },
+    { id: "account", label: t("dashboard.mock.onboarding.account"), status: "done", hint: null },
+    { id: "github", label: t("dashboard.mock.onboarding.github"), status: "done", hint: null },
     {
       id: "analysis",
-      label: "التحليل قيد التنفيذ…",
+      label: t("dashboard.mock.onboarding.analysis"),
       status: "in_progress",
-      hint: "(~دقيقتان) — سنخبرك عند الانتهاء",
+      hint: t("dashboard.mock.onboarding.analysisHint"),
     },
     {
       id: "review",
-      label: "مراجعة فريق المراجعة",
+      label: t("dashboard.mock.onboarding.review"),
       status: "todo",
-      hint: "بعد اكتمال التحليل",
+      hint: t("dashboard.mock.onboarding.reviewHint"),
     },
   ],
   fullyMatchedTasksCount: 5,
-};
+  };
+}
 
 export async function getContributorDashboard(
   state: DashboardLifecycleState = "active",
+  t: TFunction,
 ): Promise<ContributorDashboardDto> {
-  return Promise.resolve({ ...BASE_MOCK, state });
+  return Promise.resolve({ ...getBaseMock(t), state });
 }

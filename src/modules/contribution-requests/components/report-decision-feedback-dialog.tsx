@@ -1,5 +1,6 @@
 import { Flag, Loader2 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -8,18 +9,6 @@ import type {
   DecisionFeedbackReportReason,
   OwnerDecisionDto,
 } from "../types/application.types";
-
-const REASONS: Array<{
-  value: DecisionFeedbackReportReason;
-  label: string;
-}> = [
-  { value: "harassment", label: "إساءة أو مضايقة" },
-  { value: "misuse", label: "استخدام غير مناسب للملاحظات" },
-  { value: "fraud", label: "اشتباه في احتيال" },
-  { value: "reputation_manipulation", label: "محاولة التأثير في السمعة" },
-  { value: "inaccurate_ai", label: "إشارة غير دقيقة إلى تقييم آلي" },
-  { value: "other", label: "سبب آخر" },
-];
 
 export function ReportDecisionFeedbackDialog({
   decision,
@@ -39,6 +28,14 @@ export function ReportDecisionFeedbackDialog({
     description: string,
   ) => Promise<void>;
 }) {
+  const { t } = useTranslation();
+  const reasonValues: DecisionFeedbackReportReason[] = [
+    "harassment", "misuse", "fraud", "reputation_manipulation", "inaccurate_ai", "other",
+  ];
+  const reasons = reasonValues.map((value) => ({
+    value,
+    label: t(`contributionRequests.reportDialog.reasons.${value}`),
+  }));
   const [reason, setReason] =
     useState<DecisionFeedbackReportReason>("harassment");
   const [description, setDescription] = useState("");
@@ -78,7 +75,7 @@ export function ReportDecisionFeedbackDialog({
   async function submit() {
     const normalized = description.trim();
     if (normalized.length < 10) {
-      setFieldError("اكتب وصفًا واقعيًا من 10 أحرف على الأقل.");
+      setFieldError(t("contributionRequests.reportDialog.descriptionError"));
       document.getElementById(descriptionId)?.focus();
       return;
     }
@@ -111,21 +108,20 @@ export function ReportDecisionFeedbackDialog({
               id={`report-decision-title-${decision.id}`}
               className="text-lg font-bold text-foreground"
             >
-              الإبلاغ عن ملاحظات القرار
+              {t("contributionRequests.reportDialog.title")}
             </h2>
             <p
               id={`report-decision-description-${decision.id}`}
               className="mt-1 text-sm leading-6 text-muted-foreground"
             >
-              هذا بلاغ للمراجعة الإشرافية وليس استئنافًا للقرار. لن يعيد فتح طلب
-              التقديم أو يغيّر نتيجته تلقائيًا.
+              {t("contributionRequests.reportDialog.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-5 space-y-4">
           <div>
-            <Label htmlFor={selectId}>سبب البلاغ</Label>
+            <Label htmlFor={selectId}>{t("contributionRequests.reportDialog.reason")}</Label>
             <select
               id={selectId}
               value={reason}
@@ -135,7 +131,7 @@ export function ReportDecisionFeedbackDialog({
               }
               className="mt-1.5 h-[50px] w-full rounded-input border border-border bg-input-bg px-4 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
             >
-              {REASONS.map((item) => (
+              {reasons.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
                 </option>
@@ -144,7 +140,7 @@ export function ReportDecisionFeedbackDialog({
           </div>
 
           <div>
-            <Label htmlFor={descriptionId}>وصف ما حدث</Label>
+            <Label htmlFor={descriptionId}>{t("contributionRequests.reportDialog.details")}</Label>
             <textarea
               id={descriptionId}
               value={description}
@@ -169,7 +165,7 @@ export function ReportDecisionFeedbackDialog({
                 id={`report-description-help-${decision.id}`}
                 className="text-muted-foreground"
               >
-                صف الملاحظات وسياقها دون إضافة بيانات خاصة غير لازمة.
+                {t("contributionRequests.reportDialog.help")}
               </p>
               <span className="shrink-0 text-muted-foreground">
                 {description.length}/2000
@@ -204,7 +200,7 @@ export function ReportDecisionFeedbackDialog({
             disabled={isSubmitting}
             onClick={onCancel}
           >
-            إلغاء
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -215,7 +211,7 @@ export function ReportDecisionFeedbackDialog({
             {isSubmitting && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            إرسال البلاغ للمراجعة
+            {t("contributionRequests.reportDialog.confirm")}
           </Button>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Globe, LockKeyhole } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -34,25 +35,25 @@ export function GitHubAppRepositoryPicker({
   onPageChange,
   disabled = false,
 }: GitHubAppRepositoryPickerProps) {
+  const { t } = useTranslation();
   const items = page?.items ?? [];
   const atLimit = selectedRepositoryIds.length >= maxSelected;
 
   return (
     <div className="rounded-card border border-border bg-card p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-bold text-foreground">اختر المستودعات</h3>
+        <h3 className="text-sm font-bold text-foreground">{t("githubApp.repositories.title")}</h3>
         <p className="text-xs text-muted-foreground">
-          {selectedRepositoryIds.length} / {maxSelected} مستودع
+          {t("githubApp.repositories.selectedCount", { selected: selectedRepositoryIds.length, max: maxSelected })}
         </p>
       </div>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-        اختر من مستودع واحد حتى {maxSelected} مستودعات تُظهر مساهماتك البرمجية
-        بوضوح. لن يبدأ أي تحليل قبل ضغطك على زر البدء.
+        {t("githubApp.repositories.description", { max: maxSelected })}
       </p>
 
       {isLoading && (
         <p className="mt-4 text-xs text-muted-foreground">
-          جارٍ تحميل المستودعات...
+          {t("githubApp.repositories.loading")}
         </p>
       )}
 
@@ -64,8 +65,7 @@ export function GitHubAppRepositoryPicker({
 
       {!isLoading && !errorMessage && items.length === 0 && (
         <p className="mt-4 text-xs text-muted-foreground">
-          لا توجد مستودعات متاحة عبر هذا الربط. حدّث المستودعات المسموح بها من
-          إعدادات التثبيت على GitHub.
+          {t("githubApp.repositories.empty")}
         </p>
       )}
 
@@ -105,7 +105,7 @@ export function GitHubAppRepositoryPicker({
                     </span>
                     <span className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                       <VisibilityIcon className="size-3.5" />
-                      {isPrivate ? "خاص" : "عام"}
+                      {isPrivate ? t("githubApp.repositories.private") : t("githubApp.repositories.public")}
                       {repository.defaultBranch && (
                         <span dir="ltr" className="font-mono">
                           · {repository.defaultBranch}
@@ -122,8 +122,7 @@ export function GitHubAppRepositoryPicker({
 
       {atLimit && (
         <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
-          وصلت إلى الحد الأقصى ({maxSelected} مستودعات). ألغِ اختيار مستودع
-          لإضافة غيره.
+          {t("githubApp.repositories.limit", { max: maxSelected })}
         </p>
       )}
 
@@ -136,10 +135,10 @@ export function GitHubAppRepositoryPicker({
           onClick={() => onPageChange(currentPage - 1)}
         >
           <ChevronRight className="size-4" />
-          السابق
+          {t("common.previous")}
         </Button>
         <span className="text-xs text-muted-foreground">
-          صفحة {currentPage}
+          {t("githubApp.repositories.page", { page: currentPage })}
         </span>
         <Button
           type="button"
@@ -148,7 +147,7 @@ export function GitHubAppRepositoryPicker({
           disabled={!page?.hasNextPage || isLoading}
           onClick={() => onPageChange(currentPage + 1)}
         >
-          التالي
+          {t("common.next")}
           <ChevronLeft className="size-4" />
         </Button>
       </div>

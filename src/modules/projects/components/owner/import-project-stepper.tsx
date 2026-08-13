@@ -58,7 +58,7 @@ export function ImportProjectStepper({
   suggestedRepositoriesLoading = false,
   suggestedRepositoriesError = null,
 }: ImportProjectStepperProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [step, setStep] = useState(0);
   const [reference, setReference] = useState("");
   const [preview, setPreview] =
@@ -282,7 +282,9 @@ export function ImportProjectStepper({
               <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
                 <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
                 {t("project.import.unavailableWarning", {
-                  areas: preview.evidence.unavailableAreas.join("، "),
+                  areas: new Intl.ListFormat(i18n.language).format(
+                    preview.evidence.unavailableAreas,
+                  ),
                 })}
               </p>
             )}

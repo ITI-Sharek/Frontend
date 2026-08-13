@@ -3,6 +3,7 @@ import {
   createFileRoute,
   useRouterState,
 } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import {
@@ -18,7 +19,7 @@ import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_adminLayout/admin/skill-reviews")({
   head: () => ({
-    meta: [{ title: "مراجعة المهارات | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: AdminSkillReviewsRoute,
 });
@@ -36,21 +37,22 @@ function AdminSkillReviewsRoute() {
 }
 
 function AdminSkillReviewsPage() {
+  const { t } = useTranslation();
   const pendingReviews = useAdminPendingSkillReviewsQuery({ page: 1, limit: 50 });
 
   if (pendingReviews.isPending) {
     return (
       <PageContainer>
         <PageHeader
-          title="مراجعة المهارات المعلقة"
-          description="جارٍ تجهيز الطابور من الأقدم إلى الأحدث…"
+          title={t("admin.skillReviews.title")}
+          description={t("admin.skillReviews.loadingDescription")}
         />
         <div
           role="status"
           aria-live="polite"
           className="mt-6 rounded-card border border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground"
         >
-          جارٍ تحميل طابور المراجعة…
+          {t("admin.skillReviews.loading")}
         </div>
       </PageContainer>
     );
@@ -59,11 +61,11 @@ function AdminSkillReviewsPage() {
   if (pendingReviews.isError) {
     return (
       <PageContainer>
-        <PageHeader title="مراجعة المهارات المعلقة" />
+        <PageHeader title={t("admin.skillReviews.title")} />
         <PageFeedback
           className="mt-6"
-          title="تعذر تحميل طابور المراجعة"
-          description="تحقق من الاتصال ثم أعد المحاولة. إذا انتهت الجلسة فستعود إلى تسجيل الدخول تلقائياً."
+          title={t("admin.skillReviews.loadError")}
+          description={t("admin.skillReviews.loadErrorDescription")}
           action={<Button
             type="button"
             variant="outline"
@@ -71,7 +73,7 @@ function AdminSkillReviewsPage() {
               void pendingReviews.refetch();
             }}
           >
-            إعادة المحاولة
+            {t("admin.skillReviews.retry")}
           </Button>}
         />
       </PageContainer>
