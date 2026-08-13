@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,7 @@ const LANGUAGES = [
 ] as const;
 
 export function LanguageSettingsSection() {
+  const { t, i18n } = useTranslation();
   const currentUserQuery = useCurrentUserQuery();
   const updateLanguageMutation = useUpdateCurrentUserPreferencesMutation();
   const [language, setLanguage] = useState<"ar" | "en">(
@@ -28,16 +30,19 @@ export function LanguageSettingsSection() {
     if (nextLanguage === language) return;
     const languageBeforeChange = language;
     setLanguage(nextLanguage);
+    void i18n.changeLanguage(nextLanguage);
     setSaveError(false);
     updateLanguageMutation.mutate(
       { preferredLanguage: nextLanguage },
       {
         onSuccess: (user) => {
           setLanguage(user.preferredLanguage);
+          void i18n.changeLanguage(user.preferredLanguage);
           setSaveError(false);
         },
         onError: () => {
           setLanguage(languageBeforeChange);
+          void i18n.changeLanguage(languageBeforeChange);
           setSaveError(true);
         },
       },
@@ -47,9 +52,9 @@ export function LanguageSettingsSection() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-bold text-foreground">اللغة</h2>
+        <h2 className="text-lg font-bold text-foreground">{t("settings.language.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          لغة عرض الواجهة. الدعم الكامل لتبديل الاتجاه (RTL/LTR) قادم.
+          {t("settings.language.description")}
         </p>
       </div>
       <div className="flex gap-2">
@@ -72,9 +77,9 @@ export function LanguageSettingsSection() {
         ))}
       </div>
       <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
-        {updateLanguageMutation.isPending && "جارٍ حفظ اللغة…"}
+        {updateLanguageMutation.isPending && t("settings.language.saving")}
         {(saveError || updateLanguageMutation.isError) &&
-          "تعذّر حفظ اللغة؛ تمت استعادة اختيارك السابق."}
+          t("settings.language.saveError")}
       </p>
     </div>
   );

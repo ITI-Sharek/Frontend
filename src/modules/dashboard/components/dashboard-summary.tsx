@@ -20,7 +20,7 @@ export function DashboardSummary({
   applications: ApplicationsSummaryDto;
   showGrowthPath?: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <section
@@ -73,7 +73,10 @@ export function DashboardSummary({
                     {t("contributor.reputation.successRate")}
                   </dt>
                   <dd className="mt-1 text-lg font-bold text-foreground">
-                    {growth.successRate}٪
+                    {new Intl.NumberFormat(i18n.language, {
+                      style: "percent",
+                      maximumFractionDigits: 0,
+                    }).format((growth.successRate ?? 0) / 100)}
                   </dd>
                 </div>
               </dl>

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { dropdownVariants } from "@/shared/lib/motion";
@@ -28,6 +29,7 @@ export function ProfileMenu({
   items: ProfileMenuItem[];
   onLogout: () => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +116,7 @@ export function ProfileMenu({
               className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors duration-150 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
             >
               <LogOut className="size-4" aria-hidden="true" />
-              تسجيل الخروج
+              {t("auth.logout")}
             </button>
           </motion.div>
         )}

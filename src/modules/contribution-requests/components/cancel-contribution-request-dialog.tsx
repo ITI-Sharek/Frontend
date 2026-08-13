@@ -1,5 +1,6 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -17,6 +18,7 @@ export function CancelContributionRequestDialog({
   onCancel: () => void;
   onConfirm: (reason: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState("");
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -70,20 +72,19 @@ export function CancelContributionRequestDialog({
               id="cancel-request-title"
               className="text-lg font-bold text-foreground"
             >
-              إلغاء طلب المساهمة المنشور؟
+              {t("contributionRequests.cancelDialog.title")}
             </h2>
             <p
               id="cancel-request-description"
               className="mt-1 text-sm leading-6 text-muted-foreground"
             >
-              هذا إجراء نهائي يوقف استقبال طلبات تقديم جديدة، لكنه يحافظ على سجل
-              الطلبات والتقييمات والقرارات السابقة دون حذفها.
+              {t("contributionRequests.cancelDialog.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-5">
-          <Label htmlFor="cancel-reason">السبب (اختياري)</Label>
+          <Label htmlFor="cancel-reason">{t("contributionRequests.cancelDialog.reason")}</Label>
           <textarea
             id="cancel-reason"
             value={reason}
@@ -103,7 +104,7 @@ export function CancelContributionRequestDialog({
               role="alert"
               className="mt-1 text-xs text-destructive"
             >
-              اكتب حرفين على الأقل أو اترك السبب فارغًا.
+              {t("contributionRequests.cancelDialog.reasonError")}
             </p>
           )}
         </div>
@@ -126,7 +127,7 @@ export function CancelContributionRequestDialog({
             disabled={isCancelling}
             onClick={onCancel}
           >
-            تراجع
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -140,7 +141,7 @@ export function CancelContributionRequestDialog({
             {isCancelling && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            إلغاء الطلب
+            {t("contributionRequests.cancelDialog.confirm")}
           </Button>
         </div>
       </section>

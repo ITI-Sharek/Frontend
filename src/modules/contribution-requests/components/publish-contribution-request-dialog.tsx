@@ -1,5 +1,6 @@
 import { Loader2, Radio } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -16,6 +17,7 @@ export function PublishContributionRequestDialog({
   onCancel: () => void;
   onConfirm: () => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!isOpen) return;
@@ -68,14 +70,13 @@ export function PublishContributionRequestDialog({
               id="publish-request-title"
               className="text-lg font-bold text-foreground"
             >
-              نشر طلب المساهمة؟
+              {t("contributionRequests.publishDialog.title")}
             </h2>
             <p
               id="publish-request-description"
               className="mt-1 text-sm leading-6 text-muted-foreground"
             >
-              سيصبح الطلب مرئيًا للمساهمين فورًا ويبدأ استقبال طلبات التقديم حتى
-              وقت إغلاق التقديم المحدد.
+              {t("contributionRequests.publishDialog.description")}
             </p>
           </div>
         </div>
@@ -97,7 +98,7 @@ export function PublishContributionRequestDialog({
             disabled={isPublishing}
             onClick={onCancel}
           >
-            إلغاء
+            {t("common.cancel")}
           </Button>
           <Button
             id="publish-request-confirm"
@@ -108,7 +109,7 @@ export function PublishContributionRequestDialog({
             {isPublishing && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            نشر الطلب
+            {t("contributionRequests.publishDialog.confirm")}
           </Button>
         </div>
       </section>

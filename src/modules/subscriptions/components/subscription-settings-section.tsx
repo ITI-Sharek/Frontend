@@ -1,4 +1,5 @@
 import { BadgeCheck, CircleAlert, Loader2, LockKeyhole } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -15,8 +16,8 @@ const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   gold: "Gold",
 };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ar-EG", {
+function formatDate(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "long",
   }).format(new Date(value));
 }
@@ -44,13 +45,14 @@ function Benefit({ benefit }: { benefit: SubscriptionBenefitDto }) {
 }
 
 export function SubscriptionSettingsSection() {
+  const { t, i18n } = useTranslation();
   const query = useSubscriptionStatusQuery();
 
   if (query.isPending) {
     return (
       <div role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin" aria-hidden />
-        جارٍ تحميل حالة الاشتراك…
+        {t("subscriptions.loading")}
       </div>
     );
   }
@@ -60,7 +62,7 @@ export function SubscriptionSettingsSection() {
       <div role="alert" className="grid gap-3 text-sm text-muted-foreground">
         <p className="flex items-center gap-2">
           <CircleAlert className="size-4" aria-hidden />
-          تعذّر تحميل حالة الاشتراك.
+          {t("subscriptions.loadError")}
         </p>
         <Button
           type="button"
@@ -68,7 +70,7 @@ export function SubscriptionSettingsSection() {
           className="w-fit"
           onClick={() => void query.refetch()}
         >
-          إعادة المحاولة
+          {t("common.retry")}
         </Button>
       </div>
     );
@@ -83,10 +85,10 @@ export function SubscriptionSettingsSection() {
     <section aria-labelledby="subscription-settings-title" className="grid gap-5">
       <div>
         <h2 id="subscription-settings-title" className="text-lg font-bold text-foreground">
-          الاشتراك والمزايا
+          {t("subscriptions.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          حالة الخطة والمزايا الحالية تأتي من حسابك على الخادم.
+          {t("subscriptions.description")}
         </p>
       </div>
 
@@ -94,14 +96,14 @@ export function SubscriptionSettingsSection() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold text-muted-foreground">
-              خطتك الحالية
+              {t("subscriptions.currentPlan")}
             </p>
             <h3 className="mt-1 text-2xl font-bold text-foreground">
               {PLAN_LABELS[status.plan]}
             </h3>
           </div>
           <span className="rounded-full border border-primary/30 bg-primary/[0.06] px-3 py-1 text-xs font-semibold text-primary">
-            {status.status === "active" ? "نشطة" : status.status}
+            {status.status === "active" ? t("subscriptions.active") : status.status}
           </span>
         </div>
 
@@ -109,16 +111,16 @@ export function SubscriptionSettingsSection() {
           <div className="grid gap-2" aria-labelledby="subscription-usage-title">
             <div className="flex flex-wrap justify-between gap-2 text-sm">
               <span id="subscription-usage-title" className="font-semibold text-foreground">
-                استخدام طلبات المساهمة هذا الشهر
+                {t("subscriptions.usageTitle")}
               </span>
               <span className="font-mono text-muted-foreground" dir="ltr">
-                {status.usage.used} من {status.usage.limit}
+                {t("subscriptions.usage", { used: status.usage.used, limit: status.usage.limit })}
               </span>
             </div>
             <div
               className="h-2 overflow-hidden rounded-full bg-border"
               role="progressbar"
-              aria-label="استخدام طلبات المساهمة"
+              aria-label={t("subscriptions.usageAria")}
               aria-valuemin={0}
               aria-valuemax={status.usage.limit}
               aria-valuenow={status.usage.used}
@@ -129,18 +131,17 @@ export function SubscriptionSettingsSection() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              يتجدد الحد في {formatDate(status.usage.periodEnd)}.
+              {t("subscriptions.renews", { date: formatDate(status.usage.periodEnd, i18n.language) })}
             </p>
           </div>
         ) : (
           <p className="rounded-input border border-border bg-surface-fog p-3 text-sm leading-6 text-muted-foreground">
-            التقديم على طلبات المساهمة متاح وفق القواعد العادية، ولا توجد حصة
-            يومية مرتبطة بخطة المساهم.
+            {t("subscriptions.noQuota")}
           </p>
         )}
 
         <div className="border-t border-border pt-4">
-          <h4 className="font-semibold text-foreground">المزايا</h4>
+          <h4 className="font-semibold text-foreground">{t("subscriptions.benefits")}</h4>
           <ul className="mt-3 grid gap-2">
             {status.benefits.map((benefit) => (
               <Benefit key={benefit.key} benefit={benefit} />
@@ -151,10 +152,10 @@ export function SubscriptionSettingsSection() {
         {status.plan !== "gold" && (
           <div className="grid gap-2 border-t border-border pt-4">
             <Button type="button" disabled className="w-fit">
-              الترقية غير متاحة في معاينة MVP
+              {t("subscriptions.upgradeUnavailable")}
             </Button>
             <p className="text-xs leading-5 text-muted-foreground">
-              شراء الخطط غير متاح خلال معاينة MVP.
+              {t("subscriptions.purchaseUnavailable")}
             </p>
           </div>
         )}

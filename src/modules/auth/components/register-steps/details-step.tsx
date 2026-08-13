@@ -8,8 +8,8 @@ import { ChipSelect } from "@/shared/components/forms/chip-select";
 import type { ChipOption } from "@/shared/components/forms/chip-select";
 
 import {
-  INTEREST_OPTIONS,
-  TEAM_SIZE_OPTIONS,
+  getInterestOptions,
+  getTeamSizeOptions,
 } from "../../constants/signup.constants";
 import type { SignupFormData } from "../../types/signup.types";
 import { AuthTextField } from "../auth-text-field";
@@ -71,7 +71,7 @@ export function DetailsStep({
           ) : null}
           <ChipSelect
             label={t("register.details.interests")}
-            options={INTEREST_OPTIONS}
+            options={getInterestOptions(t)}
             value={data.contributorInterests}
             onChange={(v) =>
               onFieldChange("contributorInterests", v as string[])
@@ -113,7 +113,7 @@ export function DetailsStep({
           />
           <ChipSelect
             label={t("register.details.teamSize")}
-            options={TEAM_SIZE_OPTIONS}
+            options={getTeamSizeOptions(t)}
             value={data.ownerTeamSize}
             onChange={(v) => onFieldChange("ownerTeamSize", v as string)}
           />

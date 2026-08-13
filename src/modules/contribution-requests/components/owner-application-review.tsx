@@ -7,6 +7,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { ROUTES } from "@/config/routes.config";
@@ -39,6 +40,7 @@ export function OwnerApplicationReview({
 }: {
   contributionRequestId: string;
 }) {
+  const { t } = useTranslation();
   const query = useOwnerApplicationsQuery(contributionRequestId);
   const acceptMutation = useAcceptApplicationMutation();
   const declineMutation = useDeclineApplicationMutation();
@@ -85,9 +87,7 @@ export function OwnerApplicationReview({
         idempotencyKey:
           idempotencyKey.current ?? (idempotencyKey.current = createIdempotencyKey()),
       });
-      setAnnouncement(
-        `تم اختيار ${dialog.application.contributor.displayName} وإنشاء إسناد العمل.`,
-      );
+      setAnnouncement(t("contributionRequests.ownerReview.accepted", { name: dialog.application.contributor.displayName }));
       setDialog(null);
       idempotencyKey.current = null;
       document.getElementById("owner-application-review-heading")?.focus();
@@ -105,9 +105,7 @@ export function OwnerApplicationReview({
         idempotencyKey:
           idempotencyKey.current ?? (idempotencyKey.current = createIdempotencyKey()),
       });
-      setAnnouncement(
-        `سُجّل قرار عدم اختيار طلب ${dialog.application.contributor.displayName}.`,
-      );
+      setAnnouncement(t("contributionRequests.ownerReview.declined", { name: dialog.application.contributor.displayName }));
       setDialog(null);
       idempotencyKey.current = null;
       document.getElementById("owner-application-review-heading")?.focus();
@@ -128,16 +126,15 @@ export function OwnerApplicationReview({
             tabIndex={-1}
             className="text-xl font-bold text-foreground outline-none"
           >
-            طلبات التقديم التي تحتاج قرارك
+            {t("contributionRequests.ownerReview.title")}
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-            تظهر كل الطلبات المعلقة فورًا. يمكنك اتخاذ قرارك دون تقييم استشاري
-            أو أثناء انتظاره؛ القرار النهائي مسؤوليتك أنت.
+            {t("contributionRequests.ownerReview.description")}
           </p>
         </div>
         {!query.isPending && !query.isError && (
           <span className="shrink-0 text-sm font-semibold text-foreground">
-            {query.data.length} قيد المراجعة
+            {t("contributionRequests.ownerReview.pendingCount", { count: query.data.length })}
           </span>
         )}
       </div>
@@ -155,13 +152,13 @@ export function OwnerApplicationReview({
       {query.isPending ? (
         <div className="flex min-h-48 items-center justify-center gap-2 px-5 py-10 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          جارٍ تحميل طلبات التقديم…
+          {t("contributionRequests.ownerReview.loading")}
         </div>
       ) : query.isError ? (
         <div className="flex min-h-48 flex-col items-center justify-center px-5 py-10 text-center">
           <CircleAlert className="size-6 text-destructive" aria-hidden="true" />
           <p className="mt-3 font-semibold text-foreground">
-            تعذر تحميل طلبات التقديم
+            {t("contributionRequests.ownerReview.loadError")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             {getApplicationErrorMessage(query.error)}
@@ -173,17 +170,17 @@ export function OwnerApplicationReview({
             className="mt-4"
             onClick={() => void query.refetch()}
           >
-            إعادة المحاولة
+            {t("common.retry")}
           </Button>
         </div>
       ) : query.data.length === 0 ? (
         <div className="flex min-h-48 flex-col items-center justify-center px-5 py-10 text-center">
           <FileSearch className="size-7 text-muted-foreground" aria-hidden="true" />
           <p className="mt-3 font-semibold text-foreground">
-            لا توجد طلبات معلقة الآن
+            {t("contributionRequests.ownerReview.emptyTitle")}
           </p>
           <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
-            ستظهر هنا طلبات التقديم الجديدة مباشرة عند وصولها إلى صاحب المشروع.
+            {t("contributionRequests.ownerReview.emptyDescription")}
           </p>
         </div>
       ) : (
@@ -237,8 +234,10 @@ function ApplicationReviewRecord({
   onAccept: () => void;
   onDecline: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const timing = getApplicationReviewTiming(application);
   const experience = application.profileContext.experienceLevel;
+  const isEnglish = i18n.language.startsWith("en");
 
   return (
     <article className="px-5 py-6 md:px-6">
@@ -254,12 +253,12 @@ function ApplicationReviewRecord({
                 className="font-mono text-xs tracking-[0.35px] text-primary underline-offset-4 hover:underline"
               >
                 <bdi dir="ltr">@{application.contributor.username}</bdi>
-                <span className="sr-only"> — فتح ملف المساهم وسمعته</span>
+                <span className="sr-only"> — {t("contributionRequests.ownerReview.openContributorProfile")}</span>
               </a>
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            أُرسل في {formatApplicationDate(application.submittedAt)}
+            {t("contributionRequests.ownerReview.submittedAt", { date: formatApplicationDate(application.submittedAt) })}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -276,18 +275,18 @@ function ApplicationReviewRecord({
         <div className="min-w-0">
           <h4 className="flex items-center gap-2 text-sm font-bold text-foreground">
             <BriefcaseBusiness className="size-4" aria-hidden="true" />
-            نهج المساهمة
+            {t("contributionRequests.contributorDetail.approach")}
           </h4>
           <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-foreground">
-            {application.contributionApproach || "لم يُحفظ نهج مساهمة في هذا السجل."}
+            {application.contributionApproach || t("contributionRequests.ownerReview.noApproach")}
           </p>
           <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarClock className="size-4" aria-hidden="true" />
-            مدة التسليم المقترحة:{" "}
+            {t("contributionRequests.ownerReview.proposedDuration")} {" "}
             <strong className="font-semibold text-foreground">
               {application.proposedDeliveryDurationDays === null
-                ? "غير محددة"
-                : `${application.proposedDeliveryDurationDays} يوم`}
+                ? t("contributionRequests.unspecified")
+                : t("contributionRequests.days", { count: application.proposedDeliveryDurationDays })}
             </strong>
           </p>
         </div>
@@ -295,23 +294,23 @@ function ApplicationReviewRecord({
         <div className="min-w-0 rounded-input bg-border/20 p-4">
           <h4 className="flex items-center gap-2 text-sm font-bold text-foreground">
             <UserRound className="size-4" aria-hidden="true" />
-            سياق الملف وقت التقديم
+            {t("contributionRequests.ownerReview.profileContext")}
           </h4>
           <dl className="mt-3 space-y-2 text-sm">
             <ContextRow
-              label="الخبرة"
-              value={experience?.labelAr || experience?.labelEn || "غير محددة"}
+              label={t("contributionRequests.ownerReview.experience")}
+              value={(isEnglish ? experience?.labelEn || experience?.labelAr : experience?.labelAr || experience?.labelEn) || t("contributionRequests.unspecified")}
             />
             <ContextRow
-              label="التوفر"
-              value={application.profileContext.availability || "غير محدد"}
+              label={t("contributionRequests.ownerReview.availability")}
+              value={application.profileContext.availability || t("contributionRequests.unspecified")}
             />
             <ContextRow
-              label="المجالات"
+              label={t("contributionRequests.ownerReview.fields")}
               value={
                 application.profileContext.fields
-                  .map((field) => field.labelAr || field.labelEn)
-                  .join("، ") || "غير محددة"
+                  .map((field) => isEnglish ? field.labelEn || field.labelAr : field.labelAr || field.labelEn)
+                  .join(", ") || t("contributionRequests.unspecified")
               }
             />
           </dl>
@@ -325,12 +324,11 @@ function ApplicationReviewRecord({
 
       <div className="mt-5 border-t border-border pt-5">
         <h4 className="text-sm font-bold text-foreground">
-          ملخص الأدلة المثبت وقت التقديم
+          {t("contributionRequests.ownerReview.evidenceSummary")}
         </h4>
         {application.evidenceSummary.length === 0 ? (
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            لا يتضمن هذا السجل ملخص أدلة معتمدًا. غياب الدليل ليس حكمًا على
-            القدرة ولا يمنعك من اتخاذ قرارك.
+            {t("contributionRequests.ownerReview.noEvidence")}
           </p>
         ) : (
           <ul className="mt-3 space-y-3">
@@ -348,12 +346,12 @@ function ApplicationReviewRecord({
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {evidence.evidenceSummary || "لا يوجد ملخص نصي إضافي."}
+                  {evidence.evidenceSummary || t("contributionRequests.ownerReview.noEvidenceText")}
                 </p>
                 {evidence.limitations.length > 0 && (
                   <div className="mt-3">
                     <p className="text-xs font-semibold text-foreground">
-                      حدود الدليل
+                      {t("contributionRequests.ownerReview.evidenceLimitations")}
                     </p>
                     <ul className="mt-1 list-disc space-y-1 ps-5 text-xs leading-5 text-muted-foreground">
                       {evidence.limitations.map((limitation) => (
@@ -372,7 +370,7 @@ function ApplicationReviewRecord({
 
       <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-xl text-xs leading-5 text-muted-foreground">
-          التقييم الاستشاري اختياري. لا يظهر هنا كشرط أو توصية أو ترتيب.
+          {t("contributionRequests.ownerReview.advisoryHelp")}
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button
@@ -382,7 +380,7 @@ function ApplicationReviewRecord({
             disabled={decisionsDisabled}
             onClick={onDecline}
           >
-            عدم الاختيار مع ملاحظات
+            {t("contributionRequests.ownerReview.decline")}
           </Button>
           <Button
             id={`accept-application-trigger-${application.id}`}
@@ -390,7 +388,7 @@ function ApplicationReviewRecord({
             disabled={decisionsDisabled}
             onClick={onAccept}
           >
-            اختيار وإنشاء إسناد
+            {t("contributionRequests.ownerReview.accept")}
           </Button>
         </div>
       </div>

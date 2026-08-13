@@ -7,6 +7,7 @@ import {
   PlugZap,
   UserRound,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
@@ -52,10 +53,11 @@ export function GitHubAppInstallationList({
   onDisconnect,
   busyInstallationLinkId = null,
 }: GitHubAppInstallationListProps) {
+  const { t } = useTranslation();
   return (
     <ul className="flex flex-col gap-3">
       {installations.map((installation) => {
-        const meta = getInstallationStatusMeta(installation.status);
+        const meta = getInstallationStatusMeta(t, installation.status);
         const Icon = STATUS_ICON[installation.status];
         const AccountIcon =
           installation.accountType === "organization" ? Building2 : UserRound;
@@ -85,11 +87,11 @@ export function GitHubAppInstallationList({
                       {installation.accountLogin}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {getAccountTypeLabel(installation.accountType)}
+                      {getAccountTypeLabel(t, installation.accountType)}
                       {" · "}
                       {installation.repositorySelection === "all"
-                        ? "كل المستودعات"
-                        : "مستودعات محددة"}
+                        ? t("githubApp.installations.allRepositories")
+                        : t("githubApp.installations.selectedRepositories")}
                     </p>
                   </div>
                 </div>
@@ -110,7 +112,7 @@ export function GitHubAppInstallationList({
                     variant={isSelected ? "primary" : "outline"}
                     onClick={() => onSelect(installation.installationLinkId)}
                   >
-                    {isSelected ? "محدد للتحليل" : "استخدام هذا الربط"}
+                    {isSelected ? t("githubApp.installations.selected") : t("githubApp.installations.use")}
                   </Button>
                 )}
                 {meta.needsReauthorization && (
@@ -124,7 +126,7 @@ export function GitHubAppInstallationList({
                     }
                   >
                     <PlugZap className="size-4" />
-                    إعادة التفويض
+                    {t("githubApp.installations.reauthorize")}
                   </Button>
                 )}
                 {installation.manageUrl && (
@@ -135,7 +137,7 @@ export function GitHubAppInstallationList({
                     className="inline-flex min-h-10 items-center gap-2 rounded-input px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
                   >
                     <ExternalLink className="size-4" />
-                    إدارة أو إزالة التطبيق من GitHub
+                    {t("githubApp.installations.manage")}
                   </a>
                 )}
                 <Button
@@ -145,7 +147,7 @@ export function GitHubAppInstallationList({
                   disabled={isBusy}
                   onClick={() => onDisconnect(installation)}
                 >
-                  فصل محلي
+                  {t("githubApp.installations.disconnect")}
                 </Button>
               </div>
             </div>

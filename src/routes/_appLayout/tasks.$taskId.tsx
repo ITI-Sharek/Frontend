@@ -11,7 +11,7 @@ import { SkillGapGuidancePanel } from "@/modules/skill-guidance";
 
 export const Route = createFileRoute("/_appLayout/tasks/$taskId")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "طلب مساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: ContributionRequestDetailsPage,
 });
 

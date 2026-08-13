@@ -53,7 +53,7 @@ export function validateContributionRequestSearch(
 
 export const Route = createFileRoute("/_appLayout/tasks/")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "طلبات المساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: validateContributionRequestSearch,
   component: ContributionRequestsPage,
 });

@@ -1,4 +1,5 @@
 import { Building2, RefreshCw, UserRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -25,15 +26,15 @@ export function GitHubAppCandidatePicker({
   isSubmitting = false,
   errorMessage = null,
 }: GitHubAppCandidatePickerProps) {
+  const { t } = useTranslation();
   if (candidates.length === 0) {
     return (
       <div className="rounded-card border border-border bg-card p-5">
         <h3 className="text-sm font-bold text-foreground">
-          لم نجد أي تثبيت متاح
+          {t("githubApp.candidates.emptyTitle")}
         </h3>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-          لم يُرجع GitHub أي حساب أو منظمة يمكن ربطها بهذه المحاولة. ابدأ الربط
-          من جديد وتأكد من تثبيت التطبيق على الحساب الصحيح.
+          {t("githubApp.candidates.emptyDescription")}
         </p>
         <Button
           type="button"
@@ -43,7 +44,7 @@ export function GitHubAppCandidatePicker({
           disabled={isSubmitting}
         >
           <RefreshCw className="size-4" />
-          إعادة بدء الربط
+          {t("githubApp.restart")}
         </Button>
       </div>
     );
@@ -52,11 +53,10 @@ export function GitHubAppCandidatePicker({
   return (
     <div className="rounded-card border border-border bg-card p-5">
       <h3 className="text-sm font-bold text-foreground">
-        اختر الحساب أو المنظمة
+        {t("githubApp.candidates.title")}
       </h3>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-        تم تثبيت تطبيق GitHub على أكثر من حساب. اختر الحساب الذي تريد ربطه
-        بـ Share-k الآن.
+        {t("githubApp.candidates.description")}
       </p>
 
       <ul className="mt-4 flex flex-col gap-2">
@@ -80,7 +80,7 @@ export function GitHubAppCandidatePicker({
                     {candidate.accountLogin}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {getAccountTypeLabel(candidate.accountType)}
+                    {getAccountTypeLabel(t, candidate.accountType)}
                   </span>
                 </span>
               </button>
@@ -104,7 +104,7 @@ export function GitHubAppCandidatePicker({
         disabled={isSubmitting}
       >
         <RefreshCw className="size-4" />
-        إعادة بدء الربط
+        {t("githubApp.restart")}
       </Button>
     </div>
   );

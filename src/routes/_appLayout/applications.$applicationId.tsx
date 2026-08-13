@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { requireMemberRoute, useResolvedCurrentUser } from "@/modules/auth";
@@ -13,7 +14,7 @@ export const Route = createFileRoute(
   "/_appLayout/applications/$applicationId",
 )({
   beforeLoad: requireMemberRoute,
-  head: () => ({ meta: [{ title: "حالة طلب التقديم | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: ApplicationStatusPage,
 });
 
@@ -26,6 +27,7 @@ export const Route = createFileRoute(
  * rather than assuming one during SSR.
  */
 function ApplicationStatusPage() {
+  const { t } = useTranslation();
   const { applicationId } = Route.useParams();
   const navigate = Route.useNavigate();
   const { currentUser: contextUser } = Route.useRouteContext();
@@ -44,7 +46,7 @@ function ApplicationStatusPage() {
   if (isResolving || !currentUser) {
     return (
       <p role="status" className="p-8 text-center text-sm text-muted-foreground">
-        جارٍ التحقق من الحساب…
+        {t("applicationRoute.verifyingAccount")}
       </p>
     );
   }
@@ -53,14 +55,14 @@ function ApplicationStatusPage() {
     if (applicationQuery.isError) {
       return (
         <p role="alert" className="p-8 text-center text-sm text-destructive">
-          تعذر فتح طلب المساهمة من هذا الإشعار.
+          {t("applicationRoute.ownerOpenError")}
         </p>
       );
     }
 
     return (
       <p role="status" className="p-8 text-center text-sm text-muted-foreground">
-        جارٍ فتح طلب المساهمة…
+        {t("applicationRoute.openingRequest")}
       </p>
     );
   }
@@ -70,7 +72,7 @@ function ApplicationStatusPage() {
   if (currentUser.role !== "contributor") {
     return (
       <p role="status" className="p-8 text-center text-sm text-muted-foreground">
-        جارٍ تحويلك إلى الصفحة المناسبة لحسابك…
+        {t("applicationRoute.redirecting")}
       </p>
     );
   }

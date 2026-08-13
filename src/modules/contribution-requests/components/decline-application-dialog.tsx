@@ -1,5 +1,6 @@
 import { Loader2, MessageSquareText } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -21,6 +22,7 @@ export function DeclineApplicationDialog({
   onCancel: () => void;
   onConfirm: (feedback: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [feedback, setFeedback] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -58,7 +60,7 @@ export function DeclineApplicationDialog({
   async function submit() {
     const normalized = feedback.trim();
     if (normalized.length === 0) {
-      setFieldError("اكتب ملاحظات واضحة للمساهم قبل تسجيل القرار.");
+      setFieldError(t("contributionRequests.declineDialog.feedbackRequired"));
       document.getElementById(feedbackId)?.focus();
       return;
     }
@@ -91,20 +93,19 @@ export function DeclineApplicationDialog({
               id={`decline-application-title-${application.id}`}
               className="text-lg font-bold text-foreground"
             >
-              عدم اختيار هذا الطلب
+              {t("contributionRequests.declineDialog.title")}
             </h2>
             <p
               id={`decline-application-description-${application.id}`}
               className="mt-1 text-sm leading-6 text-muted-foreground"
             >
-              القرار بشري ويخص هذا العمل فقط. اكتب ملاحظات محترمة ومفيدة؛ ستظهر
-              للمساهم منفصلة عن أي نتائج تقييم استشاري.
+              {t("contributionRequests.declineDialog.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-5">
-          <Label htmlFor={feedbackId}>ملاحظات صاحب المشروع</Label>
+          <Label htmlFor={feedbackId}>{t("contributionRequests.declineDialog.feedback")}</Label>
           <textarea
             id={feedbackId}
             value={feedback}
@@ -128,7 +129,7 @@ export function DeclineApplicationDialog({
               id={`decline-feedback-help-${application.id}`}
               className="text-muted-foreground"
             >
-              لا تستخدم معلومات خاصة أو أحكامًا على أهلية المساهم.
+              {t("contributionRequests.declineDialog.help")}
             </p>
             <span className="shrink-0 text-muted-foreground">
               {feedback.length}/2000
@@ -163,7 +164,7 @@ export function DeclineApplicationDialog({
             disabled={isSubmitting}
             onClick={onCancel}
           >
-            تراجع
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -174,7 +175,7 @@ export function DeclineApplicationDialog({
             {isSubmitting && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            تسجيل قرار عدم الاختيار
+            {t("contributionRequests.declineDialog.confirm")}
           </Button>
         </div>
       </section>

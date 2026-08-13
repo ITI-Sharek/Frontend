@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   NotificationCenter,
@@ -9,12 +10,13 @@ import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_adminLayout/admin/notifications")({
   head: () => ({
-    meta: [{ title: "إشعارات الإدارة | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: AdminNotificationCenter,
 });
 
 function AdminNotificationCenter() {
+  const { t } = useTranslation();
   const [showPreferences, setShowPreferences] = useState(false);
 
   return (
@@ -28,8 +30,8 @@ function AdminNotificationCenter() {
           aria-expanded={showPreferences}
         >
           {showPreferences
-            ? "إخفاء تفضيلات الإشعارات"
-            : "إدارة تفضيلات الإشعارات"}
+            ? t("adminPages.hideNotificationPreferences")
+            : t("adminPages.manageNotificationPreferences")}
         </Button>
         {showPreferences && (
           <div className="mt-4 rounded-card border border-border bg-card p-6">

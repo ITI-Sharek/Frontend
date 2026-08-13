@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 import { requireMemberRoute } from "@/modules/auth";
 import { useGitHubRepositoriesQuery } from "@/modules/github";
@@ -8,7 +9,7 @@ import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 export const Route = createFileRoute("/_appLayout/my-projects/new")({
   beforeLoad: requireMemberRoute,
-  head: () => ({ meta: [{ title: "استيراد مشروع | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: ImportProjectPage,
 });
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_appLayout/my-projects/new")({
  * neither module imports the other.
  */
 function ImportProjectPage() {
+  const { t } = useTranslation();
   const navigate = Route.useNavigate();
   const repositoriesQuery = useGitHubRepositoriesQuery({ perPage: 8 });
 
@@ -45,7 +47,7 @@ function ImportProjectPage() {
         repositoriesQuery.isError && !isAccountNotConnected
           ? getApiErrorMessage(
               repositoriesQuery.error,
-              "تعذر تحميل مستودعاتك المربوطة.",
+              t("importProject.loadRepositoriesError"),
             )
           : null
       }

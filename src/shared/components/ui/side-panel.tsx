@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ export function SidePanel({
   children: ReactNode;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -65,7 +67,7 @@ export function SidePanel({
     <div className="fixed inset-0 z-50" role="presentation">
       <button
         type="button"
-        aria-label="إغلاق اللوحة"
+        aria-label={t("sidePanel.closePanel")}
         className="absolute inset-0 size-full cursor-default bg-foreground/35 backdrop-blur-[2px]"
         onClick={onClose}
       />
@@ -100,7 +102,7 @@ export function SidePanel({
           <button
             ref={closeRef}
             type="button"
-            aria-label="إغلاق"
+            aria-label={t("common.close")}
             className="flex size-10 shrink-0 items-center justify-center rounded-input border border-border bg-card text-muted-foreground transition-colors hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={onClose}
           >

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery, useLogoutMutation } from "@/modules/auth";
@@ -19,6 +20,7 @@ import { SiteFooter } from "@/shared/components/layout/site-footer";
 export const Route = createFileRoute("/lp")({ component: LandingPage });
 
 function LandingPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentUserQuery = useCurrentUserQuery();
   const logoutMutation = useLogoutMutation();
@@ -36,7 +38,7 @@ function LandingPage() {
     ? {
         displayName: `${authUser.firstName} ${authUser.lastName}`.trim(),
         avatarUrl: authUser.avatarUrl,
-        menuItems: getProfileMenuItems(authUser),
+        menuItems: getProfileMenuItems(authUser, t),
       }
     : null;
 
@@ -60,15 +62,15 @@ function LandingPage() {
 function getProfileMenuItems(user: {
   role: "owner" | "contributor" | "admin";
   username: string | null;
-}): ProfileMenuItem[] {
+}, t: (key: string) => string): ProfileMenuItem[] {
   const label =
     user.role === "admin"
-      ? "لوحة الإدارة"
+      ? t("navigation.adminPanel")
       : user.role === "owner"
-        ? "مشاريعي"
+        ? t("navigation.myProjects")
         : user.username
-          ? "ملفي الشخصي"
-          : "إكمال التفعيل";
+          ? t("navigation.profile")
+          : t("navigation.onboarding");
 
   return [{ label, to: getPostLoginPath(user) }];
 }

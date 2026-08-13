@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { SidePanel } from "@/shared/components/ui/side-panel";
@@ -15,6 +16,7 @@ export function DiscussionsFeedView({
 }: {
   currentAuthor: DiscussionAuthorDto;
 }) {
+  const { t } = useTranslation();
   const postsQuery = useDiscussionPostsQuery();
   const createMutation = useCreateDiscussionPostMutation();
   const [isComposing, setIsComposing] = useState(false);
@@ -23,21 +25,21 @@ export function DiscussionsFeedView({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">النقاشات</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t("discussions.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            مقالات وخبرات يشاركها أصحاب المشاريع والمساهمون، مع تعليقات مفتوحة.
+            {t("discussions.description")}
           </p>
         </div>
         <Button size="sm" onClick={() => setIsComposing(true)}>
           <Plus className="size-4" aria-hidden />
-          منشور جديد
+          {t("discussions.newPost")}
         </Button>
       </div>
 
       <SidePanel
         open={isComposing}
-        title="منشور جديد"
-        description="شارك سؤالاً أو خبرة مع مجتمع Sharek من دون مغادرة قائمة النقاشات."
+        title={t("discussions.newPost")}
+        description={t("discussions.panelDescription")}
         className="max-w-xl"
         onClose={() => setIsComposing(false)}
       >
@@ -54,10 +56,10 @@ export function DiscussionsFeedView({
       </SidePanel>
 
       {postsQuery.data === undefined ? (
-        <p className="text-sm text-muted-foreground">جارٍ تحميل النقاشات...</p>
+        <p className="text-sm text-muted-foreground">{t("discussions.loading")}</p>
       ) : postsQuery.data.length === 0 ? (
         <p className="rounded-card border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          لا توجد منشورات بعد. كن أول من يبدأ نقاشًا.
+          {t("discussions.empty")}
         </p>
       ) : (
         <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto overscroll-contain pe-1">

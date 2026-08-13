@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -66,6 +67,7 @@ export function ContributionRequestDetailView({
   deliverySlot?: ReactNode;
   matchingSlot?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const query = useContributionRequestQuery(requestId);
   const updateMutation = useUpdateContributionRequestMutation(requestId);
   const discardMutation = useDiscardContributionRequestMutation(requestId);
@@ -104,8 +106,8 @@ export function ContributionRequestDetailView({
       <PageContainer>
         <PageFeedback
           icon={Loader2}
-          title="جارٍ تحميل طلب المساهمة"
-          description="نسترجع أحدث نسخة يملكها هذا الحساب."
+          title={t("contributionRequests.detail.loadingTitle")}
+          description={t("contributionRequests.detail.loadingDescription")}
         />
       </PageContainer>
     );
@@ -116,15 +118,15 @@ export function ContributionRequestDetailView({
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر فتح طلب المساهمة"
+          title={t("contributionRequests.detail.loadErrorTitle")}
           description={getContributionRequestErrorMessage(query.error)}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button size="sm" onClick={() => void query.refetch()}>
-                إعادة المحاولة
+                {t("common.retry")}
               </Button>
               <Button asChild size="sm" variant="outline">
-                <a href="/my-projects">العودة إلى مشاريعي</a>
+                <a href="/my-projects">{t("contributionRequests.detail.backToProjects")}</a>
               </Button>
             </div>
           }
@@ -208,19 +210,6 @@ export function ContributionRequestDetailView({
     }
   }
 
-  const descriptionByStatus: Record<typeof request.status, string> = {
-    draft: "مسودة خاصة بصاحب المشروع. لا تظهر للمساهمين قبل النشر.",
-    published: "منشور ومرئي للمساهمين حتى وقت إغلاق التقديم.",
-    assigned: "أُسنِد هذا الطلب لمساهم. لم تعد إجراءات النشر أو الإلغاء متاحة.",
-    in_progress: "قيد التنفيذ حاليًا.",
-    awaiting_delivery: "بانتظار تسليم العمل.",
-    delivery_submitted: "تم تقديم التسليم للمراجعة.",
-    completed: "أُنجز هذا الطلب.",
-    cancelled: "أُلغي هذا الطلب المنشور. يبقى سجل الطلبات والقرارات محفوظًا.",
-    expired: "انتهت صلاحية هذا الطلب.",
-    discarded: "تم تجاهل هذه المسودة قبل نشرها. يبقى سجلها محفوظًا للعرض فقط.",
-  };
-
   return (
     <PageContainer className="max-w-4xl">
       <div
@@ -233,8 +222,10 @@ export function ContributionRequestDetailView({
           title={request.title}
           description={
             applicationsClosed
-              ? `منشور، لكن التقديم مغلق منذ ${formatContributionDateTime(request.applicationsCloseTime)}.`
-              : descriptionByStatus[request.status]
+              ? t("contributionRequests.detail.applicationsClosedSince", {
+                  date: formatContributionDateTime(request.applicationsCloseTime),
+                })
+              : t(`contributionRequests.detail.lifecycle.${request.status}`)
           }
           actions={
             <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
@@ -245,19 +236,19 @@ export function ContributionRequestDetailView({
       </div>
 
       <nav
-        aria-label="أقسام طلب المساهمة"
+        aria-label={t("contributionRequests.detail.sections")}
         className="mt-5 flex gap-1 overflow-x-auto border-b border-border"
       >
         <RequestTab
           icon={FileText}
-          label="التفاصيل"
+          label={t("contributionRequests.detail.tabs.details")}
           selected={activeTab === "details"}
           onClick={() => setActiveTab("details")}
         />
         {request.status !== "draft" && request.status !== "discarded" && (
           <RequestTab
             icon={Users}
-            label="طلبات التقديم"
+            label={t("contributionRequests.detail.tabs.applications")}
             selected={activeTab === "applications"}
             onClick={() => setActiveTab("applications")}
           />
@@ -265,7 +256,7 @@ export function ContributionRequestDetailView({
         {matchingSlot && request.status === "published" && (
           <RequestTab
             icon={Sparkles}
-            label="المطابقات"
+            label={t("contributionRequests.detail.tabs.matches")}
             selected={activeTab === "matches"}
             onClick={() => setActiveTab("matches")}
           />
@@ -273,7 +264,7 @@ export function ContributionRequestDetailView({
         {deliverySlot && (
           <RequestTab
             icon={GitPullRequest}
-            label="التسليم"
+            label={t("contributionRequests.detail.tabs.delivery")}
             selected={activeTab === "delivery"}
             onClick={() => setActiveTab("delivery")}
           />
@@ -281,7 +272,7 @@ export function ContributionRequestDetailView({
         {materialsSlot && (
           <RequestTab
             icon={Paperclip}
-            label="المواد"
+            label={t("contributionRequests.detail.tabs.materials")}
             selected={activeTab === "materials"}
             onClick={() => setActiveTab("materials")}
           />
@@ -292,29 +283,27 @@ export function ContributionRequestDetailView({
         (request.status === "discarded" ? (
           <Card className="mt-6 border-destructive/25 bg-destructive/5">
             <h2 className="text-lg font-bold text-foreground">
-              مسودة متجاهلة — للعرض فقط
+              {t("contributionRequests.detail.discardedTitle")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              تم إنهاء هذه المسودة دون حذف سجلها. لا يمكن تعديلها أو إعادتها من
-              هذه الواجهة.
+              {t("contributionRequests.detail.discardedDescription")}
             </p>
             <ReadOnlyRequest request={request} />
             <Button asChild variant="outline" className="mt-5">
-              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+              <a href={projectHref(request.projectId)}>{t("contributionRequests.detail.backToProject")}</a>
             </Button>
           </Card>
         ) : request.status === "cancelled" ? (
           <Card className="mt-6 border-destructive/25 bg-destructive/5">
             <h2 className="text-lg font-bold text-foreground">
-              طلب ملغى — للعرض فقط
+              {t("contributionRequests.detail.cancelledTitle")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              تم إلغاء هذا الطلب المنشور. طلبات التقديم والتقييمات والقرارات
-              السابقة محفوظة ولم تُحذف.
+              {t("contributionRequests.detail.cancelledDescription")}
             </p>
             <ReadOnlyRequest request={request} />
             <Button asChild variant="outline" className="mt-5">
-              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+              <a href={projectHref(request.projectId)}>{t("contributionRequests.detail.backToProject")}</a>
             </Button>
           </Card>
         ) : editable ? (
@@ -325,7 +314,7 @@ export function ContributionRequestDetailView({
                 aria-live="polite"
                 className="mb-4 text-sm text-evidence-teal"
               >
-                حُفظت أحدث تغييرات المسودة.
+                {t("contributionRequests.detail.saved")}
               </p>
             )}
             <ContributionRequestForm
@@ -333,15 +322,14 @@ export function ContributionRequestDetailView({
               initialState={toContributionRequestForm(request)}
               isSubmitting={updateMutation.isPending}
               submitError={updateError}
-              submitLabel="حفظ التغييرات"
+              submitLabel={t("contributionRequests.detail.saveChanges")}
               cancelHref={projectHref(request.projectId)}
               onSubmit={update}
             />
             <div className="mt-6 border-t border-border pt-5">
-              <h2 className="font-bold text-foreground">نشر الطلب</h2>
+              <h2 className="font-bold text-foreground">{t("contributionRequests.detail.publishTitle")}</h2>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                يصبح الطلب مرئيًا للمساهمين فورًا ويخضع لحد النشر الشهري المرتبط
-                بباقتك.
+                {t("contributionRequests.detail.publishDescription")}
               </p>
               <Button
                 id="publish-request-trigger"
@@ -354,13 +342,13 @@ export function ContributionRequestDetailView({
                   setPublishOpen(true);
                 }}
               >
-                نشر الطلب
+                {t("contributionRequests.detail.publish")}
               </Button>
             </div>
             <div className="mt-6 border-t border-destructive/25 pt-5">
-              <h2 className="font-bold text-foreground">إنهاء المسودة</h2>
+              <h2 className="font-bold text-foreground">{t("contributionRequests.detail.discardTitle")}</h2>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                التجاهل نهائي ولا يحذف السجل أو يحوله إلى إلغاء منشور.
+                {t("contributionRequests.detail.discardDescription")}
               </p>
               <Button
                 id="discard-request-trigger"
@@ -375,7 +363,7 @@ export function ContributionRequestDetailView({
                 }}
               >
                 <Trash2 className="size-4" aria-hidden="true" />
-                تجاهل المسودة
+                {t("contributionRequests.detail.discard")}
               </Button>
             </div>
           </Card>
@@ -387,18 +375,16 @@ export function ContributionRequestDetailView({
                 role="status"
                 className="mt-6 rounded-input border border-amber-500/30 bg-amber-500/5 p-4"
               >
-                <h2 className="font-bold text-foreground">التقديم مغلق</h2>
+                <h2 className="font-bold text-foreground">{t("contributionRequests.status.applicationsClosed")}</h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  لا يستقبل طلبات تقديم جديدة بعد انتهاء مهلة التقديم. تظل
-                  الطلبات السابقة محفوظة ويمكنك مراجعتها واتخاذ القرار بشأنها.
+                  {t("contributionRequests.detail.applicationsClosedHelp")}
                 </p>
               </div>
             )}
             <div className="mt-6 border-t border-destructive/25 pt-5">
-              <h2 className="font-bold text-foreground">إلغاء الطلب</h2>
+              <h2 className="font-bold text-foreground">{t("contributionRequests.detail.cancelTitle")}</h2>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                الإلغاء نهائي، يوقف استقبال طلبات تقديم جديدة، ويحافظ على سجل
-                الطلبات والقرارات السابقة.
+                {t("contributionRequests.detail.cancelDescription")}
               </p>
               <Button
                 id="cancel-request-trigger"
@@ -412,22 +398,21 @@ export function ContributionRequestDetailView({
                   setCancelOpen(true);
                 }}
               >
-                إلغاء الطلب
+                {t("contributionRequests.detail.cancel")}
               </Button>
             </div>
           </Card>
         ) : (
           <Card className="mt-6">
             <h2 className="text-lg font-bold text-foreground">
-              طلب غير قابل للتعديل
+              {t("contributionRequests.detail.readOnlyTitle")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              حالة هذا السجل ({statusMeta.label}) لا تتيح إجراءات نشر أو إلغاء
-              أو تعديل من هذه الواجهة.
+              {t("contributionRequests.detail.readOnlyDescription", { status: statusMeta.label })}
             </p>
             <ReadOnlyRequest request={request} />
             <Button asChild variant="outline" className="mt-5">
-              <a href={projectHref(request.projectId)}>العودة إلى المشروع</a>
+              <a href={projectHref(request.projectId)}>{t("contributionRequests.detail.backToProject")}</a>
             </Button>
           </Card>
         ))}
@@ -524,6 +509,7 @@ function ReadOnlyRequest({
 }: {
   request: NonNullable<ReturnType<typeof useContributionRequestQuery>["data"]>;
 }) {
+  const { t, i18n } = useTranslation();
   return (
     <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
       {/*
@@ -534,7 +520,7 @@ function ReadOnlyRequest({
       {request.attribution && (
         <div className="sm:col-span-2 rounded-lg border border-border/60 bg-muted/30 p-3">
           <dt className="text-xs text-muted-foreground">
-            مقترح مقبول من مساهم
+            {t("contributionRequests.detail.acceptedProposal")}
           </dt>
           <dd className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-sm font-semibold text-foreground">
             <span>{request.attribution.contributorName}</span>
@@ -548,24 +534,28 @@ function ReadOnlyRequest({
             )}
           </dd>
           <p className="mt-1 text-xs text-muted-foreground">
-            الإسناد اعتراف بالفكرة، ولا يمنح إسناد عمل ولا أولوية اختيار.
+            {t("contributionRequests.detail.attributionHelp")}
           </p>
         </div>
       )}
       <ReadOnlyField
-        label="الوصف"
+        label={t("contributionRequests.form.description")}
         value={request.description}
         className="sm:col-span-2"
       />
       <ReadOnlyField
-        label="المتطلبات المطلوبة"
-        value={request.requiredRequirements.map((item) => item.text).join("، ")}
+        label={t("contributionRequests.form.requiredRequirements")}
+        value={new Intl.ListFormat(i18n.language).format(
+          request.requiredRequirements.map((item) => item.text),
+        )}
       />
       <ReadOnlyField
-        label="المتطلبات المفضلة"
+        label={t("contributionRequests.form.preferredRequirements")}
         value={
-          request.preferredRequirements.map((item) => item.text).join("، ") ||
-          "—"
+          new Intl.ListFormat(i18n.language).format(
+            request.preferredRequirements.map((item) => item.text),
+          ) ||
+          t("contributionRequests.unspecified")
         }
       />
       {/*
@@ -575,11 +565,11 @@ function ReadOnlyRequest({
         formatters, which render in the reader's own timezone.
       */}
       <ReadOnlyField
-        label="وقت إغلاق التقديم"
+        label={t("contributionRequests.form.closeTime")}
         value={formatContributionDateTime(request.applicationsCloseTime)}
       />
       <ReadOnlyField
-        label="تاريخ الإنجاز المستهدف"
+        label={t("contributionRequests.form.targetDate")}
         value={formatContributionDate(request.targetCompletionDate)}
       />
     </dl>
