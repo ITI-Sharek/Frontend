@@ -1,5 +1,6 @@
 import { CircleCheck, Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -20,6 +21,7 @@ export function AcceptApplicationDialog({
   onCancel: () => void;
   onConfirm: () => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const dialogRef = useRef<HTMLElement>(null);
   const cancelId = `accept-application-cancel-${application.id}`;
 
@@ -76,24 +78,23 @@ export function AcceptApplicationDialog({
               id={`accept-application-title-${application.id}`}
               className="text-lg font-bold text-foreground"
             >
-              اختيار {application.contributor.displayName}؟
+              {t("contributionRequests.acceptDialog.title", { name: application.contributor.displayName })}
             </h2>
             <p
               id={`accept-application-description-${application.id}`}
               className="mt-1 text-sm leading-6 text-muted-foreground"
             >
-              سينشئ هذا القرار إسناد عمل واحدًا لهذا المساهم، وتتحول جميع طلبات
-              التقديم الأخرى المعلقة لهذا العمل إلى «تم اختيار مساهم آخر».
+              {t("contributionRequests.acceptDialog.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-5 rounded-input bg-border/25 p-4 text-sm leading-6 text-foreground">
-          <p className="font-semibold">مدة التسليم المتفق عليها</p>
+          <p className="font-semibold">{t("contributionRequests.acceptDialog.duration")}</p>
           <p className="mt-1 text-muted-foreground">
             {application.proposedDeliveryDurationDays === null
-              ? "غير محددة في هذا السجل"
-              : `${application.proposedDeliveryDurationDays} يوم`}
+              ? t("contributionRequests.unspecified")
+              : t("contributionRequests.days", { count: application.proposedDeliveryDurationDays })}
           </p>
         </div>
 
@@ -115,7 +116,7 @@ export function AcceptApplicationDialog({
             disabled={isSubmitting}
             onClick={onCancel}
           >
-            مراجعة الطلب مرة أخرى
+            {t("contributionRequests.acceptDialog.reviewAgain")}
           </Button>
           <Button
             type="button"
@@ -125,7 +126,7 @@ export function AcceptApplicationDialog({
             {isSubmitting && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            تأكيد الاختيار وإنشاء الإسناد
+            {t("contributionRequests.acceptDialog.confirm")}
           </Button>
         </div>
       </section>

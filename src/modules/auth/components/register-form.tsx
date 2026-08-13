@@ -14,7 +14,7 @@ import type { ChipOption } from "@/shared/components/forms/chip-select";
 import { useUsernameAvailabilityQuery } from "../api/queries/use-username-availability-query";
 import {
   REGISTER_USERNAME_FIELD_ENABLED,
-  SIGNUP_STEPS,
+  getSignupSteps,
 } from "../constants/signup.constants";
 import { registerUser } from "../services/auth.service";
 import { INITIAL_SIGNUP_FORM_DATA } from "../types/signup.types";
@@ -25,7 +25,7 @@ import { DetailsStep } from "./register-steps/details-step";
 import { RoleStep } from "./register-steps/role-step";
 import { VerifyEmailStep } from "./register-steps/verify-email-step";
 
-const TOTAL_STEPS = SIGNUP_STEPS.length;
+const TOTAL_STEPS = 3;
 const ACCOUNT_STEP_INDEX = 1;
 
 interface PendingVerification {
@@ -92,11 +92,7 @@ export function RegisterForm({
   const isLastStep = step === TOTAL_STEPS - 1;
 
   // Localised step labels
-  const localizedSteps = [
-    t("register.steps.role"),
-    t("register.steps.account"),
-    t("register.steps.details"),
-  ];
+  const localizedSteps = getSignupSteps(t);
 
   async function handleVerified(session: AuthSessionDto) {
     storageService.setAccessToken(session.tokens.accessToken);

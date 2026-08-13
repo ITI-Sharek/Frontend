@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { AdminPublishedProjectOwnersPanel } from "@/modules/projects";
@@ -7,7 +8,7 @@ import { PageContainer, PageHeader } from "@/shared/components/layout/page-layou
 
 export const Route = createFileRoute("/_adminLayout/admin")({
   head: () => ({
-    meta: [{ title: "لوحة الإدارة | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: AdminRoute,
 });
@@ -21,11 +22,12 @@ function AdminRoute() {
 }
 
 function AdminDashboard() {
+  const { t } = useTranslation();
   return (
     <PageContainer>
       <PageHeader
-        title="مركز عمليات المراجعة"
-        description="راجع المساهمين الذين ينتظرون توثيق مهاراتهم، وتابع الملاك الذين نشروا مشاريع فعلية."
+        title={t("admin.dashboard.title")}
+        description={t("admin.dashboard.description")}
       />
       <div className="mt-6 grid gap-6">
         <AdminSkillReviewSummary />

@@ -2,6 +2,7 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { AuthHero, getCurrentUser } from "@/modules/auth";
@@ -34,7 +35,7 @@ import { shouldEnsureContributorProfile } from "./login.helpers";
 
 export const Route = createFileRoute("/_authLayout/auth/callback")({
   head: () => ({
-    meta: [{ title: "تسجيل الدخول | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: AuthCallbackPage,
 });
@@ -45,6 +46,7 @@ function persistTokens(tokens: AuthTokensDto) {
 }
 
 function AuthCallbackPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [demoSelection, setDemoSelection] = useState<{
@@ -67,7 +69,7 @@ function AuthCallbackPage() {
         await startSocialAuth("github", githubRetry.intent, githubRetry.role);
       }
     } catch {
-      setErrorMessage("تعذر إعادة فتح اختيار حساب GitHub. حاول مرة أخرى.");
+      setErrorMessage(t("auth.callback.retryAccountError"));
     }
   }
 
@@ -100,7 +102,7 @@ function AuthCallbackPage() {
         }
 
         if (result.status === "missing") {
-          setErrorMessage("لم تصل بيانات تسجيل الدخول من مزود الحساب.");
+          setErrorMessage(t("auth.callback.missingProviderData"));
           return;
         }
 
@@ -141,7 +143,7 @@ function AuthCallbackPage() {
           const pending = readPendingSocialAuth();
           if (!pending) {
             setErrorMessage(
-              "انتهت جلسة تسجيل الدخول عبر مزود الحساب. ابدأ من جديد.",
+              t("auth.callback.sessionExpired"),
             );
             return;
           }
@@ -200,14 +202,14 @@ function AuthCallbackPage() {
         if (isActive) {
           const githubConflictMessage =
             errorCode === "GITHUB_SIGN_IN_EMAIL_CONFLICT"
-              ? "يوجد حساب Sharek بهذا البريد، لكن حساب GitHub المختار غير مرتبط به. سجّل الدخول إلى Sharek أولًا ثم اربط GitHub من الإعدادات، أو اختر حساب GitHub آخر."
+              ? t("auth.callback.githubEmailConflict")
               : errorCode === "GITHUB_AUTH_ACCOUNT_MISMATCH"
-                ? "حساب Sharek هذا مرتبط بحساب GitHub مختلف. اختر حساب GitHub المتصل به، أو سجّل الدخول يدويًا لتغيير الربط."
-                : "حساب GitHub الذي اخترته مرتبط بحساب Sharek آخر. اختر حساب GitHub مختلفًا للمتابعة.";
+                ? t("auth.callback.githubAccountMismatch")
+                : t("auth.callback.githubAccountTaken");
           setErrorMessage(
             isGitHubAccountConflict
               ? githubConflictMessage
-              : "تعذر إكمال تسجيل الدخول عبر مزود الحساب.",
+              : t("auth.callback.loginError"),
           );
         }
       }
@@ -225,11 +227,11 @@ function AuthCallbackPage() {
       <AuthHero
         heading={
           demoSelection
-            ? `اختر حساب ${getSocialAuthProviderLabel(demoSelection.provider)}`
-            : "إكمال تسجيل الدخول"
+            ? t("auth.callback.chooseProviderAccount", { provider: getSocialAuthProviderLabel(demoSelection.provider) })
+            : t("auth.callback.title")
         }
         subtext={
-          demoSelection ? "محاكاة تجريبية لاختيار الحساب" : "نعالج رد مزود الحساب"
+          demoSelection ? t("auth.callback.demoSubtext") : t("auth.callback.processingSubtext")
         }
       />
       <Card className="items-center text-center">
@@ -246,17 +248,17 @@ function AuthCallbackPage() {
                 type="button"
                 onClick={() => void retryGitHubWithAccountPicker()}
               >
-                اختيار حساب GitHub آخر
+                {t("auth.callback.chooseAnotherGithub")}
               </Button>
             )}
             <Button asChild variant="outline">
-              <Link to={ROUTES.login}>العودة لتسجيل الدخول</Link>
+              <Link to={ROUTES.login}>{t("auth.callback.backToLogin")}</Link>
             </Button>
           </div>
         ) : (
           <div className="flex w-full items-center justify-center gap-3 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            <span>جارٍ إكمال تسجيل الدخول...</span>
+            <span>{t("auth.callback.completing")}</span>
           </div>
         )}
       </Card>
@@ -271,6 +273,7 @@ function DemoAccountSelection({
   provider: SocialAuthProvider;
   intent: SocialAuthIntent;
 }) {
+  const { t } = useTranslation();
   const providerLabel = getSocialAuthProviderLabel(provider);
   const accounts = [
     {
@@ -289,10 +292,10 @@ function DemoAccountSelection({
     <div className="flex w-full flex-col gap-4 text-right">
       <div className="flex flex-col gap-1">
         <p className="text-sm font-semibold text-foreground">
-          اختر الحساب الذي تريد المتابعة به
+          {t("auth.callback.chooseAccount")}
         </p>
         <p className="text-xs leading-5 text-muted-foreground">
-          هذه شاشة demo محلية بدل نافذة {providerLabel} الحقيقية.
+          {t("auth.callback.demoDescription", { provider: providerLabel })}
         </p>
       </div>
 

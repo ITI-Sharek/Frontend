@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/shared/components/ui/label";
@@ -26,6 +27,7 @@ export function TagInput({
   onChange,
   dir = "rtl",
 }: TagInputProps) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState("");
 
   function commitDraft() {
@@ -70,7 +72,7 @@ export function TagInput({
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              aria-label={`إزالة ${tag}`}
+              aria-label={t("tagInput.remove", { tag })}
               className="text-primary/70 transition-colors hover:text-primary"
             >
               <X className="size-3.5" />

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -37,7 +38,7 @@ const OUTCOME_MAP: Record<
 
 export const Route = createFileRoute("/_appLayout/onboarding")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "تفعيل الحساب | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): OnboardingSearch => ({
     ...(STEPS.includes(search.step as OnboardingStep)
       ? { step: search.step as OnboardingStep }
@@ -50,6 +51,7 @@ export const Route = createFileRoute("/_appLayout/onboarding")({
 });
 
 function OnboardingPage() {
+  const { t } = useTranslation();
   const { step = "connect", outcome = "approved" } = Route.useSearch();
   const navigate = Route.useNavigate();
 
@@ -61,7 +63,7 @@ function OnboardingPage() {
   if (onboardingQuery.data === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">جارٍ التحميل...</p>
+        <p className="text-muted-foreground">{t("common.loading")}</p>
       </div>
     );
   }

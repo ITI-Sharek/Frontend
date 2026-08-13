@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery, useLogoutMutation } from "@/modules/auth";
@@ -9,6 +10,7 @@ import { SiteFooter } from "@/shared/components/layout/site-footer";
 import type { ProfileMenuItem } from "@/shared/components/navigation/profile-menu";
 
 export function PublicProjectsShell({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentUserQuery = useCurrentUserQuery();
   const logoutMutation = useLogoutMutation();
@@ -17,7 +19,7 @@ export function PublicProjectsShell({ children }: { children: ReactNode }) {
     ? {
         displayName: `${user.firstName} ${user.lastName}`.trim() || user.email,
         avatarUrl: user.avatarUrl,
-        menuItems: getProfileMenuItems(user),
+        menuItems: getProfileMenuItems(user, t),
       }
     : null;
 
@@ -42,6 +44,6 @@ export function PublicProjectsShell({ children }: { children: ReactNode }) {
 function getProfileMenuItems(user: {
   role: "owner" | "contributor" | "admin";
   username: string | null;
-}): ProfileMenuItem[] {
-  return [{ label: "مساحة العمل", to: getPostLoginPath(user) }];
+}, t: (key: string) => string): ProfileMenuItem[] {
+  return [{ label: t("navigation.dashboard"), to: getPostLoginPath(user) }];
 }

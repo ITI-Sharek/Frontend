@@ -1,4 +1,5 @@
 import { axiosInstance } from "@/lib/axios/axios-instance";
+import { translate } from "@/lib/translate";
 import { ROUTES } from "@/config/routes.config";
 
 import type {
@@ -247,13 +248,16 @@ export function readSocialAuthCallbackResult(
       message:
         params.get("error_description") ??
         params.get("message") ??
-        "تعذر إكمال تسجيل الدخول عبر مزود الحساب.",
+        translate("auth.callback.loginError"),
     };
   }
 
   if (params.get("demo") === "1") {
     if (!isSocialAuthProvider(provider)) {
-      return { status: "error", message: "مزود تسجيل الدخول غير معروف." };
+      return {
+        status: "error",
+        message: translate("auth.callback.unknownProvider"),
+      };
     }
 
     const intent = params.get("intent") === "register" ? "register" : "login";

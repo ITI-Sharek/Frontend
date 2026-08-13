@@ -1,5 +1,5 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { HeadContent, Scripts, createRootRoute, useRouterState } from "@tanstack/react-router";
+import { Fragment, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AppProviders } from "@/providers/app-providers";
@@ -11,11 +11,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sharek — مساهمات حقيقية، وسجل مهني قائم على الدليل" },
+      { title: "Sharek" },
       {
         name: "description",
-        content:
-          "Sharek ينظم التعاون في المشاريع مفتوحة المصدر ويحفظ سجلاً مهنياً موثوقاً للمساهمات المكتملة والأدلة التي تدعمها.",
+        content: "Sharek",
       },
       { name: "theme-color", content: "#f6f7f4", media: "(prefers-color-scheme: light)" },
       { name: "theme-color", content: "#0e1513", media: "(prefers-color-scheme: dark)" },
@@ -37,8 +36,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="antialiased">
         <AppProviders>
-          <DocumentLangSync />
-          {children}
+          <LocalizedDocumentContent>{children}</LocalizedDocumentContent>
         </AppProviders>
         <Scripts />
       </body>
@@ -46,15 +44,52 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DocumentLangSync() {
-  const { i18n } = useTranslation();
+function LocalizedDocumentContent({ children }: { children: React.ReactNode }) {
+  const { i18n, t } = useTranslation();
   const language = i18n.language.startsWith("en") ? "en" : "ar";
   const direction = language === "en" ? "ltr" : "rtl";
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = direction;
-  }, [direction, language]);
+    document.title = `${t(getRouteTitleKey(pathname))} | Sharek`;
+  }, [direction, language, pathname, t]);
 
-  return null;
+  return <Fragment key={language}>{children}</Fragment>;
+}
+
+function getRouteTitleKey(pathname: string) {
+  if (pathname === "/") return "pageTitles.home";
+  if (pathname === "/login" || pathname === "/auth/callback") return "pageTitles.login";
+  if (pathname === "/register") return "pageTitles.register";
+  if (pathname === "/forgot-password") return "pageTitles.forgotPassword";
+  if (pathname.startsWith("/admin/skill-reviews")) return "pageTitles.skillReviews";
+  if (pathname.startsWith("/admin/project-owners")) return "pageTitles.projectOwners";
+  if (pathname.startsWith("/admin/profile-fields")) return "pageTitles.profileFields";
+  if (pathname.startsWith("/admin/experience-levels")) return "pageTitles.experienceLevels";
+  if (pathname.startsWith("/admin/notifications")) return "pageTitles.adminNotifications";
+  if (pathname.startsWith("/admin")) return "pageTitles.admin";
+  if (pathname.startsWith("/dashboard")) return "pageTitles.dashboard";
+  if (pathname.startsWith("/tasks/")) return "pageTitles.contributionRequest";
+  if (pathname.startsWith("/tasks")) return "pageTitles.contributionRequests";
+  if (pathname.startsWith("/applications/")) return "pageTitles.application";
+  if (pathname.startsWith("/contribution-requests/")) return "pageTitles.contributionRequest";
+  if (pathname.startsWith("/my-projects/new")) return "pageTitles.importProject";
+  if (pathname.includes("/contribution-requests/new")) return "pageTitles.newContributionRequest";
+  if (pathname.includes("/contribution-requests")) return "pageTitles.contributionRequests";
+  if (pathname.startsWith("/my-projects/")) return "pageTitles.project";
+  if (pathname.startsWith("/my-projects")) return "pageTitles.myProjects";
+  if (pathname.startsWith("/projects")) return "pageTitles.projects";
+  if (pathname.startsWith("/notifications")) return "pageTitles.notifications";
+  if (pathname.startsWith("/messages")) return "pageTitles.messages";
+  if (pathname.startsWith("/discussions/")) return "pageTitles.discussion";
+  if (pathname.startsWith("/discussions")) return "pageTitles.discussions";
+  if (pathname.startsWith("/settings")) return "pageTitles.settings";
+  if (pathname.startsWith("/support")) return "pageTitles.support";
+  if (pathname.startsWith("/onboarding")) return "pageTitles.onboarding";
+  if (pathname.startsWith("/profile/github")) return "pageTitles.githubSkills";
+  if (pathname.startsWith("/explore")) return "pageTitles.explore";
+  if (pathname.startsWith("/home")) return "pageTitles.home";
+  return "pageTitles.home";
 }

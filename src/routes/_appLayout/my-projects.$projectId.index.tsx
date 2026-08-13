@@ -78,7 +78,7 @@ function OwnerProjectManagementPage() {
   if (projectQuery.isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل المشروع...</p>
+        <p className="text-muted-foreground">{t("project.ownerRoute.loadingTitle")}...</p>
       </div>
     );
   }
@@ -336,6 +336,7 @@ function OwnerProjectMaterials({ projectId }: { projectId: string }) {
  * verification can reconnect or re-select without leaving this page.
  */
 function RepositoryControlRecovery() {
+  const { t } = useTranslation();
   const installationsQuery = useGitHubAppInstallationsQuery();
   const startMutation = useStartGitHubAppInstallationMutation();
   const disconnectMutation = useDisconnectGitHubAppInstallationMutation();
@@ -360,17 +361,15 @@ function RepositoryControlRecovery() {
   return (
     <div className="mt-4 rounded-card border border-amber-500/30 bg-amber-500/5 p-4">
       <h3 className="text-sm font-bold text-foreground">
-        يلزم التحقق من التحكم بالمستودع
+        {t("project.repositoryRecovery.title")}
       </h3>
       <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-        مستودع منظمة أو مستودع مشترك يتطلب تثبيتاً نشطاً لتطبيق GitHub مع اختيار
-        صريح لهذا المستودع. مستودع شخصي يتطلب أن تطابق هوية GitHub الموثقة مالك
-        المستودع. أعد الربط أو الاختيار أدناه ثم حدّث بيانات المصدر.
+        {t("project.repositoryRecovery.description")}
       </p>
 
       {installationsQuery.isPending && (
         <p className="mt-3 text-xs text-muted-foreground">
-          جارٍ تحميل روابط GitHub...
+          {t("githubSkillPage.loadingInstallations")}
         </p>
       )}
 
@@ -430,13 +429,13 @@ function RepositoryControlRecovery() {
           disabled={startMutation.isPending}
           onClick={() => startConnection()}
         >
-          ربط حساب أو منظمة
+          {t("githubSkillPage.connectAccount")}
         </Button>
         <Link
           to="/profile/github"
           className="text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
         >
-          إدارة كل روابط GitHub
+          {t("project.repositoryRecovery.manageLinks")}
         </Link>
       </div>
 

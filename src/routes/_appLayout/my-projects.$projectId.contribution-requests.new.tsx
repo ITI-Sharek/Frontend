@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   ContributionRequestCreateView,
@@ -15,11 +16,12 @@ export const Route = createFileRoute(
   "/_appLayout/my-projects/$projectId/contribution-requests/new",
 )({
   beforeLoad: requireOwnerRoute,
-  head: () => ({ meta: [{ title: "إنشاء طلب مساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: NewContributionRequestPage,
 });
 
 function NewContributionRequestPage() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const navigate = useNavigate();
   const projectsQuery = useMyProjectsQuery();
@@ -27,7 +29,7 @@ function NewContributionRequestPage() {
   if (projectsQuery.isPending) {
     return (
       <PageContainer>
-        <PageFeedback title="جارٍ التحقق من المشروع" description="نتأكد من ملكية المشروع وحالة نشره." />
+        <PageFeedback title={t("project.ownerRoute.verifyingTitle")} description={t("project.ownerRoute.verifyingDescription")} />
       </PageContainer>
     );
   }
@@ -37,9 +39,9 @@ function NewContributionRequestPage() {
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر تحميل المشروع"
+          title={t("project.ownerRoute.loadErrorTitle")}
           description={getContributionRequestErrorMessage(projectsQuery.error)}
-          action={<Button onClick={() => void projectsQuery.refetch()}>إعادة المحاولة</Button>}
+          action={<Button onClick={() => void projectsQuery.refetch()}>{t("common.retry")}</Button>}
         />
       </PageContainer>
     );
@@ -51,16 +53,16 @@ function NewContributionRequestPage() {
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title={project ? "المشروع غير منشور" : "لم نعثر على المشروع"}
+          title={project ? t("project.ownerRoute.notPublishedTitle") : t("project.ownerRoute.notFoundTitle")}
           description={
             project
-              ? "انشر المشروع أولًا؛ لا يمكن إنشاء طلب مساهمة من مشروع مسودة أو مؤرشف."
-              : "المشروع غير موجود أو لا يخص هذا الحساب."
+              ? t("project.ownerRoute.notPublishedDescription")
+              : t("project.ownerRoute.notFoundDescription")
           }
           action={
             <Button asChild variant="outline">
               <a href={project ? ROUTES.ownerProject(project.id) : ROUTES.myProjects}>
-                {project ? "العودة إلى المشروع" : "العودة إلى مشاريعي"}
+                {project ? t("contributionRequests.detail.backToProject") : t("contributionRequests.detail.backToProjects")}
               </a>
             </Button>
           }
