@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -30,6 +31,7 @@ export function MaterialAnalysisPanel({
   projectRevision: number;
   projectStatus: "draft" | "published" | "archived";
 }) {
+  const { t } = useTranslation();
   const materialsQuery = useProjectMaterialsQuery(projectId);
   const constraintsQuery = useMaterialAnalysisConstraintsQuery(projectId);
   const createSet = useCreateMaterialAnalysisSetMutation(projectId);
@@ -75,26 +77,26 @@ export function MaterialAnalysisPanel({
   }
 
   if (materialsQuery.isPending || constraintsQuery.isPending) {
-    return <p className="text-sm text-muted-foreground">جارٍ تجهيز تحليل المواد...</p>;
+    return <p className="text-sm text-muted-foreground">{t("materials.analysis.preparing")}</p>;
   }
   if (materialsQuery.isError || constraintsQuery.isError) {
-    return <p className="text-sm text-destructive">تعذر تحميل إعدادات تحليل المواد.</p>;
+    return <p className="text-sm text-destructive">{t("materials.analysis.loadError")}</p>;
   }
 
   return (
     <section className="space-y-5 rounded-card border border-border bg-card p-5" aria-labelledby="material-analysis-title">
       <div>
         <h2 id="material-analysis-title" className="text-lg font-bold text-foreground">
-          مسودة من مواد المشروع
+          {t("materials.analysis.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          اختر إصدارات جاهزة لإنشاء اقتراحات خاصة بك. لا يتم تعديل المشروع أو إنشاء طلب مساهمة قبل اعتمادك الصريح.
+          {t("materials.analysis.description")}
         </p>
       </div>
 
       <div className="space-y-2">
         {readyVersions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">لا توجد إصدارات مفحوصة وجاهزة للتحليل.</p>
+          <p className="text-sm text-muted-foreground">{t("materials.analysis.noReadyVersions")}</p>
         ) : (
           readyVersions.map(({ material, version }) => {
             const key = `${material.id}:${version.version}`;
@@ -107,7 +109,7 @@ export function MaterialAnalysisPanel({
                 />
                 <span>
                   <span className="block font-semibold text-foreground">{material.title}</span>
-                  <span className="text-muted-foreground">{version.originalFilename} · الإصدار {version.version}</span>
+                  <span className="text-muted-foreground">{t("materials.analysis.version", { filename: version.originalFilename, version: version.version })}</span>
                 </span>
               </label>
             );
@@ -120,16 +122,20 @@ export function MaterialAnalysisPanel({
         onClick={startAnalysis}
         disabled={busy || selected.size === 0 || selected.size > maxDocuments}
       >
-        {busy ? "جارٍ بدء التحليل..." : `حلّل ${selected.size || "الإصدارات المحددة"}`}
+        {busy
+          ? t("materials.analysis.starting")
+          : selected.size > 0
+            ? t("materials.analysis.start", { count: selected.size })
+            : t("materials.analysis.startSelectedVersions")}
       </Button>
 
       {(createSet.isError || startRun.isError) && (
-        <p className="text-sm text-destructive">تعذر بدء التحليل. تحقق من الاشتراك وحالة الإصدارات ثم أعد المحاولة.</p>
+        <p className="text-sm text-destructive">{t("materials.analysis.startError")}</p>
       )}
 
       {adoptionError && (
         <p role="alert" className="text-sm text-destructive">
-          {getApiErrorMessage(adoptionError, "تعذر اعتماد الاقتراح. راجع البيانات وحاول مرة أخرى.")}
+          {getApiErrorMessage(adoptionError, t("materials.analysis.adoptionError"))}
         </p>
       )}
 
@@ -181,15 +187,16 @@ function AnalysisRunView({
   onAdoptProject: (suggestion: MaterialDraftSuggestion) => void;
   onAdoptRequest: (suggestion: MaterialDraftSuggestion) => void;
 }) {
+  const { t } = useTranslation();
   if (run.status !== "COMPLETED") {
-    return <p className="text-sm text-muted-foreground">حالة التحليل: {run.status === "FAILED" ? `فشل (${run.errorCode ?? "غير معروف"})` : "قيد التنفيذ..."}</p>;
+    return <p className="text-sm text-muted-foreground">{run.status === "FAILED" ? t("materials.analysis.failed", { code: run.errorCode ?? t("materials.analysis.unknown") }) : t("materials.analysis.running")}</p>;
   }
 
   return (
     <div className="space-y-3 border-t border-border pt-4">
-      <h3 className="font-semibold text-foreground">اقتراحات تحتاج مراجعتك</h3>
+      <h3 className="font-semibold text-foreground">{t("materials.analysis.suggestionsTitle")}</h3>
       {run.suggestions.length === 0 ? (
-        <p className="text-sm text-muted-foreground">لم ينتج التحليل اقتراحات قابلة للإسناد.</p>
+        <p className="text-sm text-muted-foreground">{t("materials.analysis.noSuggestions")}</p>
       ) : run.suggestions.map((suggestion) => (
         <SuggestionCard
           key={suggestion.id}
@@ -226,10 +233,11 @@ function SuggestionCard({
   onAdoptProject: () => void;
   onAdoptRequest: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <article className="space-y-3 rounded-input border border-border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-bold uppercase text-primary">{suggestion.type === "PROJECT_UPDATE" ? "تحديث مشروع" : "طلب مساهمة"}</span>
+        <span className="text-xs font-bold uppercase text-primary">{suggestion.type === "PROJECT_UPDATE" ? t("materials.analysis.projectUpdate") : t("materials.analysis.contributionRequest")}</span>
         <span className="text-xs text-muted-foreground">{suggestion.status}</span>
       </div>
       <pre className="whitespace-pre-wrap break-words text-sm text-foreground">{JSON.stringify(suggestion.payload, null, 2)}</pre>
@@ -239,22 +247,22 @@ function SuggestionCard({
           {suggestion.type === "CONTRIBUTION_REQUEST" && (
             <>
               <label className="min-w-52 flex-1 text-xs text-muted-foreground">
-                موعد إغلاق التقديم
+                {t("materials.analysis.closeTime")}
                 <Input type="datetime-local" value={closeTime} onChange={(event) => onCloseTimeChange(event.target.value)} className="mt-1" dir="ltr" disabled={projectStatus !== "published"} />
               </label>
               {projectStatus !== "published" && (
                 <p className="basis-full text-xs text-muted-foreground">
-                  انشر المشروع أولاً لإنشاء طلب مساهمة.
+                  {t("materials.analysis.publishFirst")}
                 </p>
               )}
             </>
           )}
           {suggestion.type === "PROJECT_UPDATE" ? (
-            <Button type="button" size="sm" onClick={onAdoptProject} disabled={actionsBusy}>اعتماد تحديث المشروع</Button>
+            <Button type="button" size="sm" onClick={onAdoptProject} disabled={actionsBusy}>{t("materials.analysis.adoptProject")}</Button>
           ) : (
-            <Button type="button" size="sm" onClick={onAdoptRequest} disabled={actionsBusy || !closeTime || projectStatus !== "published"}>إنشاء طلب مساهمة كمسودة</Button>
+            <Button type="button" size="sm" onClick={onAdoptRequest} disabled={actionsBusy || !closeTime || projectStatus !== "published"}>{t("materials.analysis.createDraft")}</Button>
           )}
-          <Button type="button" size="sm" variant="destructive" onClick={onReject} disabled={actionsBusy}>رفض</Button>
+          <Button type="button" size="sm" variant="destructive" onClick={onReject} disabled={actionsBusy}>{t("materials.analysis.reject")}</Button>
         </div>
       )}
     </article>

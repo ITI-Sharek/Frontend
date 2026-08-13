@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, FilePlus2, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -28,16 +29,16 @@ type OwnerSectionStatus =
 
 const SECTION_ORDER: Array<{
   status: OwnerSectionStatus;
-  title: string;
+  titleKey: string;
   alwaysShown: boolean;
 }> = [
-  { status: "published", title: "منشور", alwaysShown: true },
-  { status: "applicationsClosed", title: "التقديم مغلق", alwaysShown: false },
-  { status: "draft", title: "مسودات", alwaysShown: true },
-  { status: "assigned", title: "مُسنَد", alwaysShown: false },
-  { status: "completed", title: "مكتمل", alwaysShown: false },
-  { status: "cancelled", title: "مُلغى", alwaysShown: false },
-  { status: "discarded", title: "متجاهل", alwaysShown: false },
+  { status: "published", titleKey: "published", alwaysShown: true },
+  { status: "applicationsClosed", titleKey: "applicationsClosed", alwaysShown: false },
+  { status: "draft", titleKey: "drafts", alwaysShown: true },
+  { status: "assigned", titleKey: "assigned", alwaysShown: false },
+  { status: "completed", titleKey: "completed", alwaysShown: false },
+  { status: "cancelled", titleKey: "cancelled", alwaysShown: false },
+  { status: "discarded", titleKey: "discarded", alwaysShown: false },
 ];
 
 export function OwnerContributionRequestsWorkspace({
@@ -55,6 +56,7 @@ export function OwnerContributionRequestsWorkspace({
   newRequestHref: string;
   onCreateRequest?: () => void;
 }) {
+  const { t } = useTranslation();
   const query = useOwnerProjectContributionRequestsQuery(projectId);
   const [activeStatus, setActiveStatus] =
     useState<OwnerSectionStatus>("published");
@@ -64,8 +66,8 @@ export function OwnerContributionRequestsWorkspace({
       <PageContainer>
         <PageFeedback
           icon={Loader2}
-          title="جارٍ تحميل طلبات المساهمة"
-          description="نسترجع طلبات هذا المشروع من كل الحالات."
+          title={t("contributionRequests.ownerWorkspace.loadingTitle")}
+          description={t("contributionRequests.ownerWorkspace.loadingDescription")}
         />
       </PageContainer>
     );
@@ -76,11 +78,11 @@ export function OwnerContributionRequestsWorkspace({
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر تحميل طلبات المساهمة"
+          title={t("contributionRequests.ownerWorkspace.loadErrorTitle")}
           description={getContributionRequestErrorMessage(query.error)}
           action={
             <Button size="sm" onClick={() => void query.refetch()}>
-              إعادة المحاولة
+              {t("common.retry")}
             </Button>
           }
         />
@@ -94,20 +96,20 @@ export function OwnerContributionRequestsWorkspace({
   return (
     <PageContainer className="max-w-4xl">
       <PageHeader
-        title={`طلبات المساهمة — ${projectTitle}`}
-        description="كل طلبات المساهمة لهذا المشروع مجمّعة حسب حالتها، مع توضيح الطلبات التي أُغلق التقديم عليها."
+        title={t("contributionRequests.ownerWorkspace.title", { project: projectTitle })}
+        description={t("contributionRequests.ownerWorkspace.description")}
         actions={
           canCreate ? (
             onCreateRequest ? (
               <Button size="sm" onClick={onCreateRequest}>
                 <FilePlus2 className="size-4" aria-hidden="true" />
-                طلب مساهمة جديد
+                {t("contributionRequests.ownerWorkspace.newRequest")}
               </Button>
             ) : (
               <Button asChild size="sm">
                 <Link to={newRequestHref}>
                   <FilePlus2 className="size-4" aria-hidden="true" />
-                  طلب مساهمة جديد
+                  {t("contributionRequests.ownerWorkspace.newRequest")}
                 </Link>
               </Button>
             )
@@ -119,21 +121,21 @@ export function OwnerContributionRequestsWorkspace({
         <PageFeedback
           className="mt-6"
           icon={FilePlus2}
-          title="لا توجد طلبات مساهمة بعد"
+          title={t("contributionRequests.ownerWorkspace.emptyTitle")}
           description={
             canCreate
-              ? "أنشئ أول طلب مساهمة لهذا المشروع."
-              : "انشر المشروع أولًا لتتمكن من إنشاء طلب مساهمة."
+              ? t("contributionRequests.ownerWorkspace.canCreateDescription")
+              : t("contributionRequests.ownerWorkspace.cannotCreateDescription")
           }
           action={
             canCreate ? (
               onCreateRequest ? (
                 <Button size="sm" onClick={onCreateRequest}>
-                  إنشاء طلب مساهمة
+                  {t("contributionRequests.ownerWorkspace.createRequest")}
                 </Button>
               ) : (
                 <Button asChild size="sm">
-                  <Link to={newRequestHref}>إنشاء طلب مساهمة</Link>
+                  <Link to={newRequestHref}>{t("contributionRequests.ownerWorkspace.createRequest")}</Link>
                 </Button>
               )
             ) : undefined
@@ -143,10 +145,10 @@ export function OwnerContributionRequestsWorkspace({
         <div className="mt-6">
           <div
             role="tablist"
-            aria-label="حالات طلبات المساهمة"
+            aria-label={t("contributionRequests.ownerWorkspace.statuses")}
             className="flex gap-1 overflow-x-auto border-b border-border pb-px"
           >
-            {SECTION_ORDER.map(({ status, title, alwaysShown }) => {
+            {SECTION_ORDER.map(({ status, titleKey, alwaysShown }) => {
               const count = getSectionItems(status, byStatus, now).length;
               if (count === 0 && !alwaysShown) return null;
               const selected = activeStatus === status;
@@ -164,7 +166,7 @@ export function OwnerContributionRequestsWorkspace({
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {title}
+                  {t(`contributionRequests.ownerWorkspace.sections.${titleKey}`)}
                   <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                     {count}
                   </span>
@@ -179,7 +181,8 @@ export function OwnerContributionRequestsWorkspace({
             <ContributionRequestSection
               title={
                 SECTION_ORDER.find((section) => section.status === activeStatus)
-                  ?.title ?? "الطلبات"
+                  ? t(`contributionRequests.ownerWorkspace.sections.${SECTION_ORDER.find((section) => section.status === activeStatus)?.titleKey}`)
+                  : t("contributionRequests.ownerWorkspace.requests")
               }
               items={getSectionItems(activeStatus, byStatus, now)}
               requestHref={requestHref}
@@ -223,6 +226,7 @@ function ContributionRequestSection({
   requestHref: (requestId: string) => string;
   now: Date;
 }) {
+  const { t } = useTranslation();
   return (
     <section>
       <h2 className="text-sm font-bold text-foreground">
@@ -233,7 +237,7 @@ function ContributionRequestSection({
       </h2>
       {items.length === 0 ? (
         <p className="mt-2 text-xs text-muted-foreground">
-          لا توجد طلبات في هذه الحالة.
+          {t("contributionRequests.ownerWorkspace.emptySection")}
         </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-2">
@@ -261,6 +265,7 @@ function ContributionRequestRow({
   href: string;
   now: Date;
 }) {
+  const { t } = useTranslation();
   const applicationsClosed = isContributionRequestApplicationsClosed(
     request,
     now,
@@ -277,12 +282,12 @@ function ContributionRequestRow({
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {request.applicationsCloseTime
-            ? `${applicationsClosed ? "أُغلق التقديم" : "إغلاق التقديم"}: ${formatContributionDateTime(request.applicationsCloseTime)}`
-            : "لم يُحدَّد وقت إغلاق التقديم"}
+            ? t(applicationsClosed ? "contributionRequests.ownerWorkspace.closedAt" : "contributionRequests.ownerWorkspace.closeAt", { date: formatContributionDateTime(request.applicationsCloseTime) })
+            : t("contributionRequests.ownerWorkspace.noCloseTime")}
         </p>
         {applicationsClosed && (
           <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-            لا يستقبل طلبات تقديم جديدة، والطلبات السابقة محفوظة للمراجعة.
+            {t("contributionRequests.ownerWorkspace.closedHelp")}
           </p>
         )}
       </div>

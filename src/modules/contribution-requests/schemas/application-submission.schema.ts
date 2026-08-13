@@ -1,17 +1,28 @@
 import { z } from "zod";
+import type { TFunction } from "i18next";
 
-export const applicationSubmissionSchema = z.object({
-  contributionApproach: z
-    .string()
-    .trim()
-    .min(10, "اكتب نهج مساهمة من 10 إلى 5000 حرف.")
-    .max(5000, "اكتب نهج مساهمة من 10 إلى 5000 حرف."),
-  proposedDeliveryDurationDays: z.coerce
-    .number()
-    .int("حدد مدة تسليم كاملة بين يوم واحد و365 يومًا.")
-    .min(1, "حدد مدة تسليم كاملة بين يوم واحد و365 يومًا.")
-    .max(365, "حدد مدة تسليم كاملة بين يوم واحد و365 يومًا."),
-});
+import { translate } from "@/lib/translate";
+
+function createApplicationSubmissionSchema(message: string) {
+  return z.object({
+    contributionApproach: z.string().trim().min(10, message).max(5000, message),
+    proposedDeliveryDurationDays: z.coerce
+      .number()
+      .int(message)
+      .min(1, message)
+      .max(365, message),
+  });
+}
+
+export const applicationSubmissionSchema = createApplicationSubmissionSchema(
+  translate("contributionRequests.contributorDetail.validation"),
+);
+
+export function getApplicationSubmissionSchema(t: TFunction) {
+  return createApplicationSubmissionSchema(
+    t("contributionRequests.contributorDetail.validation"),
+  );
+}
 
 export type ApplicationSubmissionInput = z.input<
   typeof applicationSubmissionSchema

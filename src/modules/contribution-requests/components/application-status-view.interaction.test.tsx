@@ -90,7 +90,7 @@ describe("Application withdrawal interaction", () => {
     expect(second.idempotencyKey).toBe(first.idempotencyKey);
 
     await act(async () => {
-      findButton("تراجع")?.click();
+      findButton("إلغاء")?.click();
     });
     expect(container.querySelector('[role="group"]')).toBeNull();
     expect(document.activeElement?.id).toBe("withdrawal-trigger");

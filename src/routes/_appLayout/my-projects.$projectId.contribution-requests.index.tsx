@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   ContributionRequestCreateView,
@@ -21,11 +22,12 @@ export const Route = createFileRoute(
   "/_appLayout/my-projects/$projectId/contribution-requests/",
 )({
   beforeLoad: requireOwnerRoute,
-  head: () => ({ meta: [{ title: "طلبات المساهمة | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: OwnerContributionRequestsPage,
 });
 
 function OwnerContributionRequestsPage() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const navigate = Route.useNavigate();
   const projectQuery = useOwnerProjectQuery(projectId);
@@ -35,8 +37,8 @@ function OwnerContributionRequestsPage() {
     return (
       <PageContainer>
         <PageFeedback
-          title="جارٍ تحميل المشروع"
-          description="نتأكد من ملكية المشروع."
+          title={t("project.ownerRoute.loadingTitle")}
+          description={t("project.ownerRoute.loadingDescription")}
         />
       </PageContainer>
     );
@@ -47,15 +49,15 @@ function OwnerContributionRequestsPage() {
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر تحميل المشروع"
+          title={t("project.ownerRoute.loadErrorTitle")}
           description={getContributionRequestErrorMessage(projectQuery.error)}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button size="sm" onClick={() => void projectQuery.refetch()}>
-                إعادة المحاولة
+                {t("common.retry")}
               </Button>
               <Button asChild size="sm" variant="outline">
-                <a href={ROUTES.myProjects}>العودة إلى مشاريعي</a>
+                <a href={ROUTES.myProjects}>{t("contributionRequests.detail.backToProjects")}</a>
               </Button>
             </div>
           }
@@ -66,7 +68,7 @@ function OwnerContributionRequestsPage() {
 
   const project = projectQuery.data;
 
-  const projectTitle = project.project.title || "بلا عنوان";
+  const projectTitle = project.project.title || t("project.ownerRoute.untitled");
 
   return (
     <>
@@ -80,8 +82,8 @@ function OwnerContributionRequestsPage() {
       />
       <SidePanel
         open={createOpen}
-        title="طلب مساهمة جديد"
-        description={`أنشئ مسودة داخل مشروع «${projectTitle}» من دون مغادرة قائمة الطلبات.`}
+        title={t("contributionRequests.ownerWorkspace.newRequest")}
+        description={t("project.ownerRoute.createPanelDescription", { project: projectTitle })}
         onClose={() => setCreateOpen(false)}
       >
         <ContributionRequestCreateView

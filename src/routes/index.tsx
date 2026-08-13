@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/")({ component: RootDispatcher });
  * stay single-purpose and neither route has to know about the other.
  */
 function RootDispatcher() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const hasToken =
     typeof window !== "undefined" && storageService.getAccessToken() !== null;
@@ -41,7 +43,7 @@ function RootDispatcher() {
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      جارٍ التحميل…
+      {t("common.loading_ellipsis")}
     </div>
   );
 }

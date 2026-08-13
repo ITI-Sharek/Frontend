@@ -1,4 +1,5 @@
 import { AtSign, Check, Loader2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -21,13 +22,6 @@ interface UsernameFieldProps {
   onUseSuggestion: (suggestion: string) => void;
 }
 
-const REASON_MESSAGE: Record<UsernameAvailabilityReason, string> = {
-  invalid_format:
-    "٣ إلى ٣٠ حرفًا، حروف/أرقام/شرطات/شرطات سفلية فقط، بدون بداية أو نهاية بحرف خاص.",
-  reserved: "هذا الاسم محجوز ولا يمكن استخدامه.",
-  taken: "هذا الاسم غير متاح.",
-};
-
 export function UsernameField({
   id,
   value,
@@ -40,13 +34,14 @@ export function UsernameField({
   suggestion,
   onUseSuggestion,
 }: UsernameFieldProps) {
+  const { t } = useTranslation();
   const showFormatError = value.trim().length > 0 && !formatValid;
   const showStatus = value.trim().length > 0 && formatValid;
 
   return (
     <div className="flex w-full flex-col gap-1.5">
       <Label htmlFor={id} className="w-full text-right">
-        اسم المستخدم
+        {t("auth.username.label")}
       </Label>
       <div className="relative w-full">
         <Input
@@ -87,17 +82,17 @@ export function UsernameField({
               : "text-muted-foreground",
         )}
       >
-        {showFormatError && REASON_MESSAGE.invalid_format}
-        {!showFormatError && showStatus && isChecking && "جارٍ التحقق من التوفر..."}
+        {showFormatError && t("auth.username.invalidFormat")}
+        {!showFormatError && showStatus && isChecking && t("auth.username.checking")}
         {!showFormatError && showStatus && !isChecking && checkFailed &&
-          "تعذر التحقق من التوفر الآن، يمكنك المتابعة."}
+          t("auth.username.checkFailed")}
         {!showFormatError && showStatus && !isChecking && !checkFailed &&
           available === true &&
-          "هذا الاسم متاح."}
+          t("auth.username.available")}
         {!showFormatError && showStatus && !isChecking && !checkFailed &&
           available === false &&
           reason &&
-          REASON_MESSAGE[reason]}
+          t(`auth.username.${reason}`)}
       </p>
 
       {available === false && reason === "taken" && suggestion && (
@@ -106,7 +101,7 @@ export function UsernameField({
           onClick={() => onUseSuggestion(suggestion)}
           className="w-fit self-end rounded-full border border-primary/40 bg-primary/5 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
         >
-          جرّب: <span dir="ltr">{suggestion}</span>
+          {t("auth.username.try")} <span dir="ltr">{suggestion}</span>
         </button>
       )}
     </div>

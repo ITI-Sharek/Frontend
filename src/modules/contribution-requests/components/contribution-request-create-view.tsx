@@ -1,5 +1,6 @@
 import { FilePlus2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Card } from "@/shared/components/ui/card";
 import {
@@ -32,6 +33,7 @@ export function ContributionRequestCreateView({
   onCancel?: () => void;
   onCreated: (request: ContributionRequestDto) => void;
 }) {
+  const { t } = useTranslation();
   const mutation = useCreateContributionRequestMutation();
   const idempotency = useRef(new ContributionRequestIdempotencyKeyStore());
   const [error, setError] = useState<string | null>(null);
@@ -56,8 +58,8 @@ export function ContributionRequestCreateView({
     <>
       {presentation === "page" && (
         <PageHeader
-          title="إنشاء طلب مساهمة"
-          description={`أنشئ مسودة خاصة داخل مشروع «${projectTitle}». بعد حفظ المسودة يمكنك مراجعتها ثم نشرها للمساهمين بإجراء منفصل.`}
+          title={t("contributionRequests.create.title")}
+          description={t("contributionRequests.create.description", { project: projectTitle })}
         />
       )}
       <Card
@@ -70,10 +72,9 @@ export function ContributionRequestCreateView({
             <FilePlus2 className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h2 className="font-bold text-foreground">تفاصيل المسودة</h2>
+            <h2 className="font-bold text-foreground">{t("contributionRequests.create.draftDetails")}</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              المالك والمشروع يُحددان من جلسة الدخول ولا يُرسلان كحقول قابلة
-              للتعديل.
+              {t("contributionRequests.create.ownerProjectNotice")}
             </p>
           </div>
         </div>
@@ -81,7 +82,7 @@ export function ContributionRequestCreateView({
           initialState={createEmptyContributionRequestForm()}
           isSubmitting={mutation.isPending}
           submitError={error}
-          submitLabel="حفظ المسودة"
+          submitLabel={t("contributionRequests.create.saveDraft")}
           cancelHref={cancelHref}
           onCancel={onCancel}
           onSubmit={create}

@@ -1,4 +1,5 @@
 import { Archive, CircleCheck, FileText, FolderGit2, Loader2, Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
@@ -10,9 +11,9 @@ import type {
 } from "../../types/my-projects.types";
 
 const STATUS_META = {
-  draft: { tone: "neutral" as const, icon: FileText, label: "مسودة" },
-  published: { tone: "positive" as const, icon: CircleCheck, label: "منشور" },
-  archived: { tone: "neutral" as const, icon: Archive, label: "مؤرشف" },
+  draft: { tone: "neutral" as const, icon: FileText, labelKey: "draft" },
+  published: { tone: "positive" as const, icon: CircleCheck, labelKey: "published" },
+  archived: { tone: "neutral" as const, icon: Archive, labelKey: "archived" },
 };
 
 /**
@@ -37,19 +38,20 @@ export function MyProjectsList({
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">مشاريعي</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t("myProjects.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {quota.used} من {quota.monthlyLimit} طلب مساهمة هذا الشهر
+            {t("myProjects.monthlyQuota", { used: quota.used, total: quota.monthlyLimit })}
           </p>
         </div>
         <Button asChild size="sm">
           <a href={importHref}>
             <Plus className="size-4" />
-            استيراد مشروع
+            {t("myProjects.importProject")}
           </a>
         </Button>
       </div>
@@ -58,16 +60,15 @@ export function MyProjectsList({
         <div className="mt-6 rounded-card border border-dashed border-border bg-card p-12 text-center">
           <FolderGit2 className="mx-auto size-10 text-muted-foreground" />
           <h2 className="mt-3 text-lg font-bold text-foreground">
-            استورد مشروعك الأول من GitHub
+            {t("myProjects.emptyTitle")}
           </h2>
           <p className="mx-auto mt-1.5 max-w-md text-sm leading-6 text-muted-foreground">
-            نجلب البيانات تلقائيًا من المستودع، تراجعها وتنشرها — ثم تنشئ طلبات
-            مساهمة يراها مساهمون مؤهلون.
+            {t("myProjects.emptyDescription")}
           </p>
           <Button asChild size="sm" className="mt-4">
             <a href={importHref}>
               <Plus className="size-4" />
-              استيراد مشروع
+              {t("myProjects.importProject")}
             </a>
           </Button>
         </div>
@@ -86,16 +87,14 @@ export function MyProjectsList({
                       {project.title}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {project.openRequestsCount} طلبات مساهمة مفتوحة ·{" "}
-                      {project.pendingApplicationsCount} طلبات بانتظار قرارك · آخر
-                      نشاط {project.lastActivityLabel}
+                      {t("myProjects.projectSummary", { open: project.openRequestsCount, pending: project.pendingApplicationsCount, activity: project.lastActivityLabel })}
                     </p>
                   </div>
                   <StatusChip tone={meta.tone} icon={meta.icon}>
-                    {meta.label}
+                    {t(`myProjects.status.${meta.labelKey}`)}
                   </StatusChip>
                   <Button asChild size="sm" variant="outline">
-                    <a href={onProjectHref(project.id)}>إدارة</a>
+                    <a href={onProjectHref(project.id)}>{t("myProjects.manage")}</a>
                   </Button>
                 </div>
               );
@@ -111,7 +110,7 @@ export function MyProjectsList({
                 onClick={onLoadMore}
               >
                 {isLoadingMore && <Loader2 className="size-4 animate-spin" />}
-                تحميل المزيد
+                {t("myProjects.loadMore")}
               </Button>
             </div>
           )}

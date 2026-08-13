@@ -51,7 +51,7 @@ export const GITHUB_SKILL_ANALYSIS_PATH = "/profile/github";
 
 export const Route = createFileRoute("/_appLayout/profile/github")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "تحليل المهارات عبر GitHub | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: validateGithubSkillAnalysisSearch,
   component: GithubSkillAnalysisPage,
 });
@@ -287,22 +287,20 @@ function GithubSkillAnalysisPage() {
             <Github className="mt-0.5 size-6 shrink-0 text-foreground" />
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                تحليل المهارات عبر GitHub
+                {t("githubSkillPage.title")}
                 <span className="ms-2 rounded-full border border-border px-2 py-0.5 align-middle text-[11px] font-normal text-muted-foreground">
-                  اختياري
+                  {t("common.optional")}
                 </span>
               </h1>
               <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-                هذه الخطوة اختيارية بالكامل ولا تؤثر على التسجيل أو توثيق البريد
-                أو إدارة ملفك أو استكشاف المشاريع. ربط تطبيق GitHub منفصل تماماً
-                عن تسجيل الدخول عبر GitHub، ولا يبدأ أي تحليل تلقائياً.
+                {t("githubSkillPage.description")}
               </p>
             </div>
           </div>
           <Button asChild variant="ghost" size="sm">
             <a href={ROUTES.settings}>
               <ArrowRight className="size-4" />
-              الإعدادات
+              {t("navigation.settings")}
             </a>
           </Button>
         </div>
@@ -324,7 +322,7 @@ function GithubSkillAnalysisPage() {
               }}
             >
               <RefreshCw className="size-4" />
-              إعادة بدء الربط
+              {t("githubSkillPage.restart")}
             </Button>
             <Button
               type="button"
@@ -332,7 +330,7 @@ function GithubSkillAnalysisPage() {
               variant="outline"
               onClick={clearCallbackSearch}
             >
-              تجاهل
+              {t("githubSkillPage.dismiss")}
             </Button>
           </div>
         </Card>
@@ -342,7 +340,7 @@ function GithubSkillAnalysisPage() {
         <Card>
           {attemptQuery.isPending && (
             <p className="text-sm text-muted-foreground">
-              جارٍ إكمال الربط مع GitHub...
+              {t("githubSkillPage.completing")}
             </p>
           )}
           {attemptQuery.isError && (
@@ -361,7 +359,7 @@ function GithubSkillAnalysisPage() {
                 }}
               >
                 <RefreshCw className="size-4" />
-                إعادة بدء الربط
+                {t("githubSkillPage.restart")}
               </Button>
             </>
           )}
@@ -396,7 +394,7 @@ function GithubSkillAnalysisPage() {
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-foreground">
-            روابط تطبيق GitHub
+            {t("githubSkillPage.installations")}
           </h2>
           <Button
             type="button"
@@ -406,13 +404,13 @@ function GithubSkillAnalysisPage() {
             onClick={() => startConnection()}
           >
             <Github className="size-4" />
-            ربط حساب أو منظمة
+            {t("githubSkillPage.connectAccount")}
           </Button>
         </div>
 
         {installationsQuery.isPending && (
           <p className="mt-4 text-xs text-muted-foreground">
-            جارٍ تحميل روابط GitHub...
+            {t("githubSkillPage.loadingInstallations")}
           </p>
         )}
 
@@ -424,8 +422,7 @@ function GithubSkillAnalysisPage() {
 
         {installationsQuery.isSuccess && installations.length === 0 && (
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-            لا يوجد أي ربط حتى الآن. يمكنك ربط أكثر من حساب شخصي أو منظمة، وكل
-            ربط يُدار بشكل مستقل.
+            {t("githubSkillPage.emptyInstallations")}
           </p>
         )}
 
@@ -510,11 +507,11 @@ function GithubSkillAnalysisPage() {
                 }
               >
                 {startGenerationMutation.isPending
-                  ? "جارٍ البدء..."
-                  : "بدء تحليل المهارات"}
+                  ? t("githubSkillPage.starting")
+                  : t("githubSkillPage.start")}
               </Button>
               <p className="mt-2 text-xs text-muted-foreground">
-                لن يُرسل أي طلب تحليل قبل ضغطك على هذا الزر.
+                {t("githubSkillPage.startHelp")}
               </p>
             </div>
           </Card>

@@ -1,5 +1,6 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
@@ -17,6 +18,7 @@ export function DiscardContributionRequestDialog({
   onCancel: () => void;
   onConfirm: (reason: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState("");
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -67,16 +69,16 @@ export function DiscardContributionRequestDialog({
           </span>
           <div>
             <h2 id="discard-request-title" className="text-lg font-bold text-foreground">
-              تجاهل هذه المسودة؟
+              {t("contributionRequests.discardDialog.title")}
             </h2>
             <p id="discard-request-description" className="mt-1 text-sm leading-6 text-muted-foreground">
-              هذا إجراء نهائي، لكنه لا يحذف السجل. ستبقى المسودة محفوظة للعرض فقط.
+              {t("contributionRequests.discardDialog.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-5">
-          <Label htmlFor="discard-reason">السبب (اختياري)</Label>
+          <Label htmlFor="discard-reason">{t("contributionRequests.cancelDialog.reason")}</Label>
           <textarea
             id="discard-reason"
             value={reason}
@@ -90,7 +92,7 @@ export function DiscardContributionRequestDialog({
           />
           {reason.trim().length === 1 && (
             <p id="discard-reason-error" role="alert" className="mt-1 text-xs text-destructive">
-              اكتب حرفين على الأقل أو اترك السبب فارغًا.
+              {t("contributionRequests.cancelDialog.reasonError")}
             </p>
           )}
         </div>
@@ -109,7 +111,7 @@ export function DiscardContributionRequestDialog({
             disabled={isDiscarding}
             onClick={onCancel}
           >
-            إلغاء
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -118,7 +120,7 @@ export function DiscardContributionRequestDialog({
             onClick={() => void onConfirm(reason.trim())}
           >
             {isDiscarding && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-            تجاهل المسودة
+            {t("contributionRequests.discardDialog.confirm")}
           </Button>
         </div>
       </section>

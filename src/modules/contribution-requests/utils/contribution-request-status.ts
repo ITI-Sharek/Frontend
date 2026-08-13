@@ -9,6 +9,7 @@ import {
 import type { ComponentType } from "react";
 
 import type { StatusChipTone } from "@/shared/components/data-display/status-chip";
+import { translate } from "@/lib/translate";
 
 import type {
   ContributionRequestDto,
@@ -24,21 +25,25 @@ interface ContributionRequestStatusMeta {
 
 const STATUS_META: Record<
   keyof ContributionRequestsByStatusDto,
-  ContributionRequestStatusMeta
+  Omit<ContributionRequestStatusMeta, "label"> & { labelKey: string }
 > = {
-  draft: { tone: "neutral", icon: FileText, label: "مسودة" },
-  published: { tone: "waiting", icon: Radio, label: "منشور" },
-  assigned: { tone: "attention", icon: UserCheck, label: "مُسنَد" },
-  completed: { tone: "positive", icon: CheckCircle2, label: "مكتمل" },
-  cancelled: { tone: "negative", icon: CircleAlert, label: "مُلغى" },
-  discarded: { tone: "negative", icon: Trash2, label: "تم التجاهل" },
+  draft: { tone: "neutral", icon: FileText, labelKey: "draft" },
+  published: { tone: "waiting", icon: Radio, labelKey: "published" },
+  assigned: { tone: "attention", icon: UserCheck, labelKey: "assigned" },
+  completed: { tone: "positive", icon: CheckCircle2, labelKey: "completed" },
+  cancelled: { tone: "negative", icon: CircleAlert, labelKey: "cancelled" },
+  discarded: { tone: "negative", icon: Trash2, labelKey: "discarded" },
 };
 
 export function getContributionRequestStatusMeta(
   status: ContributionRequestStatus,
 ): ContributionRequestStatusMeta {
   if (status in STATUS_META) {
-    return STATUS_META[status as keyof typeof STATUS_META];
+    const meta = STATUS_META[status as keyof typeof STATUS_META];
+    return {
+      ...meta,
+      label: translate(`contributionRequests.status.${meta.labelKey}`),
+    };
   }
   return { tone: "neutral", icon: CircleAlert, label: status };
 }
@@ -67,7 +72,11 @@ export function getOwnerContributionRequestStatusMeta(
   now?: Date,
 ): ContributionRequestStatusMeta {
   if (isContributionRequestApplicationsClosed(request, now)) {
-    return { tone: "neutral", icon: CircleAlert, label: "التقديم مغلق" };
+    return {
+      tone: "neutral",
+      icon: CircleAlert,
+      label: translate("contributionRequests.status.applicationsClosed"),
+    };
   }
 
   return getContributionRequestStatusMeta(request.status);

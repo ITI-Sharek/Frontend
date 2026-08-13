@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { requireMemberRoute } from "@/modules/auth";
 import { OwnerDeliveryInbox } from "@/modules/delivery-reviews";
@@ -9,11 +10,12 @@ import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 export const Route = createFileRoute("/_appLayout/my-projects/")({
   beforeLoad: requireMemberRoute,
-  head: () => ({ meta: [{ title: "مشاريعي | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: MyProjectsPage,
 });
 
 function MyProjectsPage() {
+  const { t } = useTranslation();
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [loadedProjects, setLoadedProjects] = useState<MyProjectSummaryDto[]>(
     [],
@@ -27,7 +29,7 @@ function MyProjectsPage() {
         <p className="max-w-md text-sm leading-6 text-destructive">
           {getApiErrorMessage(
             projectsQuery.error,
-            "تعذر تحميل مشاريعك — حاول مرة أخرى.",
+            t("myProjects.loadError"),
           )}
         </p>
       </div>
@@ -37,7 +39,7 @@ function MyProjectsPage() {
   if (projectsQuery.data === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">جارٍ تحميل مشاريعك...</p>
+        <p className="text-muted-foreground">{t("myProjects.loading")}</p>
       </div>
     );
   }

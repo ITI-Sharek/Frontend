@@ -1,16 +1,15 @@
 import { ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
+import { translate } from "@/lib/translate";
 import { Button } from "@/shared/components/ui/button";
 
 import type { GitHubAppInstallationLinkDto } from "../types/github-app.types";
 
-/**
- * Local disconnect is deliberately narrower than uninstalling the GitHub App
- * and completely unrelated to GitHub social login. The copy below is part of
- * the contract and is asserted by tests.
- */
-export const GITHUB_APP_DISCONNECT_COPY =
-  "الفصل يزيل ارتباط Share-k المحلي بالمستودعات فقط. لا يقوم بإلغاء تثبيت تطبيق GitHub ولا بفصل تسجيل الدخول عبر GitHub.";
+/** A compatibility export for consumers of the former copy constant. */
+export const GITHUB_APP_DISCONNECT_COPY = translate(
+  "githubApp.disconnectDialog.description",
+);
 
 interface GitHubAppDisconnectConfirmProps {
   installation: GitHubAppInstallationLinkDto;
@@ -27,20 +26,21 @@ export function GitHubAppDisconnectConfirm({
   isSubmitting = false,
   errorMessage = null,
 }: GitHubAppDisconnectConfirmProps) {
+  const { t } = useTranslation();
   return (
     <div
       role="alertdialog"
-      aria-label="تأكيد فصل ربط GitHub"
+      aria-label={t("githubApp.disconnectDialog.aria")}
       className="rounded-card border border-destructive/40 bg-destructive/5 p-5"
     >
       <h3 className="text-sm font-bold text-foreground">
-        فصل الربط مع{" "}
+        {t("githubApp.disconnectDialog.title")} {" "}
         <span dir="ltr" className="font-mono">
           {installation.accountLogin}
         </span>
       </h3>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-        {GITHUB_APP_DISCONNECT_COPY}
+        {t("githubApp.disconnectDialog.description")}
       </p>
 
       {errorMessage && (
@@ -57,7 +57,7 @@ export function GitHubAppDisconnectConfirm({
           onClick={onConfirm}
           disabled={isSubmitting}
         >
-          تأكيد الفصل المحلي
+          {t("githubApp.disconnectDialog.confirm")}
         </Button>
         <Button
           type="button"
@@ -66,7 +66,7 @@ export function GitHubAppDisconnectConfirm({
           onClick={onCancel}
           disabled={isSubmitting}
         >
-          إلغاء
+          {t("common.cancel")}
         </Button>
         {installation.manageUrl && (
           <a
@@ -76,7 +76,7 @@ export function GitHubAppDisconnectConfirm({
             className="inline-flex min-h-10 items-center gap-2 rounded-input px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             <ExternalLink className="size-4" />
-            إدارة أو إزالة التطبيق من GitHub
+            {t("githubApp.installations.manage")}
           </a>
         )}
       </div>

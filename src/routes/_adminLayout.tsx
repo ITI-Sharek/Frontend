@@ -76,15 +76,15 @@ function AdminLayout() {
     <AppShell
       nav={navigation}
       brand={{
-        title: "إدارة شارك",
+        title: t("adminLayout.brandTitle"),
         subtitle: "Review operations",
         icon: ShieldCheck,
       }}
-      navigationLabel="تنقل الإدارة"
+      navigationLabel={t("adminLayout.navigationLabel")}
       topBar={
         <WorkspaceTopBar
-          title="مكتب المراجعة"
-          description="طوابير الثقة والسلامة"
+          title={t("adminLayout.workspaceTitle")}
+          description={t("adminLayout.workspaceDescription")}
           actions={
             <>
               <NotificationPopover
@@ -97,7 +97,7 @@ function AdminLayout() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="تسجيل الخروج"
+                aria-label={t("auth.logout")}
                 disabled={logoutMutation.isPending}
                 onClick={() => {
                   logoutMutation.mutate(undefined, {
@@ -122,13 +122,14 @@ function AdminLayout() {
 }
 
 function AdminSessionLoadingState() {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      جارٍ التحقق من صلاحية الإدارة…
+      {t("common.loading_admin_session")}
     </div>
   );
 }

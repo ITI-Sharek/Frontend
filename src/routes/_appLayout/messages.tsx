@@ -8,7 +8,7 @@ interface MessagesSearch {
 }
 
 export const Route = createFileRoute("/_appLayout/messages")({
-  head: () => ({ meta: [{ title: "المحادثات | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): MessagesSearch =>
     typeof search.conversation === "string"
       ? { conversation: search.conversation }

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import {
   AdminSkillReviewWorkspace,
@@ -12,13 +13,12 @@ import {
 import { Button } from "@/shared/components/ui/button";
 
 export const Route = createFileRoute("/_adminLayout/admin/skill-reviews/$userId")({
-  head: ({ params }) => ({
-    meta: [{ title: `مراجعة ${params.userId} | Sharek` }],
-  }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: AdminSkillReviewWorkspacePage,
 });
 
 function AdminSkillReviewWorkspacePage() {
+  const { t } = useTranslation();
   const { userId } = Route.useParams();
   const pendingReviews = useAdminPendingSkillReviewsQuery({ page: 1, limit: 100 });
 
@@ -26,15 +26,15 @@ function AdminSkillReviewWorkspacePage() {
     return (
       <PageContainer>
         <PageHeader
-          title="مساحة مراجعة المساهم"
-          description="جارٍ تحميل المهارات والأدلة…"
+          title={t("adminReview.workspaceTitle")}
+          description={t("adminReview.loadingDescription")}
         />
         <div
           role="status"
           aria-live="polite"
           className="mt-6 rounded-card border border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground"
         >
-          جارٍ تحميل مساحة المراجعة…
+          {t("adminReview.loading")}
         </div>
       </PageContainer>
     );
@@ -43,11 +43,11 @@ function AdminSkillReviewWorkspacePage() {
   if (pendingReviews.isError) {
     return (
       <PageContainer>
-        <PageHeader title="مساحة مراجعة المساهم" />
+        <PageHeader title={t("adminReview.workspaceTitle")} />
         <PageFeedback
           className="mt-6"
-          title="تعذر تحميل بيانات المراجعة"
-          description="تحقق من الاتصال ثم أعد المحاولة. لم يتم حفظ أي قرار جديد."
+          title={t("adminReview.loadErrorTitle")}
+          description={t("adminReview.loadErrorDescription")}
           action={<Button
             type="button"
             variant="outline"
@@ -55,7 +55,7 @@ function AdminSkillReviewWorkspacePage() {
               void pendingReviews.refetch();
             }}
           >
-            إعادة المحاولة
+            {t("common.retry")}
           </Button>}
         />
       </PageContainer>

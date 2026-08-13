@@ -39,7 +39,7 @@ export function ProjectSourceStatusPanel({
   refreshError = null,
   recoverySlot = null,
 }: ProjectSourceStatusPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const syncMeta = getSourceSyncStatusMeta(t, status.syncStatus);
   const authMeta = getSourceAuthorizationStatusMeta(t, status.authorizationStatus);
   const selectionMeta = getSourceSelectionStatusMeta(t, status.selectionStatus);
@@ -107,7 +107,7 @@ export function ProjectSourceStatusPanel({
       {unavailableAreas.length > 0 && (
         <p className="mt-2 text-xs text-muted-foreground">
           {t("project.source.unavailableAreas", {
-            areas: unavailableAreas.join("، "),
+            areas: new Intl.ListFormat(i18n.language).format(unavailableAreas),
           })}
         </p>
       )}

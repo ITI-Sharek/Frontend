@@ -5,7 +5,7 @@ import { DiscussionsFeedView } from "@/modules/discussions";
 import type { DiscussionAuthorDto } from "@/modules/discussions";
 
 export const Route = createFileRoute("/_appLayout/discussions/")({
-  head: () => ({ meta: [{ title: "النقاشات | Sharek" }] }),
+  head: () => ({ meta: [{ title: "Sharek" }] }),
   component: DiscussionsPage,
 });
 

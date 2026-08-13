@@ -9,6 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
@@ -26,8 +27,8 @@ import { useReportDecisionFeedbackMutation } from "../api/mutations/use-report-d
 import { useWithdrawApplicationMutation } from "../api/mutations/use-withdraw-application-mutation";
 import { useApplicationQuery } from "../api/queries/use-application-query";
 import {
-  APPLICATION_STATUS_COPY,
   getApplicationErrorMessage,
+  getApplicationStatusCopy,
 } from "../constants/application-copy";
 import {
   formatApplicationDate,
@@ -46,6 +47,7 @@ export function ApplicationStatusView({
   requestsHref: string;
   deliverySlot?: ReactNode;
 }) {
+  const { t } = useTranslation();
   const query = useApplicationQuery(applicationId);
   const reportMutation = useReportDecisionFeedbackMutation();
   const [reportOpen, setReportOpen] = useState(false);
@@ -57,8 +59,8 @@ export function ApplicationStatusView({
       <PageContainer>
         <PageFeedback
           icon={Loader2}
-          title="جارٍ تحميل طلب التقديم"
-          description="نسترجع الحالة الحالية والقرار المحفوظ."
+          title={t("application.view.loadingTitle")}
+          description={t("application.view.loadingDescription")}
         />
       </PageContainer>
     );
@@ -69,15 +71,15 @@ export function ApplicationStatusView({
       <PageContainer>
         <PageFeedback
           icon={CircleAlert}
-          title="تعذر فتح طلب التقديم"
+          title={t("application.view.loadErrorTitle")}
           description={getApplicationErrorMessage(query.error)}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button size="sm" onClick={() => void query.refetch()}>
-                إعادة المحاولة
+                {t("common.retry")}
               </Button>
               <Button asChild size="sm" variant="outline">
-                <a href={requestsHref}>العودة إلى طلبات المساهمة</a>
+                <a href={requestsHref}>{t("application.view.backToRequests")}</a>
               </Button>
             </div>
           }
@@ -88,7 +90,7 @@ export function ApplicationStatusView({
 
   const application = query.data;
   const status = getApplicationStatusMeta(application.status);
-  const copy = APPLICATION_STATUS_COPY[application.status];
+  const copy = getApplicationStatusCopy()[application.status];
   const canReport =
     application.status === "DECLINED_BY_OWNER" &&
     application.ownerDecision?.decisionType === "DECLINED" &&
@@ -148,8 +150,7 @@ export function ApplicationStatusView({
           aria-live="polite"
           className="mt-4 rounded-input bg-evidence-teal/10 px-4 py-3 text-sm leading-6 text-foreground"
         >
-          أُرسل البلاغ للمراجعة الإشرافية. لم تتغير حالة طلب التقديم أو تُفتح
-          من جديد.
+          {t("application.view.reportSent")}
         </p>
       )}
 
@@ -157,39 +158,38 @@ export function ApplicationStatusView({
         <Card className="p-5 md:p-6">
           <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
             <BriefcaseBusiness className="size-5" aria-hidden="true" />
-            نهج المساهمة
+            {t("application.view.contributionApproach")}
           </h2>
           <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-foreground">
-            {application.contributionApproach ||
-              "لا يوجد نهج محفوظ في هذا السجل."}
+            {application.contributionApproach || t("application.view.noApproach")}
           </p>
 
           <dl className="mt-6 grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
             <StatusField
               icon={CalendarClock}
-              label="مدة التسليم المقترحة"
+              label={t("application.view.proposedDuration")}
               value={
                 application.proposedDeliveryDurationDays === null
-                  ? "غير محددة"
-                  : `${application.proposedDeliveryDurationDays} يوم`
+                  ? t("contributionRequests.unspecified")
+                  : t("contributionRequests.days", { count: application.proposedDeliveryDurationDays })
               }
             />
             <StatusField
               icon={CalendarClock}
-              label="تاريخ التقديم"
+              label={t("application.view.submittedAt")}
               value={formatApplicationDate(application.submittedAt)}
             />
             {application.expiresAt && (
               <StatusField
                 icon={CalendarClock}
-                label="نهاية نافذة المراجعة"
+                label={t("application.view.reviewWindowEnd")}
                 value={formatApplicationDate(application.expiresAt)}
               />
             )}
             {application.ownerDecision && (
               <StatusField
                 icon={UserRound}
-                label="وقت قرار المالك"
+                label={t("application.view.ownerDecisionTime")}
                 value={formatApplicationDate(
                   application.ownerDecision.decidedAt,
                 )}
@@ -200,25 +200,24 @@ export function ApplicationStatusView({
 
         <Card className="p-5 md:p-6">
           <h2 className="text-base font-bold text-foreground">
-            أساس المراجعة المثبت
+            {t("application.view.evidenceBase")}
           </h2>
           <dl className="mt-4 space-y-3 text-sm">
             <SnapshotCount
-              label="المتطلبات المطلوبة"
+              label={t("application.view.requiredRequirements")}
               count={application.requirementSnapshot.required.length}
             />
             <SnapshotCount
-              label="المتطلبات المفضلة"
+              label={t("application.view.preferredRequirements")}
               count={application.requirementSnapshot.preferred.length}
             />
             <SnapshotCount
-              label="ملخصات الأدلة"
+              label={t("application.view.evidenceSummaries")}
               count={application.evidenceSummary.length}
             />
           </dl>
           <p className="mt-4 text-xs leading-5 text-muted-foreground">
-            هذه لقطة محفوظة وقت التقديم. لا تعني ترتيبًا أو درجة أهلية أو قرارًا
-            آليًا.
+            {t("application.view.evidenceBaseHelp")}
           </p>
         </Card>
       </div>
@@ -236,15 +235,15 @@ export function ApplicationStatusView({
             id="assignment-heading"
             className="text-lg font-bold text-foreground"
           >
-            إسناد العمل
+            {t("application.view.assignment")}
           </h2>
           <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
             <StatusText
-              label="مدة التسليم المتفق عليها"
-              value={`${application.assignment.agreedDeliveryDurationDays} يوم`}
+              label={t("application.view.agreedDuration")}
+              value={t("contributionRequests.days", { count: application.assignment.agreedDeliveryDurationDays })}
             />
             <StatusText
-              label="موعد التسليم المتفق عليه"
+              label={t("application.view.agreedDueDate")}
               value={formatApplicationDate(
                 application.assignment.agreedDeliveryDueDate,
               )}
@@ -267,10 +266,10 @@ export function ApplicationStatusView({
                   id="owner-feedback-heading"
                   className="text-lg font-bold text-foreground"
                 >
-                  ملاحظات صاحب المشروع
+                  {t("application.view.ownerFeedback")}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  ملاحظات بشرية مرتبطة بقرار المالك، وليست نتيجة تقييم استشاري.
+                  {t("application.view.ownerFeedbackHelp")}
                 </p>
               </div>
               <UserRound
@@ -284,8 +283,7 @@ export function ApplicationStatusView({
             {canReport && (
               <div className="mt-5 border-t border-border pt-5">
                 <p className="max-w-2xl text-xs leading-5 text-muted-foreground">
-                  يمكنك الإبلاغ عن الإساءة أو المحتوى غير المناسب للمراجعة
-                  الإشرافية. البلاغ ليس استئنافًا ولا يعيد فتح القرار.
+                  {t("application.view.reportHelp")}
                 </p>
                 <Button
                   id="decision-feedback-report-trigger"
@@ -300,7 +298,7 @@ export function ApplicationStatusView({
                   }}
                 >
                   <Flag className="size-4" aria-hidden="true" />
-                  {reportSent ? "تم إرسال البلاغ" : "الإبلاغ عن الملاحظات"}
+                  {reportSent ? t("application.view.reportSentShort") : t("application.view.report")}
                 </Button>
               </div>
             )}
@@ -310,7 +308,7 @@ export function ApplicationStatusView({
       <div className="mt-6">
         <Button asChild variant="outline">
           <a href={requestHref(application.contributionRequestId)}>
-            العودة إلى طلب المساهمة
+            {t("application.view.backToRequest")}
           </a>
         </Button>
       </div>
@@ -333,6 +331,7 @@ export function ApplicationStatusView({
 }
 
 function WithdrawalControls({ applicationId }: { applicationId: string }) {
+  const { t } = useTranslation();
   const withdrawMutation = useWithdrawApplicationMutation();
   const withdrawalKey = useRef<string | null>(null);
   const [confirmWithdrawal, setConfirmWithdrawal] = useState(false);
@@ -362,20 +361,19 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
       const code = getApiErrorCode(error);
       setWithdrawError(
         code === "APPLICATION_TERMINAL"
-          ? "لم يعد طلب التقديم بانتظار المراجعة، لذلك لا يمكن سحبه."
-          : "تعذر سحب طلب التقديم الآن. حاول مرة أخرى.",
+          ? t("application.withdrawal.notPending")
+          : t("application.withdrawal.error"),
       );
     }
   }
 
   return (
     <Card className="mt-6 border-destructive/25 p-5 shadow-none">
-      <h2 className="font-bold text-foreground">التحكم في الطلب</h2>
+      <h2 className="font-bold text-foreground">{t("application.withdrawal.title")}</h2>
       {!confirmWithdrawal ? (
         <>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            يمكنك سحب طلب التقديم قبل صدور قرار صاحب المشروع. السحب نهائي،
-            ولن تتمكن من التقديم على طلب المساهمة نفسه مرة أخرى.
+            {t("application.withdrawal.description")}
           </p>
           <Button
             id="withdrawal-trigger"
@@ -385,7 +383,7 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
             className="mt-4"
             onClick={() => setConfirmWithdrawal(true)}
           >
-            سحب طلب التقديم
+            {t("application.withdrawal.trigger")}
           </Button>
         </>
       ) : (
@@ -398,14 +396,13 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
             id="withdrawal-confirmation-title"
             className="mt-2 font-semibold text-foreground"
           >
-            تأكيد سحب طلب التقديم
+            {t("application.withdrawal.confirmTitle")}
           </h3>
           <p
             id="withdrawal-confirmation-description"
             className="mt-1 text-sm text-muted-foreground"
           >
-            هل تريد سحب طلب التقديم نهائيًا؟ لن تتمكن من إرسال طلب تقديم جديد
-            لهذا الطلب.
+            {t("application.withdrawal.confirmDescription")}
           </p>
           {withdrawError && (
             <p role="alert" className="mt-2 text-sm text-destructive">
@@ -421,7 +418,7 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
               disabled={withdrawMutation.isPending}
               onClick={() => void withdraw()}
             >
-              {withdrawMutation.isPending ? "جارٍ السحب..." : "تأكيد السحب"}
+              {withdrawMutation.isPending ? t("application.withdrawal.withdrawing") : t("application.withdrawal.confirm")}
             </Button>
             <Button
               type="button"
@@ -435,7 +432,7 @@ function WithdrawalControls({ applicationId }: { applicationId: string }) {
                 setConfirmWithdrawal(false);
               }}
             >
-              تراجع
+              {t("common.cancel")}
             </Button>
           </div>
         </div>

@@ -7,10 +7,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
+import { translate } from "@/lib/translate";
 
 import { usePresentAdvisoryFitMutation } from "../api/mutations/use-present-advisory-fit-mutation";
 import { useRequestAdvisoryFitMutation } from "../api/mutations/use-request-advisory-fit-mutation";
@@ -28,6 +30,7 @@ export function AdvisoryFitAssessment({
 }: {
   application: ApplicationDto;
 }) {
+  const { t } = useTranslation();
   const query = useAdvisoryFitQuery(application.id);
   const requestMutation = useRequestAdvisoryFitMutation();
   const presentMutation = usePresentAdvisoryFitMutation();
@@ -80,11 +83,10 @@ export function AdvisoryFitAssessment({
               id={`advisory-fit-title-${application.id}`}
               className="font-bold text-foreground"
             >
-              التقييم الاستشاري
+              {t("advisoryFit.title")}
             </h4>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              تحليل اختياري للأدلة المثبتة وقت التقديم. لا يقرر القبول أو الرفض
-              ولا يستبدل قرارك البشري.
+              {t("advisoryFit.description")}
             </p>
           </div>
         </div>
@@ -94,13 +96,13 @@ export function AdvisoryFitAssessment({
       {query.isPending ? (
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          جارٍ تحميل حالة التقييم…
+          {t("advisoryFit.loading")}
         </div>
       ) : query.isError ? (
         <div className="mt-4 rounded-input border border-destructive/25 bg-destructive/5 p-3">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <CircleAlert className="size-4 text-destructive" aria-hidden="true" />
-            تعذر تحميل حالة التقييم
+            {t("advisoryFit.loadError")}
           </p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
             {getApplicationErrorMessage(query.error)}
@@ -112,7 +114,7 @@ export function AdvisoryFitAssessment({
             className="mt-3"
             onClick={() => void query.refetch()}
           >
-            إعادة المحاولة
+            {t("common.retry")}
           </Button>
         </div>
       ) : (
@@ -144,32 +146,32 @@ function AssessmentContent({
   onRequest: () => void;
   onRefresh: () => void;
 }) {
+  const { t } = useTranslation();
   if (assessment.requestStatus === "COMPLETED") {
     return (
       <div className="mt-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold text-foreground">
-            خلاصة التقييم
+            {t("advisoryFit.summary")}
           </span>
           {assessment.fitBand && (
             <StatusChip tone="ai" icon={ShieldCheck}>
-              النطاق الاستشاري: {FIT_BAND_LABEL[assessment.fitBand]}
+              {t("advisoryFit.band", { band: getFitBandLabel(assessment.fitBand) })}
             </StatusChip>
           )}
         </div>
         <p className="mt-2 text-xs leading-5 text-muted-foreground">
-          هذا نطاق مشتق من المتطلبات المطلوبة فقط. المتطلبات المفضلة معروضة
-          للفهم ولا تغيّر النطاق.
+          {t("advisoryFit.bandHelp")}
         </p>
         <div className="mt-4 space-y-4">
           <FindingGroup
-            title="المتطلبات المطلوبة"
+            title={t("advisoryFit.required")}
             requirements={application.requirementSnapshot.required}
             findings={assessment.findings}
           />
           {application.requirementSnapshot.preferred.length > 0 && (
             <FindingGroup
-              title="المتطلبات المفضلة"
+              title={t("advisoryFit.preferred")}
               requirements={application.requirementSnapshot.preferred}
               findings={assessment.findings}
             />
@@ -179,10 +181,10 @@ function AssessmentContent({
     );
   }
 
-  const statusCopy = ASSESSMENT_STATUS_COPY[assessment.requestStatus];
+  const statusCopy = getAssessmentStatusCopy()[assessment.requestStatus];
   const statusDescription =
     assessment.requestStatus === "UNAVAILABLE" && !assessment.retryAvailable
-      ? "لا يؤثر عدم اكتمال التقييم في قرارك ولا يصف قدرة المساهم. استُخدمت محاولة إعادة التقييم المتاحة، ويمكنك متابعة قرارك دون تقييم."
+      ? t("advisoryFit.retryUsed")
       : statusCopy.description;
   const canRequest =
     assessment.requestStatus === "NOT_REQUESTED" || assessment.retryAvailable;
@@ -220,8 +222,8 @@ function AssessmentContent({
             <RefreshCw className="size-4" aria-hidden="true" />
           )}
           {assessment.requestStatus === "NOT_REQUESTED"
-            ? "طلب تقييم استشاري"
-            : "إعادة طلب التقييم"}
+            ? t("advisoryFit.request")
+            : t("advisoryFit.retry")}
         </Button>
       )}
       {assessment.requestStatus === "REQUESTED" && (
@@ -233,7 +235,7 @@ function AssessmentContent({
           onClick={onRefresh}
         >
           <RefreshCw className="size-4" aria-hidden="true" />
-          تحديث الحالة
+          {t("advisoryFit.refresh")}
         </Button>
       )}
     </div>
@@ -249,11 +251,12 @@ function FindingGroup({
   requirements: ApplicationDto["requirementSnapshot"]["required"];
   findings: AdvisoryFitFindingDto[];
 }) {
+  const { t } = useTranslation();
   return (
     <section aria-label={title}>
       <h5 className="text-sm font-bold text-foreground">{title}</h5>
       {requirements.length === 0 ? (
-        <p className="mt-2 text-xs text-muted-foreground">لا توجد متطلبات في هذه الفئة.</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("advisoryFit.noRequirements")}</p>
       ) : (
         <ul className="mt-2 space-y-3">
           {requirements.map((requirement) => {
@@ -271,7 +274,7 @@ function FindingGroup({
                   </strong>
                   {finding && (
                     <StatusChip tone="ai" icon={BrainCircuit}>
-                      {FINDING_LABEL[finding.finding]}
+                      {getFindingLabel(finding.finding)}
                     </StatusChip>
                   )}
                 </div>
@@ -279,7 +282,7 @@ function FindingGroup({
                   <FindingDetails finding={finding} />
                 ) : (
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    لم يرد Finding لهذا المتطلب في النتيجة الحالية.
+                    {t("advisoryFit.noFinding")}
                   </p>
                 )}
               </li>
@@ -292,14 +295,15 @@ function FindingGroup({
 }
 
 function FindingDetails({ finding }: { finding: AdvisoryFitFindingDto }) {
+  const { t } = useTranslation();
   return (
     <div className="mt-3 space-y-2 text-xs leading-5">
       <p className="text-foreground">{finding.explanation}</p>
       <p className="text-muted-foreground">
-        الثقة: {CONFIDENCE_LABEL[finding.confidence]}
+        {t("advisoryFit.confidence", { value: getConfidenceLabel(finding.confidence) })}
       </p>
       <div>
-        <p className="font-semibold text-foreground">معرّفات الأدلة</p>
+        <p className="font-semibold text-foreground">{t("advisoryFit.evidenceIds")}</p>
         <ul className="mt-1 flex flex-wrap gap-1.5">
           {finding.citations.map((citation) => (
             <li
@@ -314,7 +318,7 @@ function FindingDetails({ finding }: { finding: AdvisoryFitFindingDto }) {
       </div>
       {finding.uncertainty.length > 0 && (
         <div>
-          <p className="font-semibold text-foreground">عدم اليقين</p>
+          <p className="font-semibold text-foreground">{t("advisoryFit.uncertainty")}</p>
           <ul className="mt-1 list-disc space-y-1 ps-5 text-muted-foreground">
             {finding.uncertainty.map((item) => (
               <li key={item}>{item}</li>
@@ -327,84 +331,73 @@ function FindingDetails({ finding }: { finding: AdvisoryFitFindingDto }) {
 }
 
 function AssessmentStatusChip({ status }: { status: AssessmentRequestStatus }) {
-  const meta = ASSESSMENT_STATUS_META[status];
+  const meta = getAssessmentStatusMeta()[status];
   return <StatusChip tone={meta.tone} icon={meta.icon}>{meta.label}</StatusChip>;
 }
 
-const FIT_BAND_LABEL: Record<NonNullable<AdvisoryFitAssessmentDto["fitBand"]>, string> = {
-  STRONG: "قوي",
-  PARTIAL: "جزئي",
-  LIMITED: "محدود",
-  UNKNOWN: "غير حاسم",
-  UNAVAILABLE: "غير متاح",
-};
+function getFitBandLabel(value: NonNullable<AdvisoryFitAssessmentDto["fitBand"]>) {
+  return translate(`advisoryFit.bands.${value}`);
+}
 
-const FINDING_LABEL: Record<AdvisoryFitFindingDto["finding"], string> = {
-  SUPPORTED: "مدعوم",
-  PARTIALLY_SUPPORTED: "مدعوم جزئيًا",
-  NOT_EVIDENCED: "لا يوجد دليل كافٍ",
-  INCONCLUSIVE: "غير حاسم",
-};
+function getFindingLabel(value: AdvisoryFitFindingDto["finding"]) {
+  return translate(`advisoryFit.findings.${value}`);
+}
 
-const CONFIDENCE_LABEL: Record<AdvisoryFitFindingDto["confidence"], string> = {
-  HIGH: "عالية",
-  MEDIUM: "متوسطة",
-  LOW: "منخفضة",
-};
+function getConfidenceLabel(value: AdvisoryFitFindingDto["confidence"]) {
+  return translate(`advisoryFit.confidences.${value}`);
+}
 
-const ASSESSMENT_STATUS_COPY: Record<
+function getAssessmentStatusCopy(): Record<
   AssessmentRequestStatus,
   { title: string; description: string }
-> = {
+> {
+  return {
   NOT_REQUESTED: {
-    title: "لم يُطلب تقييم استشاري بعد",
-    description:
-      "يمكنك طلب تحليل اختياري للأدلة المثبتة دون أن يصبح شرطًا للقبول أو الرفض.",
+    title: translate("advisoryFit.status.NOT_REQUESTED.title"),
+    description: translate("advisoryFit.status.NOT_REQUESTED.description"),
   },
   REQUESTED: {
-    title: "التقييم قيد المعالجة",
-    description:
-      "يجري تجهيز النتيجة. يمكنك اتخاذ قرارك البشري دون انتظارها.",
+    title: translate("advisoryFit.status.REQUESTED.title"),
+    description: translate("advisoryFit.status.REQUESTED.description"),
   },
   NOT_STARTED_SYSTEM_LIMIT: {
-    title: "تعذر بدء التقييم بسبب حد تقني مؤقت",
-    description:
-      "لا يقول هذا شيئًا عن ملاءمة المساهم. يمكنك إعادة الطلب لاحقًا.",
+    title: translate("advisoryFit.status.NOT_STARTED_SYSTEM_LIMIT.title"),
+    description: translate("advisoryFit.status.NOT_STARTED_SYSTEM_LIMIT.description"),
   },
   NOT_STARTED_NO_ASSESSABLE_EVIDENCE: {
-    title: "لا توجد أدلة قابلة للتقييم",
-    description:
-      "لا يؤثر غياب الدليل في قرارك ولا يصف قدرة المساهم.",
+    title: translate("advisoryFit.status.NOT_STARTED_NO_ASSESSABLE_EVIDENCE.title"),
+    description: translate("advisoryFit.status.NOT_STARTED_NO_ASSESSABLE_EVIDENCE.description"),
   },
   CANCELLED_NOT_NEEDED: {
-    title: "أُلغي التقييم لأنه لم يعد مطلوبًا",
-    description:
-      "أصبحت حالة طلب التقديم نهائية قبل الحاجة إلى تقييم جديد. لا يؤثر ذلك في المساهم.",
+    title: translate("advisoryFit.status.CANCELLED_NOT_NEEDED.title"),
+    description: translate("advisoryFit.status.CANCELLED_NOT_NEEDED.description"),
   },
   UNAVAILABLE: {
-    title: "لم يكتمل تقييم صالح",
-    description:
-      "لا يؤثر عدم اكتمال التقييم في قرارك ولا يصف قدرة المساهم. يمكنك إعادة الطلب.",
+    title: translate("advisoryFit.status.UNAVAILABLE.title"),
+    description: translate("advisoryFit.status.UNAVAILABLE.description"),
   },
   COMPLETED: {
-    title: "اكتمل التقييم",
+    title: translate("advisoryFit.status.COMPLETED.title"),
     description: "",
   },
-};
+  };
+}
 
-const ASSESSMENT_STATUS_META: Record<
+function getAssessmentStatusMeta(): Record<
   AssessmentRequestStatus,
   { label: string; tone: "neutral" | "waiting" | "ai" | "negative"; icon: typeof BrainCircuit }
-> = {
-  NOT_REQUESTED: { label: "لم يُطلب", tone: "neutral", icon: BrainCircuit },
-  REQUESTED: { label: "قيد المعالجة", tone: "waiting", icon: Loader2 },
-  COMPLETED: { label: "اكتمل", tone: "ai", icon: ShieldCheck },
-  NOT_STARTED_SYSTEM_LIMIT: { label: "حد تقني", tone: "negative", icon: CircleAlert },
+> {
+ return {
+  NOT_REQUESTED: { label: translate("advisoryFit.status.NOT_REQUESTED.label"), tone: "neutral", icon: BrainCircuit },
+  REQUESTED: { label: translate("advisoryFit.status.REQUESTED.label"), tone: "waiting", icon: Loader2 },
+  COMPLETED: { label: translate("advisoryFit.status.COMPLETED.label"), tone: "ai", icon: ShieldCheck },
+  NOT_STARTED_SYSTEM_LIMIT: { label: translate("advisoryFit.status.NOT_STARTED_SYSTEM_LIMIT.label"), tone: "negative", icon: CircleAlert },
   NOT_STARTED_NO_ASSESSABLE_EVIDENCE: {
-    label: "لا توجد أدلة قابلة للتقييم",
+    label: translate("advisoryFit.status.NOT_STARTED_NO_ASSESSABLE_EVIDENCE.label"),
     tone: "neutral",
     icon: FileSearch,
   },
-  CANCELLED_NOT_NEEDED: { label: "لم يعد مطلوبًا", tone: "neutral", icon: CircleAlert },
-  UNAVAILABLE: { label: "غير متاح", tone: "negative", icon: CircleAlert },
-};
+  CANCELLED_NOT_NEEDED: { label: translate("advisoryFit.status.CANCELLED_NOT_NEEDED.label"), tone: "neutral", icon: CircleAlert },
+  UNAVAILABLE: { label: translate("advisoryFit.status.UNAVAILABLE.label"), tone: "negative", icon: CircleAlert },
+ };
+}

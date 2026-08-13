@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApplicationStatusView } from "./application-status-view";
-import { APPLICATION_STATUS_COPY } from "../constants/application-copy";
+import { getApplicationStatusCopy } from "../constants/application-copy";
 import type {
   ApplicationDto,
   ApplicationStatus,
@@ -37,20 +37,20 @@ describe("contributor Application status", () => {
 
     expect(html).toContain("أُرسل طلب التقديم مباشرة إلى صاحب المشروع");
     expect(html).toContain("نهج المساهمة");
-    expect(html).toContain("5 يوم");
+    expect(html).toContain("5 أيام");
     expect(html).toContain("سحب طلب التقديم");
     expect(html).not.toMatch(/فحص أهلية|قيد التحقق|محاولات/);
   });
 
   it.each(
-    Object.keys(APPLICATION_STATUS_COPY) as ApplicationStatus[],
+    Object.keys(getApplicationStatusCopy()) as ApplicationStatus[],
   )("explains %s as a distinct contributor outcome", (status) => {
     mocks.query.mockReturnValue(queryResult(application(status)));
 
     const html = render();
 
-    expect(html).toContain(APPLICATION_STATUS_COPY[status].label);
-    expect(html).toContain(APPLICATION_STATUS_COPY[status].description);
+    expect(html).toContain(getApplicationStatusCopy()[status].label);
+    expect(html).toContain(getApplicationStatusCopy()[status].description);
     if (status !== "PENDING_OWNER_REVIEW") {
       expect(html).not.toContain("سحب طلب التقديم");
     }

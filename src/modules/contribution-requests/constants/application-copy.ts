@@ -1,46 +1,24 @@
 import { isAxiosError } from "axios";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
+import { translate } from "@/lib/translate";
 
 import type {
   ApplicationApiErrorCode,
   ApplicationStatus,
 } from "../types/application.types";
 
-const ERROR_COPY: Record<string, string> = {
-  APPLICATION_DECISION_FEEDBACK_REQUIRED:
-    "اكتب ملاحظات واضحة تشرح قرار عدم الاختيار.",
-  APPLICATION_TERMINAL:
-    "تغيّرت حالة طلب التقديم ولم يعد القرار متاحًا. حدّثنا البيانات الحالية.",
-  APPLICATION_CONCURRENT_MODIFICATION:
-    "سبق إجراء تغيير على طلب التقديم. حدّثنا الحالة الحالية لتجنب قرار مكرر.",
-  REQUEST_CANCELLED:
-    "أُلغي طلب المساهمة، لذلك لم يعد من الممكن تسجيل هذا القرار.",
-  REQUEST_TERMINAL:
-    "انتقل طلب المساهمة إلى حالة نهائية ولا يمكن إنشاء قرار جديد.",
-  APPLICATION_NOT_AUTHORIZED:
-    "طلب التقديم غير متاح لهذا الحساب.",
-  APPLICATION_IDEMPOTENCY_KEY_REQUIRED:
-    "تعذر تأمين القرار لإعادة المحاولة. أعد فتح الإجراء وحاول مرة أخرى.",
-  APPLICATION_IDEMPOTENCY_CONFLICT:
-    "تعارض هذا القرار مع محاولة سابقة. راجع الحالة الحالية قبل المحاولة.",
-  ASSESSMENT_ALREADY_ACTIVE:
-    "يوجد تقييم قيد المعالجة بالفعل. حدّث الحالة الحالية.",
-  ASSESSMENT_RETRY_IN_PROGRESS:
-    "بدأت إعادة التقييم بالفعل. حدّث الحالة الحالية.",
-  ASSESSMENT_RETRY_LIMIT_REACHED:
-    "استُخدمت محاولة إعادة التقييم المتاحة. يمكنك متابعة قرارك دون تقييم.",
-  OWNER_DECISION_REPORT_ALREADY_EXISTS:
-    "أُرسل بلاغ عن هذه الملاحظات من قبل، وهو محفوظ للمراجعة.",
-};
-
 export function getApplicationErrorMessage(error: unknown): string {
   const code = getApiErrorCode(error);
-  if (code && ERROR_COPY[code]) return ERROR_COPY[code];
-  if (isAxiosError(error) && error.response?.status === 401) {
-    return "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.";
+  if (code) {
+    const key = `application.errors.${code}`;
+    const value = translate(key);
+    if (value !== key) return value;
   }
-  return "تعذر إكمال العملية الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى.";
+  if (isAxiosError(error) && error.response?.status === 401) {
+    return translate("application.errors.sessionExpired");
+  }
+  return translate("application.errors.unknown");
 }
 
 export function shouldRefreshApplicationAfterError(error: unknown): boolean {
@@ -69,88 +47,83 @@ type ApplicationSubmissionErrorCode = Extract<
   | "APPLICATION_IDEMPOTENCY_CONFLICT"
 >;
 
-export const APPLICATION_SUBMISSION_ERROR_META: Record<
+export function getApplicationSubmissionErrorMeta(): Record<
   ApplicationSubmissionErrorCode,
   { message: string; recovery: ApplicationSubmissionRecovery }
-> = {
+> {
+  return {
   ALREADY_APPLIED: {
-    message:
-      "لديك طلب تقديم سابق لهذا الطلب. يُسمح بطلب واحد فقط، ولا يتيح سحب الطلب إرسال طلب جديد.",
+    message: translate("application.submissionErrors.ALREADY_APPLIED"),
     recovery: "existing_application",
   },
   APPLICATIONS_CLOSED: {
-    message: "أُغلق التقديم على طلب المساهمة ولم يعد يقبل طلبات جديدة.",
+    message: translate("application.submissionErrors.APPLICATIONS_CLOSED"),
     recovery: "available_requests",
   },
   REQUEST_CANCELLED: {
-    message: "ألغى صاحب المشروع طلب المساهمة، لذلك لم يعد التقديم متاحًا.",
+    message: translate("application.submissionErrors.REQUEST_CANCELLED"),
     recovery: "available_requests",
   },
   REQUEST_TERMINAL: {
-    message: "انتقل طلب المساهمة إلى حالة نهائية ولم يعد يقبل طلبات تقديم.",
+    message: translate("application.submissionErrors.REQUEST_TERMINAL"),
     recovery: "available_requests",
   },
   APPLICATION_NOT_AUTHORIZED: {
-    message: "هذا الحساب غير مخوّل لإرسال طلب تقديم إلى طلب المساهمة.",
+    message: translate("application.submissionErrors.APPLICATION_NOT_AUTHORIZED"),
     recovery: "account",
   },
   APPLICATION_IDEMPOTENCY_CONFLICT: {
-    message:
-      "تعارضت محاولة سابقة مع هذه البيانات. عدّل نهج المساهمة أو مدة التسليم ثم أعد الإرسال.",
+    message: translate("application.submissionErrors.APPLICATION_IDEMPOTENCY_CONFLICT"),
     recovery: "edit",
   },
-};
+  };
+}
 
-export const APPLICATION_STATUS_COPY: Record<
+export function getApplicationStatusCopy(): Record<
   ApplicationStatus,
   { label: string; description: string }
-> = {
+> {
+  return {
   PENDING_OWNER_REVIEW: {
-    label: "بانتظار مراجعة صاحب المشروع",
-    description:
-      "أُرسل طلب التقديم مباشرة إلى صاحب المشروع. يمكنك سحبه قبل صدور قرار المالك.",
+    label: translate("application.status.pending.label"),
+    description: translate("application.status.pending.description"),
   },
   ACCEPTED: {
-    label: "تم قبول طلب التقديم",
-    description:
-      "اختارك صاحب المشروع لهذا الطلب. راجع تفاصيل الإسناد وموعد التسليم المتفق عليه.",
+    label: translate("application.status.accepted.label"),
+    description: translate("application.status.accepted.description"),
   },
   DECLINED_BY_OWNER: {
-    label: "اعتذر صاحب المشروع عن قبول الطلب",
-    description:
-      "هذا قرار بشري خاص بهذا الطلب، ولا يؤثر في ملفك أو أهليتك أو سمعتك أو طلباتك الأخرى.",
+    label: translate("application.status.declined.label"),
+    description: translate("application.status.declined.description"),
   },
   NOT_SELECTED: {
-    label: "تم اختيار مساهم آخر",
-    description:
-      "أُغلق هذا الطلب بعد اختيار مساهم آخر. لا يؤثر ذلك في ملفك أو أهليتك أو سمعتك.",
+    label: translate("application.status.notSelected.label"),
+    description: translate("application.status.notSelected.description"),
   },
   EXPIRED: {
-    label: "انتهت مهلة المراجعة",
-    description:
-      "انتهت مهلة مراجعة صاحب المشروع دون قرار. لا يُعد ذلك رفضًا ولا يؤثر في سمعتك.",
+    label: translate("application.status.expired.label"),
+    description: translate("application.status.expired.description"),
   },
   WITHDRAWN: {
-    label: "سحبت طلب التقديم",
-    description:
-      "انتهى طلب التقديم بناءً على اختيارك. السحب نهائي، ولا يمكنك إرسال طلب تقديم جديد لهذا الطلب.",
+    label: translate("application.status.withdrawn.label"),
+    description: translate("application.status.withdrawn.description"),
   },
   REQUEST_CANCELLED: {
-    label: "أُلغي طلب المساهمة",
-    description:
-      "أنهى صاحب المشروع طلب المساهمة. لا يحمل هذا الإغلاق حكمًا عليك ولا يؤثر في ملفك أو سمعتك.",
+    label: translate("application.status.cancelled.label"),
+    description: translate("application.status.cancelled.description"),
   },
-};
+  };
+}
 
 export function getApplicationSubmissionErrorMessage(error: unknown): string {
   const code = getApiErrorCode(error);
   if (isApplicationApiErrorCode(code)) {
-    return APPLICATION_SUBMISSION_ERROR_META[code].message;
+    return getApplicationSubmissionErrorMeta()[code].message;
   }
   if (isAxiosError(error) && error.response?.status === 401) {
-    return "انتهت جلسة تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.";
+    return translate("application.errors.sessionExpired");
   }
-  return "تعذر إرسال طلب التقديم الآن. احتفظنا بمدخلاتك؛ حاول مرة أخرى.";
+  return translate("application.submissionErrors.unknown");
 }
 
 export function isApplicationApiErrorCode(
@@ -158,6 +131,6 @@ export function isApplicationApiErrorCode(
 ): code is ApplicationSubmissionErrorCode {
   return (
     code !== null &&
-    Object.hasOwn(APPLICATION_SUBMISSION_ERROR_META, code)
+    Object.hasOwn(getApplicationSubmissionErrorMeta(), code)
   );
 }

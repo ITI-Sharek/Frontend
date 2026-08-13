@@ -1,5 +1,6 @@
 import { CircleAlert, Loader2, Search, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -12,7 +13,8 @@ import {
 
 import { useContributionRequestsQuery } from "../api/queries/use-contribution-requests-query";
 import {
-  CONTRIBUTION_REQUEST_DIFFICULTY_LABELS,
+  getContributionRequestDifficulties,
+  getContributionRequestDifficultyLabel,
   formatContributionDate,
   formatContributionDateTime,
   formatContributionReward,
@@ -39,6 +41,7 @@ export function ContributionRequestFeedView({
   onReset,
   requestHref,
 }: FeedViewProps) {
+  const { t } = useTranslation();
   const query = useContributionRequestsQuery(filters);
   const [searchDraft, setSearchDraft] = useState(filters.q ?? "");
 
@@ -50,8 +53,8 @@ export function ContributionRequestFeedView({
   return (
     <PageContainer className="max-w-7xl">
       <PageHeader
-        title="طلبات المساهمة المتاحة"
-        description="استكشف العمل المنشور الذي ما زال يستقبل طلبات تقديم، ثم راجع عقد العمل قبل التواصل مع صاحب المشروع."
+        title={t("tasks.title")}
+        description={t("tasks.description")}
       />
       <ContributionRequestSearch
         value={searchDraft}
@@ -97,6 +100,7 @@ function ContributionRequestSearch({
   onSearch: () => void;
   onClear: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <form
       className="mt-5 flex gap-2"
@@ -108,17 +112,17 @@ function ContributionRequestSearch({
     >
       <label className="flex min-h-11 flex-1 items-center gap-2 rounded-input border border-border bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background">
         <Search className="size-4 text-muted-foreground" aria-hidden="true" />
-        <span className="sr-only">ابحث في طلبات المساهمة</span>
+        <span className="sr-only">{t("tasks.search")}</span>
         <input
           value={value}
-          placeholder="ابحث بالعنوان أو الوصف أو المشروع"
+          placeholder={t("tasks.searchPlaceholder")}
           className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
           onChange={(event) => onChange(event.target.value)}
         />
         {value !== "" && (
           <button
             type="button"
-            aria-label="مسح البحث"
+            aria-label={t("tasks.clearSearch")}
             className="inline-flex size-8 items-center justify-center rounded-input text-muted-foreground hover:bg-border/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={onClear}
           >
@@ -126,7 +130,7 @@ function ContributionRequestSearch({
           </button>
         )}
       </label>
-      <Button type="submit">بحث</Button>
+      <Button type="submit">{t("tasks.searchButton")}</Button>
     </form>
   );
 }
@@ -142,16 +146,17 @@ function ContributionRequestFilters({
   onChange: FeedViewProps["onFiltersChange"];
   onReset: () => void;
 }) {
+  const { t } = useTranslation();
   const selectedTechnologies = filters.technologies ?? [];
   return (
     <aside className="h-fit rounded-card border border-border bg-card p-4">
-      <h2 className="font-bold text-foreground">تصفية النتائج</h2>
+      <h2 className="font-bold text-foreground">{t("tasks.filterResults")}</h2>
       <fieldset className="mt-4 border-t border-border pt-4">
         <legend className="text-sm font-semibold text-foreground">
-          مستوى الصعوبة
+          {t("tasks.difficulty")}
         </legend>
         <select
-          aria-label="مستوى الصعوبة"
+          aria-label={t("tasks.difficulty")}
           value={filters.difficulty ?? ""}
           className="mt-2 min-h-11 w-full rounded-input border border-border bg-background px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           onChange={(event) => {
@@ -164,19 +169,17 @@ function ContributionRequestFilters({
             });
           }}
         >
-          <option value="">كل المستويات</option>
-          {Object.entries(CONTRIBUTION_REQUEST_DIFFICULTY_LABELS).map(
-            ([value, label]) => (
+          <option value="">{t("tasks.allDifficulties")}</option>
+          {getContributionRequestDifficulties().map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}
               </option>
-            ),
-          )}
+            ))}
         </select>
       </fieldset>
       <fieldset className="mt-4 border-t border-border pt-4">
         <legend className="text-sm font-semibold text-foreground">
-          التقنيات
+          {t("tasks.technologies")}
         </legend>
         <div className="mt-2 flex max-h-52 flex-col gap-2 overflow-y-auto">
           {technologyFacets.map(({ technology, count }) => (
@@ -209,17 +212,17 @@ function ContributionRequestFilters({
           ))}
           {technologyFacets.length === 0 && (
             <p className="text-xs text-muted-foreground">
-              لا توجد تقنيات متاحة حاليًا.
+              {t("tasks.noTechnologies")}
             </p>
           )}
         </div>
       </fieldset>
       <fieldset className="mt-4 border-t border-border pt-4">
         <legend className="text-sm font-semibold text-foreground">
-          المكافأة
+          {t("tasks.reward")}
         </legend>
         <select
-          aria-label="المكافأة"
+          aria-label={t("tasks.reward")}
           value={
             filters.hasReward === undefined
               ? ""
@@ -240,9 +243,9 @@ function ContributionRequestFilters({
             });
           }}
         >
-          <option value="">كل الطلبات</option>
-          <option value="with-reward">بمكافأة معلنة</option>
-          <option value="without-reward">بدون مكافأة معلنة</option>
+          <option value="">{t("tasks.allRequests")}</option>
+          <option value="with-reward">{t("tasks.withReward")}</option>
+          <option value="without-reward">{t("tasks.withoutReward")}</option>
         </select>
       </fieldset>
       <Button
@@ -252,7 +255,7 @@ function ContributionRequestFilters({
         className="mt-4 w-full"
         onClick={onReset}
       >
-        إعادة تعيين الفلاتر
+        {t("tasks.resetFilters")}
       </Button>
     </aside>
   );
@@ -277,12 +280,13 @@ function ContributionRequestResults({
   onRetry: () => void;
   onReset: () => void;
 }) {
+  const { t } = useTranslation();
   if (isPending) {
     return (
       <PageFeedback
         icon={Loader2}
-        title="جارٍ تحميل طلبات المساهمة"
-        description="نسترجع الطلبات المنشورة التي ما زالت تستقبل التقديم."
+        title={t("tasks.loading")}
+        description={t("tasks.loadingDescription")}
       />
     );
   }
@@ -290,11 +294,11 @@ function ContributionRequestResults({
     return (
       <PageFeedback
         icon={CircleAlert}
-        title="تعذر تحميل طلبات المساهمة"
-        description="تحقق من اتصالك ثم حاول مرة أخرى."
+        title={t("tasks.loadError")}
+        description={t("tasks.loadErrorDescription")}
         action={
           <Button size="sm" onClick={onRetry}>
-            إعادة المحاولة
+            {t("common.retry")}
           </Button>
         }
       />
@@ -303,11 +307,11 @@ function ContributionRequestResults({
   if (items.length === 0) {
     return (
       <PageFeedback
-        title="لا توجد طلبات مساهمة تطابق هذه الفلاتر"
-        description="جرّب إزالة أحد الفلاتر أو توسيع عبارة البحث."
+        title={t("tasks.noMatch")}
+        description={t("tasks.noMatchDescription")}
         action={
           <Button variant="outline" size="sm" onClick={onReset}>
-            عرض كل الطلبات
+            {t("tasks.showAll")}
           </Button>
         }
       />
@@ -316,8 +320,7 @@ function ContributionRequestResults({
   return (
     <section aria-live="polite">
       <p className="mb-3 text-sm text-muted-foreground">
-        <strong className="text-foreground">{totalCount}</strong> طلب مساهمة
-        متاح
+        {t("tasks.available", { count: totalCount })}
       </p>
       <div
         className={cn(
@@ -344,6 +347,7 @@ function ContributionRequestCard({
   request: ContributionRequestListItemDto;
   requestHref: FeedViewProps["requestHref"];
 }) {
+  const { t } = useTranslation();
   return (
     <Card className="flex h-full flex-col p-5 shadow-none">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -355,7 +359,7 @@ function ContributionRequestCard({
         </div>
         {request.difficulty && (
           <span className="rounded-full bg-border/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
-            {CONTRIBUTION_REQUEST_DIFFICULTY_LABELS[request.difficulty]}
+            {getContributionRequestDifficultyLabel(request.difficulty)}
           </span>
         )}
       </div>
@@ -372,20 +376,20 @@ function ContributionRequestCard({
       </div>
       <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
         <Metadata
-          label="وقت إغلاق التقديم"
+          label={t("tasks.deadline")}
           value={formatContributionDateTime(request.applicationsCloseAt)}
         />
         <Metadata
-          label="تاريخ الإنجاز المستهدف"
+          label={t("tasks.targetCompletion")}
           value={formatContributionDate(request.targetCompletionDate)}
         />
         <Metadata
-          label="المكافأة"
+          label={t("tasks.reward")}
           value={formatContributionReward(request.reward)}
         />
       </dl>
       <Button asChild size="sm" className="mt-auto w-full">
-        <a href={requestHref(request.id)}>عرض طلب المساهمة</a>
+        <a href={requestHref(request.id)}>{t("tasks.viewRequest")}</a>
       </Button>
     </Card>
   );

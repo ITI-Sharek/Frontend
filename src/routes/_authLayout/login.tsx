@@ -19,7 +19,7 @@ import { shouldEnsureContributorProfile } from "./login.helpers";
 
 export const Route = createFileRoute("/_authLayout/login")({
   head: () => ({
-    meta: [{ title: "تسجيل الدخول | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: LoginPage,
 });

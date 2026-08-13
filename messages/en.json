@@ -72,6 +72,9 @@
     "adminNotifications": "Notifications"
   },
   "auth": {
+    "callback": { "retryAccountError": "Could not reopen the GitHub account picker. Try again.", "missingProviderData": "No sign-in data arrived from the account provider.", "sessionExpired": "The sign-in session through the account provider expired. Start again.", "githubEmailConflict": "A Sharek account uses this email, but the chosen GitHub account is not linked to it. Sign in to Sharek first and then link GitHub from Settings, or choose another GitHub account.", "githubAccountMismatch": "This Sharek account is linked to a different GitHub account. Choose that linked GitHub account, or sign in manually to change the link.", "githubAccountTaken": "The GitHub account you chose is linked to another Sharek account. Choose a different GitHub account to continue.", "loginError": "Could not complete sign-in through the account provider.", "unknownProvider": "The sign-in provider is not recognized.", "chooseProviderAccount": "Choose a {{provider}} account", "title": "Complete sign in", "demoSubtext": "Demo account-selection simulation", "processingSubtext": "Processing the account-provider response", "chooseAnotherGithub": "Choose another GitHub account", "backToLogin": "Back to sign in", "completing": "Completing sign in…", "chooseAccount": "Choose the account you want to continue with", "demoDescription": "This is a local demo screen instead of the real {{provider}} window." },
+    "devLogin": { "title": "Quick sign-in (development only)", "contributor": "Contributor", "owner": "Project owner", "admin": "Admin", "serverUnavailable": "Could not reach the server on port 4000. Make sure the backend is running, then try again.", "loginError": "Could not sign in with the development account. Make sure the server seed is running." },
+    "username": { "label": "Username", "invalidFormat": "Use 3 to 30 letters, numbers, hyphens, or underscores; do not start or end with a special character.", "reserved": "This username is reserved and cannot be used.", "taken": "This username is unavailable.", "checking": "Checking availability…", "checkFailed": "Could not check availability now; you can continue.", "available": "This username is available.", "try": "Try:" },
     "login": "Log in",
     "logout": "Log out",
     "register": "Create account",
@@ -120,7 +123,9 @@
     "role": {
       "title": "What is your role in Share-k?",
       "subtitle": "This helps us personalise your experience and show you the right fields.",
-      "disclaimer": "Choose how you want to use Share-k initially. Additional roles may be added later."
+      "disclaimer": "Choose how you want to use Share-k initially. Additional roles may be added later.",
+      "contributorDescription": "I want to contribute to open-source projects and build my skills.",
+      "ownerDescription": "I have a project or an idea and I am looking for contributors to build it."
     },
     "account": {
       "title": "Account details",
@@ -151,7 +156,10 @@
       "termsOfService": "Terms of Service",
       "and": "and",
       "privacyPolicy": "Privacy Policy",
-      "termsOf": "of Share-k."
+      "termsOf": "of Share-k.",
+      "teamSizes": { "solo": "I work alone", "large": "More than 50" },
+      "availability": { "fullTime": "Full time", "freelance": "Freelance", "both": "Both" },
+      "interestsOptions": { "web": "Web development", "mobile": "Mobile apps", "ai": "Artificial intelligence", "docs": "Documentation and content" }
     },
     "verify": {
       "title": "Check your email",
@@ -186,8 +194,19 @@
   "shell": {
     "skipToContent": "Skip to content",
     "badgeAriaLabel_one": "{{count}} item needs action",
-    "badgeAriaLabel_other": "{{count}} items need action"
+    "badgeAriaLabel_other": "{{count}} items need action",
+    "resizeSidebar": "Resize sidebar",
+    "sidebarWidth": "{{width}} pixels",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
+  "sidePanel": { "closePanel": "Close panel" },
+  "tagInput": { "remove": "Remove {{tag}}" },
+  "applicationRoute": { "verifyingAccount": "Verifying account…", "ownerOpenError": "Could not open the contribution request from this notification.", "openingRequest": "Opening contribution request…", "redirecting": "Redirecting you to the right page for your account…" },
+  "forgotPassword": { "title": "Forgot password", "description": "Enter your email and we will send you a password-reset link." },
+  "publicProjects": { "loadError": "Could not load published projects.", "loading": "Loading published projects…" },
+  "settings": { "loadingProfile": "Loading your profile data…" },
+  "importProject": { "loadRepositoriesError": "Could not load your connected repositories." },
   "home": {
     "ownerSpace": "Project owner space",
     "contributorSpace": "Contributor space",
@@ -225,6 +244,44 @@
     "recordTab": "Your record",
     "advisoryNote": "Matches are based on verified skills, but remain advisory. Review every request before applying.",
     "attentionHeading": "Needs your attention",
+    "attention": {
+      "eyebrow": "Priority now",
+      "title": "Needs your attention",
+      "count_one": "{{count}} action",
+      "count_other": "{{count}} actions"
+    },
+    "matches": {
+      "eyebrow": "Built from your skill record",
+      "title": "Opportunities for you",
+      "reason": "Why: {{reason}}",
+      "viewAll": "View all requests",
+      "fit": "{{matched}}/{{required}} fit",
+      "review": "Review details"
+    },
+    "mock": {
+      "attention": {
+        "changesTitle": "Changes requested on delivery “Add JWT authentication”",
+        "changesSubtitle": "Project-owner feedback is attached",
+        "changesAction": "Open and revise",
+        "acceptedTitle": "You were accepted for “Fix RTL layout”",
+        "acceptedSubtitle": "Due in 6 days",
+        "acceptedAction": "Deliver pull request (PR)"
+      },
+      "matchReason": "Your verified React and Node.js skills",
+      "tasks": {
+        "notifications": "Build a real-time notifications dashboard",
+        "performance": "Improve task-list performance",
+        "integration": "Add frontend integration tests"
+      },
+      "onboarding": {
+        "account": "Create account",
+        "github": "Connect GitHub",
+        "analysis": "Analysis in progress…",
+        "analysisHint": "(~2 minutes) — we will notify you when it finishes",
+        "review": "Review-team review",
+        "reviewHint": "After the analysis completes"
+      }
+    },
     "growth": {
       "title": "Your growth",
       "verifiedProgress": "Verified progress",
@@ -352,8 +409,18 @@
   "myProjects": {
     "title": "My Projects",
     "loading": "Loading your projects...",
-    "loadError": "Could not load your projects — please try again."
+    "loadError": "Could not load your projects — please try again.",
+    "monthlyQuota": "{{used}} of {{total}} contribution requests this month",
+    "importProject": "Import project",
+    "emptyTitle": "Import your first project from GitHub",
+    "emptyDescription": "We fetch the repository data automatically; you review and publish it, then create contribution requests that qualified contributors can see.",
+    "projectSummary": "{{open}} open contribution requests · {{pending}} applications awaiting your decision · last activity {{activity}}",
+    "status": { "draft": "Draft", "published": "Published", "archived": "Archived" },
+    "manage": "Manage",
+    "loadMore": "Load more"
   },
+  "projectOwners": { "title": "Owners with published projects", "description": "The newest owners with published projects, including each owner's project count and latest published project.", "visibleOwners_one": "{{count}} visible owner", "visibleOwners_other": "{{count}} visible owners", "loading": "Loading owners with published projects…", "loadError": "Could not load project owners", "loadErrorHelp": "Try again without affecting the skill-review queue.", "publishedProjects": "published projects", "opensRepository": "Opens the project repository in a new window", "latestPublished": "Latest published:", "emptyTitle": "No published projects", "emptyDescription": "Owners will appear here after they publish their first project supported by the current contracts." },
+  "project": { "ownerRoute": { "loadingTitle": "Loading project", "loadingDescription": "Verifying project ownership.", "verifyingTitle": "Verifying project", "verifyingDescription": "Verifying project ownership and publication status.", "loadErrorTitle": "Could not load project", "untitled": "Untitled", "createPanelDescription": "Create a draft in “{{project}}” without leaving the requests list.", "notPublishedTitle": "Project is not published", "notFoundTitle": "Project was not found", "notPublishedDescription": "Publish the project first; a contribution request cannot be created from a draft or archived project.", "notFoundDescription": "The project does not exist or does not belong to this account." }, "repositoryRecovery": { "title": "Repository control verification is required", "description": "An organization or shared repository needs an active GitHub App installation with that repository explicitly selected. A personal repository needs the verified GitHub identity to match its owner. Reconnect or reselect below, then refresh the source data.", "manageLinks": "Manage all GitHub links" } },
   "admin": {
     "dashboard": {
       "title": "Review Operations Center",
@@ -851,9 +918,24 @@
       "bodyLabel": "Content",
       "bodyPlaceholder": "Share your experience or ask the Sharek community a question",
       "publishing": "Publishing…"
-    }
+    },
+    "mock": { "sara": "Sarah Youssef", "omar": "Omar Khaled", "postNotFound": "The post was not found.", "post1": { "title": "How do you write a task description that attracts the right contributor?", "excerpt": "A clear scope and visible review criteria reduce uncertainty before anyone applies.", "body": "A clear scope and visible review criteria reduce uncertainty before anyone applies. In this project, we tried writing every task in three lines: what is needed, how we review it, and what evidence we expect. The result was roughly half as many repeated questions.", "comment1": "That is exactly what I was looking for—thanks for sharing.", "comment2": "I am glad it helped. Tell me how it goes if you try it." }, "post2": { "title": "My experience documenting my first open-source contribution", "excerpt": "Evidence written during the work is easier than rebuilding it later.", "body": "Evidence written during the work is easier than rebuilding it later. Instead of collecting screenshots and explanations on the last day, I started writing a short note after each important step. When the project owner reviewed my work, I had a ready record." } }
   },
   "githubApp": {
+    "errors": {
+      "GITHUB_APP_NOT_CONFIGURED": "GitHub App linking is not configured on the server. Contact support.",
+      "GITHUB_APP_STATE_INVALID": "The linking attempt expired or is invalid. Start linking again.",
+      "GITHUB_APP_STATE_USER_MISMATCH": "This linking attempt belongs to another session. Start again from your account.",
+      "GITHUB_APP_INSTALLATION_NOT_VERIFIED": "GitHub installation verification failed. Try again.",
+      "GITHUB_APP_INSTALLATION_ACCESS_NOT_VERIFIED": "We could not verify your access to this installation. Reauthorize it in GitHub.",
+      "GITHUB_APP_INSTALLATION_INACTIVE": "This link is not active. Reauthorize it or choose another installation.",
+      "GITHUB_APP_REPOSITORY_NOT_SELECTED": "A repository is no longer in this GitHub App installation's allowed repositories. Update the selection in GitHub, then try again.",
+      "GITHUB_APP_REPOSITORY_ACCESS_REVOKED": "Sharek's access to a selected repository was revoked. Review the installation settings in GitHub.",
+      "GITHUB_APP_PROVIDER_UNAVAILABLE": "GitHub is temporarily unavailable. Try again shortly.",
+      "GITHUB_APP_PROVIDER_INVALID_RESPONSE": "GitHub returned an unexpected response. Try again shortly.",
+      "GITHUB_REPOSITORY_OAUTH_MIGRATED": "The old repository-linking method was replaced. Use GitHub App linking from this page.",
+      "unknown": "Could not complete the GitHub operation. Try again."
+    },
     "restart": "Restart connection",
     "accountType": {
       "user": "Personal account",
@@ -885,6 +967,7 @@
       "manage": "Manage or remove the app on GitHub",
       "disconnect": "Disconnect locally"
     },
+    "disconnectDialog": { "aria": "Confirm GitHub connection disconnection", "title": "Disconnect connection from", "description": "Disconnecting removes only Share-k’s local repository connection. It does not uninstall the GitHub App or disconnect GitHub sign-in.", "confirm": "Confirm local disconnection" },
     "status": {
       "active": {
         "label": "Active",
@@ -904,6 +987,7 @@
       }
     }
   },
+  "githubSkillPage": { "title": "GitHub skill analysis", "description": "This step is entirely optional and does not affect registration, email verification, profile management, or project exploration. GitHub App linking is completely separate from GitHub sign-in, and no analysis starts automatically.", "restart": "Restart linking", "dismiss": "Dismiss", "completing": "Completing the GitHub link…", "installations": "GitHub App links", "connectAccount": "Connect an account or organization", "loadingInstallations": "Loading GitHub links…", "emptyInstallations": "There are no links yet. You can link more than one personal account or organization, and each link is managed independently.", "starting": "Starting…", "start": "Start skill analysis", "startHelp": "No analysis request is sent until you press this button." },
   "landing": {
     "heroEyebrow": "A collaboration space that preserves the trail of real work",
     "heroTitle": "Contribute to real work. Build a record that can be verified.",
@@ -1495,6 +1579,401 @@
     "dark": "Dark mode",
     "system": "Automatic (system)"
   },
+  "pageTitles": {
+    "home": "Home",
+    "login": "Log in",
+    "register": "Create account",
+    "forgotPassword": "Forgot password",
+    "dashboard": "Dashboard",
+    "contributionRequests": "Contribution requests",
+    "contributionRequest": "Contribution request",
+    "application": "Application status",
+    "myProjects": "My projects",
+    "project": "Project",
+    "newContributionRequest": "Create contribution request",
+    "importProject": "Import project",
+    "projects": "Published projects",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "discussions": "Discussions",
+    "discussion": "Discussion",
+    "settings": "Settings",
+    "support": "Support",
+    "onboarding": "Activate account",
+    "githubSkills": "GitHub skill analysis",
+    "explore": "Explore projects",
+    "admin": "Admin",
+    "skillReviews": "Skill reviews",
+    "projectOwners": "Published project owners",
+    "profileFields": "Contributor fields",
+    "experienceLevels": "Experience levels",
+    "adminNotifications": "Admin notifications"
+  },
+  "adminLayout": { "brandTitle": "Sharek administration", "navigationLabel": "Administration navigation", "workspaceTitle": "Review workspace", "workspaceDescription": "Trust and safety queues" },
+  "adminReview": { "workspaceTitle": "Contributor review workspace", "loadingDescription": "Loading skills and evidence…", "loading": "Loading review workspace…", "loadErrorTitle": "Could not load review data", "loadErrorDescription": "Check your connection and try again. No new decision was saved." },
+  "adminPages": { "experienceLevelsTitle": "Manage experience levels", "experienceLevelsDescription": "Add the experience levels users can choose from and set their display order and status.", "profileFieldsTitle": "Manage contributor fields", "profileFieldsDescription": "Add the fields contributors can choose from and set their display order and status.", "projectOwnersTitle": "Published project owners", "projectOwnersDescription": "Review owners who published active projects, their project counts, and latest published project.", "hideNotificationPreferences": "Hide notification preferences", "manageNotificationPreferences": "Manage notification preferences" },
+  "application": {
+    "errors": {
+      "APPLICATION_DECISION_FEEDBACK_REQUIRED": "Write clear feedback explaining the non-selection decision.",
+      "APPLICATION_TERMINAL": "The application status changed and this decision is no longer available. Current data was refreshed.",
+      "APPLICATION_CONCURRENT_MODIFICATION": "An application change was already made. Current status was refreshed to avoid a duplicate decision.",
+      "REQUEST_CANCELLED": "The contribution request was cancelled, so this decision can no longer be recorded.",
+      "REQUEST_TERMINAL": "The contribution request reached a final status and no new decision can be created.",
+      "APPLICATION_NOT_AUTHORIZED": "This application is unavailable to this account.",
+      "APPLICATION_IDEMPOTENCY_KEY_REQUIRED": "The decision could not be secured for retry. Reopen the action and try again.",
+      "APPLICATION_IDEMPOTENCY_CONFLICT": "This decision conflicts with a previous attempt. Review the current status before trying again.",
+      "ASSESSMENT_ALREADY_ACTIVE": "An assessment is already being processed. Refresh the current status.",
+      "ASSESSMENT_RETRY_IN_PROGRESS": "The assessment retry already started. Refresh the current status.",
+      "ASSESSMENT_RETRY_LIMIT_REACHED": "The available assessment retry was used. You can continue your decision without an assessment.",
+      "OWNER_DECISION_REPORT_ALREADY_EXISTS": "A report about this feedback was already sent and is saved for review.",
+      "sessionExpired": "Your sign-in session ended. Log in and try again.",
+      "unknown": "The operation could not be completed now. Your input was kept; try again."
+    },
+    "submissionErrors": {
+      "ALREADY_APPLIED": "You already have an application for this request. Only one application is allowed, and withdrawing it does not allow a new application.",
+      "APPLICATIONS_CLOSED": "Applications for this contribution request are closed.",
+      "REQUEST_CANCELLED": "The project owner cancelled the contribution request, so applying is no longer available.",
+      "REQUEST_TERMINAL": "The contribution request reached a final status and no longer accepts applications.",
+      "APPLICATION_NOT_AUTHORIZED": "This account is not authorized to submit an application to this contribution request.",
+      "APPLICATION_IDEMPOTENCY_CONFLICT": "A previous attempt conflicts with this information. Update the contribution approach or delivery duration, then submit again.",
+      "unknown": "Could not submit the application now. Your input was kept; try again."
+    },
+    "status": {
+      "pending": {
+        "label": "Awaiting project-owner review",
+        "description": "Your application was sent directly to the project owner. You can withdraw it before an owner decision."
+      },
+      "accepted": {
+        "label": "Application accepted",
+        "description": "The project owner selected you for this request. Review the assignment details and agreed delivery date."
+      },
+      "declined": {
+        "label": "The project owner did not accept the application",
+        "description": "This is a human decision for this request only; it does not affect your profile, eligibility, reputation, or other applications."
+      },
+      "notSelected": {
+        "label": "Another contributor was selected",
+        "description": "This request closed after another contributor was selected. It does not affect your profile, eligibility, or reputation."
+      },
+      "expired": {
+        "label": "Review window expired",
+        "description": "The project owner’s review window ended without a decision. This is not a rejection and does not affect your reputation."
+      },
+      "withdrawn": {
+        "label": "Application withdrawn",
+        "description": "The application ended by your choice. Withdrawal is final and you cannot submit another application for this request."
+      },
+      "cancelled": {
+        "label": "Contribution request cancelled",
+        "description": "The project owner ended the contribution request. This closure is not a judgment about you and does not affect your profile or reputation."
+      }
+    },
+    "presenter": {
+      "pending": {
+        "label": "Awaiting owner decision",
+        "title": "Application under review",
+        "description": "Your application reached the project owner. Selection is a human decision and does not depend on automated assessment."
+      },
+      "accepted": {
+        "label": "Selected",
+        "title": "The project owner selected you",
+        "description": "A work assignment was created using the proposed delivery duration in your application."
+      },
+      "declined": {
+        "label": "The owner did not select this application",
+        "title": "The project owner decided on this application",
+        "description": "This human decision applies only to this application and contribution-request context.",
+        "neutralEffect": "This decision does not affect your profile, eligibility, reputation, or other applications."
+      },
+      "notSelected": {
+        "label": "Another contributor was selected",
+        "title": "The application closed after another contributor was selected",
+        "description": "This is a system outcome after another application was accepted, not a rejection from the owner or judgment of your abilities.",
+        "neutralEffect": "This outcome does not affect your profile, eligibility, reputation, or other applications."
+      },
+      "expired": {
+        "label": "Review period expired",
+        "title": "The application ended without an owner decision",
+        "description": "The owner review window closed automatically. This outcome is not a rejection by the project owner.",
+        "neutralEffect": "An expired review does not affect your profile, eligibility, or reputation."
+      },
+      "withdrawn": {
+        "label": "Withdrawn",
+        "title": "You withdrew the application",
+        "description": "You ended this application before the project owner recorded a decision.",
+        "neutralEffect": "Withdrawal does not affect your profile, eligibility, or reputation."
+      },
+      "cancelled": {
+        "label": "Contribution request cancelled",
+        "title": "The application ended because work was cancelled",
+        "description": "The project owner cancelled the contribution request; this outcome does not describe the quality of your application.",
+        "neutralEffect": "Cancelling work does not affect your profile, eligibility, or reputation."
+      },
+      "expiredAt": "Expired {{date}}",
+      "overdue": {
+        "label": "Decision needed now",
+        "detail": "The review period ends {{date}}"
+      },
+      "awaiting": {
+        "label": "Awaiting review",
+        "detail": "Review follow-up due {{date}}"
+      }
+    },
+    "view": { "loadingTitle": "Loading application", "loadingDescription": "Retrieving the current status and saved decision.", "loadErrorTitle": "Could not open application", "backToRequests": "Back to contribution requests", "reportSent": "The report was sent for moderation review. The application status did not change or reopen.", "reportSentShort": "Report sent", "contributionApproach": "Contribution approach", "noApproach": "No approach is saved in this record.", "proposedDuration": "Proposed delivery duration", "submittedAt": "Submitted at", "reviewWindowEnd": "Review window end", "ownerDecisionTime": "Owner decision time", "evidenceBase": "Recorded review basis", "requiredRequirements": "Required requirements", "preferredRequirements": "Preferred requirements", "evidenceSummaries": "Evidence summaries", "evidenceBaseHelp": "This is a snapshot saved at application time. It does not mean ranking, eligibility score, or automated decision.", "assignment": "Work assignment", "agreedDuration": "Agreed delivery duration", "agreedDueDate": "Agreed delivery due date", "ownerFeedback": "Project-owner feedback", "ownerFeedbackHelp": "Human feedback tied to the owner’s decision, not an advisory assessment result.", "reportHelp": "You can report abuse or inappropriate content for moderation review. A report is not an appeal and does not reopen the decision.", "report": "Report feedback", "backToRequest": "Back to contribution request" },
+    "withdrawal": { "notPending": "The application is no longer awaiting review, so it cannot be withdrawn.", "error": "Could not withdraw the application now. Try again.", "title": "Application controls", "description": "You can withdraw the application before the project owner decides. Withdrawal is final and you cannot apply to this contribution request again.", "trigger": "Withdraw application", "confirmTitle": "Confirm application withdrawal", "confirmDescription": "Do you want to withdraw this application permanently? You cannot submit a new application for this request.", "withdrawing": "Withdrawing…", "confirm": "Confirm withdrawal" }
+  },
+  "advisoryFit": {
+    "title": "Advisory assessment", "description": "Optional analysis of evidence recorded at application time. It does not decide acceptance or rejection and does not replace your human decision.", "loading": "Loading assessment status…", "loadError": "Could not load assessment status", "summary": "Assessment summary", "band": "Advisory band: {{band}}", "bandHelp": "This band is derived from required requirements only. Preferred requirements are shown for context and do not change the band.", "required": "Required requirements", "preferred": "Preferred requirements", "retryUsed": "An incomplete assessment does not affect your decision or describe the contributor’s ability. The available retry was used; you can continue without an assessment.", "request": "Request advisory assessment", "retry": "Request assessment again", "refresh": "Refresh status", "noRequirements": "There are no requirements in this category.", "noFinding": "No finding was returned for this requirement in the current result.", "confidence": "Confidence: {{value}}", "evidenceIds": "Evidence IDs", "uncertainty": "Uncertainty", "bands": { "STRONG": "Strong", "PARTIAL": "Partial", "LIMITED": "Limited", "UNKNOWN": "Inconclusive", "UNAVAILABLE": "Unavailable" }, "findings": { "SUPPORTED": "Supported", "PARTIALLY_SUPPORTED": "Partially supported", "NOT_EVIDENCED": "Insufficient evidence", "INCONCLUSIVE": "Inconclusive" }, "confidences": { "HIGH": "High", "MEDIUM": "Medium", "LOW": "Low" }, "status": { "NOT_REQUESTED": { "title": "No advisory assessment requested", "description": "You can request an optional analysis of recorded evidence without making it a requirement for acceptance or rejection.", "label": "Not requested" }, "REQUESTED": { "title": "Assessment in progress", "description": "The result is being prepared. You can make your human decision without waiting for it.", "label": "In progress" }, "NOT_STARTED_SYSTEM_LIMIT": { "title": "Assessment could not start because of a temporary technical limit", "description": "This says nothing about contributor fit. You can request it again later.", "label": "Technical limit" }, "NOT_STARTED_NO_ASSESSABLE_EVIDENCE": { "title": "No assessable evidence", "description": "The absence of evidence does not affect your decision or describe the contributor’s ability.", "label": "No assessable evidence" }, "CANCELLED_NOT_NEEDED": { "title": "Assessment cancelled because it was no longer needed", "description": "The application reached a final status before a new assessment was needed. This does not affect the contributor.", "label": "No longer needed" }, "UNAVAILABLE": { "title": "No valid assessment completed", "description": "An incomplete assessment does not affect your decision or describe the contributor’s ability. You can request it again.", "label": "Unavailable" }, "COMPLETED": { "title": "Assessment completed", "description": "", "label": "Completed" } }
+  },
+  "contributionRequests": {
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "unspecified": "Not specified in this record",
+    "dateUnspecified": "Not specified",
+    "rewardUnspecified": "No reward stated",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "assigned": "Assigned",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "discarded": "Discarded",
+      "applicationsClosed": "Applications closed"
+    },
+    "errors": {
+      "CONTRIBUTION_REQUEST_OWNER_ACCESS_REQUIRED": "This page is available only to an active project owner.",
+      "CONTRIBUTION_REQUEST_PROJECT_NOT_FOUND": "The project was not found or is unavailable to this account.",
+      "CONTRIBUTION_REQUEST_PROJECT_NOT_PUBLISHED": "Publish the project before creating a contribution request.",
+      "CONTRIBUTION_REQUEST_NOT_FOUND": "The contribution request was not found or is unavailable to this account.",
+      "CONTRIBUTION_REQUEST_UPDATE_EMPTY": "There are no changes to save.",
+      "CONTRIBUTION_REQUEST_DRAFT_NOT_EDITABLE": "This contribution request is no longer an editable draft.",
+      "CONTRIBUTION_REQUEST_REQUIRED_REQUIREMENT_MISSING": "Add at least one required requirement.",
+      "CONTRIBUTION_REQUEST_REQUIREMENT_DUPLICATE": "A requirement cannot be duplicated or be both required and preferred.",
+      "CONTRIBUTION_REQUEST_REQUIREMENT_INPUT_INVALID": "Requirement format is invalid. Review each requirement and try again.",
+      "CONTRIBUTION_REQUEST_CLOSE_TIME_REQUIRED": "Choose an applications close time.",
+      "CONTRIBUTION_REQUEST_CLOSE_TIME_INVALID": "Applications close time must be in the future.",
+      "CONTRIBUTION_REQUEST_DATE_ORDER_INVALID": "Target completion date must be after applications close time.",
+      "CONTRIBUTION_REQUEST_REWARD_INVALID": "Check the reward amount and currency code.",
+      "CONTRIBUTION_REQUEST_CONCURRENT_MODIFICATION": "The draft changed while you were editing. Your input was preserved; open the latest version in another tab and compare it before retrying.",
+      "CONTRIBUTION_REQUEST_IDEMPOTENCY_KEY_INVALID": "The retry could not be secured. Change the command and try again.",
+      "CONTRIBUTION_REQUEST_IDEMPOTENCY_CONFLICT": "A previous attempt conflicts with this command. Review the fields and submit again.",
+      "CONTRIBUTION_REQUEST_DRAFT_NOT_PUBLISHABLE": "Complete the work contract (title, description, at least one required requirement, and a future applications close time) before publishing.",
+      "CONTRIBUTION_REQUEST_LIMIT_REACHED": "You reached your plan's monthly contribution-request publishing limit.",
+      "CONTRIBUTION_REQUEST_NOT_CANCELLABLE": "This contribution request cannot be cancelled in its current state.",
+      "sessionExpired": "Your session expired. Sign in and try again.",
+      "unknown": "The operation could not be completed. Try again."
+    },
+    "detail": {
+      "loadingTitle": "Loading contribution request",
+      "loadingDescription": "Retrieving the latest version available to this account.",
+      "loadErrorTitle": "Could not open contribution request",
+      "backToProjects": "Back to my projects",
+      "backToProject": "Back to project",
+      "lifecycle": { "draft": "Private to the project owner. It is not visible to contributors before publishing.", "published": "Published and visible to contributors until the applications close time.", "assigned": "This request is assigned to a contributor. Publishing and cancellation are no longer available.", "in_progress": "Work is currently in progress.", "awaiting_delivery": "Waiting for the work delivery.", "delivery_submitted": "A delivery was submitted for review.", "completed": "This request is complete.", "cancelled": "This published request was cancelled. The record of applications and decisions is retained.", "expired": "This request has expired.", "discarded": "This draft was discarded before publishing. Its record is retained for viewing only." },
+      "applicationsClosedSince": "Published, but applications have been closed since {{date}}.",
+      "sections": "Contribution request sections",
+      "tabs": { "details": "Details", "applications": "Applications", "matches": "Matches", "delivery": "Delivery", "materials": "Materials" },
+      "discardedTitle": "Discarded draft — view only",
+      "discardedDescription": "This draft was closed without deleting its record. It cannot be edited or restored from this interface.",
+      "cancelledTitle": "Cancelled request — view only",
+      "cancelledDescription": "This published request was cancelled. Earlier applications, assessments, and decisions are retained and were not deleted.",
+      "saved": "Your latest draft changes were saved.",
+      "saveChanges": "Save changes",
+      "publishTitle": "Publish request",
+      "publishDescription": "The request becomes visible to contributors immediately and is subject to the monthly publishing limit of your plan.",
+      "publish": "Publish request",
+      "discardTitle": "Discard draft",
+      "discardDescription": "Discarding is final and does not delete the record or turn it into a cancelled published request.",
+      "discard": "Discard draft",
+      "applicationsClosedHelp": "New applications are not accepted after the close time. Earlier applications are retained and can still be reviewed and decided.",
+      "cancelTitle": "Cancel request",
+      "cancelDescription": "Cancellation is final, stops new applications, and retains the history of earlier applications and decisions.",
+      "cancel": "Cancel request",
+      "readOnlyTitle": "Request cannot be edited",
+      "readOnlyDescription": "This record's status ({{status}}) does not allow publishing, cancellation, or editing from this interface.",
+      "acceptedProposal": "Accepted proposal from a contributor",
+      "attributionHelp": "Attribution recognizes the idea; it does not assign work or give selection priority."
+    },
+    "contributorDetail": {
+      "loadingTitle": "Loading contribution request",
+      "loadingDescription": "Retrieving the work contract and application status from the server.",
+      "unavailableTitle": "Contribution request is unavailable",
+      "unavailableDescription": "Applications may have closed, the request may have been cancelled, or the project may no longer be published.",
+      "availableRequests": "View available requests",
+      "backToRequests": "Back to contribution requests",
+      "checkingApplication": "Checking the status of your earlier application…",
+      "applicationStatus": "Application status",
+      "withdrawnNotice": "You cannot submit another application for this request after withdrawing.",
+      "oneApplicationNotice": "You can submit only one application for each contribution request.",
+      "openApplication": "Open application status",
+      "proposedBy": "Proposed by",
+      "attributionHelp": "Attribution preserves the source of the proposal; it does not mean ownership, work assignment, or selection priority.",
+      "requiredHelp": "Essential items for completing the work.",
+      "preferredHelp": "Helpful items, but not a substitute for required requirements.",
+      "noItems": "There are no items.",
+      "metadata": "Time and reward details",
+      "submitTitle": "Submit an application",
+      "submitDescription": "The application is sent directly to the project owner awaiting review. No automatic assessment starts when it is submitted.",
+      "approach": "Contribution approach",
+      "approachPlaceholder": "Explain how you will complete the work and what you will deliver.",
+      "approachHelp": "This is context from the contributor to the project owner, not verified skill evidence.",
+      "proposedDuration": "Proposed delivery duration (days)",
+      "submitting": "Submitting…",
+      "submit": "Send to project owner",
+      "submitHelp": "After submitting, you will be taken to your application status page.",
+      "existingApplicationRecovery": "Open the status link from the previous submission confirmation.",
+      "backToAvailable": "Back to available requests",
+      "reviewAccount": "Review account status",
+      "editRecovery": "Change the contribution approach or delivery duration before submitting again."
+      ,"validation": "Enter a contribution approach of 10 to 5000 characters and a whole delivery duration between 1 and 365 days."
+    },
+    "ownerReview": {
+      "accepted": "{{name}} was selected and a work assignment was created.",
+      "declined": "The non-selection decision for {{name}} was recorded.",
+      "title": "Applications awaiting your decision",
+      "description": "All pending applications appear here immediately. You can make your decision without an advisory assessment or while it is pending; the final decision remains yours.",
+      "pendingCount_one": "{{count}} under review",
+      "pendingCount_other": "{{count}} under review",
+      "loading": "Loading applications…",
+      "loadError": "Could not load applications",
+      "emptyTitle": "No pending applications now",
+      "emptyDescription": "New applications will appear here as soon as they reach the project owner.",
+      "openContributorProfile": "Open contributor profile and reputation",
+      "submittedAt": "Submitted {{date}}",
+      "noApproach": "No contribution approach was saved in this record.",
+      "proposedDuration": "Proposed delivery duration:",
+      "profileContext": "Profile context at application time",
+      "experience": "Experience",
+      "availability": "Availability",
+      "fields": "Fields",
+      "evidenceSummary": "Evidence summary recorded at application time",
+      "noEvidence": "This record has no verified evidence summary. Lack of evidence is not a judgment of ability and does not prevent you from making a decision.",
+      "noEvidenceText": "No additional text summary.",
+      "evidenceLimitations": "Evidence limitations",
+      "advisoryHelp": "The advisory assessment is optional. It is not presented here as a requirement, recommendation, or ranking.",
+      "decline": "Do not select; add feedback",
+      "accept": "Select and create assignment"
+    },
+    "ownerWorkspace": {
+      "loadingTitle": "Loading contribution requests",
+      "loadingDescription": "Retrieving this project's requests from every status.",
+      "loadErrorTitle": "Could not load contribution requests",
+      "title": "Contribution requests — {{project}}",
+      "description": "All contribution requests for this project are grouped by status, with requests whose applications are closed clearly identified.",
+      "newRequest": "New contribution request",
+      "emptyTitle": "No contribution requests yet",
+      "canCreateDescription": "Create this project's first contribution request.",
+      "cannotCreateDescription": "Publish the project first to create a contribution request.",
+      "createRequest": "Create contribution request",
+      "statuses": "Contribution request statuses",
+      "sections": { "published": "Published", "applicationsClosed": "Applications closed", "drafts": "Drafts", "assigned": "Assigned", "completed": "Completed", "cancelled": "Cancelled", "discarded": "Discarded" },
+      "requests": "Requests",
+      "emptySection": "There are no requests in this status.",
+      "closedAt": "Applications closed: {{date}}",
+      "closeAt": "Applications close: {{date}}",
+      "noCloseTime": "No applications close time was specified",
+      "closedHelp": "New applications are not accepted; earlier applications are retained for review."
+    },
+    "create": {
+      "title": "Create contribution request",
+      "description": "Create a private draft in “{{project}}”. After saving the draft, you can review it and publish it to contributors in a separate action.",
+      "draftDetails": "Draft details",
+      "ownerProjectNotice": "The owner and project come from the signed-in session and are not editable fields.",
+      "saveDraft": "Save draft"
+    },
+    "form": {
+      "title": "Title",
+      "description": "Description",
+      "requiredRequirements": "Required requirements",
+      "requiredDescription": "Essential capabilities or outcomes for completing this contribution request. Order is preserved.",
+      "preferredRequirements": "Preferred requirements",
+      "preferredDescription": "Helpful items that are not essential requirements.",
+      "tags": "Technology tags (optional)",
+      "tagsHelp": "Type a technology and press Enter. Tags are descriptive and do not replace requirements.",
+      "removeTag": "Remove {{tag}}",
+      "closeTime": "Applications close time",
+      "targetDate": "Target completion date (optional)",
+      "difficulty": "Difficulty level (optional)",
+      "none": "Not specified",
+      "difficulties": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      },
+      "reward": "Reward (optional)",
+      "rewardHelp": "Enter the amount and currency together. Do not leave either field on its own.",
+      "amount": "Amount",
+      "currency": "Currency",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "removeRequirement": "Remove requirement",
+      "addRequirement": "Add requirement"
+    },
+    "validation": {
+      "title": "Title must contain 3 to 255 characters.",
+      "description": "Description must contain 10 to 5000 characters.",
+      "requiredCount": "Add between 1 and 20 required requirements.",
+      "preferredCount": "Add no more than 20 preferred requirements.",
+      "requirementLength": "Each requirement must contain 2 to 500 characters.",
+      "duplicate": "A requirement cannot be duplicated or be both required and preferred.",
+      "tags": "Add no more than 20 tags, each containing 1 to 50 characters.",
+      "closeRequired": "Choose an applications close time.",
+      "closeFuture": "Applications close time must be in the future.",
+      "targetOrder": "Target completion date must be after applications close time.",
+      "reward": "Reward must be 0.01 to 99,999,999.99 with at most two decimal places.",
+      "rewardPair": "Provide reward amount and currency together, or leave both empty.",
+      "currency": "Use a three-letter currency code such as USD."
+    },
+    "acceptDialog": {
+      "title": "Select {{name}}?",
+      "description": "This decision creates one work assignment for this contributor. All other pending applications for this work become “Another contributor was selected.”",
+      "duration": "Agreed delivery duration",
+      "reviewAgain": "Review the application again",
+      "confirm": "Confirm selection and create assignment"
+    },
+    "declineDialog": {
+      "title": "Do not select this application",
+      "description": "This is a human decision for this work only. Write respectful, useful feedback; it appears to the contributor separately from advisory assessment results.",
+      "feedback": "Project-owner feedback",
+      "help": "Do not include private information or judgments about the contributor’s eligibility.",
+      "feedbackRequired": "Write clear feedback for the contributor before recording the decision.",
+      "confirm": "Record non-selection decision"
+    },
+    "cancelDialog": {
+      "title": "Cancel this published contribution request?",
+      "description": "This final action stops new applications but preserves the history of applications, assessments, and prior decisions.",
+      "reason": "Reason (optional)",
+      "reasonError": "Enter at least two characters or leave the reason empty.",
+      "confirm": "Cancel request"
+    },
+    "discardDialog": {
+      "title": "Discard this draft?",
+      "description": "This final action does not delete the record. The draft remains available for viewing only.",
+      "confirm": "Discard draft"
+    },
+    "publishDialog": {
+      "title": "Publish this contribution request?",
+      "description": "The request becomes visible to contributors immediately and accepts applications until its chosen close time.",
+      "confirm": "Publish request"
+    },
+    "reportDialog": {
+      "title": "Report decision feedback",
+      "description": "This report is for moderation review, not an appeal. It does not reopen the application or automatically change its outcome.",
+      "reason": "Report reason",
+      "details": "Describe what happened",
+      "help": "Describe the feedback and its context without adding unnecessary private data.",
+      "descriptionError": "Write a factual description of at least 10 characters.",
+      "confirm": "Send report for review",
+      "reasons": {
+        "harassment": "Harassment or abuse",
+        "misuse": "Misuse of feedback",
+        "fraud": "Suspected fraud",
+        "reputation_manipulation": "Attempted reputation manipulation",
+        "inaccurate_ai": "Inaccurate reference to automated assessment",
+        "other": "Other reason"
+      }
+    }
+  },
   "skillGuidance": {
     "eyebrow": "Requirement coverage",
     "title": "Source-linked guidance",
@@ -1507,6 +1986,34 @@
     "gapsTitle": "Learning gaps",
     "noGaps": "No gaps appeared in the current evidence.",
     "resourcesTitle": "Source-linked resources"
+  },
+  "materials": {
+    "analysis": {
+      "preparing": "Preparing material analysis…",
+      "loadError": "Could not load material-analysis settings.",
+      "title": "Draft from project materials",
+      "description": "Choose ready versions to create private suggestions. The project is not changed and no contribution request is created without your explicit approval.",
+      "noReadyVersions": "There are no scanned versions ready for analysis.",
+      "version": "{{filename}} · version {{version}}",
+      "starting": "Starting analysis…",
+      "start": "Analyze {{count}} selected versions",
+      "startSelectedVersions": "Analyze selected versions",
+      "selectedVersions": "selected versions",
+      "startError": "Could not start analysis. Check the subscription and version statuses, then try again.",
+      "adoptionError": "Could not adopt the suggestion. Review the data and try again.",
+      "failed": "Analysis failed ({{code}})",
+      "unknown": "unknown",
+      "running": "Analysis is in progress…",
+      "suggestionsTitle": "Suggestions awaiting your review",
+      "noSuggestions": "The analysis did not produce suggestions that can be adopted.",
+      "projectUpdate": "Project update",
+      "contributionRequest": "Contribution request",
+      "closeTime": "Applications close time",
+      "publishFirst": "Publish the project first to create a contribution request.",
+      "adoptProject": "Adopt project update",
+      "createDraft": "Create contribution-request draft",
+      "reject": "Reject"
+    }
   },
   "matching": {
     "confidence": {

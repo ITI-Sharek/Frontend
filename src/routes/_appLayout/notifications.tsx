@@ -4,7 +4,7 @@ import { NotificationCenter } from "@/modules/notifications";
 
 export const Route = createFileRoute("/_appLayout/notifications")({
   head: () => ({
-    meta: [{ title: "الإشعارات | Sharek" }],
+    meta: [{ title: "Sharek" }],
   }),
   component: NotificationCenter,
 });

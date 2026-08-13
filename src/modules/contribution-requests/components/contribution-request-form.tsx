@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { FormEvent, KeyboardEvent } from "react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -24,11 +25,7 @@ import type {
   ContributionRequestFormState,
 } from "../types/contribution-request.types";
 
-const DIFFICULTIES = [
-  { value: "beginner", label: "مبتدئ" },
-  { value: "intermediate", label: "متوسط" },
-  { value: "advanced", label: "متقدم" },
-] as const;
+const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
 
 export function ContributionRequestForm({
   initialState,
@@ -47,6 +44,7 @@ export function ContributionRequestForm({
   onCancel?: () => void;
   onSubmit: (payload: ContributionRequestDraftPayload) => Promise<void>;
 }) {
+  const { t, i18n } = useTranslation();
   const [form, setForm] = useState(initialState);
   const [errors, setErrors] = useState<ContributionRequestFormErrors>({});
   const [tagDraft, setTagDraft] = useState("");
@@ -121,11 +119,11 @@ export function ContributionRequestForm({
       <FormField
         error={errors.title}
         id="contribution-request-title"
-        label="العنوان"
+        label={t("contributionRequests.form.title")}
       >
         <Input
           id="contribution-request-title"
-          dir="rtl"
+          dir={i18n.language.startsWith("en") ? "ltr" : "rtl"}
           value={form.title}
           maxLength={255}
           aria-invalid={Boolean(errors.title)}
@@ -139,11 +137,11 @@ export function ContributionRequestForm({
       <FormField
         error={errors.description}
         id="contribution-request-description"
-        label="الوصف"
+        label={t("contributionRequests.form.description")}
       >
         <textarea
           id="contribution-request-description"
-          dir="rtl"
+          dir={i18n.language.startsWith("en") ? "ltr" : "rtl"}
           rows={6}
           value={form.description}
           maxLength={5000}
@@ -160,8 +158,8 @@ export function ContributionRequestForm({
 
       <RequirementEditor
         id="required-requirements"
-        title="المتطلبات المطلوبة"
-        description="قدرات أو نتائج أساسية لإنجاز طلب المساهمة. الترتيب محفوظ."
+        title={t("contributionRequests.form.requiredRequirements")}
+        description={t("contributionRequests.form.requiredDescription")}
         values={form.requiredRequirements}
         minimum={1}
         error={errors.requiredRequirements}
@@ -170,8 +168,8 @@ export function ContributionRequestForm({
 
       <RequirementEditor
         id="preferred-requirements"
-        title="المتطلبات المفضلة"
-        description="عناصر مفيدة لكنها ليست شرطًا أساسيًا."
+        title={t("contributionRequests.form.preferredRequirements")}
+        description={t("contributionRequests.form.preferredDescription")}
         values={form.preferredRequirements}
         minimum={0}
         error={errors.preferredRequirements}
@@ -179,9 +177,9 @@ export function ContributionRequestForm({
       />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="technology-tag-input">وسوم التقنيات (اختياري)</Label>
+        <Label htmlFor="technology-tag-input">{t("contributionRequests.form.tags")}</Label>
         <p className="text-xs leading-5 text-muted-foreground">
-          اكتب التقنية واضغط Enter. الوسوم وصفية ولا تحل محل المتطلبات.
+          {t("contributionRequests.form.tagsHelp")}
         </p>
         <div className="flex min-h-[50px] flex-wrap items-center gap-2 rounded-input border border-border bg-input-bg px-3 py-2 focus-within:border-primary">
           {form.technologyTags.map((tag) => (
@@ -192,7 +190,7 @@ export function ContributionRequestForm({
               <span dir="ltr">{tag}</span>
               <button
                 type="button"
-                aria-label={`إزالة ${tag}`}
+                aria-label={t("contributionRequests.form.removeTag", { tag })}
                 onClick={() =>
                   setField(
                     "technologyTags",
@@ -233,7 +231,7 @@ export function ContributionRequestForm({
         <FormField
           error={errors.applicationsCloseTime}
           id="applications-close-time"
-          label="وقت إغلاق التقديم"
+          label={t("contributionRequests.form.closeTime")}
         >
           <Input
             id="applications-close-time"
@@ -255,7 +253,7 @@ export function ContributionRequestForm({
         <FormField
           error={errors.targetCompletionDate}
           id="target-completion-date"
-          label="تاريخ الإنجاز المستهدف (اختياري)"
+          label={t("contributionRequests.form.targetDate")}
         >
           <Input
             id="target-completion-date"
@@ -278,7 +276,7 @@ export function ContributionRequestForm({
       <FormField
         error={errors.difficulty}
         id="difficulty"
-        label="مستوى الصعوبة (اختياري)"
+        label={t("contributionRequests.form.difficulty")}
       >
         <select
           id="difficulty"
@@ -292,10 +290,10 @@ export function ContributionRequestForm({
           }
           className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-sm text-foreground outline-none focus:border-primary"
         >
-          <option value="">بدون تحديد</option>
+          <option value="">{t("contributionRequests.form.none")}</option>
           {DIFFICULTIES.map((difficulty) => (
-            <option key={difficulty.value} value={difficulty.value}>
-              {difficulty.label}
+            <option key={difficulty} value={difficulty}>
+              {t(`contributionRequests.form.difficulties.${difficulty}`)}
             </option>
           ))}
         </select>
@@ -303,13 +301,13 @@ export function ContributionRequestForm({
 
       <fieldset className="rounded-card border border-border p-4">
         <legend className="px-2 text-sm font-semibold text-foreground">
-          المكافأة (اختياري)
+          {t("contributionRequests.form.reward")}
         </legend>
         <p className="mb-3 text-xs leading-5 text-muted-foreground">
-          أدخل القيمة والعملة معًا. لا تترك أحد الحقلين منفردًا.
+          {t("contributionRequests.form.rewardHelp")}
         </p>
         <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
-          <FormField error={errors.reward} id="reward" label="القيمة">
+          <FormField error={errors.reward} id="reward" label={t("contributionRequests.form.amount")}>
             <Input
               id="reward"
               type="text"
@@ -323,7 +321,7 @@ export function ContributionRequestForm({
           <FormField
             error={errors.rewardCurrency}
             id="reward-currency"
-            label="العملة"
+            label={t("contributionRequests.form.currency")}
           >
             <Input
               id="reward-currency"
@@ -366,7 +364,7 @@ export function ContributionRequestForm({
             disabled={isSubmitting}
             onClick={onCancel}
           >
-            إلغاء
+            {t("common.cancel")}
           </Button>
         ) : cancelHref ? (
           <Button
@@ -375,7 +373,7 @@ export function ContributionRequestForm({
             variant="outline"
             disabled={isSubmitting}
           >
-            <a href={cancelHref}>إلغاء</a>
+            <a href={cancelHref}>{t("common.cancel")}</a>
           </Button>
         ) : null}
       </div>
@@ -400,6 +398,7 @@ function RequirementEditor({
   error?: string;
   onChange: (values: string[]) => void;
 }) {
+  const { t } = useTranslation();
   function move(index: number, offset: -1 | 1) {
     const target = index + offset;
     if (target < 0 || target >= values.length) return;
@@ -438,21 +437,21 @@ function RequirementEditor({
             />
             <div className="flex shrink-0 gap-1">
               <IconButton
-                label="تحريك لأعلى"
+                label={t("contributionRequests.form.moveUp")}
                 disabled={index === 0}
                 onClick={() => move(index, -1)}
               >
                 <ArrowUp className="size-4" />
               </IconButton>
               <IconButton
-                label="تحريك لأسفل"
+                label={t("contributionRequests.form.moveDown")}
                 disabled={index === values.length - 1}
                 onClick={() => move(index, 1)}
               >
                 <ArrowDown className="size-4" />
               </IconButton>
               <IconButton
-                label="إزالة المتطلب"
+                label={t("contributionRequests.form.removeRequirement")}
                 disabled={values.length <= minimum}
                 onClick={() =>
                   onChange(values.filter((_, itemIndex) => itemIndex !== index))
@@ -474,7 +473,7 @@ function RequirementEditor({
         onClick={() => onChange([...values, ""])}
       >
         <Plus className="size-4" aria-hidden="true" />
-        إضافة متطلب
+        {t("contributionRequests.form.addRequirement")}
       </Button>
     </fieldset>
   );
