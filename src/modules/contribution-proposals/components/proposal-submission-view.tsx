@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { ArrowRight, Lightbulb } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -13,12 +14,22 @@ export function ProposalSubmissionView({
   isSubmitting,
   error,
   onSubmit,
+  submissionBlockSlot,
 }: {
   /** Empty when the page was opened directly rather than from the project. */
   projectName: string;
   isSubmitting: boolean;
   error: string | null;
   onSubmit: (fields: ContributionProposalFields) => Promise<void>;
+  /**
+   * The eligibility gate (DEC-078), composed by the route because it belongs to
+   * the eligibility module and modules never import each other.
+   *
+   * Unlike the task detail there is no pre-flight here: the bar is inferred
+   * from the proposal's own text, which does not exist until it is written. So
+   * this only ever appears after a refused submit.
+   */
+  submissionBlockSlot?: ReactNode;
 }) {
   const { t } = useTranslation();
   return (
@@ -49,6 +60,12 @@ export function ProposalSubmissionView({
             {t("proposalSubmission.project")} <span className="font-semibold text-foreground">{projectName}</span>
           </p>
         ) : null}
+        {/*
+          Above the editor, and the editor stays. The proposer's words are
+          still in the form and the block is a "not yet" — clearing what they
+          wrote would punish them for a gap they can close.
+        */}
+        {submissionBlockSlot}
         <ProposalEditor
           requiresDisclosure
           isSubmitting={isSubmitting}
