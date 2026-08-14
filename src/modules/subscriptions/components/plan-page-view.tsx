@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { formatServerInstant } from "@/shared/utils/format-server-instant";
 
 import { useSubscriptionStatusQuery } from "../api/queries/use-subscription-query";
 import type {
   SubscriptionBenefitDto,
   SubscriptionPlan,
 } from "../types/subscription.types";
-import { formatServerInstant } from "../utils/format-server-instant";
+
 
 const PLAN_LABEL_KEYS: Record<SubscriptionPlan, string> = {
   free: "subscriptions.plans.free",

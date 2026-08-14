@@ -322,6 +322,119 @@ describe("Contribution Request Application interactions", () => {
     expect(mocks.submit.mutateAsync).not.toHaveBeenCalled();
   });
 
+  it("renders the server's reset instant on a daily-limit refusal, never a computed one", async () => {
+    const onApplicationQuotaChanged = vi.fn();
+    mocks.submit.mutateAsync.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: {
+          code: "APPLICATION_DAILY_LIMIT_REACHED",
+          message: "Unstable backend copy",
+          metadata: {
+            used: 1,
+            limit: 1,
+            resetsAt: "2026-08-15T00:00:00.000Z",
+          },
+        },
+      },
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          requestsHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+          applicationQuotaSlot={<p>quota slot</p>}
+          onApplicationQuotaChanged={onApplicationQuotaChanged}
+        />,
+      );
+    });
+
+    await fillApproachAndSubmit();
+
+    const alert = container.querySelector('[role="alert"]');
+    expect(alert?.textContent).toContain("استهلكت كل طلبات اليوم");
+    // The exact instant the backend sent, formatted for the reader. A reset
+    // time computed on this machine could disagree with the server's, and the
+    // contributor would come back to another refusal (DEC-034).
+    expect(alert?.textContent).toContain("15 أغسطس 2026");
+    expect(alert?.textContent).not.toContain("Unstable backend copy");
+    // Nothing relative, which is what a client-side computation would produce.
+    expect(alert?.textContent).not.toContain("خلال");
+    expect(alert?.textContent).toContain("احتفظنا بمسودّتك");
+  });
+
+  it("renders no reset sentence when the backend sent no resetsAt", async () => {
+    mocks.submit.mutateAsync.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: {
+          code: "APPLICATION_DAILY_LIMIT_REACHED",
+          message: "Unstable backend copy",
+          metadata: { used: 1, limit: 1 },
+        },
+      },
+    });
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          requestsHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+        />,
+      );
+    });
+
+    await fillApproachAndSubmit();
+
+    const alert = container.querySelector('[role="alert"]');
+    expect(alert?.textContent).toContain("استهلكت كل طلبات اليوم");
+    // A guess would be worse than silence.
+    expect(alert?.textContent).not.toContain("يتجدّد رصيدك");
+  });
+
+  it("shows the remaining count above the form and refreshes it after a submission", async () => {
+    const onApplicationQuotaChanged = vi.fn();
+    mocks.submit.mutateAsync.mockResolvedValueOnce(makeApplication());
+
+    await act(async () => {
+      root.render(
+        <ContributorContributionRequestDetailView
+          requestId="request-1"
+          requestsHref="/tasks"
+          dashboardHref="/dashboard"
+          applicationHref={(applicationId) => `/applications/${applicationId}`}
+          projectHref={(slug) => `/projects/${slug}`}
+          onApplicationSubmitted={vi.fn()}
+          applicationQuotaSlot={<p data-testid="quota">1 left today</p>}
+          onApplicationQuotaChanged={onApplicationQuotaChanged}
+        />,
+      );
+    });
+
+    // Present before anything is typed, which is the point of the slot.
+    const quota = container.querySelector("[data-testid='quota']");
+    expect(quota?.textContent).toBe("1 left today");
+    const form = container.querySelector("form");
+    expect(quota && form && quota.compareDocumentPosition(form) &
+      Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await fillApproachAndSubmit();
+
+    // A created Application spent a slot, so the count is stale.
+    expect(onApplicationQuotaChanged).toHaveBeenCalled();
+  });
+
   async function fillApproachAndSubmit() {
     const approach = container.querySelector<HTMLTextAreaElement>(
       "#contribution-approach",

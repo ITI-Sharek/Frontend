@@ -29,6 +29,7 @@ import type {
   ApplicationSubmissionValues,
 } from "../schemas/application-submission.schema";
 import {
+  getApplicationDailyLimitResetCopy,
   getApplicationSubmissionErrorMessage,
   getApplicationStatusCopy,
   getApplicationSubmissionErrorMeta,
@@ -55,6 +56,8 @@ export function ContributorContributionRequestDetailView({
   onApplicationSubmitted,
   materialsSlot,
   guidanceSlot,
+  applicationQuotaSlot,
+  onApplicationQuotaChanged,
 }: {
   requestId: string;
   requestsHref: string;
@@ -64,6 +67,17 @@ export function ContributorContributionRequestDetailView({
   onApplicationSubmitted: (application: ApplicationDto) => void;
   materialsSlot?: ReactNode;
   guidanceSlot?: ReactNode;
+  /**
+   * The contributor's remaining daily Applications. Composed by the route
+   * rather than imported here: the count belongs to the subscriptions module,
+   * and modules never import each other.
+   */
+  applicationQuotaSlot?: ReactNode;
+  /**
+   * Called whenever a submission consumed or was refused by the allowance, so
+   * the route can refresh whatever renders `applicationQuotaSlot`.
+   */
+  onApplicationQuotaChanged?: () => void;
 }) {
   const { t } = useTranslation();
   const query = useContributionRequestDetailsQuery(requestId);
@@ -121,6 +135,8 @@ export function ContributorContributionRequestDetailView({
         dashboardHref={dashboardHref}
         applicationHref={applicationHref}
         onSubmitted={onApplicationSubmitted}
+        applicationQuotaSlot={applicationQuotaSlot}
+        onApplicationQuotaChanged={onApplicationQuotaChanged}
       />
     </PageContainer>
   );
@@ -132,12 +148,16 @@ function ApplicationSubmissionGate({
   dashboardHref,
   applicationHref,
   onSubmitted,
+  applicationQuotaSlot,
+  onApplicationQuotaChanged,
 }: {
   requestId: string;
   requestsHref: string;
   dashboardHref: string;
   applicationHref: (applicationId: string) => string;
   onSubmitted: (application: ApplicationDto) => void;
+  applicationQuotaSlot?: ReactNode;
+  onApplicationQuotaChanged?: () => void;
 }) {
   const {
     applicationId: existingApplicationId,
@@ -163,6 +183,8 @@ function ApplicationSubmissionGate({
       dashboardHref={dashboardHref}
       onSubmitted={onSubmitted}
       onApplicationRemembered={rememberApplicationId}
+      applicationQuotaSlot={applicationQuotaSlot}
+      onApplicationQuotaChanged={onApplicationQuotaChanged}
     />
   );
 }
@@ -386,14 +408,18 @@ function ApplicationSubmissionForm({
   dashboardHref,
   onSubmitted,
   onApplicationRemembered,
+  applicationQuotaSlot,
+  onApplicationQuotaChanged,
 }: {
   requestId: string;
   requestsHref: string;
   dashboardHref: string;
   onSubmitted: (application: ApplicationDto) => void;
   onApplicationRemembered: (applicationId: string) => void;
+  applicationQuotaSlot?: ReactNode;
+  onApplicationQuotaChanged?: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const submitMutation = useSubmitApplicationMutation();
   const submissionCommand = useRef<{
     fingerprint: string;
@@ -415,6 +441,9 @@ function ApplicationSubmissionForm({
   );
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitErrorCode, setSubmitErrorCode] = useState<string | null>(null);
+  const [submitErrorDetail, setSubmitErrorDetail] = useState<string | null>(
+    null,
+  );
 
   async function submit({
     contributionApproach: normalizedApproach,
@@ -422,6 +451,7 @@ function ApplicationSubmissionForm({
   }: ApplicationSubmissionValues) {
     setSubmitError(null);
     setSubmitErrorCode(null);
+    setSubmitErrorDetail(null);
     const fingerprint = JSON.stringify({
       requestId,
       contributionApproach: normalizedApproach,
@@ -443,12 +473,23 @@ function ApplicationSubmissionForm({
         },
       });
       submissionCommand.current = null;
+      // A created Application spends one of today's allowance, so whatever
+      // renders the remaining count is now stale.
+      onApplicationQuotaChanged?.();
       onApplicationRemembered(application.id);
       onSubmitted(application);
     } catch (error) {
       const code = getApiErrorCode(error);
       setSubmitErrorCode(code);
       setSubmitError(getApplicationSubmissionErrorMessage(error));
+      if (code === "APPLICATION_DAILY_LIMIT_REACHED") {
+        // The server's own reset instant, formatted but never recomputed.
+        setSubmitErrorDetail(
+          getApplicationDailyLimitResetCopy(error, i18n.language),
+        );
+        // The refusal proves the count the form was showing is out of date.
+        onApplicationQuotaChanged?.();
+      }
     }
   }
 
@@ -458,6 +499,14 @@ function ApplicationSubmissionForm({
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         {t("contributionRequests.contributorDetail.submitDescription")}
       </p>
+      {/*
+        Before the form, not only inside its error state: a contributor who
+        learns their allowance from a rejected submit has already written the
+        whole thing.
+      */}
+      {applicationQuotaSlot ? (
+        <div className="mt-4">{applicationQuotaSlot}</div>
+      ) : null}
       <form
         className="mt-5 grid gap-4"
         onSubmit={handleSubmit(submit)}
@@ -532,6 +581,7 @@ function ApplicationSubmissionForm({
           <SubmissionError
             code={submitErrorCode}
             message={submitError}
+            detail={submitErrorDetail}
             requestsHref={requestsHref}
             dashboardHref={dashboardHref}
           />
@@ -554,11 +604,14 @@ function ApplicationSubmissionForm({
 function SubmissionError({
   code,
   message,
+  detail,
   requestsHref,
   dashboardHref,
 }: {
   code: string | null;
   message: string;
+  /** Server-supplied supporting copy, such as when an allowance refills. */
+  detail: string | null;
   requestsHref: string;
   dashboardHref: string;
 }) {
@@ -573,6 +626,12 @@ function SubmissionError({
       className="rounded-input border border-destructive/25 bg-destructive/5 p-3"
     >
       <p className="text-sm text-destructive">{message}</p>
+      {detail && <p className="mt-2 text-xs text-muted-foreground">{detail}</p>}
+      {recovery === "daily_limit" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t("contributionRequests.contributorDetail.dailyLimitRecovery")}
+        </p>
+      )}
       {recovery === "existing_application" && (
         <p className="mt-2 text-xs text-muted-foreground">
           {t("contributionRequests.contributorDetail.existingApplicationRecovery")}
