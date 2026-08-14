@@ -1977,6 +1977,32 @@
       }
     }
   },
+  "eligibility": {
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "block": {
+      "title": "Not yet \u2014 here is what is missing",
+      "description": "This work asks for a level of evidence your approved skills do not reach yet. Add repositories, get them reviewed, and come back.",
+      "listLabel": "Skills that need more evidence",
+      "required": "This work needs",
+      "yours": "Your approved level",
+      "noApprovedEvidence": "No approved evidence yet",
+      "submitBlocked": "Apply",
+      "submitBlockedLabel_one": "Applying is not available yet. One skill needs more approved evidence \u2014 details are above the button.",
+      "submitBlockedLabel_other": "Applying is not available yet. {{count}} skills need more approved evidence \u2014 details are above the button.",
+      "recoveryAction": "Add repositories to your skill analysis",
+      "recoveryHelp": "Your skills are re-analysed after you add repositories, then an administrator reviews them. Once an approved level meets the bar, you can apply here."
+    },
+    "guidance": {
+      "title": "How to close the gap",
+      "pending": "Preparing your next steps\u2026",
+      "failed": "Your next steps could not be prepared right now. The skills listed above are still what is needed.",
+      "empty": "No extra steps were suggested. The skills listed above are what is needed."
+    }
+  },
   "skillGuidance": {
     "eyebrow": "Requirement coverage",
     "title": "Source-linked guidance",

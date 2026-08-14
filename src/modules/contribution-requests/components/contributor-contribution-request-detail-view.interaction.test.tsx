@@ -3,6 +3,7 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import type { Root } from "react-dom/client";
+import { AxiosError } from "axios";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ContributorContributionRequestDetailView } from "./contributor-contribution-request-detail-view";
@@ -450,7 +451,144 @@ describe("Contribution Request Application interactions", () => {
         ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     });
   }
+
+  describe("the eligibility gate", () => {
+    it("replaces the whole form when the contributor is blocked", async () => {
+      // The form is not rendered and disabled — it is not rendered at all.
+      // Leaving the fields reachable would invite someone to write an entire
+      // application they cannot send.
+      await act(async () => {
+        root.render(
+          <ContributorContributionRequestDetailView
+            requestId="request-1"
+            requestsHref="/tasks"
+            dashboardHref="/dashboard"
+            applicationHref={(applicationId) => `/applications/${applicationId}`}
+            projectHref={(slug) => `/projects/${slug}`}
+            onApplicationSubmitted={vi.fn()}
+            isSubmissionBlocked
+            submissionBlockSlot={<p>Not yet — React needs more evidence.</p>}
+            blockedSubmitAction={
+              <button type="button" disabled aria-label="Applying is not available yet">
+                Apply
+              </button>
+            }
+          />,
+        );
+      });
+
+      expect(container.querySelector("#contribution-approach")).toBeNull();
+      expect(container.querySelector("form")).toBeNull();
+      expect(container.textContent).toContain("Not yet — React needs more evidence.");
+    });
+
+    it("hands a 403 refusal to the route instead of showing a generic error", async () => {
+      // TOCTOU: eligibility changed after the page rendered. The refusal names
+      // every blocking skill, so it becomes the same explanation — not an error
+      // toast the contributor cannot act on.
+      const onBlockedBySkillGap = vi.fn();
+      // A real AxiosError, because `getApiErrorCode` checks `isAxiosError`
+      // before reading the envelope — a plain object silently yields no code
+      // and the branch under test would never run.
+      mocks.submit.mutateAsync.mockRejectedValueOnce(
+        makeApiError(403, "APPLICATION_BLOCKED_SKILL_GAP", {
+          blockingSkills: [
+            {
+              skillName: "React",
+              requiredLevel: "advanced",
+              contributorLevel: "beginner",
+            },
+          ],
+        }),
+      );
+
+      await act(async () => {
+        root.render(
+          <ContributorContributionRequestDetailView
+            requestId="request-1"
+            requestsHref="/tasks"
+            dashboardHref="/dashboard"
+            applicationHref={(applicationId) => `/applications/${applicationId}`}
+            projectHref={(slug) => `/projects/${slug}`}
+            onApplicationSubmitted={vi.fn()}
+            onBlockedBySkillGap={onBlockedBySkillGap}
+          />,
+        );
+      });
+
+      const approach = container.querySelector<HTMLTextAreaElement>(
+        "#contribution-approach",
+      );
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(
+          HTMLTextAreaElement.prototype,
+          "value",
+        )?.set?.call(approach, "I will deliver the accessible workflow with tests.");
+        approach?.dispatchEvent(new Event("input", { bubbles: true }));
+        container
+          .querySelector("form")
+          ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      });
+
+      expect(onBlockedBySkillGap).toHaveBeenCalledTimes(1);
+      // And no generic error was rendered in its place.
+      expect(container.querySelector("#application-submit-error")).toBeNull();
+    });
+
+    it("still shows the generic error for refusals that are not skill gaps", async () => {
+      const onBlockedBySkillGap = vi.fn();
+      mocks.submit.mutateAsync.mockRejectedValueOnce(
+        makeApiError(409, "APPLICATION_DUPLICATE"),
+      );
+
+      await act(async () => {
+        root.render(
+          <ContributorContributionRequestDetailView
+            requestId="request-1"
+            requestsHref="/tasks"
+            dashboardHref="/dashboard"
+            applicationHref={(applicationId) => `/applications/${applicationId}`}
+            projectHref={(slug) => `/projects/${slug}`}
+            onApplicationSubmitted={vi.fn()}
+            onBlockedBySkillGap={onBlockedBySkillGap}
+          />,
+        );
+      });
+
+      const approach = container.querySelector<HTMLTextAreaElement>(
+        "#contribution-approach",
+      );
+      await act(async () => {
+        Object.getOwnPropertyDescriptor(
+          HTMLTextAreaElement.prototype,
+          "value",
+        )?.set?.call(approach, "I will deliver the accessible workflow with tests.");
+        approach?.dispatchEvent(new Event("input", { bubbles: true }));
+        container
+          .querySelector("form")
+          ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      });
+
+      expect(onBlockedBySkillGap).not.toHaveBeenCalled();
+      expect(container.querySelector('[role="alert"]')).not.toBeNull();
+    });
+  });
 });
+
+function makeApiError(
+  status: number,
+  code: string,
+  metadata?: Record<string, unknown>,
+) {
+  const error = new AxiosError(code, String(status), undefined, undefined, {
+    status,
+    statusText: "",
+    headers: {},
+    config: { headers: {} } as never,
+    data: { statusCode: status, code, message: code, metadata },
+  });
+  return error;
+}
 
 function makeRequest() {
   return {

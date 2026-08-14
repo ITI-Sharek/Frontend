@@ -11,6 +11,11 @@ import {
   useSubmitContributionProposalMutation,
 } from "@/modules/contribution-proposals";
 import type { ContributionProposalFields } from "@/modules/contribution-proposals";
+import {
+  EligibilityBlockPanel,
+  readBlockingSkills,
+} from "@/modules/eligibility";
+import type { BlockingSkillDto } from "@/modules/eligibility";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 
 function validateProposalSearch(search: Record<string, unknown>) {
@@ -38,6 +43,14 @@ function NewProposalPage() {
   const mutation = useSubmitContributionProposalMutation();
   const idempotencyKeys = useRef(new Map<string, string>());
   const [error, setError] = useState<string | null>(null);
+  /**
+   * Set when the server refuses the proposal on skill grounds. There is no
+   * pre-flight on this path — the bar comes from the proposal's own text — so
+   * this is the only way a block reaches the screen here.
+   */
+  const [blockingSkills, setBlockingSkills] = useState<
+    BlockingSkillDto[] | null
+  >(null);
 
   if (!projectId) {
     return (
@@ -55,6 +68,7 @@ function NewProposalPage() {
 
   async function submit(fields: ContributionProposalFields) {
     setError(null);
+    setBlockingSkills(null);
     const fingerprint = JSON.stringify({ projectId, ...fields });
     const existingKey = idempotencyKeys.current.get(fingerprint);
     const idempotencyKey = existingKey ?? createIdempotencyKey();
@@ -71,6 +85,14 @@ function NewProposalPage() {
         params: { proposalId: proposal.id },
       });
     } catch (submitError) {
+      const skills = readBlockingSkills(submitError);
+      if (skills) {
+        // The refusal already names every blocking skill, so it becomes the
+        // same explanation the task detail shows — not a one-line error the
+        // proposer cannot act on.
+        setBlockingSkills(skills);
+        return;
+      }
       setError(getProposalErrorMessage(t, submitError));
     }
   }
@@ -81,6 +103,15 @@ function NewProposalPage() {
       isSubmitting={mutation.isPending}
       error={error}
       onSubmit={submit}
+      submissionBlockSlot={
+        blockingSkills ? (
+          <EligibilityBlockPanel
+            blockingSkills={blockingSkills}
+            eligibilityEvaluationId={null}
+            skillAnalysisHref={ROUTES.githubSkillAnalysis}
+          />
+        ) : null
+      }
     />
   );
 }
