@@ -28,7 +28,20 @@ export interface RecommendedTaskDto {
   rewardCurrency: string | null;
 }
 
+/**
+ * Why the list came back empty. `MATCHING_REQUIRES_SUBSCRIPTION` arrives with a
+ * `200`, not a `403`: the route is legitimately a free contributor's, the
+ * answer is simply empty until they subscribe. Reading it as an error would
+ * put an error state where an upgrade prompt belongs.
+ */
+export type RecommendedTasksReason =
+  | "MATCHING_REQUIRES_SUBSCRIPTION"
+  | "NO_APPROVED_SKILLS"
+  | "NO_MATCHING_REQUESTS";
+
 export interface RecommendedTasksResponseDto {
   planType: SubscriptionPlan;
   recommendations: RecommendedTaskDto[];
+  /** Present only when `recommendations` is empty. */
+  reason: RecommendedTasksReason | null;
 }

@@ -6,5 +6,6 @@ export type {
   MatchedSkillDto,
   MatchingConfidence,
   RecommendedTaskDto,
+  RecommendedTasksReason,
   RecommendedTasksResponseDto,
 } from "./types/matching.types";
