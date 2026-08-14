@@ -2032,26 +2032,6 @@
       "description": "These requests appear because of your verified skills and contribution history. Recommendations are advisory only.",
       "empty": "No new recommendations right now. You can explore published requests manually.",
       "quotaNote": "Applying follows the normal rules and is not tied to a contributor-plan quota."
-    },
-    "owner": {
-      "relevance": "Relevance: {{score}}",
-      "confidence": "Confidence: {{confidence}}",
-      "evidenceSources_one": "Evidence source: {{count}}",
-      "evidenceSources_other": "Evidence sources: {{count}}",
-      "invited": "Invitation sent",
-      "invite": "Invite to apply",
-      "loading": "Loading matches using verified evidence…",
-      "gatedTitle": "AI matching is available with Silver and Gold",
-      "gatedDescription": "This preview does not expose identities or evidence for unavailable matches. You can continue reviewing normal applications.",
-      "loadError": "Could not load matches.",
-      "inviteError": "Could not send the invitation. Try again.",
-      "goldLimit": "Gold · up to 10 matches",
-      "silverLimit": "Silver · up to 5 matches",
-      "title": "Matching contributors",
-      "description": "Advisory suggestions based on verified skills, contributor reputation, and permitted evidence. The decision is yours; a match is not a selection.",
-      "generate": "Generate matches",
-      "systemLimit": "Matching is temporarily paused by a technical limit. The request is unchanged and you can retry.",
-      "empty": "No matching suggestions yet. You can continue reviewing normal applications."
     }
   },
   "subscriptions": {

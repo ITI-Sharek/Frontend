@@ -16,7 +16,7 @@ describe("subscriptions service", () => {
   it("reads the authenticated role-context plan from the backend seam", async () => {
     const response = {
       roleContext: "owner",
-      plan: "silver",
+      plan: "free",
       status: "active",
       source: "admin",
       usage: {
