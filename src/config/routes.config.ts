@@ -47,6 +47,8 @@ export const ROUTES = {
   application: (applicationId: string) =>
     `/applications/${encodeURIComponent(applicationId)}`,
   settings: "/settings",
+  /** Where every upgrade call to action lands. */
+  plan: "/plan",
   /** Optional GitHub App skill-analysis workspace (backend callback target). */
   githubSkillAnalysis: "/profile/github",
   contributorProfile: (username: string) =>

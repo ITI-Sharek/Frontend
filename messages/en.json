@@ -2038,17 +2038,40 @@
     "loading": "Loading subscription status…",
     "loadError": "Could not load subscription status.",
     "title": "Subscription and benefits",
-    "description": "Your current plan and benefits come from your server account.",
+    "description": "Your plan, usage and benefits come from your Share-k account.",
     "currentPlan": "Current plan",
-    "active": "Active",
-    "usageTitle": "Contribution-request usage this month",
-    "usage": "{{used}} of {{limit}}",
-    "usageAria": "Contribution-request usage",
-    "renews": "The limit renews on {{date}}.",
-    "noQuota": "Applying to contribution requests follows the normal rules; contributors have no plan-based daily quota.",
     "benefits": "Benefits",
-    "upgradeUnavailable": "Upgrade unavailable in the MVP preview",
-    "purchaseUnavailable": "Plan purchases are unavailable during the MVP preview."
+    "noBenefits": "No benefits are listed for this plan yet.",
+    "noUsage": "This plan has no counted usage.",
+    "cancelledNotice": "Your subscription is cancelled and will not renew. Your benefits stay active until the end of the period you have already paid for.",
+    "viewPlans": "See plans",
+    "plans": {
+      "free": "Free",
+      "gold": "Gold"
+    },
+    "status": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "usage": {
+      "ownerTitle": "Published contribution requests this month",
+      "contributorTitle": "Applications submitted today",
+      "count": "{{used}} of {{limit}}",
+      "remaining_one": "{{count}} remaining",
+      "remaining_other": "{{count}} remaining",
+      "ownerRenews": "This allowance renews on {{date}}.",
+      "contributorRenews": "This allowance renews at {{date}}."
+    },
+    "plan": {
+      "title": "Plans",
+      "description": "What your account includes today, and what Gold adds.",
+      "currentBadge": "Your plan",
+      "whatYouHave": "What your plan includes",
+      "price": "500 EGP / month",
+      "goldDescription": "Gold raises your daily Application allowance and unlocks matched projects chosen from your approved skills.",
+      "checkoutPending": "Purchasing Gold is not open yet. Card payment arrives with the payments release; nothing on this page will charge you."
+    }
   },
   "deliveryReviews": {
     "lifecycle": {
