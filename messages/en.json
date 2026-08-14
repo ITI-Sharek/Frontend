@@ -1635,6 +1635,8 @@
       "REQUEST_CANCELLED": "The project owner cancelled the contribution request, so applying is no longer available.",
       "REQUEST_TERMINAL": "The contribution request reached a final status and no longer accepts applications.",
       "APPLICATION_NOT_AUTHORIZED": "This account is not authorized to submit an application to this contribution request.",
+      "APPLICATION_DAILY_LIMIT_REACHED": "You have used all of today's applications.",
+      "dailyLimitResetsAt": "Your allowance refills at {{date}}.",
       "APPLICATION_IDEMPOTENCY_CONFLICT": "A previous attempt conflicts with this information. Update the contribution approach or delivery duration, then submit again.",
       "unknown": "Could not submit the application now. Your input was kept; try again."
     },
@@ -1824,7 +1826,8 @@
       "existingApplicationRecovery": "Open the status link from the previous submission confirmation.",
       "backToAvailable": "Back to available requests",
       "reviewAccount": "Review account status",
-      "editRecovery": "Change the contribution approach or delivery duration before submitting again."
+      "editRecovery": "Change the contribution approach or delivery duration before submitting again.",
+      "dailyLimitRecovery": "Your draft was kept. You can submit it when your allowance refills, or raise the limit with Gold."
       ,"validation": "Enter a contribution approach of 10 to 5000 characters and a whole delivery duration between 1 and 365 days."
     },
     "ownerReview": {
@@ -2049,6 +2052,14 @@
     "noUsage": "This plan has no counted usage.",
     "cancelledNotice": "Your subscription is cancelled and will not renew. Your benefits stay active until the end of the period you have already paid for.",
     "viewPlans": "See plans",
+    "dailyQuota": {
+      "remaining_one": "{{count}} of {{limit}} application left today.",
+      "remaining_other": "{{count}} of {{limit}} applications left today.",
+      "none": "You have used all of today's applications.",
+      "resetsAt": "Your allowance refills at {{date}}.",
+      "upgradeLink": "Gold raises this to 5 a day.",
+      "upgradeHint": "Your free plan keeps full access to browse and apply tomorrow."
+    },
     "plans": {
       "free": "Free",
       "gold": "Gold"
