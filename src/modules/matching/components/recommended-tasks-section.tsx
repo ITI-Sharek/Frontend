@@ -9,10 +9,6 @@ import { Card } from "@/shared/components/ui/card";
 import { useRecommendedTasksQuery } from "../api/queries/use-matching-queries";
 import type { RecommendedTaskDto } from "../types/matching.types";
 
-function scoreLabel(score: number) {
-  return `${Math.round(score * 100)}%`;
-}
-
 function RecommendationCard({ recommendation }: { recommendation: RecommendedTaskDto }) {
   const { t } = useTranslation();
   return (
@@ -23,7 +19,7 @@ function RecommendationCard({ recommendation }: { recommendation: RecommendedTas
           <h3 className="mt-1 text-lg font-bold text-foreground">{recommendation.title}</h3>
         </div>
         <span className="font-mono text-xs text-primary" dir="ltr">
-          {scoreLabel(recommendation.matchScore)} · {recommendation.confidence}
+          #{recommendation.rank} · {recommendation.confidence}
         </span>
       </div>
       <p className="text-sm leading-6 text-muted-foreground">{recommendation.justification}</p>

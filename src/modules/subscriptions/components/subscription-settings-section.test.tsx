@@ -18,9 +18,9 @@ const { useSubscriptionStatusQuery } = await import(
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true;
 
-const silverOwnerStatus = {
+const freeOwnerStatus = {
   roleContext: "owner" as const,
-  plan: "silver" as const,
+  plan: "free" as const,
   status: "active" as const,
   source: "admin" as const,
   usage: {
@@ -60,7 +60,7 @@ describe("SubscriptionSettingsSection", () => {
     document.body.append(container);
     root = createRoot(container);
     vi.mocked(useSubscriptionStatusQuery).mockReturnValue({
-      data: silverOwnerStatus,
+      data: freeOwnerStatus,
       isPending: false,
       isError: false,
       refetch: vi.fn(),
@@ -76,7 +76,7 @@ describe("SubscriptionSettingsSection", () => {
   it("shows backend usage and benefit states without application quotas", async () => {
     await act(async () => root.render(<SubscriptionSettingsSection />));
 
-    expect(container.textContent).toContain("Silver");
+    expect(container.textContent).toContain("Free");
     expect(container.textContent).toContain("8 من 20");
     expect(container.textContent).toContain("AI contributor matching");
     expect(container.textContent).toContain("No platform commission");

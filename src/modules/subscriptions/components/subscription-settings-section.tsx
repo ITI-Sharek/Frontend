@@ -11,8 +11,7 @@ import type {
 } from "../types/subscription.types";
 
 const PLAN_LABELS: Record<SubscriptionPlan, string> = {
-  bronze: "Bronze",
-  silver: "Silver",
+  free: "Free",
   gold: "Gold",
 };
 

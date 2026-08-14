@@ -16,7 +16,7 @@ function getBaseMock(t: TFunction): Omit<ContributorDashboardDto, "state"> {
   return {
   greetingName: "Sara",
   unreadNotifications: 2,
-  quota: { planName: "Bronze", usedToday: 1, dailyLimit: 2 },
+  quota: { planName: "Free", usedToday: 1, dailyLimit: 1 },
   attentionItems: [
     {
       id: "attention-1",

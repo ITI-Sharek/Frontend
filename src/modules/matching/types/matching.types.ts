@@ -8,38 +8,16 @@ export interface MatchedSkillDto {
   evidenceIds: string[];
 }
 
-export interface ContributorMatchDto {
-  contributorId: string;
-  contributorName: string;
-  contributorUsername: string | null;
-  matchScore: number;
-  confidence: MatchingConfidence;
-  justification: string;
-  matchedSkills: MatchedSkillDto[];
-  evidenceIds: string[];
-  rank: number;
-}
-
-export interface OwnerMatchesResponseDto {
-  requestId: string;
-  planType: SubscriptionPlan;
-  resultLimit: 0 | 5 | 10;
-  status: "completed" | "no_candidates" | "system_limit";
-  matches: ContributorMatchDto[];
-}
-
-export interface InviteMatchedContributorResponseDto {
-  requestId: string;
-  contributorId: string;
-  notificationId: string;
-  created: boolean;
-}
-
 export interface RecommendedTaskDto {
   requestId: string;
   projectName: string;
   title: string;
-  matchScore: number;
+  /**
+   * Ordinal position only. Ranking is never presented as a score or a
+   * percentage (DEC-010); `confidence` is the categorical signal shown to the
+   * contributor.
+   */
+  rank: number;
   confidence: MatchingConfidence;
   justification: string;
   matchedSkills: MatchedSkillDto[];

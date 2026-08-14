@@ -32,7 +32,7 @@ describe("RecommendedTasksSection", () => {
             requestId: "request-1",
             projectName: "Social Media Platform",
             title: "Build GraphQL API",
-            matchScore: 0.92,
+            rank: 1,
             confidence: "HIGH",
             justification: "Matches approved TypeScript and Node.js skills.",
             matchedSkills: [
