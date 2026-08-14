@@ -2022,16 +2022,20 @@
       "LOW": "Low"
     },
     "recommendations": {
+      "eyebrow": "Matched from your approved skills",
+      "title": "Matched projects",
+      "description": "Contribution requests your approved skills fit, ranked by how much of what each asks for you already cover.",
+      "rank": "#{{rank}}",
       "viewRequest": "View contribution request and apply",
-      "loading": "Preparing recommendations from your verified skills…",
-      "gatedTitle": "Recommendations personalized for you",
-      "gatedDescription": "Personal recommendations are unavailable on your current plan. You can explore all requests and apply under the normal rules.",
-      "loadError": "Could not load recommendations.",
-      "eyebrow": "Gold · Evidence-based recommendations",
-      "title": "Recommended for you",
-      "description": "These requests appear because of your verified skills and contribution history. Recommendations are advisory only.",
-      "empty": "No new recommendations right now. You can explore published requests manually.",
-      "quotaNote": "Applying follows the normal rules and is not tied to a contributor-plan quota."
+      "loading": "Finding requests that match your approved skills…",
+      "loadError": "Could not load matched projects.",
+      "empty": "No matched projects right now. New requests are matched as owners publish them, and you can browse all open requests in the meantime.",
+      "emptyNoSkills": "You have no approved skills yet, so there is nothing to match against. Once a skill is approved your matched projects appear here.",
+      "advisoryNote": "Matched projects are a suggestion, not a shortlist you have been selected for. Applying follows the normal rules.",
+      "lockedTitle": "Matched projects are a Gold benefit",
+      "lockedDescription": "Gold matches up to 10 open contribution requests to your approved skills and tells you which of your skills fit each one. Your free plan keeps full access to browse and apply to every open request.",
+      "lockedPrice": "Gold — 500 EGP / month",
+      "lockedCta": "See plans"
     }
   },
   "subscriptions": {
