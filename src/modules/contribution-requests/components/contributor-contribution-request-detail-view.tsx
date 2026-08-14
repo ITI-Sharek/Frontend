@@ -56,6 +56,10 @@ export function ContributorContributionRequestDetailView({
   onApplicationSubmitted,
   materialsSlot,
   guidanceSlot,
+  submissionBlockSlot,
+  isSubmissionBlocked,
+  blockedSubmitAction,
+  onBlockedBySkillGap,
   applicationQuotaSlot,
   onApplicationQuotaChanged,
 }: {
@@ -67,6 +71,28 @@ export function ContributorContributionRequestDetailView({
   onApplicationSubmitted: (application: ApplicationDto) => void;
   materialsSlot?: ReactNode;
   guidanceSlot?: ReactNode;
+  /**
+   * The eligibility gate (DEC-078), composed by the route because it belongs to
+   * the eligibility module and modules never import each other.
+   *
+   * This view is handed a node and a boolean, never eligibility data. A view
+   * that could read the verdict would eventually start deciding with it, and
+   * that decision is the backend's.
+   */
+  submissionBlockSlot?: ReactNode;
+  isSubmissionBlocked?: boolean;
+  /**
+   * The blocked submit control. Built by the route so the accessible name that
+   * explains *why* it is disabled lives next to the panel that explains it,
+   * rather than being reassembled here from a count.
+   */
+  blockedSubmitAction?: ReactNode;
+  /**
+   * TOCTOU: the server refused at submit because eligibility changed after this
+   * page rendered. The route lifts the named skills into the same explanation
+   * rather than letting a generic toast swallow them.
+   */
+  onBlockedBySkillGap?: (error: unknown) => void;
   /**
    * The contributor's remaining daily Applications. Composed by the route
    * rather than imported here: the count belongs to the subscriptions module,
@@ -135,6 +161,10 @@ export function ContributorContributionRequestDetailView({
         dashboardHref={dashboardHref}
         applicationHref={applicationHref}
         onSubmitted={onApplicationSubmitted}
+        submissionBlockSlot={submissionBlockSlot}
+        isSubmissionBlocked={isSubmissionBlocked}
+        blockedSubmitAction={blockedSubmitAction}
+        onBlockedBySkillGap={onBlockedBySkillGap}
         applicationQuotaSlot={applicationQuotaSlot}
         onApplicationQuotaChanged={onApplicationQuotaChanged}
       />
@@ -148,6 +178,10 @@ function ApplicationSubmissionGate({
   dashboardHref,
   applicationHref,
   onSubmitted,
+  submissionBlockSlot,
+  isSubmissionBlocked,
+  blockedSubmitAction,
+  onBlockedBySkillGap,
   applicationQuotaSlot,
   onApplicationQuotaChanged,
 }: {
@@ -156,6 +190,10 @@ function ApplicationSubmissionGate({
   dashboardHref: string;
   applicationHref: (applicationId: string) => string;
   onSubmitted: (application: ApplicationDto) => void;
+  submissionBlockSlot?: ReactNode;
+  isSubmissionBlocked?: boolean;
+  blockedSubmitAction?: ReactNode;
+  onBlockedBySkillGap?: (error: unknown) => void;
   applicationQuotaSlot?: ReactNode;
   onApplicationQuotaChanged?: () => void;
 }) {
@@ -183,6 +221,10 @@ function ApplicationSubmissionGate({
       dashboardHref={dashboardHref}
       onSubmitted={onSubmitted}
       onApplicationRemembered={rememberApplicationId}
+      submissionBlockSlot={submissionBlockSlot}
+      isSubmissionBlocked={isSubmissionBlocked}
+      blockedSubmitAction={blockedSubmitAction}
+      onBlockedBySkillGap={onBlockedBySkillGap}
       applicationQuotaSlot={applicationQuotaSlot}
       onApplicationQuotaChanged={onApplicationQuotaChanged}
     />
@@ -408,6 +450,10 @@ function ApplicationSubmissionForm({
   dashboardHref,
   onSubmitted,
   onApplicationRemembered,
+  submissionBlockSlot,
+  isSubmissionBlocked,
+  blockedSubmitAction,
+  onBlockedBySkillGap,
   applicationQuotaSlot,
   onApplicationQuotaChanged,
 }: {
@@ -416,6 +462,10 @@ function ApplicationSubmissionForm({
   dashboardHref: string;
   onSubmitted: (application: ApplicationDto) => void;
   onApplicationRemembered: (applicationId: string) => void;
+  submissionBlockSlot?: ReactNode;
+  isSubmissionBlocked?: boolean;
+  blockedSubmitAction?: ReactNode;
+  onBlockedBySkillGap?: (error: unknown) => void;
   applicationQuotaSlot?: ReactNode;
   onApplicationQuotaChanged?: () => void;
 }) {
@@ -480,6 +530,14 @@ function ApplicationSubmissionForm({
       onSubmitted(application);
     } catch (error) {
       const code = getApiErrorCode(error);
+      if (code === "APPLICATION_BLOCKED_SKILL_GAP") {
+        // Eligibility changed after this page rendered. The refusal already
+        // names every blocking skill, so it becomes the same explanation the
+        // page would have shown up front — not a generic error toast, which
+        // would leave the contributor with nothing to act on.
+        onBlockedBySkillGap?.(error);
+        return;
+      }
       setSubmitErrorCode(code);
       setSubmitError(getApplicationSubmissionErrorMessage(error));
       if (code === "APPLICATION_DAILY_LIMIT_REACHED") {
@@ -491,6 +549,25 @@ function ApplicationSubmissionForm({
         onApplicationQuotaChanged?.();
       }
     }
+  }
+
+  if (isSubmissionBlocked) {
+    // The form is not rendered at all, rather than rendered and disabled.
+    // Leaving the fields reachable would invite someone to write a whole
+    // application they cannot send — and the block is a "not yet", so the
+    // honest thing is to show the path instead of a dead form.
+    return (
+      <div id="eligibility-block-panel">
+        {submissionBlockSlot}
+        <div className="mt-4">
+          {blockedSubmitAction ?? (
+            <Button type="button" disabled aria-disabled="true">
+              {t("contributionRequests.contributorDetail.submit")}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
