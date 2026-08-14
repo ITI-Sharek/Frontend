@@ -1635,6 +1635,8 @@
       "REQUEST_CANCELLED": "The project owner cancelled the contribution request, so applying is no longer available.",
       "REQUEST_TERMINAL": "The contribution request reached a final status and no longer accepts applications.",
       "APPLICATION_NOT_AUTHORIZED": "This account is not authorized to submit an application to this contribution request.",
+      "APPLICATION_DAILY_LIMIT_REACHED": "You have used all of today's applications.",
+      "dailyLimitResetsAt": "Your allowance refills at {{date}}.",
       "APPLICATION_IDEMPOTENCY_CONFLICT": "A previous attempt conflicts with this information. Update the contribution approach or delivery duration, then submit again.",
       "unknown": "Could not submit the application now. Your input was kept; try again."
     },
@@ -1824,7 +1826,8 @@
       "existingApplicationRecovery": "Open the status link from the previous submission confirmation.",
       "backToAvailable": "Back to available requests",
       "reviewAccount": "Review account status",
-      "editRecovery": "Change the contribution approach or delivery duration before submitting again."
+      "editRecovery": "Change the contribution approach or delivery duration before submitting again.",
+      "dailyLimitRecovery": "Your draft was kept. You can submit it when your allowance refills, or raise the limit with Gold."
       ,"validation": "Enter a contribution approach of 10 to 5000 characters and a whole delivery duration between 1 and 365 days."
     },
     "ownerReview": {
@@ -2022,53 +2025,68 @@
       "LOW": "Low"
     },
     "recommendations": {
+      "eyebrow": "Matched from your approved skills",
+      "title": "Matched projects",
+      "description": "Contribution requests your approved skills fit, ranked by how much of what each asks for you already cover.",
+      "rank": "#{{rank}}",
       "viewRequest": "View contribution request and apply",
-      "loading": "Preparing recommendations from your verified skills…",
-      "gatedTitle": "Recommendations personalized for you",
-      "gatedDescription": "Personal recommendations are unavailable on your current plan. You can explore all requests and apply under the normal rules.",
-      "loadError": "Could not load recommendations.",
-      "eyebrow": "Gold · Evidence-based recommendations",
-      "title": "Recommended for you",
-      "description": "These requests appear because of your verified skills and contribution history. Recommendations are advisory only.",
-      "empty": "No new recommendations right now. You can explore published requests manually.",
-      "quotaNote": "Applying follows the normal rules and is not tied to a contributor-plan quota."
-    },
-    "owner": {
-      "relevance": "Relevance: {{score}}",
-      "confidence": "Confidence: {{confidence}}",
-      "evidenceSources_one": "Evidence source: {{count}}",
-      "evidenceSources_other": "Evidence sources: {{count}}",
-      "invited": "Invitation sent",
-      "invite": "Invite to apply",
-      "loading": "Loading matches using verified evidence…",
-      "gatedTitle": "AI matching is available with Silver and Gold",
-      "gatedDescription": "This preview does not expose identities or evidence for unavailable matches. You can continue reviewing normal applications.",
-      "loadError": "Could not load matches.",
-      "inviteError": "Could not send the invitation. Try again.",
-      "goldLimit": "Gold · up to 10 matches",
-      "silverLimit": "Silver · up to 5 matches",
-      "title": "Matching contributors",
-      "description": "Advisory suggestions based on verified skills, contributor reputation, and permitted evidence. The decision is yours; a match is not a selection.",
-      "generate": "Generate matches",
-      "systemLimit": "Matching is temporarily paused by a technical limit. The request is unchanged and you can retry.",
-      "empty": "No matching suggestions yet. You can continue reviewing normal applications."
+      "loading": "Finding requests that match your approved skills…",
+      "loadError": "Could not load matched projects.",
+      "empty": "No matched projects right now. New requests are matched as owners publish them, and you can browse all open requests in the meantime.",
+      "emptyNoSkills": "You have no approved skills yet, so there is nothing to match against. Once a skill is approved your matched projects appear here.",
+      "advisoryNote": "Matched projects are a suggestion, not a shortlist you have been selected for. Applying follows the normal rules.",
+      "lockedTitle": "Matched projects are a Gold benefit",
+      "lockedDescription": "Gold matches up to 10 open contribution requests to your approved skills and tells you which of your skills fit each one. Your free plan keeps full access to browse and apply to every open request.",
+      "lockedPrice": "Gold — 500 EGP / month",
+      "lockedCta": "See plans"
     }
   },
   "subscriptions": {
     "loading": "Loading subscription status…",
     "loadError": "Could not load subscription status.",
     "title": "Subscription and benefits",
-    "description": "Your current plan and benefits come from your server account.",
+    "description": "Your plan, usage and benefits come from your Share-k account.",
     "currentPlan": "Current plan",
-    "active": "Active",
-    "usageTitle": "Contribution-request usage this month",
-    "usage": "{{used}} of {{limit}}",
-    "usageAria": "Contribution-request usage",
-    "renews": "The limit renews on {{date}}.",
-    "noQuota": "Applying to contribution requests follows the normal rules; contributors have no plan-based daily quota.",
     "benefits": "Benefits",
-    "upgradeUnavailable": "Upgrade unavailable in the MVP preview",
-    "purchaseUnavailable": "Plan purchases are unavailable during the MVP preview."
+    "noBenefits": "No benefits are listed for this plan yet.",
+    "noUsage": "This plan has no counted usage.",
+    "cancelledNotice": "Your subscription is cancelled and will not renew. Your benefits stay active until the end of the period you have already paid for.",
+    "viewPlans": "See plans",
+    "dailyQuota": {
+      "remaining_one": "{{count}} of {{limit}} application left today.",
+      "remaining_other": "{{count}} of {{limit}} applications left today.",
+      "none": "You have used all of today's applications.",
+      "resetsAt": "Your allowance refills at {{date}}.",
+      "upgradeLink": "Gold raises this to 5 a day.",
+      "upgradeHint": "Your free plan keeps full access to browse and apply tomorrow."
+    },
+    "plans": {
+      "free": "Free",
+      "gold": "Gold"
+    },
+    "status": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "usage": {
+      "ownerTitle": "Published contribution requests this month",
+      "contributorTitle": "Applications submitted today",
+      "count": "{{used}} of {{limit}}",
+      "remaining_one": "{{count}} remaining",
+      "remaining_other": "{{count}} remaining",
+      "ownerRenews": "This allowance renews on {{date}}.",
+      "contributorRenews": "This allowance renews at {{date}}."
+    },
+    "plan": {
+      "title": "Plans",
+      "description": "What your account includes today, and what Gold adds.",
+      "currentBadge": "Your plan",
+      "whatYouHave": "What your plan includes",
+      "price": "500 EGP / month",
+      "goldDescription": "Gold raises your daily Application allowance and unlocks matched projects chosen from your approved skills.",
+      "checkoutPending": "Purchasing Gold is not open yet. Card payment arrives with the payments release; nothing on this page will charge you."
+    }
   },
   "deliveryReviews": {
     "lifecycle": {

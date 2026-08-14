@@ -1,6 +1,10 @@
 import { isAxiosError } from "axios";
 
-import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
+import {
+  getApiErrorCode,
+  getApiErrorMetadataString,
+} from "@/shared/utils/get-api-error-code";
+import { formatServerResetInstant } from "@/shared/utils/format-server-instant";
 import { translate } from "@/lib/translate";
 
 import type {
@@ -35,7 +39,8 @@ export type ApplicationSubmissionRecovery =
   | "existing_application"
   | "available_requests"
   | "account"
-  | "edit";
+  | "edit"
+  | "daily_limit";
 
 type ApplicationSubmissionErrorCode = Extract<
   ApplicationApiErrorCode,
@@ -44,6 +49,7 @@ type ApplicationSubmissionErrorCode = Extract<
   | "REQUEST_CANCELLED"
   | "REQUEST_TERMINAL"
   | "APPLICATION_NOT_AUTHORIZED"
+  | "APPLICATION_DAILY_LIMIT_REACHED"
   | "APPLICATION_IDEMPOTENCY_CONFLICT"
 >;
 
@@ -71,6 +77,10 @@ export function getApplicationSubmissionErrorMeta(): Record<
   APPLICATION_NOT_AUTHORIZED: {
     message: translate("application.submissionErrors.APPLICATION_NOT_AUTHORIZED"),
     recovery: "account",
+  },
+  APPLICATION_DAILY_LIMIT_REACHED: {
+    message: translate("application.submissionErrors.APPLICATION_DAILY_LIMIT_REACHED"),
+    recovery: "daily_limit",
   },
   APPLICATION_IDEMPOTENCY_CONFLICT: {
     message: translate("application.submissionErrors.APPLICATION_IDEMPOTENCY_CONFLICT"),
@@ -133,4 +143,25 @@ export function isApplicationApiErrorCode(
     code !== null &&
     Object.hasOwn(getApplicationSubmissionErrorMeta(), code)
   );
+}
+
+/**
+ * When the daily allowance refuses a submission, the backend says exactly when
+ * it refills. That instant is rendered as sent — never recomputed here — so the
+ * time a contributor is told to come back is the time the server will actually
+ * act on (DEC-034).
+ *
+ * Returns null when the backend sent no `resetsAt`, so the caller shows the
+ * plain refusal rather than a guess.
+ */
+export function getApplicationDailyLimitResetCopy(
+  error: unknown,
+  locale: string,
+): string | null {
+  const resetsAt = getApiErrorMetadataString(error, "resetsAt");
+  const formatted = formatServerResetInstant(resetsAt, locale);
+  if (!formatted) return null;
+  return translate("application.submissionErrors.dailyLimitResetsAt", {
+    date: formatted,
+  });
 }

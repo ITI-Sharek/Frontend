@@ -8,38 +8,16 @@ export interface MatchedSkillDto {
   evidenceIds: string[];
 }
 
-export interface ContributorMatchDto {
-  contributorId: string;
-  contributorName: string;
-  contributorUsername: string | null;
-  matchScore: number;
-  confidence: MatchingConfidence;
-  justification: string;
-  matchedSkills: MatchedSkillDto[];
-  evidenceIds: string[];
-  rank: number;
-}
-
-export interface OwnerMatchesResponseDto {
-  requestId: string;
-  planType: SubscriptionPlan;
-  resultLimit: 0 | 5 | 10;
-  status: "completed" | "no_candidates" | "system_limit";
-  matches: ContributorMatchDto[];
-}
-
-export interface InviteMatchedContributorResponseDto {
-  requestId: string;
-  contributorId: string;
-  notificationId: string;
-  created: boolean;
-}
-
 export interface RecommendedTaskDto {
   requestId: string;
   projectName: string;
   title: string;
-  matchScore: number;
+  /**
+   * Ordinal position only. Ranking is never presented as a score or a
+   * percentage (DEC-010); `confidence` is the categorical signal shown to the
+   * contributor.
+   */
+  rank: number;
   confidence: MatchingConfidence;
   justification: string;
   matchedSkills: MatchedSkillDto[];
@@ -50,7 +28,20 @@ export interface RecommendedTaskDto {
   rewardCurrency: string | null;
 }
 
+/**
+ * Why the list came back empty. `MATCHING_REQUIRES_SUBSCRIPTION` arrives with a
+ * `200`, not a `403`: the route is legitimately a free contributor's, the
+ * answer is simply empty until they subscribe. Reading it as an error would
+ * put an error state where an upgrade prompt belongs.
+ */
+export type RecommendedTasksReason =
+  | "MATCHING_REQUIRES_SUBSCRIPTION"
+  | "NO_APPROVED_SKILLS"
+  | "NO_MATCHING_REQUESTS";
+
 export interface RecommendedTasksResponseDto {
   planType: SubscriptionPlan;
   recommendations: RecommendedTaskDto[];
+  /** Present only when `recommendations` is empty. */
+  reason: RecommendedTasksReason | null;
 }
