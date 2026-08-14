@@ -1,26 +1,31 @@
 import { BadgeCheck, CircleAlert, Loader2, LockKeyhole } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { formatServerInstant } from "@/shared/utils/format-server-instant";
 
 import { useSubscriptionStatusQuery } from "../api/queries/use-subscription-query";
 import type {
   SubscriptionBenefitDto,
   SubscriptionPlan,
+  SubscriptionPlanStatusDto,
+  SubscriptionStatus,
 } from "../types/subscription.types";
 
-const PLAN_LABELS: Record<SubscriptionPlan, string> = {
-  bronze: "Bronze",
-  silver: "Silver",
-  gold: "Gold",
+
+const PLAN_LABEL_KEYS: Record<SubscriptionPlan, string> = {
+  free: "subscriptions.plans.free",
+  gold: "subscriptions.plans.gold",
 };
 
-function formatDate(value: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "long",
-  }).format(new Date(value));
-}
+const STATUS_LABEL_KEYS: Record<SubscriptionStatus, string> = {
+  active: "subscriptions.status.active",
+  cancelled: "subscriptions.status.cancelled",
+  expired: "subscriptions.status.expired",
+};
 
 function Benefit({ benefit }: { benefit: SubscriptionBenefitDto }) {
   const included = benefit.state === "included";
@@ -38,19 +43,89 @@ function Benefit({ benefit }: { benefit: SubscriptionBenefitDto }) {
         />
       )}
       <span className={included ? undefined : "text-muted-foreground"}>
+        {/*
+          Server-authored, including this sentence. The UI never turns a plan
+          name into a list of limits, so a limit that changes on the backend
+          changes here without a frontend release.
+        */}
         {benefit.label}
       </span>
     </li>
   );
 }
 
-export function SubscriptionSettingsSection() {
+function UsageMeter({ status }: { status: SubscriptionPlanStatusDto }) {
   const { t, i18n } = useTranslation();
+  const usage = status.usage;
+  if (!usage) return null;
+
+  const remaining = Math.max(0, usage.limit - usage.used);
+  const percent =
+    usage.limit > 0
+      ? Math.min(100, Math.round((usage.used / usage.limit) * 100))
+      : 0;
+  // The window the count is measured over is a server fact, so the sentence
+  // that names its end is built from the server's `periodEnd` and never from a
+  // clock reading on this machine (DEC-034).
+  const renewsAt = formatServerInstant(usage.periodEnd, i18n.language);
+  const usageTitleKey =
+    status.roleContext === "owner"
+      ? "subscriptions.usage.ownerTitle"
+      : "subscriptions.usage.contributorTitle";
+  const renewsKey =
+    status.roleContext === "owner"
+      ? "subscriptions.usage.ownerRenews"
+      : "subscriptions.usage.contributorRenews";
+
+  return (
+    <div className="grid gap-2">
+      <div className="flex flex-wrap justify-between gap-2 text-sm">
+        <span id="subscription-usage-title" className="font-semibold text-foreground">
+          {t(usageTitleKey)}
+        </span>
+        <span className="font-mono text-muted-foreground" dir="ltr">
+          {t("subscriptions.usage.count", {
+            used: usage.used,
+            limit: usage.limit,
+          })}
+        </span>
+      </div>
+      <div
+        className="h-2 overflow-hidden rounded-full bg-border"
+        role="progressbar"
+        aria-labelledby="subscription-usage-title"
+        aria-valuemin={0}
+        aria-valuemax={usage.limit}
+        aria-valuenow={usage.used}
+        aria-valuetext={t("subscriptions.usage.remaining", {
+          count: remaining,
+        })}
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width]"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      {renewsAt ? (
+        <p className="text-xs text-muted-foreground">
+          {t(renewsKey, { date: renewsAt })}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+export function SubscriptionSettingsSection() {
+  const { t } = useTranslation();
   const query = useSubscriptionStatusQuery();
 
   if (query.isPending) {
     return (
-      <div role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center gap-2 text-sm text-muted-foreground"
+      >
         <Loader2 className="size-4 animate-spin" aria-hidden />
         {t("subscriptions.loading")}
       </div>
@@ -77,14 +152,15 @@ export function SubscriptionSettingsSection() {
   }
 
   const status = query.data;
-  const usagePercent = status.usage
-    ? Math.min(100, Math.round((status.usage.used / status.usage.limit) * 100))
-    : 0;
+  const isGold = status.plan === "gold";
 
   return (
     <section aria-labelledby="subscription-settings-title" className="grid gap-5">
       <div>
-        <h2 id="subscription-settings-title" className="text-lg font-bold text-foreground">
+        <h2
+          id="subscription-settings-title"
+          className="text-lg font-bold text-foreground"
+        >
           {t("subscriptions.title")}
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -99,64 +175,55 @@ export function SubscriptionSettingsSection() {
               {t("subscriptions.currentPlan")}
             </p>
             <h3 className="mt-1 text-2xl font-bold text-foreground">
-              {PLAN_LABELS[status.plan]}
+              {t(PLAN_LABEL_KEYS[status.plan])}
             </h3>
           </div>
           <span className="rounded-full border border-primary/30 bg-primary/[0.06] px-3 py-1 text-xs font-semibold text-primary">
-            {status.status === "active" ? t("subscriptions.active") : status.status}
+            {t(STATUS_LABEL_KEYS[status.status])}
           </span>
         </div>
 
+        {/*
+          A cancelled plan keeps its benefits until the paid period ends. Saying
+          so is the difference between a user thinking they have already lost
+          access and knowing exactly when they will.
+        */}
+        {status.status === "cancelled" ? (
+          <p className="rounded-input border border-border bg-surface-fog p-3 text-sm leading-6 text-muted-foreground">
+            {t("subscriptions.cancelledNotice")}
+          </p>
+        ) : null}
+
         {status.usage ? (
-          <div className="grid gap-2" aria-labelledby="subscription-usage-title">
-            <div className="flex flex-wrap justify-between gap-2 text-sm">
-              <span id="subscription-usage-title" className="font-semibold text-foreground">
-                {t("subscriptions.usageTitle")}
-              </span>
-              <span className="font-mono text-muted-foreground" dir="ltr">
-                {t("subscriptions.usage", { used: status.usage.used, limit: status.usage.limit })}
-              </span>
-            </div>
-            <div
-              className="h-2 overflow-hidden rounded-full bg-border"
-              role="progressbar"
-              aria-label={t("subscriptions.usageAria")}
-              aria-valuemin={0}
-              aria-valuemax={status.usage.limit}
-              aria-valuenow={status.usage.used}
-            >
-              <div
-                className="h-full rounded-full bg-primary transition-[width]"
-                style={{ width: `${usagePercent}%` }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t("subscriptions.renews", { date: formatDate(status.usage.periodEnd, i18n.language) })}
-            </p>
-          </div>
+          <UsageMeter status={status} />
         ) : (
           <p className="rounded-input border border-border bg-surface-fog p-3 text-sm leading-6 text-muted-foreground">
-            {t("subscriptions.noQuota")}
+            {t("subscriptions.noUsage")}
           </p>
         )}
 
         <div className="border-t border-border pt-4">
-          <h4 className="font-semibold text-foreground">{t("subscriptions.benefits")}</h4>
-          <ul className="mt-3 grid gap-2">
-            {status.benefits.map((benefit) => (
-              <Benefit key={benefit.key} benefit={benefit} />
-            ))}
-          </ul>
+          <h4 className="font-semibold text-foreground">
+            {t("subscriptions.benefits")}
+          </h4>
+          {status.benefits.length > 0 ? (
+            <ul className="mt-3 grid gap-2">
+              {status.benefits.map((benefit) => (
+                <Benefit key={benefit.key} benefit={benefit} />
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {t("subscriptions.noBenefits")}
+            </p>
+          )}
         </div>
 
-        {status.plan !== "gold" && (
+        {!isGold && (
           <div className="grid gap-2 border-t border-border pt-4">
-            <Button type="button" disabled className="w-fit">
-              {t("subscriptions.upgradeUnavailable")}
+            <Button asChild className="w-fit">
+              <Link to={ROUTES.plan}>{t("subscriptions.viewPlans")}</Link>
             </Button>
-            <p className="text-xs leading-5 text-muted-foreground">
-              {t("subscriptions.purchaseUnavailable")}
-            </p>
           </div>
         )}
       </Card>

@@ -1,5 +1,9 @@
 export type SubscriptionRoleContext = "owner" | "contributor";
-export type SubscriptionPlan = "bronze" | "silver" | "gold";
+/**
+ * One paid tier per role. `free` is the absence of a subscription, not a
+ * downgrade — publishing and completing unpaid work costs nothing.
+ */
+export type SubscriptionPlan = "free" | "gold";
 export type SubscriptionStatus = "active" | "cancelled" | "expired";
 export type SubscriptionSource =
   | "default"
