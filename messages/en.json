@@ -73,7 +73,7 @@
   },
   "auth": {
     "callback": { "retryAccountError": "Could not reopen the GitHub account picker. Try again.", "missingProviderData": "No sign-in data arrived from the account provider.", "sessionExpired": "The sign-in session through the account provider expired. Start again.", "githubEmailConflict": "A Sharek account uses this email, but the chosen GitHub account is not linked to it. Sign in to Sharek first and then link GitHub from Settings, or choose another GitHub account.", "githubAccountMismatch": "This Sharek account is linked to a different GitHub account. Choose that linked GitHub account, or sign in manually to change the link.", "githubAccountTaken": "The GitHub account you chose is linked to another Sharek account. Choose a different GitHub account to continue.", "loginError": "Could not complete sign-in through the account provider.", "unknownProvider": "The sign-in provider is not recognized.", "chooseProviderAccount": "Choose a {{provider}} account", "title": "Complete sign in", "demoSubtext": "Demo account-selection simulation", "processingSubtext": "Processing the account-provider response", "chooseAnotherGithub": "Choose another GitHub account", "backToLogin": "Back to sign in", "completing": "Completing sign in…", "chooseAccount": "Choose the account you want to continue with", "demoDescription": "This is a local demo screen instead of the real {{provider}} window." },
-    "devLogin": { "title": "Quick sign-in (development only)", "contributor": "Contributor", "owner": "Project owner", "admin": "Admin", "serverUnavailable": "Could not reach the server on port 4000. Make sure the backend is running, then try again.", "loginError": "Could not sign in with the development account. Make sure the server seed is running." },
+    "devLogin": { "title": "Quick sign-in (development only)", "contributor": "Contributor", "goldContributor": "Gold contributor", "owner": "Project owner", "goldOwner": "Gold owner", "admin": "Admin", "serverUnavailable": "Could not reach the server on port 4000. Make sure the backend is running, then try again.", "loginError": "Could not sign in with the development account. Make sure the server seed is running." },
     "username": { "label": "Username", "invalidFormat": "Use 3 to 30 letters, numbers, hyphens, or underscores; do not start or end with a special character.", "reserved": "This username is reserved and cannot be used.", "taken": "This username is unavailable.", "checking": "Checking availability…", "checkFailed": "Could not check availability now; you can continue.", "available": "This username is available.", "try": "Try:" },
     "login": "Log in",
     "logout": "Log out",
@@ -792,7 +792,19 @@
     "profileView": {
       "ownLabel": "Your profile",
       "publicLabel": "Public contributor view",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "editProfile": "Edit profile",
+      "verifiedProfile": "Verified profile",
+      "recordEyebrow": "Contribution record",
+      "quickFactsEyebrow": "At a glance",
+      "verifiedSkillsEyebrow": "Evidence-backed capability",
+      "moreSkills": "more verified skills",
+      "authenticatedView": "Owner view",
+      "authenticatedViewDescription": "You are viewing the profile with your private controls available.",
+      "viewAsVisitor": "View as visitor",
+      "visitorPreview": "Visitor preview",
+      "visitorPreviewDescription": "This is how your profile appears to other people.",
+      "exitVisitorView": "Back to my profile"
     },
     "notFound": {
       "title": "Profile not found",
@@ -2065,6 +2077,25 @@
       "lockedDescription": "Gold matches up to 10 open contribution requests to your approved skills and tells you which of your skills fit each one. Your free plan keeps full access to browse and apply to every open request.",
       "lockedPrice": "Gold — 500 EGP / month",
       "lockedCta": "See plans"
+    },
+    "owner": {
+      "eyebrow": "Gold owner feature",
+      "title": "AI contributor matching",
+      "description": "Generate an advisory shortlist from active contributors' approved skills and verified reputation.",
+      "loadingPlan": "Checking your matching entitlement…",
+      "planError": "Could not check your subscription plan.",
+      "lockedTitle": "Contributor matching is a Gold owner benefit",
+      "lockedDescription": "Gold owners can generate up to 10 evidence-backed contributor suggestions for each published Contribution Request.",
+      "viewPlan": "See Gold benefits",
+      "generate": "Generate contributor matches",
+      "generating": "Generating matches…",
+      "refresh": "Refresh matches",
+      "generateError": "Could not generate contributor matches. Check the AI service and try again.",
+      "systemLimit": "Matching is temporarily unavailable because the AI provider limit was reached. Try again later.",
+      "empty": "No contributors with suitable approved skill evidence are available yet.",
+      "rank": "Match #{{rank}}",
+      "viewProfile": "View contributor profile",
+      "advisoryNote": "These matches are advisory. Review the contributor's profile and applications before making an owner decision."
     }
   },
   "subscriptions": {

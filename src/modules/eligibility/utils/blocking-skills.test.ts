@@ -1,7 +1,10 @@
 import { AxiosError } from "axios";
 import { describe, expect, it } from "vitest";
 
-import { readBlockingSkills } from "./blocking-skills";
+import {
+  readBlockingSkills,
+  readEligibilityEvaluationId,
+} from "./blocking-skills";
 
 function refusal(metadata: unknown) {
   return new AxiosError("blocked", "403", undefined, undefined, {
@@ -19,6 +22,26 @@ function refusal(metadata: unknown) {
 }
 
 describe("readBlockingSkills", () => {
+  it("reads the recorded evaluation id used to request guidance", () => {
+    expect(
+      readEligibilityEvaluationId(
+        refusal({
+          eligibilityEvaluationId: "11111111-1111-4111-8111-111111111111",
+          blockingSkills: [],
+        }),
+      ),
+    ).toBe("11111111-1111-4111-8111-111111111111");
+  });
+
+  it("rejects a missing or malformed evaluation id", () => {
+    expect(readEligibilityEvaluationId(refusal({}))).toBeNull();
+    expect(
+      readEligibilityEvaluationId(
+        refusal({ eligibilityEvaluationId: "not-an-evaluation-id" }),
+      ),
+    ).toBeNull();
+  });
+
   it("reads the skills a refusal named", () => {
     const skills = readBlockingSkills(
       refusal({

@@ -6,7 +6,10 @@ export { useContributionRequestEligibilityQuery } from "./api/queries/use-eligib
 export { useEligibilityGuidanceQuery } from "./api/queries/use-eligibility-guidance-query";
 export { useRequestEligibilityGuidanceMutation } from "./api/mutations/use-request-eligibility-guidance-mutation";
 export { eligibilityQueryKeys } from "./api/query-keys";
-export { readBlockingSkills } from "./utils/blocking-skills";
+export {
+  readBlockingSkills,
+  readEligibilityEvaluationId,
+} from "./utils/blocking-skills";
 export {
   getContributionRequestEligibility,
   getEligibilityGuidance,

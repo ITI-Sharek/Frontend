@@ -8,6 +8,7 @@ import {
 } from "@/modules/materials";
 import { ROUTES } from "@/config/routes.config";
 import { OwnerDeliveryReviewPanel } from "@/modules/delivery-reviews";
+import { OwnerContributorMatchingPanel } from "@/modules/matching";
 
 export const Route = createFileRoute(
   "/_appLayout/contribution-requests/$requestId",
@@ -26,6 +27,7 @@ function ContributionRequestPage() {
       requestId={requestId}
       projectHref={ROUTES.ownerProject}
       deliverySlot={<OwnerDeliveryReviewPanel requestId={requestId} />}
+      matchingSlot={<OwnerContributorMatchingPanel requestId={requestId} />}
       materialsSlot={
         <MaterialsPanel
           scope={{ kind: "contribution-request", id: requestId }}

@@ -14,24 +14,42 @@ interface DevLoginButtonsProps {
 }
 
 const DEV_ACCOUNTS: Array<{
+  key: string;
   role: UserRole;
   labelKey: string;
   email: string;
   password: string;
 }> = [
   {
+    key: "contributor",
     role: "contributor",
     labelKey: "contributor",
     email: "contributor@sharek.local",
     password: "Admin@1234",
   },
   {
+    key: "gold-contributor",
+    role: "contributor",
+    labelKey: "goldContributor",
+    email: "gold-contributor@sharek.local",
+    password: "Admin@1234",
+  },
+  {
+    key: "owner",
     role: "owner",
     labelKey: "owner",
     email: "owner@sharek.local",
     password: "Admin@1234",
   },
   {
+    key: "gold-owner",
+    role: "owner",
+    labelKey: "goldOwner",
+    email: "gold-owner@sharek.local",
+    password: "Admin@1234",
+  },
+  {
+    key: "admin",
     role: "admin",
     labelKey: "admin",
     email: "admin@sharek.local",
@@ -41,16 +59,16 @@ const DEV_ACCOUNTS: Array<{
 
 export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
   const { t } = useTranslation();
-  const [pendingRole, setPendingRole] = useState<UserRole | null>(null);
+  const [pendingAccount, setPendingAccount] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (!import.meta.env.DEV) return null;
 
   async function handleDevLogin(account: (typeof DEV_ACCOUNTS)[number]) {
-    if (pendingRole !== null) return;
+    if (pendingAccount !== null) return;
 
     setError(null);
-    setPendingRole(account.role);
+    setPendingAccount(account.key);
     try {
       const session = await loginUser({
         email: account.email,
@@ -67,13 +85,10 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
       setError(
         apiIsUnreachable
           ? t("auth.devLogin.serverUnavailable")
-          : getApiErrorMessage(
-              err,
-              t("auth.devLogin.loginError"),
-            ),
+          : getApiErrorMessage(err, t("auth.devLogin.loginError")),
       );
     } finally {
-      setPendingRole(null);
+      setPendingAccount(null);
     }
   }
 
@@ -82,19 +97,21 @@ export function DevLoginButtons({ onLoginSuccess }: DevLoginButtonsProps) {
       <p className="text-center text-xs text-muted-foreground">
         {t("auth.devLogin.title")}
       </p>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {DEV_ACCOUNTS.map((account) => (
           <Button
-            key={account.role}
+            key={account.key}
             type="button"
             variant="outline"
             size="sm"
-            disabled={pendingRole !== null}
+            disabled={pendingAccount !== null}
             onClick={() => {
               void handleDevLogin(account);
             }}
           >
-            {pendingRole === account.role ? "..." : t(`auth.devLogin.${account.labelKey}`)}
+            {pendingAccount === account.key
+              ? "..."
+              : t(`auth.devLogin.${account.labelKey}`)}
           </Button>
         ))}
       </div>

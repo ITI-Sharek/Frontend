@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
-import { getRecommendedTasks } from "./matching.service";
+import {
+  generateOwnerContributorMatches,
+  getRecommendedTasks,
+} from "./matching.service";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
   axiosInstance: { get: vi.fn(), post: vi.fn() },
@@ -38,5 +41,23 @@ describe("matching service", () => {
     mockedAxios.get.mockResolvedValueOnce({ data: response });
 
     await expect(getRecommendedTasks()).resolves.toEqual(response);
+  });
+
+  it("generates owner contributor matches for the selected request", async () => {
+    const response = {
+      requestId: "request-1",
+      planType: "gold",
+      resultLimit: 10,
+      status: "completed",
+      matches: [],
+    } as const;
+    mockedAxios.post.mockResolvedValueOnce({ data: response });
+
+    await expect(generateOwnerContributorMatches("request 1")).resolves.toEqual(
+      response,
+    );
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/contribution-requests/request%201/matches/generate",
+    );
   });
 });

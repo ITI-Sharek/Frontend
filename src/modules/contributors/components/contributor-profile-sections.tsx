@@ -87,7 +87,9 @@ export function ContributorProfileSections({
   profile: ContributorProfileDto;
 }) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<ProfileTabId>("about");
+  // The contribution record is the strongest proof on a public profile, so
+  // make it the first surface while keeping About and Skills one click away.
+  const [activeTab, setActiveTab] = useState<ProfileTabId>("contributions");
   const sections = getPublicProfileSections(profile);
   const verifiedSkills = profile.skills.filter(
     (skill) => skill.status === "approved",
@@ -99,7 +101,7 @@ export function ContributorProfileSections({
     profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card">
+    <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.18)]">
       <div
         role="tablist"
         aria-label={t("contributor.profile.tabsAriaLabel")}

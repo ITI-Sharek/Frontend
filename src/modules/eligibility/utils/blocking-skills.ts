@@ -3,6 +3,8 @@ import { getApiErrorMetadata } from "@/shared/utils/get-api-error-code";
 import type { BlockingSkillDto, ProficiencyLevel } from "../types/eligibility.types";
 
 const LEVELS: readonly string[] = ["beginner", "intermediate", "advanced"];
+const UUID_V4 =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function isLevel(value: unknown): value is ProficiencyLevel {
   return typeof value === "string" && LEVELS.includes(value);
@@ -41,4 +43,10 @@ export function readBlockingSkills(error: unknown): BlockingSkillDto[] | null {
     skills.push({ skillName, requiredLevel, contributorLevel });
   }
   return skills;
+}
+
+/** The durable refusal handle used by the block-triggered guidance workflow. */
+export function readEligibilityEvaluationId(error: unknown): string | null {
+  const value = getApiErrorMetadata(error)?.eligibilityEvaluationId;
+  return typeof value === "string" && UUID_V4.test(value) ? value : null;
 }

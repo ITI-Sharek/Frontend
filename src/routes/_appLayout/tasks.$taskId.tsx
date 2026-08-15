@@ -9,6 +9,7 @@ import {
   BlockedSubmitAction,
   EligibilityBlockPanel,
   readBlockingSkills,
+  readEligibilityEvaluationId,
   useContributionRequestEligibilityQuery,
 } from "@/modules/eligibility";
 import type { BlockingSkillDto } from "@/modules/eligibility";
@@ -41,9 +42,10 @@ function ContributionRequestDetailsPage() {
    * than in the detail view because the explanation belongs to the eligibility
    * module, and modules never import each other.
    */
-  const [refusedSkills, setRefusedSkills] = useState<BlockingSkillDto[] | null>(
-    null,
-  );
+  const [refusal, setRefusal] = useState<{
+    skills: BlockingSkillDto[];
+    eligibilityEvaluationId: string | null;
+  } | null>(null);
 
   const previewSkills =
     eligibilityQuery.data?.outcome === "blocked"
@@ -51,7 +53,7 @@ function ContributionRequestDetailsPage() {
       : null;
   // The server's refusal wins over the page's earlier reading of the same
   // question: it is newer, and it is the one that actually decided.
-  const blockingSkills = refusedSkills ?? previewSkills;
+  const blockingSkills = refusal?.skills ?? previewSkills;
 
   return (
     <ContributorContributionRequestDetailView
@@ -69,10 +71,7 @@ function ContributionRequestDetailsPage() {
         blockingSkills ? (
           <EligibilityBlockPanel
             blockingSkills={blockingSkills}
-            // Only the pre-flight carries an evaluation id. On the refusal path
-            // there is none, so the narrative is unavailable and the named
-            // skills stand alone — which is the part that matters anyway.
-            eligibilityEvaluationId={null}
+            eligibilityEvaluationId={refusal?.eligibilityEvaluationId ?? null}
             skillAnalysisHref={ROUTES.githubSkillAnalysis}
             onRecoveryNavigate={(skills) =>
               void navigate({
@@ -92,7 +91,12 @@ function ContributionRequestDetailsPage() {
         const skills = readBlockingSkills(error);
         // A malformed payload leaves this null and the form falls back to its
         // generic error, rather than rendering a half-built explanation.
-        if (skills) setRefusedSkills(skills);
+        if (skills) {
+          setRefusal({
+            skills,
+            eligibilityEvaluationId: readEligibilityEvaluationId(error),
+          });
+        }
       }}
       onApplicationQuotaChanged={() =>
         void queryClient.invalidateQueries({

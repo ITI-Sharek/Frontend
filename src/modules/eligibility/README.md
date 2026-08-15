@@ -50,26 +50,15 @@ belongs to the backend.
 `null` and the caller falls back to the generic error, instead of rendering a
 half-built explanation with `undefined` where a level should be.
 
-On the TOCTOU path there is no evaluation id on the page, so the narrative is
-unavailable and only the named skills show. That is the correct trade: the
-deterministic reason is what the contributor needs, and it is always there.
-
-## Known gap: the narrative cannot arrive yet
-
 `EligibilityBlockPanel` requests guidance when it is given an
-`eligibilityEvaluationId`, and **nothing supplies one today**:
+`eligibilityEvaluationId`:
 
 - `GET /tasks/:id/eligibility` is a pre-flight that deliberately records no
   evaluation (`P0-B03`), so it has no id to return.
-- The `403` refusal *does* record one, but
-  `ApplicationsService.submit` discards the id that `recordBlocked` returns and
-  the error metadata carries only `blockingSkills`.
+- The `403` refusal records one and returns it as
+  `metadata.eligibilityEvaluationId`. The route validates that UUID and gives it
+  to the panel, which requests the durable block-triggered guidance record.
 
-So both call sites pass `null` and the guidance section does not render. The
-deterministic reason — the named skills, their required level and the
-contributor's own — is unaffected, which is the part a blocked contributor
-actually needs.
-
-Closing it is a small backend change: return the evaluation id from
-`recordBlocked` into `metadata.eligibilityEvaluationId` on the `403`. This
-module needs no change when that lands; it already handles the id being present.
+The named skills remain the immediate explanation in both paths. Guidance is
+an additional recovery path after a recorded refusal, never a condition for
+rendering the deterministic reason.

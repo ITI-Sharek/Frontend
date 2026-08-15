@@ -45,3 +45,21 @@ export interface RecommendedTasksResponseDto {
   /** Present only when `recommendations` is empty. */
   reason: RecommendedTasksReason | null;
 }
+
+export interface OwnerContributorMatchDto {
+  contributorId: string;
+  contributorName: string;
+  contributorUsername: string | null;
+  rank: number;
+  confidence: MatchingConfidence;
+  justification: string;
+  matchedSkills: Array<Pick<MatchedSkillDto, "name" | "proficiency">>;
+}
+
+export interface OwnerContributorMatchingResponseDto {
+  requestId: string;
+  planType: SubscriptionPlan;
+  resultLimit: number;
+  status: "completed" | "no_candidates" | "system_limit";
+  matches: OwnerContributorMatchDto[];
+}

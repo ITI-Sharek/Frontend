@@ -6,7 +6,10 @@ import {
   getPublicProfileSections,
   getVisibleCompletionPrompts,
 } from "./contributor-profile-sections";
-import { ContributorProfileView } from "./contributor-profile-view";
+import {
+  ContributorProfileView,
+  getVisitorProfilePreview,
+} from "./contributor-profile-view";
 import { ContributorReputationStrip } from "./contributor-reputation-strip";
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
@@ -74,6 +77,29 @@ function makeProfile(
 }
 
 describe("contributor profile view helpers", () => {
+  it("removes owner-only profile details from the visitor preview", () => {
+    const preview = getVisitorProfilePreview(
+      makeProfile({
+        skills: [
+          ...makeProfile().skills,
+          {
+            name: "Docker",
+            proficiencyLevel: "intermediate",
+            confidence: 0.7,
+            status: "pending",
+            evidenceSummary: "Pending review",
+          },
+        ],
+      }),
+    );
+
+    expect(preview.viewerRelationship).toBe("authenticated-viewer");
+    expect(preview.completionPrompts).toEqual([]);
+    expect(preview.declaredSkills).toEqual([]);
+    expect(preview.githubInstallations).toEqual([]);
+    expect(preview.skills.map((skill) => skill.name)).toEqual(["React"]);
+  });
+
   it("detects populated profile sections", () => {
     expect(getPublicProfileSections(makeProfile())).toEqual({
       hasSkills: true,
@@ -179,6 +205,10 @@ describe("contributor profile view helpers", () => {
     expect(html).toContain("React");
     expect(html).toContain("6 مساهمات موثقة");
     expect(html).toContain("TypeScript");
+
+    expect(html).toContain("البيانات الشخصية");
+    expect(html).toContain("ملف موثّق");
+    expect(html).toContain("عرض كزائر");
 
     const reputationHtml = renderToStaticMarkup(
       <ContributorReputationStrip profile={makeProfile()} />,
