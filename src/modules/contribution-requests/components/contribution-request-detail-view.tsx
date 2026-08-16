@@ -86,6 +86,7 @@ export function ContributionRequestDetailView({
     new ContributionRequestIdempotencyKeyStore(),
   );
   const lifecycleFocusRef = useRef<HTMLDivElement>(null);
+  const dialogReturnFocusRef = useRef<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [discardError, setDiscardError] = useState<string | null>(null);
   const [discardOpen, setDiscardOpen] = useState(false);
@@ -100,6 +101,14 @@ export function ContributionRequestDetailView({
   useEffect(() => {
     if (focusLifecycle) lifecycleFocusRef.current?.focus();
   }, [focusLifecycle, query.data?.status]);
+
+  useEffect(() => {
+    if (discardOpen || publishOpen || cancelOpen) return;
+    const targetId = dialogReturnFocusRef.current;
+    if (!targetId) return;
+    dialogReturnFocusRef.current = null;
+    document.getElementById(targetId)?.focus();
+  }, [cancelOpen, discardOpen, publishOpen]);
 
   if (query.isPending) {
     return (
@@ -439,8 +448,8 @@ export function ContributionRequestDetailView({
           isDiscarding={discardMutation.isPending}
           error={discardError}
           onCancel={() => {
+            dialogReturnFocusRef.current = "discard-request-trigger";
             setDiscardOpen(false);
-            document.getElementById("discard-request-trigger")?.focus();
           }}
           onConfirm={discard}
         />
@@ -452,8 +461,8 @@ export function ContributionRequestDetailView({
           isPublishing={publishMutation.isPending}
           error={publishError}
           onCancel={() => {
+            dialogReturnFocusRef.current = "publish-request-trigger";
             setPublishOpen(false);
-            document.getElementById("publish-request-trigger")?.focus();
           }}
           onConfirm={publish}
         />
@@ -465,8 +474,8 @@ export function ContributionRequestDetailView({
           isCancelling={cancelMutation.isPending}
           error={cancelError}
           onCancel={() => {
+            dialogReturnFocusRef.current = "cancel-request-trigger";
             setCancelOpen(false);
-            document.getElementById("cancel-request-trigger")?.focus();
           }}
           onConfirm={cancel}
         />

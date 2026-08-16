@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
-import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 
 import type {
@@ -110,9 +110,18 @@ export function ProposalListView({
       : proposals.filter((proposal) => proposal.status === activeStatus);
 
   return (
-    <div>
-      <div
-        role="tablist"
+    <Tabs
+      value={activeStatus}
+      onValueChange={(value) => {
+        const nextStatus = statusTabs.find((tab) => tab.id === value)?.id;
+        if (nextStatus) {
+          setActiveStatus(nextStatus);
+        }
+      }}
+      className="gap-0"
+    >
+      <TabsList
+        variant="line"
         aria-label={t("proposalList.statusTabsAria")}
         className="mb-4 flex gap-1 overflow-x-auto border-b border-border"
       >
@@ -122,32 +131,23 @@ export function ProposalListView({
               ? proposals.length
               : proposals.filter((proposal) => proposal.status === tab.id)
                   .length;
-          const selected = tab.id === activeStatus;
           return (
-            <button
+            <TabsTrigger
               key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setActiveStatus(tab.id)}
-              className={cn(
-                "flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-sm transition-colors",
-                selected
-                  ? "border-primary font-semibold text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
+              value={tab.id}
+              className="min-h-11 shrink-0"
             >
               {tab.label}
               <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                 {count}
               </span>
-            </button>
+            </TabsTrigger>
           );
         })}
-      </div>
+      </TabsList>
 
-      <div
-        role="tabpanel"
+      <TabsContent
+        value={activeStatus}
         className="max-h-[calc(100dvh-18rem)] overflow-y-auto overscroll-contain pe-1"
       >
         {visibleProposals.length === 0 ? (
@@ -204,7 +204,7 @@ export function ProposalListView({
             })}
           </div>
         )}
-      </div>
+      </TabsContent>
 
       {loadMoreError && (
         <p role="alert" className="mt-3 text-sm text-destructive">
@@ -228,6 +228,6 @@ export function ProposalListView({
           </Button>
         </div>
       )}
-    </div>
+    </Tabs>
   );
 }

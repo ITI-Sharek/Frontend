@@ -1,9 +1,22 @@
 import { Flag, Loader2 } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { Label } from "@/shared/components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import type {
   DecisionFeedbackReportReason,
@@ -30,7 +43,12 @@ export function ReportDecisionFeedbackDialog({
 }) {
   const { t } = useTranslation();
   const reasonValues: DecisionFeedbackReportReason[] = [
-    "harassment", "misuse", "fraud", "reputation_manipulation", "inaccurate_ai", "other",
+    "harassment",
+    "misuse",
+    "fraud",
+    "reputation_manipulation",
+    "inaccurate_ai",
+    "other",
   ];
   const reasons = reasonValues.map((value) => ({
     value,
@@ -40,37 +58,8 @@ export function ReportDecisionFeedbackDialog({
     useState<DecisionFeedbackReportReason>("harassment");
   const [description, setDescription] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLElement>(null);
   const selectId = useId();
   const descriptionId = useId();
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.getElementById(selectId)?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !isSubmitting) onCancel();
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        "select:not([disabled]), textarea:not([disabled]), button:not([disabled])",
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isSubmitting, onCancel, selectId]);
-
-  if (!isOpen) return null;
 
   async function submit() {
     const normalized = description.trim();
@@ -84,64 +73,69 @@ export function ReportDecisionFeedbackDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isSubmitting) onCancel();
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) onCancel();
       }}
     >
-      <section
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={`report-decision-title-${decision.id}`}
-        aria-describedby={`report-decision-description-${decision.id}`}
-        className="w-full max-w-lg rounded-card border border-border bg-card p-6 shadow-xl"
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          if (isSubmitting) event.preventDefault();
+        }}
+        onPointerDownOutside={(event) => {
+          if (isSubmitting) event.preventDefault();
+        }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById(selectId)?.focus();
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById("decision-feedback-report-trigger")?.focus();
+        }}
       >
-        <div className="flex items-start gap-3">
+        <DialogHeader>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-border/40 text-foreground">
             <Flag className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h2
-              id={`report-decision-title-${decision.id}`}
-              className="text-lg font-bold text-foreground"
-            >
+            <DialogTitle>
               {t("contributionRequests.reportDialog.title")}
-            </h2>
-            <p
-              id={`report-decision-description-${decision.id}`}
-              className="mt-1 text-sm leading-6 text-muted-foreground"
-            >
+            </DialogTitle>
+            <DialogDescription>
               {t("contributionRequests.reportDialog.description")}
-            </p>
+            </DialogDescription>
           </div>
-        </div>
+        </DialogHeader>
 
         <div className="mt-5 space-y-4">
           <div>
-            <Label htmlFor={selectId}>{t("contributionRequests.reportDialog.reason")}</Label>
-            <select
+            <Label htmlFor={selectId}>
+              {t("contributionRequests.reportDialog.reason")}
+            </Label>
+            <NativeSelect
               id={selectId}
               value={reason}
               disabled={isSubmitting}
               onChange={(event) =>
                 setReason(event.target.value as DecisionFeedbackReportReason)
               }
-              className="mt-1.5 h-[50px] w-full rounded-input border border-border bg-input-bg px-4 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
+              className="mt-1.5"
             >
               {reasons.map((item) => (
-                <option key={item.value} value={item.value}>
+                <NativeSelectOption key={item.value} value={item.value}>
                   {item.label}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           <div>
-            <Label htmlFor={descriptionId}>{t("contributionRequests.reportDialog.details")}</Label>
-            <textarea
+            <Label htmlFor={descriptionId}>
+              {t("contributionRequests.reportDialog.details")}
+            </Label>
+            <Textarea
               id={descriptionId}
               value={description}
               rows={5}
@@ -158,7 +152,7 @@ export function ReportDecisionFeedbackDialog({
                 setDescription(event.target.value);
                 if (fieldError) setFieldError(null);
               }}
-              className="mt-1.5 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-sm leading-6 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
+              className="mt-1.5"
             />
             <div className="mt-1 flex items-start justify-between gap-3 text-xs">
               <p
@@ -193,7 +187,7 @@ export function ReportDecisionFeedbackDialog({
           </p>
         )}
 
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -213,8 +207,8 @@ export function ReportDecisionFeedbackDialog({
             )}
             {t("contributionRequests.reportDialog.confirm")}
           </Button>
-        </div>
-      </section>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

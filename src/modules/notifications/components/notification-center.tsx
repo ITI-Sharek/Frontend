@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck, ChevronDown, WifiOff } from "lucide-react";
+import { Bell, Check, CheckCheck, WifiOff } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,6 +24,11 @@ import {
   PageHeader,
 } from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import {
   formatNotificationDate,
@@ -83,12 +88,21 @@ export function NotificationCenter() {
           }
         />
 
-      <div
-        aria-label={t("notifications.center.filters")}
-        className="mt-6 flex flex-col gap-4 border-b border-border sm:flex-row sm:items-end sm:justify-between"
+      <Tabs
+        value={readState}
+        onValueChange={(value) => {
+          if (value === "all" || value === "read" || value === "unread") {
+            setReadState(value);
+          }
+        }}
+        className="mt-6 gap-0"
       >
         <div
-          role="tablist"
+          aria-label={t("notifications.center.filters")}
+          className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-end sm:justify-between"
+        >
+        <TabsList
+          variant="line"
           aria-label={t("notifications.center.readState")}
           className="flex gap-1 overflow-x-auto"
         >
@@ -99,20 +113,12 @@ export function NotificationCenter() {
               { id: "read", label: t("notifications.center.read") },
             ] as const
           ).map((tab) => {
-            const selected = readState === tab.id;
             return (
-              <button
+              <TabsTrigger
                 key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setReadState(tab.id)}
-                className={cn(
-                  "flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-sm transition-colors",
-                  selected
-                    ? "border-primary font-semibold text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
+                value={tab.id}
+                data-read-state={tab.id}
+                className="min-h-11 shrink-0"
               >
                 {tab.label}
                 {tab.id === "unread" && hasUnread && (
@@ -120,35 +126,34 @@ export function NotificationCenter() {
                     {unreadCountQuery.data?.unreadCount ?? 0}
                   </span>
                 )}
-              </button>
+              </TabsTrigger>
             );
           })}
-        </div>
+        </TabsList>
         <label className="grid gap-1.5 pb-3 text-xs font-semibold text-foreground">
           {t("notifications.center.type")}
-          <span className="relative">
-            <select
+            <NativeSelect
               name="notification-type"
+              size="sm"
               value={type}
               onChange={(event) =>
                 setType(event.target.value as NotificationType | "all")
               }
-              className="min-h-10 appearance-none rounded-input border border-border bg-card py-2 pe-9 ps-3 text-sm font-normal text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="bg-card font-normal"
             >
-              <option value="all">{t("notifications.center.allTypes")}</option>
+              <NativeSelectOption value="all">
+                {t("notifications.center.allTypes")}
+              </NativeSelectOption>
               {NOTIFICATION_TYPES.map((notificationType) => (
-                <option key={notificationType} value={notificationType}>
+                <NativeSelectOption key={notificationType} value={notificationType}>
                   {getNotificationTypeLabel(t, notificationType)}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-          </span>
+            </NativeSelect>
         </label>
-      </div>
+        </div>
+
+      <TabsContent value={readState}>
 
       {listQuery.isLoading ? (
         <div
@@ -220,6 +225,8 @@ export function NotificationCenter() {
           )}
         </>
       )}
+      </TabsContent>
+      </Tabs>
       </PageContainer>
     </div>
   );

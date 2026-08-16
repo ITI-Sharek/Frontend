@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import {
   PageContainer,
   PageFeedback,
@@ -595,7 +597,7 @@ function ApplicationSubmissionForm({
           >
             {t("contributionRequests.contributorDetail.approach")}
           </label>
-          <textarea
+          <Textarea
             id="contribution-approach"
             rows={6}
             required
@@ -603,7 +605,7 @@ function ApplicationSubmissionForm({
             maxLength={5000}
             aria-invalid={Boolean(errors.contributionApproach)}
             aria-describedby={`contribution-approach-help${errors.contributionApproach ? " contribution-approach-error" : ""}`}
-            className="mt-2 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="mt-2"
             placeholder={t("contributionRequests.contributorDetail.approachPlaceholder")}
             {...register("contributionApproach")}
           />
@@ -629,7 +631,7 @@ function ApplicationSubmissionForm({
           >
             {t("contributionRequests.contributorDetail.proposedDuration")}
           </label>
-          <input
+          <Input
             id="proposed-delivery-duration"
             type="number"
             inputMode="numeric"
@@ -642,7 +644,7 @@ function ApplicationSubmissionForm({
                 ? "proposed-delivery-duration-error"
                 : undefined
             }
-            className="mt-2 min-h-11 w-full rounded-input border border-border bg-input-bg px-4 text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="mt-2"
             {...register("proposedDeliveryDurationDays")}
           />
           {errors.proposedDeliveryDurationDays && (

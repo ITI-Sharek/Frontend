@@ -1,9 +1,18 @@
 import { Loader2, MessageSquareText } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import type { ApplicationDto } from "../types/application.types";
 
@@ -25,37 +34,7 @@ export function DeclineApplicationDialog({
   const { t } = useTranslation();
   const [feedback, setFeedback] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLElement>(null);
   const feedbackId = useId();
-  const cancelId = `decline-application-cancel-${application.id}`;
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.getElementById(feedbackId)?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !isSubmitting) onCancel();
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        "textarea:not([disabled]), button:not([disabled])",
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [feedbackId, isOpen, isSubmitting, onCancel]);
-
-  if (!isOpen) return null;
 
   async function submit() {
     const normalized = feedback.trim();
@@ -69,44 +48,43 @@ export function DeclineApplicationDialog({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isSubmitting) onCancel();
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) onCancel();
       }}
     >
-      <section
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={`decline-application-title-${application.id}`}
-        aria-describedby={`decline-application-description-${application.id}`}
-        className="w-full max-w-lg rounded-card border border-border bg-card p-6 shadow-xl"
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          if (isSubmitting) event.preventDefault();
+        }}
+        onPointerDownOutside={(event) => {
+          if (isSubmitting) event.preventDefault();
+        }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById(feedbackId)?.focus();
+        }}
       >
-        <div className="flex items-start gap-3">
+        <DialogHeader>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-border/40 text-foreground">
             <MessageSquareText className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h2
-              id={`decline-application-title-${application.id}`}
-              className="text-lg font-bold text-foreground"
-            >
+            <DialogTitle>
               {t("contributionRequests.declineDialog.title")}
-            </h2>
-            <p
-              id={`decline-application-description-${application.id}`}
-              className="mt-1 text-sm leading-6 text-muted-foreground"
-            >
+            </DialogTitle>
+            <DialogDescription>
               {t("contributionRequests.declineDialog.description")}
-            </p>
+            </DialogDescription>
           </div>
-        </div>
+        </DialogHeader>
 
         <div className="mt-5">
-          <Label htmlFor={feedbackId}>{t("contributionRequests.declineDialog.feedback")}</Label>
-          <textarea
+          <Label htmlFor={feedbackId}>
+            {t("contributionRequests.declineDialog.feedback")}
+          </Label>
+          <Textarea
             id={feedbackId}
             value={feedback}
             rows={5}
@@ -122,7 +100,7 @@ export function DeclineApplicationDialog({
               setFeedback(event.target.value);
               if (fieldError) setFieldError(null);
             }}
-            className="mt-1.5 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-sm leading-6 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
+            className="mt-1.5"
           />
           <div className="mt-1 flex items-start justify-between gap-3 text-xs">
             <p
@@ -156,9 +134,8 @@ export function DeclineApplicationDialog({
           </p>
         )}
 
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <DialogFooter>
           <Button
-            id={cancelId}
             type="button"
             variant="outline"
             disabled={isSubmitting}
@@ -177,8 +154,8 @@ export function DeclineApplicationDialog({
             )}
             {t("contributionRequests.declineDialog.confirm")}
           </Button>
-        </div>
-      </section>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

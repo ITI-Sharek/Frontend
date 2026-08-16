@@ -141,4 +141,35 @@ describe("Proposal editor interactions", () => {
     const alert = container.querySelector('[role="alert"]');
     expect(alert?.textContent ?? "").not.toBe("");
   });
+
+  it("uses the shared checkbox disclosure without changing submission behavior", async () => {
+    const onSubmit = vi.fn(() => Promise.resolve());
+    await act(async () => {
+      root.render(
+        <ProposalEditor
+          initialValue={{
+            title: "عنوان المقترح المقدم",
+            problemOrOpportunity: "شرح المشكلة الحالية في المشروع بتفصيل.",
+            proposedOutcome: "وصف النتيجة المتوقعة من تنفيذ هذا المقترح.",
+            projectBenefit: "توضيح الفائدة التي تعود على المشروع كاملة.",
+          }}
+          requiresDisclosure
+          isSubmitting={false}
+          submitLabel="إرسال"
+          error={null}
+          onSubmit={onSubmit}
+        />,
+      );
+    });
+
+    const disclosure = container.querySelector<HTMLButtonElement>(
+      '[role="checkbox"]',
+    );
+    if (!disclosure) throw new Error("Expected disclosure checkbox");
+    await act(async () => disclosure.click());
+    await submitForm();
+
+    expect(disclosure.getAttribute("aria-checked")).toBe("true");
+    expect(onSubmit).toHaveBeenCalledOnce();
+  });
 });

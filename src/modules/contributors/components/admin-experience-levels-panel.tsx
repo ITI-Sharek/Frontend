@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 import {
@@ -10,9 +11,6 @@ import {
   useCreateExperienceLevelMutation,
   useUpdateExperienceLevelMutation,
 } from "../api/queries/use-admin-experience-levels-query";
-
-const INPUT_CLASS_NAME =
-  "h-10 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none transition-colors placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary";
 
 export function AdminExperienceLevelsPanel() {
   const { t } = useTranslation();
@@ -107,7 +105,7 @@ export function AdminExperienceLevelsPanel() {
         >
           <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-foreground">
             {t("contributor.admin.arabicName")}
-            <input
+            <Input
               dir="rtl"
               name="experienceLabelAr"
               autoComplete="off"
@@ -116,13 +114,13 @@ export function AdminExperienceLevelsPanel() {
               placeholder={t("contributor.admin.levelArPlaceholder")}
               value={labelAr}
               onChange={(event) => setLabelAr(event.target.value)}
-              className={`${INPUT_CLASS_NAME} text-right`}
+              className="h-10 text-right"
             />
           </label>
 
           <label className="grid min-w-0 gap-1.5 text-xs font-semibold text-foreground">
             {t("contributor.admin.englishName")}
-            <input
+            <Input
               dir="ltr"
               name="experienceLabelEn"
               autoComplete="off"
@@ -131,7 +129,7 @@ export function AdminExperienceLevelsPanel() {
               placeholder={t("contributor.admin.levelEnPlaceholder")}
               value={labelEn}
               onChange={(event) => setLabelEn(event.target.value)}
-              className={`${INPUT_CLASS_NAME} text-left font-sans`}
+              className="h-10 text-left font-sans"
             />
           </label>
 
@@ -142,7 +140,7 @@ export function AdminExperienceLevelsPanel() {
                 {t("contributor.admin.keyPatternHelp")}
               </span>
             </div>
-            <input
+            <Input
               dir="ltr"
               name="levelKey"
               autoComplete="off"
@@ -154,7 +152,7 @@ export function AdminExperienceLevelsPanel() {
               placeholder="two-to-four"
               value={key}
               onChange={(event) => setKey(event.target.value)}
-              className={`${INPUT_CLASS_NAME} text-left font-mono text-xs`}
+              className="h-10 text-left font-mono text-xs"
             />
           </label>
 
@@ -221,14 +219,14 @@ export function AdminExperienceLevelsPanel() {
                 <div className="flex flex-wrap items-center gap-3 self-end sm:self-center">
                   <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <span>{t("contributor.admin.sortOrder")}:</span>
-                    <input
+                    <Input
                       aria-label={t("contributor.admin.sortOrderAria", { name: level.labelAr })}
                       type="number"
                       min={0}
                       max={10000}
                       defaultValue={level.sortOrder}
                       disabled={updateLevel.isPending}
-                      className="h-8.5 w-18 rounded-input border border-border bg-input-bg px-2 text-center text-xs font-mono text-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+                      className="h-8.5 w-18 px-2 text-center font-mono text-xs"
                       onBlur={(event) => {
                         const sortOrder = Number(event.target.value);
                         if (
@@ -243,8 +241,10 @@ export function AdminExperienceLevelsPanel() {
                     />
                   </label>
 
-                  <button
+                  <Button
                     type="button"
+                    size="sm"
+                    variant="outline"
                     aria-pressed={level.active}
                     disabled={updateLevel.isPending}
                     onClick={() =>
@@ -253,7 +253,7 @@ export function AdminExperienceLevelsPanel() {
                         payload: { active: !level.active },
                       })
                     }
-                    className={`inline-flex h-8.5 items-center justify-center gap-1.5 rounded-input border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`h-8.5 ${
                       level.active
                         ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
                         : "border-border bg-surface-muted/50 text-muted-foreground hover:bg-surface-muted hover:text-foreground"
@@ -261,7 +261,7 @@ export function AdminExperienceLevelsPanel() {
                   >
                     {level.active && <Check className="size-3.5 text-primary" aria-hidden="true" />}
                     <span>{level.active ? t("contributor.admin.active") : t("contributor.admin.inactive")}</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))

@@ -3,8 +3,8 @@ import { CircleAlert, FilePlus2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import {
   PageContainer,
@@ -142,40 +142,40 @@ export function OwnerContributionRequestsWorkspace({
           }
         />
       ) : (
-        <div className="mt-6">
-          <div
-            role="tablist"
+        <Tabs
+          value={activeStatus}
+          onValueChange={(value) => {
+            const nextStatus = SECTION_ORDER.find(
+              (section) => section.status === value,
+            )?.status;
+            if (nextStatus) setActiveStatus(nextStatus);
+          }}
+          className="mt-6 gap-0"
+        >
+          <TabsList
+            variant="line"
             aria-label={t("contributionRequests.ownerWorkspace.statuses")}
             className="flex gap-1 overflow-x-auto border-b border-border pb-px"
           >
             {SECTION_ORDER.map(({ status, titleKey, alwaysShown }) => {
               const count = getSectionItems(status, byStatus, now).length;
               if (count === 0 && !alwaysShown) return null;
-              const selected = activeStatus === status;
               return (
-                <button
+                <TabsTrigger
                   key={status}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  onClick={() => setActiveStatus(status)}
-                  className={cn(
-                    "flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-sm transition-colors",
-                    selected
-                      ? "border-primary font-semibold text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground",
-                  )}
+                  value={status}
+                  className="min-h-11 shrink-0"
                 >
                   {t(`contributionRequests.ownerWorkspace.sections.${titleKey}`)}
                   <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                     {count}
                   </span>
-                </button>
+                </TabsTrigger>
               );
             })}
-          </div>
-          <div
-            role="tabpanel"
+          </TabsList>
+          <TabsContent
+            value={activeStatus}
             className="max-h-[calc(100dvh-19rem)] min-h-72 overflow-y-auto overscroll-contain pt-5 pe-1"
           >
             <ContributionRequestSection
@@ -188,8 +188,8 @@ export function OwnerContributionRequestsWorkspace({
               requestHref={requestHref}
               now={now}
             />
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       )}
     </PageContainer>
   );

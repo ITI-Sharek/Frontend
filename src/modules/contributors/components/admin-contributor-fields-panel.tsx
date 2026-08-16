@@ -14,6 +14,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 
 import {
@@ -23,9 +28,6 @@ import {
   useUpdateContributorFieldCategoryMutation,
   useUpdateContributorFieldMutation,
 } from "../api/queries/use-admin-contributor-fields-query";
-
-const INPUT_CLASS_NAME =
-  "h-10 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none transition-colors placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary";
 
 export function AdminContributorFieldsPanel() {
   const { t } = useTranslation();
@@ -337,7 +339,7 @@ export function AdminContributorFieldsPanel() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1.5 text-xs font-semibold text-foreground">
                   {t("contributor.admin.arabicName")}
-                  <input
+                  <Input
                     dir="rtl"
                     name="categoryLabelAr"
                     autoComplete="off"
@@ -346,13 +348,13 @@ export function AdminContributorFieldsPanel() {
                     placeholder={t("contributor.admin.categoryArPlaceholder")}
                     value={categoryLabelAr}
                     onChange={(event) => setCategoryLabelAr(event.target.value)}
-                    className={`${INPUT_CLASS_NAME} text-right`}
+                    className="h-10 text-right"
                   />
                 </label>
 
                 <label className="grid gap-1.5 text-xs font-semibold text-foreground">
                   {t("contributor.admin.englishName")}
-                  <input
+                  <Input
                     dir="ltr"
                     name="categoryLabelEn"
                     autoComplete="off"
@@ -361,7 +363,7 @@ export function AdminContributorFieldsPanel() {
                     placeholder={t("contributor.admin.categoryEnPlaceholder")}
                     value={categoryLabelEn}
                     onChange={(event) => setCategoryLabelEn(event.target.value)}
-                    className={`${INPUT_CLASS_NAME} text-left font-sans`}
+                    className="h-10 text-left font-sans"
                   />
                 </label>
               </div>
@@ -373,7 +375,7 @@ export function AdminContributorFieldsPanel() {
                     {t("contributor.admin.keyPatternHelp")}
                   </span>
                 </div>
-                <input
+                <Input
                   dir="ltr"
                   name="categoryKey"
                   autoComplete="off"
@@ -385,7 +387,7 @@ export function AdminContributorFieldsPanel() {
                   placeholder="software-development"
                   value={categoryKey}
                   onChange={(event) => setCategoryKey(event.target.value)}
-                  className={`${INPUT_CLASS_NAME} text-left font-mono text-xs`}
+                  className="h-10 text-left font-mono text-xs"
                 />
               </label>
             </form>
@@ -464,27 +466,30 @@ export function AdminContributorFieldsPanel() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <label className="grid gap-1.5 text-xs font-semibold text-foreground sm:col-span-1">
                   {t("contributor.admin.categoryLabel")}
-                  <select
+                  <NativeSelect
                     name="fieldCategoryId"
                     autoComplete="off"
                     required
                     value={selectedCategoryId}
                     onChange={(event) => setSelectedCategoryId(event.target.value)}
                     disabled={!sortedCategories.length || createField.isPending}
-                    className={`${INPUT_CLASS_NAME} text-right`}
+                    size="sm"
+                    className="text-right"
                   >
-                    <option value="">{t("contributor.admin.categorySelectPrompt")}</option>
+                    <NativeSelectOption value="">
+                      {t("contributor.admin.categorySelectPrompt")}
+                    </NativeSelectOption>
                     {sortedCategories.map((category) => (
-                      <option key={category.id} value={category.id}>
+                      <NativeSelectOption key={category.id} value={category.id}>
                         {category.labelAr}
-                      </option>
+                      </NativeSelectOption>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </label>
 
                 <label className="grid gap-1.5 text-xs font-semibold text-foreground sm:col-span-1">
                   {t("contributor.admin.arabicName")}
-                  <input
+                  <Input
                     dir="rtl"
                     name="fieldLabelAr"
                     autoComplete="off"
@@ -493,13 +498,13 @@ export function AdminContributorFieldsPanel() {
                     placeholder={t("contributor.admin.fieldArPlaceholder")}
                     value={fieldLabelAr}
                     onChange={(event) => setFieldLabelAr(event.target.value)}
-                    className={`${INPUT_CLASS_NAME} text-right`}
+                    className="h-10 text-right"
                   />
                 </label>
 
                 <label className="grid gap-1.5 text-xs font-semibold text-foreground sm:col-span-1">
                   {t("contributor.admin.englishName")}
-                  <input
+                  <Input
                     dir="ltr"
                     name="fieldLabelEn"
                     autoComplete="off"
@@ -508,7 +513,7 @@ export function AdminContributorFieldsPanel() {
                     placeholder={t("contributor.admin.fieldEnPlaceholder")}
                     value={fieldLabelEn}
                     onChange={(event) => setFieldLabelEn(event.target.value)}
-                    className={`${INPUT_CLASS_NAME} text-left font-sans`}
+                    className="h-10 text-left font-sans"
                   />
                 </label>
               </div>
@@ -520,7 +525,7 @@ export function AdminContributorFieldsPanel() {
                     {t("contributor.admin.keyPatternHelp")}
                   </span>
                 </div>
-                <input
+                <Input
                   dir="ltr"
                   name="fieldKey"
                   autoComplete="off"
@@ -532,7 +537,7 @@ export function AdminContributorFieldsPanel() {
                   placeholder="react"
                   value={fieldKey}
                   onChange={(event) => setFieldKey(event.target.value)}
-                  className={`${INPUT_CLASS_NAME} text-left font-mono text-xs`}
+                  className="h-10 text-left font-mono text-xs"
                 />
               </label>
             </form>
@@ -614,14 +619,14 @@ export function AdminContributorFieldsPanel() {
                   <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                     <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                       <span>{t("contributor.admin.sortOrder")}:</span>
-                      <input
+                      <Input
                         aria-label={t("contributor.admin.sortOrderAria", { name: category.labelAr })}
                         type="number"
                         min={0}
                         max={10000}
                         defaultValue={category.sortOrder}
                         disabled={updateCategory.isPending}
-                        className="h-8.5 w-18 rounded-input border border-border bg-input-bg px-2 text-center text-xs font-mono text-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+                        className="h-8.5 w-18 px-2 text-center font-mono text-xs"
                         onBlur={(event) => {
                           const sortOrder = Number(event.target.value);
                           if (
@@ -636,8 +641,10 @@ export function AdminContributorFieldsPanel() {
                       />
                     </label>
 
-                    <button
+                    <Button
                       type="button"
+                      size="sm"
+                      variant="outline"
                       aria-pressed={category.active}
                       disabled={updateCategory.isPending}
                       onClick={() =>
@@ -646,7 +653,7 @@ export function AdminContributorFieldsPanel() {
                           payload: { active: !category.active },
                         })
                       }
-                      className={`inline-flex h-8.5 items-center justify-center gap-1.5 rounded-input border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`h-8.5 gap-1.5 px-3 text-xs ${
                         category.active
                           ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
                           : "border-border bg-surface-muted/50 text-muted-foreground hover:bg-surface-muted hover:text-foreground"
@@ -654,7 +661,7 @@ export function AdminContributorFieldsPanel() {
                     >
                       {category.active && <Check className="size-3.5 text-primary" aria-hidden="true" />}
                       <span>{category.active ? t("contributor.admin.active") : t("contributor.admin.inactive")}</span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -713,14 +720,14 @@ export function AdminContributorFieldsPanel() {
                             <div className="flex items-center gap-2.5 self-end sm:self-center">
                               <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <span className="text-[11px]">{t("contributor.admin.sortOrder")}:</span>
-                                <input
+                                <Input
                                   aria-label={t("contributor.admin.sortOrderAria", { name: field.labelAr })}
                                   type="number"
                                   min={0}
                                   max={10000}
                                   defaultValue={field.sortOrder}
                                   disabled={updateField.isPending}
-                                  className="h-7.5 w-16 rounded-input border border-border bg-input-bg px-1.5 text-center font-mono text-xs text-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+                                  className="h-7.5 w-16 px-1.5 text-center font-mono text-xs"
                                   onBlur={(event) => {
                                     const sortOrder = Number(event.target.value);
                                     if (
@@ -735,8 +742,10 @@ export function AdminContributorFieldsPanel() {
                                 />
                               </label>
 
-                              <button
+                              <Button
                                 type="button"
+                                size="sm"
+                                variant="outline"
                                 aria-pressed={field.active}
                                 disabled={updateField.isPending}
                                 onClick={() =>
@@ -745,7 +754,7 @@ export function AdminContributorFieldsPanel() {
                                     payload: { active: !field.active },
                                   })
                                 }
-                                className={`inline-flex h-7.5 items-center justify-center gap-1 rounded-input border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 ${
+                                className={`h-7.5 gap-1 px-2.5 text-xs ${
                                   field.active
                                     ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
                                     : "border-border bg-surface-muted/40 text-muted-foreground hover:bg-surface-muted hover:text-foreground"
@@ -753,7 +762,7 @@ export function AdminContributorFieldsPanel() {
                               >
                                 {field.active && <Check className="size-3 text-primary" aria-hidden="true" />}
                                 <span>{field.active ? t("contributor.admin.active") : t("contributor.admin.inactive")}</span>
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         );

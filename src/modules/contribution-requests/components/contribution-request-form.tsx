@@ -14,6 +14,11 @@ import type { FormEvent, KeyboardEvent } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import {
   toContributionRequestPayload,
@@ -139,7 +144,7 @@ export function ContributionRequestForm({
         id="contribution-request-description"
         label={t("contributionRequests.form.description")}
       >
-        <textarea
+        <Textarea
           id="contribution-request-description"
           dir={i18n.language.startsWith("en") ? "ltr" : "rtl"}
           rows={6}
@@ -152,7 +157,7 @@ export function ContributionRequestForm({
               : undefined
           }
           onChange={(event) => setField("description", event.target.value)}
-          className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-sm leading-7 text-foreground outline-none transition-colors focus:border-primary"
+          className="leading-7"
         />
       </FormField>
 
@@ -278,7 +283,7 @@ export function ContributionRequestForm({
         id="difficulty"
         label={t("contributionRequests.form.difficulty")}
       >
-        <select
+        <NativeSelect
           id="difficulty"
           value={form.difficulty}
           aria-invalid={Boolean(errors.difficulty)}
@@ -288,15 +293,16 @@ export function ContributionRequestForm({
               event.target.value as ContributionRequestFormState["difficulty"],
             )
           }
-          className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-sm text-foreground outline-none focus:border-primary"
         >
-          <option value="">{t("contributionRequests.form.none")}</option>
+          <NativeSelectOption value="">
+            {t("contributionRequests.form.none")}
+          </NativeSelectOption>
           {DIFFICULTIES.map((difficulty) => (
-            <option key={difficulty} value={difficulty}>
+            <NativeSelectOption key={difficulty} value={difficulty}>
               {t(`contributionRequests.form.difficulties.${difficulty}`)}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </FormField>
 
       <fieldset className="rounded-card border border-border p-4">

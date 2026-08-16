@@ -87,6 +87,8 @@ describe("owner Contribution Request workspace navigation", () => {
 
     expect(html).toContain("التقديم مغلق");
     expect(html).not.toContain(">منشور</span>");
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tabpanel"');
   });
 });
 

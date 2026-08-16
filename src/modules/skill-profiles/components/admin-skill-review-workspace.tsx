@@ -19,6 +19,11 @@ import {
   PageHeader,
 } from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import {
   formatConfidence,
@@ -202,8 +207,9 @@ export function AdminSkillReviewWorkspace({
 
           <label className="mt-5 block text-sm font-semibold text-foreground">
             {t("skillProfile.reviewWorkspace.proficiencyLabel")}
-            <select
+            <NativeSelect
               name="review-proficiency"
+              size="sm"
               value={selectedProficiency}
               onChange={(event) =>
                 setSkillProficiency(
@@ -211,19 +217,19 @@ export function AdminSkillReviewWorkspace({
                   event.target.value as SkillProfileReviewProficiency,
                 )
               }
-              className="mt-2 min-h-11 w-full rounded-input border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="mt-2 bg-background"
             >
               {PROFICIENCY_OPTIONS.map((proficiency) => (
-                <option key={proficiency} value={proficiency}>
+                <NativeSelectOption key={proficiency} value={proficiency}>
                   {getProficiencyLabel(t, proficiency)}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
 
           <label className="mt-4 block text-sm font-semibold text-foreground">
             {t("skillProfile.reviewWorkspace.notesLabel")}
-            <textarea
+            <Textarea
               name="review-notes"
               autoComplete="off"
               value={selectedNotes}
@@ -231,7 +237,7 @@ export function AdminSkillReviewWorkspace({
                 setSkillNotes(selectedSkill.skillProfileId, event.target.value)
               }
               rows={5}
-              className="mt-2 w-full resize-y rounded-input border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="mt-2 resize-y bg-background"
               placeholder={t("skillProfile.reviewWorkspace.notesPlaceholder")}
             />
           </label>
