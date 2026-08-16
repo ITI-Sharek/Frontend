@@ -312,18 +312,20 @@ function GithubSkillAnalysisPage() {
             {getGitHubAppErrorMessage(callbackPhase.code)}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              disabled={isConnecting}
-              onClick={() => {
-                clearCallbackSearch();
-                startConnection();
-              }}
-            >
-              <RefreshCw className="size-4" />
-              {t("githubSkillPage.restart")}
-            </Button>
+            {callbackPhase.restartable && (
+              <Button
+                type="button"
+                size="sm"
+                disabled={isConnecting}
+                onClick={() => {
+                  clearCallbackSearch();
+                  startConnection();
+                }}
+              >
+                <RefreshCw className="size-4" />
+                {t("githubSkillPage.restart")}
+              </Button>
+            )}
             <Button
               type="button"
               size="sm"
