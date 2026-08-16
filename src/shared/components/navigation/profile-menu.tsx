@@ -1,12 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
-import { dropdownVariants } from "@/shared/lib/motion";
 import { Avatar } from "@/shared/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 
 export interface ProfileMenuItem {
   label: string;
@@ -21,106 +26,75 @@ export interface ProfileMenuItem {
 export function ProfileMenu({
   displayName,
   avatarUrl,
+  profileSubtitle,
+  online,
   items,
   onLogout,
 }: {
   displayName: string;
   avatarUrl?: string | null;
+  profileSubtitle?: string;
+  online?: boolean;
   items: ProfileMenuItem[];
   onLogout: () => void;
 }) {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handlePointerDown(event: PointerEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
 
   return (
-    <div className="relative" ref={containerRef}>
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-        className="flex min-h-10 touch-manipulation items-center gap-2 rounded-full px-1 text-sm text-foreground transition-colors duration-150 hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      >
-        <Avatar
-          src={avatarUrl}
-          alt={displayName}
-          size="sm"
-          fallback={displayName.slice(0, 1)}
-        />
-        <span className="hidden max-w-32 truncate sm:inline">
-          {displayName}
-        </span>
-        <ChevronDown
-          aria-hidden="true"
-          className={cn(
-            "size-4 text-muted-foreground transition-transform duration-150",
-            open && "rotate-180",
-          )}
-        />
-      </button>
+    <DropdownMenu
+      dir={i18n.dir()}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex min-h-10 touch-manipulation items-center gap-2 rounded-full px-1 text-sm text-foreground transition-colors duration-150 hover:bg-border/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Avatar
+            src={avatarUrl}
+            alt={displayName}
+            size="sm"
+            online={online}
+            fallback={displayName.slice(0, 1)}
+          />
+          <span className="hidden max-w-36 flex-col items-start leading-tight sm:flex">
+            <span className="max-w-36 truncate text-[14px] font-bold">
+              {displayName}
+            </span>
+            {profileSubtitle && (
+              <span className="max-w-36 truncate text-[11px] font-semibold text-muted-foreground">
+                {profileSubtitle}
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              "size-4 text-muted-foreground transition-transform duration-150",
+              open && "rotate-180",
+            )}
+          />
+        </button>
+      </DropdownMenuTrigger>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            role="menu"
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            style={{ originY: 0 }}
-            className="absolute end-0 z-50 mt-2 w-48 rounded-input border border-border bg-card p-1 shadow-lg"
-          >
-            {items.map((item) => (
+      <DropdownMenuContent align="end" sideOffset={8} className="w-48">
+        {items.map((item) => (
+          <DropdownMenuItem key={item.to} asChild>
               <Link
-                key={item.to}
                 to={item.to}
-                role="menuitem"
-                onClick={() => setOpen(false)}
-                className="block min-h-10 rounded-md px-3 py-2 text-sm text-foreground transition-colors duration-150 hover:bg-border/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {item.label}
               </Link>
-            ))}
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                onLogout();
-              }}
-              className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm text-destructive transition-colors duration-150 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
-            >
-              <LogOut className="size-4" aria-hidden="true" />
-              {t("auth.logout")}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onSelect={onLogout}>
+          <LogOut className="size-4" aria-hidden="true" />
+          {t("auth.logout")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

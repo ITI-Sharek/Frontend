@@ -69,6 +69,7 @@ export function getPostLoginPath(user: PostLoginUser): string {
     return ROUTES.onboarding;
   }
 
-  // Both owners and contributors land on the shared workspace home hub.
-  return ROUTES.home;
+  // The contributor dashboard is the action-ranked home for the full
+  // contribution journey. Owners retain their separate workspace hub.
+  return user.role === "contributor" ? ROUTES.dashboard : ROUTES.home;
 }

@@ -3,7 +3,6 @@ import {
   BriefcaseBusiness,
   ClipboardCheck,
   Compass,
-  Github,
   House,
   LayoutDashboard,
   ListTodo,
@@ -13,7 +12,6 @@ import {
   PanelsTopLeft,
   Settings,
   TrendingUp,
-  UserRound,
   Users,
 } from "lucide-react";
 import type { TFunction } from "i18next";
@@ -25,7 +23,6 @@ import type { AppShellNavItem } from "./app-shell";
 interface MemberNavigationOptions {
   role: "owner" | "contributor";
   pathname: string;
-  username: string | null;
   unreadCount: number;
   t: TFunction;
 }
@@ -44,7 +41,6 @@ function isActivePath(pathname: string, route: string, exact = false): boolean {
 export function getMemberNavigation({
   role,
   pathname,
-  username,
   unreadCount,
   t,
 }: MemberNavigationOptions): AppShellNavItem[] {
@@ -99,7 +95,6 @@ export function getMemberNavigation({
   }
 
   return [
-    homeItem,
     {
       label: t("navigation.dashboard"),
       to: ROUTES.dashboard,
@@ -124,34 +119,7 @@ export function getMemberNavigation({
       icon: NotebookPen,
       active: isActivePath(pathname, ROUTES.proposals),
     },
-    discussionsItem,
-    {
-      label: t("navigation.skillAnalysis"),
-      to: ROUTES.githubSkillAnalysis,
-      icon: Github,
-      active: isActivePath(pathname, ROUTES.githubSkillAnalysis),
-      hideOnMobile: true,
-    },
-    {
-      label: t("navigation.profile"),
-      to: username ? ROUTES.contributorProfile(username) : ROUTES.dashboard,
-      icon: UserRound,
-      active:
-        pathname.startsWith("/profile/") &&
-        !isActivePath(pathname, ROUTES.githubSkillAnalysis),
-      disabled: username === null,
-      statusLabel: username === null ? t("navigation.profileLoading") : undefined,
-    },
-    {
-      label: t("navigation.notifications"),
-      to: ROUTES.notifications,
-      icon: Bell,
-      active: isActivePath(pathname, ROUTES.notifications),
-      badge: unreadCount,
-      hideOnMobile: true,
-    },
     settingsItem,
-    supportItem,
   ];
 }
 

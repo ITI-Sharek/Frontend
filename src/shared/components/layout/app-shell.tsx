@@ -118,17 +118,29 @@ export function AppShell({
         {t("navigation.skipToContent")}
       </a>
 
-      <div className="flex min-h-dvh">
+      {topBar}
+
+      <div
+        className={cn(
+          "flex",
+          topBar ? "min-h-[calc(100dvh-60px)]" : "min-h-dvh",
+        )}
+      >
         {/* ── Sidebar ── */}
         <motion.aside
           animate={{ width: sidebarWidth }}
           transition={{ type: "spring", stiffness: 320, damping: 32, mass: 0.9 }}
-          className="sticky top-0 z-20 hidden h-dvh shrink-0 flex-col border-e border-border bg-card md:flex"
+          className={cn(
+            "sticky z-20 hidden shrink-0 flex-col border-e border-border bg-card md:flex",
+            topBar
+              ? "top-[60px] h-[calc(100dvh-60px)]"
+              : "top-0 h-dvh",
+          )}
           style={{ minWidth: sidebarWidth, maxWidth: sidebarWidth }}
           aria-label={resolvedNavigationLabel}
         >
-          {/* Brand header */}
-          <SidebarBrand brand={brand} collapsed={collapsed} />
+          {/* The global header owns the brand when it is present. */}
+          {!topBar && <SidebarBrand brand={brand} collapsed={collapsed} />}
 
           {/* Toggle button */}
           <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
@@ -220,11 +232,6 @@ export function AppShell({
           tabIndex={-1}
           className="min-w-0 flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0"
         >
-          {topBar && (
-            <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm md:px-6">
-              {topBar}
-            </header>
-          )}
           {children}
         </main>
       </div>

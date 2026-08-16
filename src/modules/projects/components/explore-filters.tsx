@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 
 import type {
   ExploreSearchParamsDto,
@@ -83,76 +86,96 @@ export function ExploreFilters({ params, onChange, onReset }: ExploreFiltersProp
             addTechnology();
           }}
         >
-          <input
+          <Input
             value={techDraft}
             onChange={(event) => setTechDraft(event.target.value)}
             placeholder={t("project.filters.technologyPlaceholder")}
             dir="ltr"
-            className="w-full rounded-input border border-border bg-background px-2.5 py-1.5 font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
+            className="h-10 bg-background font-mono text-[13px] tracking-[0.65px]"
           />
-          <button
+          <Button
             type="submit"
-            className="shrink-0 rounded-input border border-border px-2.5 text-xs font-medium text-foreground hover:bg-border/20"
+            variant="outline"
+            size="sm"
+            className="shrink-0"
           >
             {t("project.filters.addTechnology")}
-          </button>
+          </Button>
         </form>
         {selectedTech.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {selectedTech.map((tech) => (
-              <button
+              <Button
                 key={tech}
                 type="button"
+                variant="outline"
+                size="xs"
                 onClick={() => removeTechnology(tech)}
-                className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[11px] tracking-[0.65px] text-foreground"
+                className="rounded-full bg-background font-mono text-[11px] tracking-[0.65px]"
               >
                 <bdi>{tech}</bdi>
                 <X className="size-3 text-muted-foreground" />
-              </button>
+              </Button>
             ))}
           </div>
         )}
       </FilterGroup>
 
       <FilterGroup title={t("project.filters.category")}>
-        <RadioOption
-          label={t("project.filters.allCategories")}
-          checked={params.category === undefined}
-          onSelect={() => onChange({ category: undefined })}
-        />
-        {PROJECT_CATEGORIES.map((category) => (
+        <RadioGroup
+          value={params.category ?? "all"}
+          onValueChange={(value) => {
+            const category = PROJECT_CATEGORIES.find((item) => item === value);
+            onChange({ category });
+          }}
+        >
           <RadioOption
-            key={category}
-            label={getCategoryLabel(t, category)}
-            checked={params.category === category}
-            onSelect={() => onChange({ category })}
+            value="all"
+            label={t("project.filters.allCategories")}
           />
-        ))}
+          {PROJECT_CATEGORIES.map((category) => (
+            <RadioOption
+              key={category}
+              value={category}
+              label={getCategoryLabel(t, category)}
+            />
+          ))}
+        </RadioGroup>
       </FilterGroup>
 
       <FilterGroup title={t("project.filters.difficulty")}>
-        <RadioOption
-          label={t("project.filters.anyDifficulty")}
-          checked={params.difficulty === undefined}
-          onSelect={() => onChange({ difficulty: undefined })}
-        />
-        {PROJECT_DIFFICULTIES.map((difficulty) => (
+        <RadioGroup
+          value={params.difficulty ?? "all"}
+          onValueChange={(value) => {
+            const difficulty = PROJECT_DIFFICULTIES.find(
+              (item) => item === value,
+            );
+            onChange({ difficulty });
+          }}
+        >
           <RadioOption
-            key={difficulty}
-            label={getDifficultyLabel(t, difficulty)}
-            checked={params.difficulty === difficulty}
-            onSelect={() => onChange({ difficulty })}
+            value="all"
+            label={t("project.filters.anyDifficulty")}
           />
-        ))}
+          {PROJECT_DIFFICULTIES.map((difficulty) => (
+            <RadioOption
+              key={difficulty}
+              value={difficulty}
+              label={getDifficultyLabel(t, difficulty)}
+            />
+          ))}
+        </RadioGroup>
       </FilterGroup>
 
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={onReset}
-        className="mt-3 self-start rounded-input border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-border/20"
+        className="mt-3 self-start"
       >
         {t("project.filters.resetFilters")}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -178,27 +201,15 @@ function FilterGroup({
 
 function RadioOption({
   label,
-  checked,
-  onSelect,
+  value,
 }: {
   label: string;
-  checked: boolean;
-  onSelect: () => void;
+  value: string;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2.5 py-1">
-      <input
-        type="radio"
-        checked={checked}
-        onChange={onSelect}
-        className="size-4 accent-[var(--primary)]"
-      />
-      <span
-        className={cn(
-          "text-sm",
-          checked ? "font-medium text-foreground" : "text-muted-foreground",
-        )}
-      >
+      <RadioGroupItem value={value} data-filter-value={value} />
+      <span className="text-sm text-muted-foreground peer-data-[state=checked]:font-medium peer-data-[state=checked]:text-foreground">
         {label}
       </span>
     </label>

@@ -3,7 +3,14 @@ import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
-import { SidePanel } from "@/shared/components/ui/side-panel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/components/ui/dialog";
 
 import { useCreateDiscussionPostMutation } from "../api/mutations/use-create-discussion-post-mutation";
 import { useDiscussionPostsQuery } from "../api/queries/use-discussion-posts-query";
@@ -30,30 +37,35 @@ export function DiscussionsFeedView({
             {t("discussions.description")}
           </p>
         </div>
-        <Button size="sm" onClick={() => setIsComposing(true)}>
-          <Plus className="size-4" aria-hidden />
-          {t("discussions.newPost")}
-        </Button>
+        <Dialog open={isComposing} onOpenChange={setIsComposing}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="size-4" aria-hidden />
+              {t("discussions.newPost")}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-xl overflow-y-auto">
+            <DialogHeader className="block">
+              <DialogTitle>{t("discussions.newPost")}</DialogTitle>
+              <DialogDescription>
+                {t("discussions.panelDescription")}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-5">
+              <DiscussionPostComposer
+                isSubmitting={createMutation.isPending}
+                onCancel={() => setIsComposing(false)}
+                onSubmit={(input) => {
+                  createMutation.mutate(
+                    { ...input, author: currentAuthor },
+                    { onSuccess: () => setIsComposing(false) },
+                  );
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <SidePanel
-        open={isComposing}
-        title={t("discussions.newPost")}
-        description={t("discussions.panelDescription")}
-        className="max-w-xl"
-        onClose={() => setIsComposing(false)}
-      >
-        <DiscussionPostComposer
-          isSubmitting={createMutation.isPending}
-          onCancel={() => setIsComposing(false)}
-          onSubmit={(input) => {
-            createMutation.mutate(
-              { ...input, author: currentAuthor },
-              { onSuccess: () => setIsComposing(false) },
-            );
-          }}
-        />
-      </SidePanel>
 
       {postsQuery.data === undefined ? (
         <p className="text-sm text-muted-foreground">{t("discussions.loading")}</p>

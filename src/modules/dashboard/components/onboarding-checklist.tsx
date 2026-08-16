@@ -1,6 +1,8 @@
 import { Check, Circle, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 
 import type { OnboardingStepDto } from "../types/dashboard.types";
@@ -66,8 +68,10 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStepDto[] }) {
         <span className="text-sm text-muted-foreground">
           {t("dashboard.onboarding.meanwhile")}
         </span>
-        <Button size="sm" variant="outline">
-          {t("dashboard.onboarding.exploreProjects")}
+        <Button asChild size="sm" variant="outline">
+          <Link to={ROUTES.explore}>
+            {t("dashboard.onboarding.exploreProjects")}
+          </Link>
         </Button>
         <span className="text-xs text-muted-foreground">
           {t("dashboard.onboarding.applyUnlockNote")}

@@ -58,9 +58,9 @@ describe("route config", () => {
     expect(ROUTES.adminProjectOwners).toBe("/admin/project-owners");
   });
 
-  it("routes contributor users with a profile to the shared workspace home", () => {
+  it("routes contributor users with a profile to their action-ranked dashboard", () => {
     expect(getPostLoginPath({ role: "contributor", username: "mona" })).toBe(
-      ROUTES.home,
+      ROUTES.dashboard,
     );
   });
 
