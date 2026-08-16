@@ -34,12 +34,12 @@ export function DetailsStep({
   const termsId = useId();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-1 text-right">
-        <h2 className="text-lg font-bold text-foreground">
+    <div className="flex w-full flex-col gap-2.5">
+      <div className="flex flex-col gap-0.5 text-right">
+        <h2 className="text-sm font-bold text-foreground">
           {t("register.details.title")}
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("register.details.subtitle")}
         </p>
       </div>
@@ -61,11 +61,11 @@ export function DetailsStep({
             onChange={(v) => onFieldChange("contributorExperience", v as string)}
           />
           {isExperienceLevelsLoading ? (
-            <p className="text-right text-xs text-muted-foreground">
+            <p className="text-right text-[11px] text-muted-foreground">
               {t("register.details.loadingExperience")}
             </p>
           ) : experienceLevelOptions.length === 0 ? (
-            <p className="text-right text-xs text-muted-foreground">
+            <p className="text-right text-[11px] text-muted-foreground">
               {t("register.details.noExperienceLevels")}
             </p>
           ) : null}
@@ -128,10 +128,10 @@ export function DetailsStep({
         </>
       )}
 
-      <div className="flex w-full items-start gap-2 pt-2">
+      <div className="flex w-full items-start gap-2 pt-1">
         <Checkbox
           id={termsId}
-          className="mt-1"
+          className="mt-0.5"
           checked={data.agreedToTerms}
           onCheckedChange={(checked) =>
             onFieldChange("agreedToTerms", checked === true)
@@ -139,14 +139,14 @@ export function DetailsStep({
         />
         <label
           htmlFor={termsId}
-          className="flex-1 text-right text-sm text-muted-foreground"
+          className="flex-1 text-right text-xs text-muted-foreground leading-normal"
         >
           {t("register.details.termsText")}{" "}
-          <a href="#" className="font-semibold text-primary">
+          <a href="#" className="font-semibold text-primary hover:underline">
             {t("register.details.termsOfService")}
           </a>{" "}
           {t("register.details.and")}{" "}
-          <a href="#" className="font-semibold text-primary">
+          <a href="#" className="font-semibold text-primary hover:underline">
             {t("register.details.privacyPolicy")}
           </a>{" "}
           {t("register.details.termsOf")}

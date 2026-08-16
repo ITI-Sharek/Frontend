@@ -27,6 +27,7 @@ type SocialAuthCallbackResult =
 
 interface SocialAuthStartResponse {
   provider: string;
+  intent: SocialAuthIntent;
   role: SocialAuthRole;
   authorizationUrl: string;
   state: string;
@@ -101,21 +102,19 @@ export function clearPendingSocialAuth(): void {
 // --- real backend flow ---
 
 /**
- * GET /auth/{provider}/start?role= — the backend requires `role` even for
- * sign-in (it is only used when a new user must be created; existing users
- * keep their saved role). GitHub social auth is identity-only and must not be
- * treated as repository consent; the profile/onboarding GitHub connector owns
- * `/github/oauth/start` for public/private repository access. For plain
- * sign-in we default to "contributor"; making the param optional for sign-in
- * is requested in ../docs/architecture/contracts/api-contract-additions.md.
+ * GET /auth/{provider}/start?intent=&role= binds the callback to either a
+ * strict sign-in or a strict registration flow. GitHub social auth is
+ * identity-only; the profile/onboarding GitHub connector owns repository
+ * consent separately.
  */
 export async function requestSocialAuthStart(
   provider: SocialAuthProvider,
+  intent: SocialAuthIntent,
   role: SocialAuthRole,
 ): Promise<SocialAuthStartResponse> {
   const { data } = await axiosInstance.get<SocialAuthStartResponse>(
     `/auth/${provider}/start`,
-    { params: { role } },
+    { params: { intent, role } },
   );
   return data;
 }
@@ -148,7 +147,7 @@ export async function startSocialAuth(
     return;
   }
 
-  const start = await requestSocialAuthStart(provider, role);
+  const start = await requestSocialAuthStart(provider, intent, role);
   savePendingSocialAuth({
     provider,
     intent,
