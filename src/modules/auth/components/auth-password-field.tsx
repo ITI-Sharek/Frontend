@@ -14,8 +14,8 @@ export function AuthPasswordField({ label, ...props }: AuthPasswordFieldProps) {
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="flex w-full flex-col gap-1.5">
-      <Label htmlFor={id} className="w-full text-right">
+    <div className="flex w-full flex-col gap-1">
+      <Label htmlFor={id} className="w-full text-right text-xs font-medium text-foreground">
         {label}
       </Label>
       <div className="relative w-full">
@@ -23,11 +23,11 @@ export function AuthPasswordField({ label, ...props }: AuthPasswordFieldProps) {
           id={id}
           type={visible ? "text" : "password"}
           dir="ltr"
-          className="ps-10 pe-10 text-left"
+          className="h-9 text-xs sm:text-sm ps-9 pe-9 text-left"
           {...props}
         />
         <Lock
-          className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+          className="absolute top-1/2 right-3 size-3.5 -translate-y-1/2 text-muted-foreground"
           aria-hidden="true"
         />
         <button
@@ -37,9 +37,9 @@ export function AuthPasswordField({ label, ...props }: AuthPasswordFieldProps) {
           className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
         >
           {visible ? (
-            <EyeOff className="size-4" aria-hidden="true" />
+            <EyeOff className="size-3.5" aria-hidden="true" />
           ) : (
-            <Eye className="size-4" aria-hidden="true" />
+            <Eye className="size-3.5" aria-hidden="true" />
           )}
         </button>
       </div>

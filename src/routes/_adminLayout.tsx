@@ -77,7 +77,7 @@ function AdminLayout() {
       nav={navigation}
       brand={{
         title: t("adminLayout.brandTitle"),
-        subtitle: "Review operations",
+        subtitle: t("workspace.adminBrandSubtitle"),
         icon: ShieldCheck,
       }}
       navigationLabel={t("adminLayout.navigationLabel")}
@@ -129,7 +129,7 @@ function AdminSessionLoadingState() {
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      {t("common.loading_admin_session")}
+      <span suppressHydrationWarning>{t("common.loading_admin_session")}</span>
     </div>
   );
 }

@@ -17,8 +17,11 @@ export { useUploadContributorAvatarMutation } from "./api/mutations/use-update-p
 export { useContributorFieldsQuery } from "./api/queries/use-contributor-fields-query";
 export { useExperienceLevelsQuery } from "./api/queries/use-experience-levels-query";
 export {
+  useAdminContributorFieldCategoriesQuery,
   useAdminContributorFieldsQuery,
+  useCreateContributorFieldCategoryMutation,
   useCreateContributorFieldMutation,
+  useUpdateContributorFieldCategoryMutation,
   useUpdateContributorFieldMutation,
 } from "./api/queries/use-admin-contributor-fields-query";
 export {
