@@ -74,13 +74,13 @@ export function SocialAuthButtons({
   }
 
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div className="flex w-full gap-4" dir="ltr">
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full gap-3" dir="ltr">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="flex-1"
+          className="flex-1 h-9 text-xs"
           disabled={activeProvider !== null}
           onClick={() => handleSocialAuth("github")}
         >
@@ -89,13 +89,13 @@ export function SocialAuthButtons({
               ? t("auth.openingInProgress")
               : "GitHub"}
           </span>
-          <Github className="size-4" />
+          <Github className="size-3.5" />
         </Button>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="flex-1"
+          className="flex-1 h-9 text-xs"
           disabled={activeProvider !== null}
           onClick={() => handleSocialAuth("google")}
         >
@@ -110,14 +110,14 @@ export function SocialAuthButtons({
 
       {message && (
         <p
-          className="text-right text-xs leading-5 text-muted-foreground"
+          className="text-right text-[11px] leading-4 text-muted-foreground"
           role="status"
         >
           {message}
         </p>
       )}
 
-      <p className="text-right text-xs leading-5 text-muted-foreground">
+      <p className="text-right text-[11px] leading-4 text-muted-foreground/80">
         {t("auth.githubIdentityNote")}
       </p>
     </div>

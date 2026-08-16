@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
 
 import { AuthTextField } from "./auth-text-field";
 
@@ -12,30 +11,28 @@ export function ForgotPasswordForm() {
   const { t } = useTranslation();
 
   return (
-    <>
-      <Card>
-        <form className="flex w-full flex-col gap-6">
-          <AuthTextField
-            id="email"
-            label={t("auth.email")}
-            icon={Mail}
-            placeholder="name@company.com"
-            autoComplete="email"
-          />
+    <div className="flex w-full flex-col gap-6">
+      <form className="flex w-full flex-col gap-4.5">
+        <AuthTextField
+          id="email"
+          label={t("auth.email")}
+          icon={Mail}
+          placeholder="name@company.com"
+          autoComplete="email"
+        />
 
-          <Button type="submit" className="w-full">
-            <ArrowLeft className="size-4" />
-            <span>{t("auth.sendResetLink")}</span>
-          </Button>
-        </form>
-      </Card>
+        <Button type="submit" className="w-full mt-2 h-11 text-sm font-bold shadow-sm">
+          <ArrowLeft className="size-4" />
+          <span>{t("auth.sendResetLink")}</span>
+        </Button>
+      </form>
 
-      <p className="w-full text-center text-base">
+      <p className="w-full text-center text-sm">
         <span className="text-muted-foreground">{t("auth.backToLogin")} </span>
-        <Link to={ROUTES.login} className="font-bold text-primary">
+        <Link to={ROUTES.login} className="font-bold text-primary hover:underline">
           {t("auth.login")}
         </Link>
       </p>
-    </>
+    </div>
   );
 }

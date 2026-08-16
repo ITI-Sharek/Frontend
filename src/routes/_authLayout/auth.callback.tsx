@@ -58,6 +58,9 @@ function AuthCallbackPage() {
     | { kind: "social"; intent: SocialAuthIntent; role: "owner" | "contributor" }
     | null
   >(null);
+  const [socialIntentAction, setSocialIntentAction] = useState<
+    SocialAuthIntent | null
+  >(null);
 
   async function retryGitHubWithAccountPicker() {
     if (!githubRetry) return;
@@ -179,6 +182,9 @@ function AuthCallbackPage() {
           errorCode === "AUTH_PROVIDER_ACCOUNT_ALREADY_LINKED" ||
           errorCode === "GITHUB_SIGN_IN_EMAIL_CONFLICT" ||
           errorCode === "GITHUB_AUTH_ACCOUNT_MISMATCH";
+        const isSocialIntentError =
+          errorCode === "SOCIAL_AUTH_ACCOUNT_NOT_FOUND" ||
+          errorCode === "SOCIAL_AUTH_ACCOUNT_ALREADY_EXISTS";
 
         if (isGitHubAccountConflict) {
           if (pendingConnect) {
@@ -200,6 +206,13 @@ function AuthCallbackPage() {
           storageService.clearTokens();
         }
         if (isActive) {
+          if (isSocialIntentError) {
+            setSocialIntentAction(
+              errorCode === "SOCIAL_AUTH_ACCOUNT_NOT_FOUND"
+                ? "register"
+                : "login",
+            );
+          }
           const githubConflictMessage =
             errorCode === "GITHUB_SIGN_IN_EMAIL_CONFLICT"
               ? t("auth.callback.githubEmailConflict")
@@ -207,7 +220,11 @@ function AuthCallbackPage() {
                 ? t("auth.callback.githubAccountMismatch")
                 : t("auth.callback.githubAccountTaken");
           setErrorMessage(
-            isGitHubAccountConflict
+            errorCode === "SOCIAL_AUTH_ACCOUNT_NOT_FOUND"
+              ? t("auth.callback.socialAccountNotFound")
+              : errorCode === "SOCIAL_AUTH_ACCOUNT_ALREADY_EXISTS"
+                ? t("auth.callback.socialAccountAlreadyExists")
+                : isGitHubAccountConflict
               ? githubConflictMessage
               : t("auth.callback.loginError"),
           );
@@ -252,7 +269,17 @@ function AuthCallbackPage() {
               </Button>
             )}
             <Button asChild variant="outline">
-              <Link to={ROUTES.login}>{t("auth.callback.backToLogin")}</Link>
+              <Link
+                to={
+                  socialIntentAction === "register"
+                    ? ROUTES.register
+                    : ROUTES.login
+                }
+              >
+                {socialIntentAction === "register"
+                  ? t("auth.createAccount")
+                  : t("auth.callback.backToLogin")}
+              </Link>
             </Button>
           </div>
         ) : (
