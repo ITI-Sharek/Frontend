@@ -4,7 +4,14 @@ import { useTranslation } from "react-i18next";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { TagInput } from "@/shared/components/forms/tag-input";
 import { Avatar } from "@/shared/components/ui/avatar";
 
@@ -130,13 +137,13 @@ export function ContributorProfileSettingsSection({
         <Label htmlFor="settings-profile-bio" className="text-right">
           {t("contributor.settings.bioLabel")}
         </Label>
-        <textarea
+        <Textarea
           id="settings-profile-bio"
           dir="rtl"
           rows={4}
           maxLength={500}
           placeholder={t("contributor.settings.bioPlaceholder")}
-          className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-right text-base text-foreground outline-none transition-colors placeholder:text-input-placeholder"
+          className="px-[17px] py-[13px] text-right text-base"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
         />
@@ -149,11 +156,11 @@ export function ContributorProfileSettingsSection({
         <Label htmlFor="settings-profile-availability" className="text-right">
           {t("contributor.settings.availabilityLabel")}
         </Label>
-        <input
+        <Input
           id="settings-profile-availability"
           dir="rtl"
           placeholder={t("contributor.settings.availabilityPlaceholder")}
-          className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-right text-base text-foreground outline-none transition-colors placeholder:text-input-placeholder"
+          className="h-[50px] px-[17px] text-right text-base"
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
         />
@@ -163,19 +170,21 @@ export function ContributorProfileSettingsSection({
         <Label htmlFor="settings-profile-experience" className="text-right">
           {t("contributor.settings.experienceLevelLabel")}
         </Label>
-        <select
+        <NativeSelect
           id="settings-profile-experience"
           value={experienceLevelId}
           onChange={(event) => setExperienceLevelId(event.target.value)}
-          className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-right text-base text-foreground outline-none"
+          className="text-right text-base"
         >
-          <option value="">{t("contributor.settings.experienceLevelPlaceholder")}</option>
+          <NativeSelectOption value="">
+            {t("contributor.settings.experienceLevelPlaceholder")}
+          </NativeSelectOption>
           {experienceLevelsQuery.data?.map((level) => (
-            <option key={level.id} value={level.id}>
+            <NativeSelectOption key={level.id} value={level.id}>
               {level.labelAr}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -205,12 +214,11 @@ export function ContributorProfileSettingsSection({
                       key={field.id}
                       className="flex cursor-pointer items-center gap-3 rounded-input px-3 py-2 text-sm hover:bg-border/20"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={fieldIds.includes(field.id)}
-                        onChange={(event) =>
+                        onCheckedChange={(checked) =>
                           setFieldIds((current) =>
-                            event.target.checked
+                            checked === true
                               ? [...current, field.id]
                               : current.filter((id) => id !== field.id),
                           )

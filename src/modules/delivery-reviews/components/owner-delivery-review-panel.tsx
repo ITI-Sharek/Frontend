@@ -7,6 +7,11 @@ import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Label } from "@/shared/components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import { deliveryKeys } from "../api/query-keys";
 import { httpDeliveryClient } from "../services/delivery-client";
@@ -289,29 +294,35 @@ export function OwnerDeliveryReviewPanel({
       >
         <div>
           <Label htmlFor="delivery-review-outcome">{t("deliveryReviews.ownerReview.decision")}</Label>
-          <select
+          <NativeSelect
             id="delivery-review-outcome"
             name="outcome"
-            className="mt-2 h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] text-foreground outline-none focus:border-primary/60 focus:ring-3 focus:ring-primary/10"
+            className="mt-2"
             value={outcome}
             disabled={reviewMutation.isPending}
             onChange={(event) => changeOutcome(event.target.value as ReviewOutcome)}
           >
-            <option value="APPROVED">{t("deliveryReviews.ownerReview.approve")}</option>
-            <option value="CHANGES_REQUESTED">{t("deliveryReviews.ownerReview.requestChanges")}</option>
-            <option value="REJECTED">{t("deliveryReviews.ownerReview.reject")}</option>
-          </select>
+            <NativeSelectOption value="APPROVED">
+              {t("deliveryReviews.ownerReview.approve")}
+            </NativeSelectOption>
+            <NativeSelectOption value="CHANGES_REQUESTED">
+              {t("deliveryReviews.ownerReview.requestChanges")}
+            </NativeSelectOption>
+            <NativeSelectOption value="REJECTED">
+              {t("deliveryReviews.ownerReview.reject")}
+            </NativeSelectOption>
+          </NativeSelect>
         </div>
 
         {outcome === "APPROVED" && (
           <div>
             <Label htmlFor="delivery-review-rating">{t("deliveryReviews.ownerReview.rating")}</Label>
             <div className="relative mt-2">
-              <Star className="pointer-events-none absolute end-4 top-4 size-4 text-muted-foreground" aria-hidden />
-              <select
+              <Star className="pointer-events-none absolute start-4 top-4 z-10 size-4 text-muted-foreground" aria-hidden />
+              <NativeSelect
                 id="delivery-review-rating"
                 name="rating"
-                className="h-[50px] w-full rounded-input border border-border bg-input-bg px-[17px] pe-11 text-foreground outline-none focus:border-primary/60 focus:ring-3 focus:ring-primary/10"
+                className="ps-11"
                 value={rating}
                 disabled={reviewMutation.isPending}
                 onChange={(event) => {
@@ -320,13 +331,15 @@ export function OwnerDeliveryReviewPanel({
                   setValidationError(null);
                 }}
               >
-                <option value="">{t("deliveryReviews.ownerReview.chooseRating")}</option>
+                <NativeSelectOption value="">
+                  {t("deliveryReviews.ownerReview.chooseRating")}
+                </NativeSelectOption>
                 {[1, 2, 3, 4, 5].map((value) => (
-                  <option key={value} value={value}>
+                  <NativeSelectOption key={value} value={value}>
                     {t("deliveryReviews.ownerReview.stars", { count: value })}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </div>
           </div>
         )}
@@ -335,12 +348,12 @@ export function OwnerDeliveryReviewPanel({
           <Label htmlFor="delivery-review-feedback">
             {t("deliveryReviews.ownerReview.feedback")} {outcome === "APPROVED" ? t("common.optional") : t("common.required")}
           </Label>
-          <textarea
+          <Textarea
             id="delivery-review-feedback"
             name="feedback"
             rows={4}
             maxLength={5000}
-            className="mt-2 w-full resize-y rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-base text-foreground outline-none focus:border-primary/60 focus:ring-3 focus:ring-primary/10"
+            className="mt-2 resize-y text-base"
             value={feedback}
             disabled={reviewMutation.isPending}
             onChange={(event) => {

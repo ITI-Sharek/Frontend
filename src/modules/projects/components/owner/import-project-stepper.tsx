@@ -5,6 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/shared/components/ui/input-group";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { StepIndicator } from "@/shared/components/navigation/step-indicator";
 import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 import { cn } from "@/lib/utils";
@@ -155,16 +161,18 @@ export function ImportProjectStepper({
               handlePreview(reference);
             }}
           >
-            <label className="flex items-center gap-2.5 rounded-input border border-border bg-input-bg px-4 py-2.5">
-              <Search className="size-4 shrink-0 text-muted-foreground" />
-              <input
+            <InputGroup>
+              <InputGroupInput
                 dir="ltr"
                 value={reference}
                 onChange={(event) => setReference(event.target.value)}
                 placeholder={t("project.import.referencePlaceholder")}
-                className="w-full bg-transparent font-mono text-[13px] tracking-[0.65px] text-foreground outline-none placeholder:text-input-placeholder"
+                className="font-mono text-[13px] tracking-[0.65px]"
               />
-            </label>
+              <InputGroupAddon align="inline-start">
+                <Search className="size-4" aria-hidden="true" />
+              </InputGroupAddon>
+            </InputGroup>
             <Button
               type="submit"
               className="mt-1"
@@ -308,12 +316,12 @@ export function ImportProjectStepper({
               </FieldLabel>
 
               <FieldLabel label={t("project.fields.description")}>
-                <textarea
+                <Textarea
                   dir="rtl"
                   rows={3}
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
-                  className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-right text-sm text-foreground outline-none"
+                  className="text-right"
                 />
               </FieldLabel>
 

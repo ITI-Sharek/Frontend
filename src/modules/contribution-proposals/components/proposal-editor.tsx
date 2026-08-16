@@ -5,8 +5,10 @@ import type { FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import type { ContributionProposalFields } from "../types/contribution-proposal.types";
 import { toProposalFields } from "../utils/proposal-fields";
@@ -113,19 +115,18 @@ export function ProposalEditor({
       {requiresDisclosure && (
         <div className="rounded-card border border-primary/25 bg-primary/5 p-4">
           <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-foreground">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={acknowledged}
               disabled={isSubmitting}
               aria-invalid={errors.disclosure !== undefined}
               aria-describedby={`${formId}-disclosure-copy${errors.disclosure ? ` ${formId}-disclosure-error` : ""}`}
-              onChange={(event) => {
-                setAcknowledged(event.target.checked);
+              onCheckedChange={(checked) => {
+                setAcknowledged(checked === true);
                 if (errors.disclosure) {
                   setErrors((current) => ({ ...current, disclosure: undefined }));
                 }
               }}
-              className="mt-1 size-4 shrink-0 accent-primary"
+              className="mt-1 shrink-0"
             />
             <span id={`${formId}-disclosure-copy`}>
               {t("proposalEditor.disclosureText")}
@@ -179,7 +180,7 @@ function ProposalTextField({
     <div>
       <Label htmlFor={id}>{label}</Label>
       {multiline ? (
-        <textarea
+        <Textarea
           id={id}
           value={value}
           rows={5}
@@ -188,7 +189,7 @@ function ProposalTextField({
           aria-invalid={error !== undefined}
           aria-describedby={describedBy}
           onChange={(event) => onChange(event.target.value)}
-          className="mt-1.5 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-sm leading-6 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/25"
+          className="mt-1.5"
         />
       ) : (
         <Input

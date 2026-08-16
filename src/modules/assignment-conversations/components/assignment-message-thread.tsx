@@ -5,6 +5,12 @@ import { useTranslation } from "react-i18next";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/shared/components/ui/input-group";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import type { useSendAssignmentMessageMutation } from "../api/mutations/use-assignment-conversation-mutations";
 import type { useAssignmentMessagesQuery } from "../api/queries/use-assignment-conversation-queries";
@@ -80,19 +86,23 @@ function MessageSearch({
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-      <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+    <div className="border-b border-border px-4 py-3">
       <label className="sr-only" htmlFor="message-search">
         {t("assignmentConversations.thread.searchLabel")}
       </label>
-      <input
-        id="message-search"
-        type="search"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={t("assignmentConversations.thread.searchPlaceholder")}
-        className="min-h-10 w-full rounded-input border border-border bg-card px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      />
+      <InputGroup>
+        <InputGroupInput
+          id="message-search"
+          type="search"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={t("assignmentConversations.thread.searchPlaceholder")}
+          className="text-sm"
+        />
+        <InputGroupAddon align="inline-start">
+          <Search className="size-4" aria-hidden="true" />
+        </InputGroupAddon>
+      </InputGroup>
     </div>
   );
 }
@@ -228,7 +238,7 @@ function MessageComposer({
         {t("assignmentConversations.composer.label")}
       </label>
       <div className="flex items-end gap-2">
-        <textarea
+        <Textarea
           id="assignment-message-body"
           value={body}
           onChange={(event) =>
@@ -242,7 +252,7 @@ function MessageComposer({
           disabled={disabled || mutation.isPending}
           rows={2}
           maxLength={MAX_MESSAGE_LENGTH * 2}
-          className="min-h-11 flex-1 resize-y rounded-input border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60"
+          className="min-h-11 flex-1 resize-y bg-background"
         />
         <Button
           type="submit"

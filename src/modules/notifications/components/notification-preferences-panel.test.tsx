@@ -72,8 +72,8 @@ describe("NotificationPreferencesPanel", () => {
     } as never);
   });
 
-  afterEach(() => {
-    root.unmount();
+  afterEach(async () => {
+    await act(async () => root.unmount());
     container.remove();
     vi.clearAllMocks();
   });
@@ -90,14 +90,14 @@ describe("NotificationPreferencesPanel", () => {
         "select[name=notification-retention]",
       )?.value,
     ).toBe("90");
-    const required = container.querySelector<HTMLInputElement>(
-      "input[name=notification-category-application_status]",
+    const required = container.querySelector<HTMLButtonElement>(
+      '[role=checkbox][data-notification-category="application_status"]',
     );
-    expect(required?.checked).toBe(true);
+    expect(required?.getAttribute("aria-checked")).toBe("true");
     expect(required?.disabled).toBe(true);
     expect(
-      container.querySelector<HTMLInputElement>(
-        "input[name=notification-category-skill_review]",
+      container.querySelector<HTMLButtonElement>(
+        '[role=checkbox][data-notification-category="skill_review"]',
       )?.disabled,
     ).toBe(false);
     expect(container.textContent).toContain("متاحة في شريحة لاحقة");
@@ -115,8 +115,8 @@ describe("NotificationPreferencesPanel", () => {
       retention.value = "180";
       retention.dispatchEvent(new Event("change", { bubbles: true }));
 
-      const quiet = container.querySelector<HTMLInputElement>(
-        "input[name=notification-quiet-hours-enabled]",
+      const quiet = container.querySelector<HTMLButtonElement>(
+        '[role=checkbox][data-notification-setting="quiet-hours"]',
       );
       if (!quiet) throw new Error("Expected quiet-hours toggle");
       quiet.click();
@@ -133,8 +133,8 @@ describe("NotificationPreferencesPanel", () => {
       end.value = "06:00";
       end.dispatchEvent(new Event("input", { bubbles: true }));
 
-      const optional = container.querySelector<HTMLInputElement>(
-        "input[name=notification-category-skill_review]",
+      const optional = container.querySelector<HTMLButtonElement>(
+        '[role=checkbox][data-notification-category="skill_review"]',
       );
       if (!optional) throw new Error("Expected optional category");
       optional.click();

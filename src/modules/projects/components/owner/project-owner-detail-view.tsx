@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { cn } from "@/lib/utils";
 
@@ -338,12 +339,12 @@ function ProjectEditForm({
           onRestore={() => onRestoreField("description")}
           isRestoring={restoringField === "description"}
         >
-          <textarea
+          <Textarea
             dir="rtl"
             rows={3}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="w-full rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-right text-sm text-foreground outline-none"
+            className="text-right"
           />
         </EditFieldLabel>
 

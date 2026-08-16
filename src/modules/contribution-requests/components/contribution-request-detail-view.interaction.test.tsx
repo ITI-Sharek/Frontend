@@ -144,23 +144,18 @@ describe("Contribution Request owner lifecycle interactions", () => {
       );
     });
 
-    await act(async () => {
-      container
-        .querySelector<HTMLButtonElement>("#publish-request-trigger")
-        ?.click();
-    });
+    const trigger = container.querySelector<HTMLButtonElement>(
+      "#publish-request-trigger",
+    );
+    await act(async () => trigger?.click());
 
     const confirm = document.querySelector<HTMLButtonElement>(
       "#publish-request-confirm",
     );
     expect(document.activeElement).toBe(confirm);
 
-    await act(async () => {
-      document.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
-      );
-    });
-    expect(document.activeElement?.textContent).toContain("إلغاء");
+    await act(async () => trigger?.focus());
+    expect(document.activeElement).toBe(confirm);
 
     await act(async () => {
       confirm?.focus();

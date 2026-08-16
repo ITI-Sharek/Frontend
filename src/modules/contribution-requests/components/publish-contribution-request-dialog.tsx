@@ -1,8 +1,15 @@
 import { Loader2, Radio } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 
 export function PublishContributionRequestDialog({
   isOpen,
@@ -18,68 +25,39 @@ export function PublishContributionRequestDialog({
   onConfirm: () => Promise<void>;
 }) {
   const { t } = useTranslation();
-  const dialogRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!isOpen) return;
-    document.getElementById("publish-request-confirm")?.focus();
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !isPublishing) onCancel();
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        "button:not([disabled])",
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isPublishing, isOpen, onCancel]);
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isPublishing) onCancel();
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isPublishing) onCancel();
       }}
     >
-      <section
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="publish-request-title"
-        aria-describedby="publish-request-description"
-        className="w-full max-w-lg rounded-card border border-border bg-card p-6 shadow-xl"
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          if (isPublishing) event.preventDefault();
+        }}
+        onPointerDownOutside={(event) => {
+          if (isPublishing) event.preventDefault();
+        }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById("publish-request-confirm")?.focus();
+        }}
       >
-        <div className="flex items-start gap-3">
+        <DialogHeader>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-indigo/10 text-brand-indigo">
             <Radio className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h2
-              id="publish-request-title"
-              className="text-lg font-bold text-foreground"
-            >
+            <DialogTitle>
               {t("contributionRequests.publishDialog.title")}
-            </h2>
-            <p
-              id="publish-request-description"
-              className="mt-1 text-sm leading-6 text-muted-foreground"
-            >
+            </DialogTitle>
+            <DialogDescription>
               {t("contributionRequests.publishDialog.description")}
-            </p>
+            </DialogDescription>
           </div>
-        </div>
+        </DialogHeader>
 
         {error && (
           <p
@@ -91,7 +69,7 @@ export function PublishContributionRequestDialog({
           </p>
         )}
 
-        <div className="mt-5 flex justify-end gap-3">
+        <DialogFooter className="mt-5 flex-row justify-end">
           <Button
             type="button"
             variant="outline"
@@ -111,8 +89,8 @@ export function PublishContributionRequestDialog({
             )}
             {t("contributionRequests.publishDialog.confirm")}
           </Button>
-        </div>
-      </section>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

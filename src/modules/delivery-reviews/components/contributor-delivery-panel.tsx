@@ -7,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import { deliveryKeys } from "../api/query-keys";
 import { httpDeliveryClient } from "../services/delivery-client";
@@ -241,12 +242,12 @@ export function ContributorDeliveryPanel({
             </div>
             <div>
               <Label htmlFor="delivery-contributor-notes">{t("deliveryReviews.panel.updateNotes")}</Label>
-              <textarea
+              <Textarea
                 id="delivery-contributor-notes"
                 name="contributorNotes"
                 rows={4}
                 maxLength={5000}
-                className="mt-2 w-full resize-y rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-base text-foreground outline-none focus:border-primary/60 focus:ring-3 focus:ring-primary/10"
+                className="mt-2 resize-y text-base"
                 value={contributorNotes}
                 disabled={isSending}
                 onChange={(event) => {
@@ -339,12 +340,12 @@ export function ContributorDeliveryPanel({
         </div>
         <div>
           <Label htmlFor="delivery-contributor-notes">{t("deliveryReviews.panel.reviewerNotes")}</Label>
-          <textarea
+          <Textarea
             id="delivery-contributor-notes"
             name="contributorNotes"
             rows={4}
             maxLength={5000}
-            className="mt-2 w-full resize-y rounded-input border border-border bg-input-bg px-[17px] py-[13px] text-base text-foreground outline-none focus:border-primary/60 focus:ring-3 focus:ring-primary/10"
+            className="mt-2 resize-y text-base"
             value={contributorNotes}
             disabled={submitMutation.isPending}
             onChange={(event) => {

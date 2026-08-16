@@ -3,7 +3,12 @@ import { useTranslation } from "react-i18next";
 
 import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
 
 import {
   useUpdateNotificationPreferencesMutation,
@@ -168,8 +173,9 @@ export function NotificationPreferencesPanel() {
 
       <label className="grid max-w-sm gap-2 text-sm font-semibold text-foreground">
         {t("notifications.preferences.retention")}
-        <select
+        <NativeSelect
           name="notification-retention"
+          size="sm"
           value={form.retentionDays}
           onChange={(event) =>
             setForm({
@@ -177,30 +183,29 @@ export function NotificationPreferencesPanel() {
               retentionDays: Number(event.target.value) as PreferencesForm["retentionDays"],
             })
           }
-          className="min-h-11 rounded-input border border-border bg-input-bg px-3 text-sm font-normal text-foreground"
+          className="font-normal"
         >
           {RETENTION_OPTIONS.map((days) => (
-            <option key={days} value={days}>
+            <NativeSelectOption key={days} value={days}>
               {t("notifications.preferences.days", { count: days })}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
+        </NativeSelect>
       </label>
 
       <fieldset className="grid gap-3 rounded-input border border-border p-4">
         <legend className="px-1 text-sm font-semibold text-foreground">{t("notifications.preferences.quietHours")}</legend>
         <label className="flex items-center gap-2 text-sm text-foreground">
-          <input
-            type="checkbox"
+          <Checkbox
             name="notification-quiet-hours-enabled"
+            data-notification-setting="quiet-hours"
             checked={form.quietHours.enabled}
-            onChange={(event) =>
+            onCheckedChange={(checked) =>
               setForm({
                 ...form,
-                quietHours: { ...form.quietHours, enabled: event.target.checked },
+                quietHours: { ...form.quietHours, enabled: checked === true },
               })
             }
-            className="size-4 accent-primary"
           />
           {t("notifications.preferences.enableQuietHours")}
         </label>
@@ -237,7 +242,7 @@ export function NotificationPreferencesPanel() {
           </label>
           <label className="grid gap-1 text-xs text-muted-foreground">
             {t("notifications.preferences.timeZone")}
-            <select
+            <NativeSelect
               name="notification-quiet-hours-timezone"
               value={form.quietHours.timeZone}
               disabled={!form.quietHours.enabled}
@@ -247,16 +252,15 @@ export function NotificationPreferencesPanel() {
                   quietHours: { ...form.quietHours, timeZone: event.target.value },
                 })
               }
-              className="min-h-[50px] rounded-input border border-border bg-input-bg px-3 text-sm text-foreground"
             >
               {[form.quietHours.timeZone, ...timeZones]
                 .filter((zone, index, values) => zone && values.indexOf(zone) === index)
                 .map((zone) => (
-                  <option key={zone} value={zone}>
+                  <NativeSelectOption key={zone} value={zone}>
                     {zone}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-            </select>
+            </NativeSelect>
           </label>
         </div>
         <p className="text-xs text-muted-foreground">
@@ -281,13 +285,14 @@ export function NotificationPreferencesPanel() {
                 </p>
               )}
             </div>
-            <input
-              type="checkbox"
+            <Checkbox
               name={`notification-category-${category.type}`}
+              data-notification-category={category.type}
               checked={category.requiredInApp || category.inAppEnabled}
               disabled={category.requiredInApp}
-              onChange={(event) => updateCategory(category.type, event.target.checked)}
-              className="size-4 accent-primary"
+              onCheckedChange={(checked) =>
+                updateCategory(category.type, checked === true)
+              }
             />
           </div>
         ))}
@@ -296,7 +301,7 @@ export function NotificationPreferencesPanel() {
       <div className="grid gap-2 rounded-input border border-border p-4">
         <p className="text-sm font-semibold text-foreground">{t("notifications.preferences.browserTitle")}</p>
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input type="checkbox" disabled checked={false} readOnly className="size-4" />
+          <Checkbox disabled checked={false} aria-readonly="true" />
           {t("notifications.preferences.browserLater")}
         </label>
         <p className="text-xs text-muted-foreground">

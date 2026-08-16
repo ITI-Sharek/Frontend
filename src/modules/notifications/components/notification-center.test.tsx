@@ -27,6 +27,9 @@ const {
   useSetNotificationReadStateMutation,
 } = await import("../api/mutations/use-notification-mutations");
 
+(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
+  .IS_REACT_ACT_ENVIRONMENT = true;
+
 const notification = {
   notificationId: "11111111-1111-4111-8111-111111111111",
   type: "application_status" as const,
@@ -85,8 +88,8 @@ describe("NotificationCenter", () => {
     } as never);
   });
 
-  afterEach(() => {
-    root.unmount();
+  afterEach(async () => {
+    await act(async () => root.unmount());
     container.remove();
     vi.clearAllMocks();
   });
@@ -142,11 +145,28 @@ describe("NotificationCenter", () => {
     const readStateTabs = container.querySelector(
       '[role="tablist"][aria-label="حالة قراءة الإشعارات"]',
     );
-    expect(readStateTabs).not.toBeNull();
-    expect(readStateTabs?.querySelectorAll('[role="tab"]')).toHaveLength(3);
+    if (!readStateTabs) throw new Error("Expected read-state tabs");
+    expect(readStateTabs.querySelectorAll('[role="tab"]')).toHaveLength(3);
+    expect(
+      readStateTabs.querySelector('[role="tab"][data-state="active"]')
+        ?.textContent,
+    ).toContain("الكل");
     expect(
       container.querySelector('select[name="notification-type"]'),
     ).not.toBeNull();
+
+    const unreadTab = readStateTabs.querySelector<HTMLButtonElement>(
+      '[role="tab"][data-read-state="unread"]',
+    );
+    if (!unreadTab) throw new Error("Expected unread tab");
+    await act(async () => {
+      unreadTab.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, button: 0 }),
+      );
+    });
+    expect(useNotificationListQuery).toHaveBeenLastCalledWith({
+      readState: "unread",
+    });
 
     const loadMore = [...container.querySelectorAll("button")].find((button) =>
       button.textContent.includes("تحميل المزيد"),

@@ -1,9 +1,18 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 export function CancelContributionRequestDialog({
   isOpen,
@@ -20,72 +29,45 @@ export function CancelContributionRequestDialog({
 }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState("");
-  const dialogRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!isOpen) return;
-    document.getElementById("cancel-request-cancel")?.focus();
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !isCancelling) onCancel();
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        "button:not([disabled]), textarea:not([disabled])",
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isCancelling, isOpen, onCancel]);
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isCancelling) onCancel();
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isCancelling) onCancel();
       }}
     >
-      <section
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cancel-request-title"
-        aria-describedby="cancel-request-description"
-        className="w-full max-w-lg rounded-card border border-border bg-card p-6 shadow-xl"
+      <DialogContent
+        onEscapeKeyDown={(event) => {
+          if (isCancelling) event.preventDefault();
+        }}
+        onPointerDownOutside={(event) => {
+          if (isCancelling) event.preventDefault();
+        }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById("cancel-request-cancel")?.focus();
+        }}
       >
-        <div className="flex items-start gap-3">
+        <DialogHeader>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <AlertTriangle className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <h2
-              id="cancel-request-title"
-              className="text-lg font-bold text-foreground"
-            >
+            <DialogTitle>
               {t("contributionRequests.cancelDialog.title")}
-            </h2>
-            <p
-              id="cancel-request-description"
-              className="mt-1 text-sm leading-6 text-muted-foreground"
-            >
+            </DialogTitle>
+            <DialogDescription>
               {t("contributionRequests.cancelDialog.description")}
-            </p>
+            </DialogDescription>
           </div>
-        </div>
+        </DialogHeader>
 
         <div className="mt-5">
-          <Label htmlFor="cancel-reason">{t("contributionRequests.cancelDialog.reason")}</Label>
-          <textarea
+          <Label htmlFor="cancel-reason">
+            {t("contributionRequests.cancelDialog.reason")}
+          </Label>
+          <Textarea
             id="cancel-reason"
             value={reason}
             maxLength={500}
@@ -96,7 +78,7 @@ export function CancelContributionRequestDialog({
               reason.trim().length === 1 ? "cancel-reason-error" : undefined
             }
             onChange={(event) => setReason(event.target.value)}
-            className="mt-1.5 w-full rounded-input border border-border bg-input-bg px-4 py-3 text-sm text-foreground outline-none focus:border-primary"
+            className="mt-1.5 min-h-0"
           />
           {reason.trim().length === 1 && (
             <p
@@ -119,7 +101,7 @@ export function CancelContributionRequestDialog({
           </p>
         )}
 
-        <div className="mt-5 flex justify-end gap-3">
+        <DialogFooter className="mt-5 flex-row justify-end">
           <Button
             id="cancel-request-cancel"
             type="button"
@@ -143,8 +125,8 @@ export function CancelContributionRequestDialog({
             )}
             {t("contributionRequests.cancelDialog.confirm")}
           </Button>
-        </div>
-      </section>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
