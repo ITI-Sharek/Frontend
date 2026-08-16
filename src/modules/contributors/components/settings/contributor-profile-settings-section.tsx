@@ -1,5 +1,5 @@
 import { Check, ChevronDown, ImagePlus, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
@@ -14,7 +14,10 @@ import {
 } from "../../api/mutations/use-update-profile-details-mutation";
 import { useContributorFieldsQuery } from "../../api/queries/use-contributor-fields-query";
 import { useExperienceLevelsQuery } from "../../api/queries/use-experience-levels-query";
-import type { ContributorProfileDto } from "../../types/contributor-profile.types";
+import type {
+  ContributorFieldDto,
+  ContributorProfileDto,
+} from "../../types/contributor-profile.types";
 
 /** Settings → profile details, dynamic fields, declared skills, and avatar. */
 export function ContributorProfileSettingsSection({
@@ -35,6 +38,24 @@ export function ContributorProfileSettingsSection({
   const [fieldIds, setFieldIds] = useState(profile.fields.map((field) => field.id));
   const [declaredSkills, setDeclaredSkills] = useState(profile.declaredSkills);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fieldsByCategory = useMemo(() => {
+    const groups = new Map<
+      string,
+      { labelAr: string; labelEn: string; fields: ContributorFieldDto[] }
+    >();
+    for (const field of fieldsQuery.data ?? []) {
+      const category = field.category;
+      const categoryId = field.categoryId ?? category?.id ?? "uncategorized";
+      const current = groups.get(categoryId) ?? {
+        labelAr: category?.labelAr ?? t("contributor.settings.fieldsUncategorized"),
+        labelEn: category?.labelEn ?? "Uncategorized",
+        fields: [],
+      };
+      current.fields.push(field);
+      groups.set(categoryId, current);
+    }
+    return Array.from(groups.values());
+  }, [fieldsQuery.data, t]);
 
   useEffect(
     () => () => {
@@ -173,25 +194,32 @@ export function ContributorProfileSettingsSection({
           <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-input border border-border bg-card p-2 shadow-lg">
             {fieldsQuery.isPending ? (
               <p className="p-3 text-sm text-muted-foreground">{t("contributor.settings.fieldsLoading")}</p>
-            ) : fieldsQuery.data?.length ? (
-              fieldsQuery.data.map((field) => (
-                <label
-                  key={field.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-input px-3 py-2 text-sm hover:bg-border/20"
-                >
-                  <input
-                    type="checkbox"
-                    checked={fieldIds.includes(field.id)}
-                    onChange={(event) =>
-                      setFieldIds((current) =>
-                        event.target.checked
-                          ? [...current, field.id]
-                          : current.filter((id) => id !== field.id),
-                      )
-                    }
-                  />
-                  <span>{field.labelAr}</span>
-                </label>
+            ) : fieldsByCategory.length ? (
+              fieldsByCategory.map((category) => (
+                <div key={`${category.labelEn}-${category.labelAr}`} className="pb-2 last:pb-0">
+                  <p className="px-3 pb-1 pt-2 text-xs font-bold text-muted-foreground">
+                    {category.labelAr}
+                  </p>
+                  {category.fields.map((field) => (
+                    <label
+                      key={field.id}
+                      className="flex cursor-pointer items-center gap-3 rounded-input px-3 py-2 text-sm hover:bg-border/20"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={fieldIds.includes(field.id)}
+                        onChange={(event) =>
+                          setFieldIds((current) =>
+                            event.target.checked
+                              ? [...current, field.id]
+                              : current.filter((id) => id !== field.id),
+                          )
+                        }
+                      />
+                      <span>{field.labelAr}</span>
+                    </label>
+                  ))}
+                </div>
               ))
             ) : (
               <p className="p-3 text-sm text-muted-foreground">
