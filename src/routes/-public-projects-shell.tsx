@@ -16,9 +16,10 @@ export function PublicProjectsShell({ children }: { children: ReactNode }) {
   const logoutMutation = useLogoutMutation();
   const user = currentUserQuery.data;
   const headerUser: HomeHeaderAuthUser | null = user
-    ? {
+      ? {
         displayName: `${user.firstName} ${user.lastName}`.trim() || user.email,
         avatarUrl: user.avatarUrl,
+        profileSubtitle: getProfileSubtitle(user.role, t),
         menuItems: getProfileMenuItems(user, t),
       }
     : null;
@@ -46,4 +47,13 @@ function getProfileMenuItems(user: {
   username: string | null;
 }, t: (key: string) => string): ProfileMenuItem[] {
   return [{ label: t("navigation.dashboard"), to: getPostLoginPath(user) }];
+}
+
+function getProfileSubtitle(
+  role: "owner" | "contributor" | "admin",
+  t: (key: string) => string,
+) {
+  if (role === "owner") return t("auth.role.owner");
+  if (role === "contributor") return t("auth.role.contributor");
+  return t("navigation.adminPanel");
 }

@@ -36,8 +36,10 @@ function LandingPage() {
   const authUser = currentUserQuery.data;
   const headerUser: HomeHeaderAuthUser | null = authUser
     ? {
-        displayName: `${authUser.firstName} ${authUser.lastName}`.trim(),
+        displayName:
+          `${authUser.firstName} ${authUser.lastName}`.trim() || authUser.email,
         avatarUrl: authUser.avatarUrl,
+        profileSubtitle: getProfileSubtitle(authUser.role, t),
         menuItems: getProfileMenuItems(authUser, t),
       }
     : null;
@@ -73,4 +75,13 @@ function getProfileMenuItems(user: {
           : t("navigation.onboarding");
 
   return [{ label, to: getPostLoginPath(user) }];
+}
+
+function getProfileSubtitle(
+  role: "owner" | "contributor" | "admin",
+  t: (key: string) => string,
+) {
+  if (role === "owner") return t("auth.role.owner");
+  if (role === "contributor") return t("auth.role.contributor");
+  return t("navigation.adminPanel");
 }

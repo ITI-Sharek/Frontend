@@ -6,9 +6,13 @@ import { useTranslation } from "react-i18next";
 import { ROUTES } from "@/config/routes.config";
 import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 import { useAddDiscussionCommentMutation } from "../api/mutations/use-add-discussion-comment-mutation";
-import type { DiscussionAuthorDto, DiscussionPostDetailDto } from "../types/discussion.types";
+import type {
+  DiscussionAuthorDto,
+  DiscussionPostDetailDto,
+} from "../types/discussion.types";
 
 function formatDateTime(value: string, locale: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -80,11 +84,11 @@ export function DiscussionPostDetailView({
             );
           }}
         >
-          <textarea
+          <Textarea
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             rows={3}
-            className="w-full resize-y rounded-input border border-border bg-input-bg p-3 text-sm leading-6 text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary"
+            className="min-h-0 resize-y p-3"
             placeholder={t("discussions.commentPlaceholder")}
           />
           <Button
@@ -101,7 +105,10 @@ export function DiscussionPostDetailView({
 
         <div className="flex flex-col gap-3">
           {post.comments.map((item) => (
-            <div key={item.id} className="flex gap-3 rounded-input border border-border bg-card p-3.5">
+            <div
+              key={item.id}
+              className="flex gap-3 rounded-input border border-border bg-card p-3.5"
+            >
               <Avatar
                 src={item.author.avatarUrl}
                 alt={item.author.displayName}
@@ -115,7 +122,9 @@ export function DiscussionPostDetailView({
                   </span>
                   · {formatDateTime(item.createdAt, i18n.language)}
                 </p>
-                <p className="mt-1 text-sm leading-6 text-foreground">{item.body}</p>
+                <p className="mt-1 text-sm leading-6 text-foreground">
+                  {item.body}
+                </p>
               </div>
             </div>
           ))}

@@ -1,10 +1,16 @@
-import { CircleAlert, Loader2, Search, X } from "lucide-react";
+import { ChevronDown, CircleAlert, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { SearchField } from "@/shared/components/ui/search-field";
 import {
   PageContainer,
   PageFeedback,
@@ -56,9 +62,14 @@ export function ContributionRequestFeedView({
         title={t("tasks.title")}
         description={t("tasks.description")}
       />
-      <ContributionRequestSearch
+      <SearchField
+        className="mt-5"
         value={searchDraft}
         onChange={setSearchDraft}
+        searchLabel={t("tasks.search")}
+        clearSearchLabel={t("tasks.clearSearch")}
+        searchButtonLabel={t("tasks.searchButton")}
+        placeholder={t("tasks.searchPlaceholder")}
         onSearch={() =>
           onFiltersChange({ q: searchDraft.trim() || undefined })
         }
@@ -89,52 +100,6 @@ export function ContributionRequestFeedView({
   );
 }
 
-function ContributionRequestSearch({
-  value,
-  onChange,
-  onSearch,
-  onClear,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onSearch: () => void;
-  onClear: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <form
-      className="mt-5 flex gap-2"
-      role="search"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSearch();
-      }}
-    >
-      <label className="flex min-h-11 flex-1 items-center gap-2 rounded-input border border-border bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background">
-        <Search className="size-4 text-muted-foreground" aria-hidden="true" />
-        <span className="sr-only">{t("tasks.search")}</span>
-        <input
-          value={value}
-          placeholder={t("tasks.searchPlaceholder")}
-          className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
-          onChange={(event) => onChange(event.target.value)}
-        />
-        {value !== "" && (
-          <button
-            type="button"
-            aria-label={t("tasks.clearSearch")}
-            className="inline-flex size-8 items-center justify-center rounded-input text-muted-foreground hover:bg-border/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            onClick={onClear}
-          >
-            <X className="size-4" />
-          </button>
-        )}
-      </label>
-      <Button type="submit">{t("tasks.searchButton")}</Button>
-    </form>
-  );
-}
-
 function ContributionRequestFilters({
   filters,
   technologyFacets,
@@ -148,17 +113,71 @@ function ContributionRequestFilters({
 }) {
   const { t } = useTranslation();
   const selectedTechnologies = filters.technologies ?? [];
+  const activeFilterCount =
+    selectedTechnologies.length +
+    (filters.difficulty === undefined ? 0 : 1) +
+    (filters.hasReward === undefined ? 0 : 1);
+
+  const controls = (
+    <ContributionRequestFilterControls
+      filters={filters}
+      technologyFacets={technologyFacets}
+      selectedTechnologies={selectedTechnologies}
+      onChange={onChange}
+      onReset={onReset}
+    />
+  );
+
   return (
-    <aside className="h-fit rounded-card border border-border bg-card p-4">
-      <h2 className="font-bold text-foreground">{t("tasks.filterResults")}</h2>
+    <>
+      <details className="group rounded-card border border-border bg-card lg:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
+          <span>{t("tasks.filterResults")}</span>
+          {activeFilterCount > 0 && (
+            <span className="rounded-full bg-primary px-2 py-0.5 font-mono text-[10px] text-primary-foreground">
+              {activeFilterCount}
+            </span>
+          )}
+          <ChevronDown
+            className="ms-auto size-4 text-muted-foreground transition-transform group-open:rotate-180"
+            aria-hidden="true"
+          />
+        </summary>
+        <div className="border-t border-border p-4">{controls}</div>
+      </details>
+      <aside className="hidden h-fit rounded-card border border-border bg-card p-4 lg:block">
+        <h2 className="font-bold text-foreground">{t("tasks.filterResults")}</h2>
+        {controls}
+      </aside>
+    </>
+  );
+}
+
+function ContributionRequestFilterControls({
+  filters,
+  technologyFacets,
+  selectedTechnologies,
+  onChange,
+  onReset,
+}: {
+  filters: ContributionRequestFeedFiltersDto;
+  technologyFacets: ContributionRequestTechnologyFacetDto[];
+  selectedTechnologies: string[];
+  onChange: FeedViewProps["onFiltersChange"];
+  onReset: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <>
       <fieldset className="mt-4 border-t border-border pt-4">
         <legend className="text-sm font-semibold text-foreground">
           {t("tasks.difficulty")}
         </legend>
-        <select
+        <NativeSelect
           aria-label={t("tasks.difficulty")}
           value={filters.difficulty ?? ""}
-          className="mt-2 min-h-11 w-full rounded-input border border-border bg-background px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          size="sm"
+          className="mt-2 bg-background"
           onChange={(event) => {
             const value = event.target.value;
             onChange({
@@ -169,13 +188,15 @@ function ContributionRequestFilters({
             });
           }}
         >
-          <option value="">{t("tasks.allDifficulties")}</option>
+          <NativeSelectOption value="">
+            {t("tasks.allDifficulties")}
+          </NativeSelectOption>
           {getContributionRequestDifficulties().map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-        </select>
+            <NativeSelectOption key={value} value={value}>
+              {label}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
       </fieldset>
       <fieldset className="mt-4 border-t border-border pt-4">
         <legend className="text-sm font-semibold text-foreground">
@@ -187,11 +208,10 @@ function ContributionRequestFilters({
               key={technology}
               className="flex min-h-8 items-center gap-2 text-sm text-muted-foreground"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selectedTechnologies.includes(technology)}
-                onChange={(event) => {
-                  const next = event.target.checked
+                onCheckedChange={(checked) => {
+                  const next = checked === true
                     ? [...selectedTechnologies, technology]
                     : selectedTechnologies.filter(
                         (item) => item !== technology,
@@ -221,7 +241,7 @@ function ContributionRequestFilters({
         <legend className="text-sm font-semibold text-foreground">
           {t("tasks.reward")}
         </legend>
-        <select
+        <NativeSelect
           aria-label={t("tasks.reward")}
           value={
             filters.hasReward === undefined
@@ -230,7 +250,8 @@ function ContributionRequestFilters({
                 ? "with-reward"
                 : "without-reward"
           }
-          className="mt-2 min-h-11 w-full rounded-input border border-border bg-background px-3 text-sm text-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          size="sm"
+          className="mt-2 bg-background"
           onChange={(event) => {
             const value = event.target.value;
             onChange({
@@ -243,10 +264,16 @@ function ContributionRequestFilters({
             });
           }}
         >
-          <option value="">{t("tasks.allRequests")}</option>
-          <option value="with-reward">{t("tasks.withReward")}</option>
-          <option value="without-reward">{t("tasks.withoutReward")}</option>
-        </select>
+          <NativeSelectOption value="">
+            {t("tasks.allRequests")}
+          </NativeSelectOption>
+          <NativeSelectOption value="with-reward">
+            {t("tasks.withReward")}
+          </NativeSelectOption>
+          <NativeSelectOption value="without-reward">
+            {t("tasks.withoutReward")}
+          </NativeSelectOption>
+        </NativeSelect>
       </fieldset>
       <Button
         type="button"
@@ -257,7 +284,7 @@ function ContributionRequestFilters({
       >
         {t("tasks.resetFilters")}
       </Button>
-    </aside>
+    </>
   );
 }
 

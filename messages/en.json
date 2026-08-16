@@ -227,12 +227,55 @@
     "noPosts": "No posts yet.",
     "needHelp": "Need help?",
     "supportDescription": "Contact the support team or browse Sharek basics.",
-    "goToSupport": "Go to support"
+    "goToSupport": "Go to support",
+    "marketplace": {
+      "browseMore": "Browse more",
+      "welcome": "Welcome, {{name}}",
+      "heroTitle": "Everything you need to manage your projects and follow your activity on Sharek.",
+      "searchPlaceholder": "Search for a service...",
+      "searchAction": "Search now",
+      "pauseHero": "Pause hero carousel",
+      "categories": {
+        "design": "Design",
+        "development": "Programming & development",
+        "marketing": "Digital marketing",
+        "education": "Education",
+        "motion": "Motion graphics",
+        "ai": "AI services",
+        "photo": "Photography & editing",
+        "audio": "Audio",
+        "writing": "Writing & translation",
+        "data": "Data",
+        "advertising": "Advertising"
+      },
+      "pendingBalance": "Pending balance",
+      "availableBalance": "Available balance",
+      "totalBalance": "Total balance",
+      "currency": "﷼",
+      "balanceDetails": "View balance details",
+      "portfolio": "Portfolio",
+      "services": "Services",
+      "totalOrders": "Total orders",
+      "showDetails": "View details",
+      "addService": "Add your service now",
+      "illustrationAlt": "Workspace for managing services and orders",
+      "orderStatuses": {
+        "inProgress": "In progress",
+        "waiting": "Awaiting start",
+        "delivered": "Delivered",
+        "deliveryRequested": "Delivery requested",
+        "completed": "Completed",
+        "revision": "Revision requested",
+        "rejected": "Rejected",
+        "reported": "Reported"
+      }
+    }
   },
   "dashboard": {
     "greeting": "Good morning, {{name}}",
     "title": "Dashboard",
     "description": "Start with what needs your decision, then review contribution opportunities that match your skills.",
+    "continueSetup": "Continue profile setup",
     "exploreRequests": "Explore contribution requests",
     "loading": "Loading dashboard...",
     "profileVerified": "Profile verified",
@@ -379,8 +422,10 @@
     "registryLabel": "Open project registry",
     "title": "Explore Projects",
     "description": "Find an open source project that fits your skills — each project is published with its technologies, category, and difficulty level.",
+    "search": "Search projects",
     "searchPlaceholder": "Search by name or description",
     "clearSearch": "Clear search",
+    "searchButton": "Search",
     "filtersButton": "Filters",
     "filtersTitle": "Filters",
     "resetFilters": "Reset",
@@ -1598,7 +1643,26 @@
     }
   },
   "footer": {
-    "description": "A collaboration space that preserves trustworthy evidence of completed work."
+    "description": "A collaboration space that preserves trustworthy evidence of completed work.",
+    "aboutTitle": "About Sharek",
+    "quickLinksTitle": "Quick links",
+    "contactTitle": "Contact",
+    "principlesTitle": "Sharek principles",
+    "principles": {
+      "evidence": "Evidence first",
+      "human": "Human decisions",
+      "record": "Clear records"
+    },
+    "social": {
+      "title": "Sharek links",
+      "github": "Sharek on GitHub",
+      "documentation": "Sharek documentation",
+      "support": "Sharek support",
+      "email": "Email the Sharek team"
+    },
+    "copyright": "All rights reserved © {{year}} Sharek",
+    "repository": "GitHub repository",
+    "documentation": "Documentation"
   },
   "theme": {
     "toggle": "Toggle theme",

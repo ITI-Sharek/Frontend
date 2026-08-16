@@ -16,7 +16,6 @@ describe("workspace navigation", () => {
     const navigation = getMemberNavigation({
       role: "owner",
       pathname: ROUTES.myProjects,
-      username: null,
       unreadCount: 2,
       t,
     });
@@ -36,22 +35,39 @@ describe("workspace navigation", () => {
     const navigation = getMemberNavigation({
       role: "contributor",
       pathname: ROUTES.dashboard,
-      username: "sara",
       unreadCount: 0,
       t,
     });
 
     expect(navigation.some((item) => item.to === ROUTES.dashboard)).toBe(true);
     expect(navigation.some((item) => item.to === ROUTES.myProjects)).toBe(false);
+    expect(navigation.some((item) => item.to === ROUTES.home)).toBe(false);
+    expect(navigation.some((item) => item.to === ROUTES.notifications)).toBe(
+      false,
+    );
     expect(
-      navigation.some((item) => item.to === ROUTES.contributorProfile("sara")),
-    ).toBe(true);
+      navigation.filter((item) => !item.secondary).map((item) => item.to),
+    ).toEqual([
+      ROUTES.dashboard,
+      ROUTES.explore,
+      ROUTES.tasks,
+      ROUTES.proposals,
+    ]);
     expect(navigation.find((item) => item.to === ROUTES.tasks)?.label).toBe(
       "navigation.tasks",
     );
     expect(navigation.find((item) => item.to === ROUTES.proposals)?.label).toBe(
       "navigation.proposals",
     );
+    expect(
+      navigation.find((item) => item.to === ROUTES.discussions),
+    ).toBeUndefined();
+    expect(
+      navigation.find((item) => item.to === ROUTES.githubSkillAnalysis),
+    ).toBeUndefined();
+    expect(
+      navigation.filter((item) => item.secondary).map((item) => item.to),
+    ).toEqual([ROUTES.settings]);
   });
 
   it("keeps admin notifications inside the admin shell", () => {

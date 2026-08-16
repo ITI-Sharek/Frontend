@@ -1,7 +1,6 @@
 import {
   ChevronLeft,
   ChevronRight,
-  Search,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -9,6 +8,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { SearchField } from "@/shared/components/ui/search-field";
 import { cn } from "@/lib/utils";
 
 import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
@@ -91,43 +91,30 @@ export function ExploreView({
           {t("explore.description")}
         </p>
 
-        <form
-          className="mt-6 flex max-w-3xl gap-2.5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            onParamsChange({
-              q: searchDraft.trim() || undefined,
-              page: undefined,
-            });
-          }}
-        >
-          <label className="flex min-h-12 flex-1 items-center gap-2.5 rounded-input border border-border bg-card px-4 transition-[border-color,box-shadow] focus-within:border-primary/50 focus-within:ring-3 focus-within:ring-primary/10">
-            <Search className="size-4 shrink-0 text-muted-foreground" />
-            <input
-              value={searchDraft}
-              onChange={(event) => setSearchDraft(event.target.value)}
-              placeholder={t("explore.searchPlaceholder")}
-              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-input-placeholder"
-            />
-            {searchDraft !== "" && (
-              <button
-                type="button"
-                aria-label={t("explore.clearSearch")}
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => {
-                  setSearchDraft("");
-                  onParamsChange({ q: undefined, page: undefined });
-                }}
-              >
-                <X className="size-4" />
-              </button>
-            )}
-          </label>
-
+        <div className="mt-6 flex w-full flex-col gap-2.5 sm:flex-row sm:items-start">
+          <SearchField
+            className="min-w-0 flex-1"
+            value={searchDraft}
+            onChange={setSearchDraft}
+            searchLabel={t("explore.search")}
+            clearSearchLabel={t("explore.clearSearch")}
+            searchButtonLabel={t("explore.searchButton")}
+            placeholder={t("explore.searchPlaceholder")}
+            onSearch={() =>
+              onParamsChange({
+                q: searchDraft.trim() || undefined,
+                page: undefined,
+              })
+            }
+            onClear={() => {
+              setSearchDraft("");
+              onParamsChange({ q: undefined, page: undefined });
+            }}
+          />
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="flex items-center gap-2 rounded-input border border-border bg-card px-4 text-sm font-medium text-foreground lg:hidden"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-input border border-border bg-card px-4 text-sm font-medium text-foreground lg:hidden sm:w-auto"
           >
             <SlidersHorizontal className="size-4" />
             {t("explore.filtersButton")}
@@ -137,7 +124,7 @@ export function ExploreView({
               </span>
             )}
           </button>
-        </form>
+        </div>
       </header>
 
       <div className="mt-6 flex items-start gap-7">

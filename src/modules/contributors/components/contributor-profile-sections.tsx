@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import { ContributorProfileEmptyState } from "./contributor-profile-empty-state";
 import type {
@@ -99,44 +100,42 @@ export function ContributorProfileSections({
     profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card">
-      <div
-        role="tablist"
+    <Tabs
+      value={activeTab}
+      onValueChange={(value) => {
+        if (value === "about" || value === "skills" || value === "contributions") {
+          setActiveTab(value);
+        }
+      }}
+      className="h-full gap-0 overflow-hidden rounded-card border border-border bg-card"
+    >
+      <TabsList
+        variant="line"
         aria-label={t("contributor.profile.tabsAriaLabel")}
-        className="flex border-b border-border bg-background"
+        className="flex w-full justify-start rounded-none border-b border-border bg-background"
       >
         {TABS.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
           return (
-            <button
+            <TabsTrigger
               key={tab.id}
-              type="button"
-              role="tab"
+              value={tab.id}
               id={`profile-tab-${tab.id}`}
-              aria-selected={isActive}
-              aria-controls={`profile-panel-${tab.id}`}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "flex items-center gap-2 border-b-2 px-5 py-3.5 text-sm transition-colors",
-                isActive
-                  ? "-mb-px border-primary bg-card font-bold text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
+              className="-mb-px flex min-h-12 flex-none items-center gap-2 px-5 py-3.5 data-[state=active]:bg-card data-[state=active]:text-foreground"
             >
-              <Icon className="size-4" />
+              <Icon className="size-4" aria-hidden="true" />
               {t(tab.labelKey)}
-            </button>
+            </TabsTrigger>
           );
         })}
-      </div>
+      </TabsList>
 
       {/* ——— البيانات الشخصية ——— */}
-      <div
-        role="tabpanel"
+      <TabsContent
+        value="about"
+        forceMount
         id="profile-panel-about"
         aria-labelledby="profile-tab-about"
-        hidden={activeTab !== "about"}
         className="flex-1 p-6"
       >
         <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.aboutTitle")}</h2>
@@ -204,14 +203,14 @@ export function ContributorProfileSections({
             </dd>
           </div>
         </dl>
-      </div>
+      </TabsContent>
 
       {/* ——— المهارات ——— */}
-      <div
-        role="tabpanel"
+      <TabsContent
+        value="skills"
+        forceMount
         id="profile-panel-skills"
         aria-labelledby="profile-tab-skills"
-        hidden={activeTab !== "skills"}
         className="flex-1 p-6"
       >
         <div className="flex items-center justify-between gap-3">
@@ -276,14 +275,14 @@ export function ContributorProfileSections({
             </div>
           </div>
         )}
-      </div>
+      </TabsContent>
 
       {/* ——— المساهمات ——— */}
-      <div
-        role="tabpanel"
+      <TabsContent
+        value="contributions"
+        forceMount
         id="profile-panel-contributions"
         aria-labelledby="profile-tab-contributions"
-        hidden={activeTab !== "contributions"}
         className="flex-1 p-6"
       >
         <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.contributionsTitle")}</h2>
@@ -320,8 +319,8 @@ export function ContributorProfileSections({
             description={t("contributor.profile.contributionsEmptyDescription")}
           />
         )}
-      </div>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 }
 

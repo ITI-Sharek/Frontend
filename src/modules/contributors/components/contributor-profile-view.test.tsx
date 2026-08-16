@@ -185,4 +185,15 @@ describe("contributor profile view helpers", () => {
     );
     expect(reputationHtml).not.toContain("Node.js");
   });
+
+  it("renders the profile sections with one accessible tabs primitive", () => {
+    const html = renderToStaticMarkup(
+      <ContributorProfileView profile={makeProfile()} />,
+    );
+
+    expect(html.match(/role="tablist"/g)).toHaveLength(1);
+    expect(html.match(/role="tab"/g)).toHaveLength(3);
+    expect(html.match(/role="tabpanel"/g)).toHaveLength(3);
+    expect(html).toContain('aria-label="أقسام الملف الشخصي"');
+  });
 });

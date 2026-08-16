@@ -21,13 +21,25 @@ import type { ContributorDashboardDto } from "../types/dashboard.types";
 export function ContributorDashboardView({
   dashboard,
   deliveryLifecycleSlot,
-  recommendedSlot,
 }: {
   dashboard: ContributorDashboardDto;
   deliveryLifecycleSlot?: ReactNode;
-  recommendedSlot?: ReactNode;
 }) {
   const { t } = useTranslation();
+  const headerAction =
+    dashboard.state === "onboarding" ? (
+      <Button asChild className="w-full sm:w-auto">
+        <Link to={ROUTES.onboarding}>{t("dashboard.continueSetup")}</Link>
+      </Button>
+    ) : dashboard.state === "active" && dashboard.attentionItems.length === 0 ? (
+      <Button asChild className="w-full sm:w-auto">
+        <Link to={ROUTES.tasks}>
+          <Compass className="size-4" aria-hidden />
+          {t("dashboard.exploreRequests")}
+          <ArrowLeft className="size-4" aria-hidden />
+        </Link>
+      </Button>
+    ) : null;
 
   return (
     <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
@@ -43,13 +55,7 @@ export function ContributorDashboardView({
             {t("dashboard.description")}
           </p>
         </div>
-        <Button asChild className="w-full sm:w-auto">
-          <Link to={ROUTES.tasks}>
-            <Compass className="size-4" aria-hidden />
-            {t("dashboard.exploreRequests")}
-            <ArrowLeft className="size-4" aria-hidden />
-          </Link>
-        </Button>
+        {headerAction}
       </header>
 
       {dashboard.state === "onboarding" && (
@@ -87,35 +93,11 @@ export function ContributorDashboardView({
             applications={dashboard.applications}
             showGrowthPath
           />
-          {recommendedSlot}
         </>
       )}
 
       {dashboard.state === "active" && (
         <>
-          <nav
-            aria-label={t("dashboard.sectionsAria")}
-            className="-mt-2 flex gap-1 overflow-x-auto border-b border-border"
-          >
-            <a
-              href="#attention"
-              className="shrink-0 border-b-2 border-primary px-3 py-3 text-sm font-semibold text-primary"
-            >
-              {t("dashboard.attentionHeading")}
-            </a>
-            <a
-              href="#matches"
-              className="shrink-0 border-b-2 border-transparent px-3 py-3 text-sm text-muted-foreground hover:text-foreground"
-            >
-              {t("dashboard.matchesTab")}
-            </a>
-            <a
-              href="#record"
-              className="shrink-0 border-b-2 border-transparent px-3 py-3 text-sm text-muted-foreground hover:text-foreground"
-            >
-              {t("dashboard.recordTab")}
-            </a>
-          </nav>
           <AttentionFeed items={dashboard.attentionItems} />
           {deliveryLifecycleSlot}
           <MatchedTasksSection
@@ -126,7 +108,6 @@ export function ContributorDashboardView({
             growth={dashboard.growth}
             applications={dashboard.applications}
           />
-          {recommendedSlot}
           <p className="flex items-start gap-2 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">
             <ShieldCheck
               className="mt-0.5 size-4 shrink-0 text-evidence-teal"

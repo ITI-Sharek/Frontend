@@ -67,4 +67,28 @@ describe("Contribution Request feed filters", () => {
 
     expect(onFiltersChange).toHaveBeenCalledWith({ hasReward: false });
   });
+
+  it("keeps the long filter controls collapsed by default on mobile", async () => {
+    await act(async () => {
+      root.render(
+        <ContributionRequestFeedView
+          filters={{ technologies: ["React"], difficulty: "intermediate" }}
+          onFiltersChange={vi.fn()}
+          onReset={vi.fn()}
+          requestHref={(requestId) => `/tasks/${requestId}`}
+        />,
+      );
+    });
+
+    const mobileFilters = container.querySelector<HTMLDetailsElement>("details");
+    const summary = mobileFilters?.querySelector("summary");
+
+    expect(mobileFilters?.open).toBe(false);
+    expect(summary?.textContent).toContain("تصفية النتائج");
+    expect(summary?.textContent).toContain("2");
+
+    await act(async () => summary?.click());
+
+    expect(mobileFilters?.open).toBe(true);
+  });
 });

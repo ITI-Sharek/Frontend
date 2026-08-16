@@ -85,7 +85,10 @@ export function AuthLayout() {
         {/* Split Content Area: Wider Form (7 cols) & Sleek Artwork (5 cols) */}
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-12">
           {/* Form Column - Increased Width (col-span-7) */}
-          <main className="flex h-full flex-col justify-between overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-6 sm:p-8 lg:p-10 lg:col-span-7 xl:col-span-7">
+          <main
+            id="main-content"
+            className="flex h-full flex-col justify-between overflow-y-auto overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-6 sm:p-8 lg:p-10 lg:col-span-7 xl:col-span-7"
+          >
             {/* Top Brand Link */}
             <div className="flex items-center justify-between pb-2 shrink-0">
               <Link to="/" className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">

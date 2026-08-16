@@ -4,7 +4,7 @@ import {
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,9 +22,8 @@ import { useAdminPendingSkillReviewsQuery } from "@/modules/skill-profiles";
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
+import { SiteHeader } from "@/shared/components/layout/site-header";
 import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
-import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
-import { Button } from "@/shared/components/ui/button";
 
 export const beforeLoadAdminRoute = requireAdminRoute;
 
@@ -71,6 +70,14 @@ function AdminLayout() {
     pendingReviewsCount: pendingReviews.data?.total ?? 0,
     t,
   });
+  const headerNavItems = navigation
+    .filter((item) => !item.secondary && !item.disabled)
+    .slice(0, 4)
+    .map((item) => ({
+      label: item.label,
+      href: item.to,
+      active: item.active,
+    }));
 
   return (
     <AppShell
@@ -82,34 +89,35 @@ function AdminLayout() {
       }}
       navigationLabel={t("adminLayout.navigationLabel")}
       topBar={
-        <WorkspaceTopBar
-          title={t("adminLayout.workspaceTitle")}
-          description={t("adminLayout.workspaceDescription")}
-          actions={
-            <>
-              <NotificationPopover
-                allNotificationsHref={ROUTES.adminNotifications}
-              />
-              <span className="hidden max-w-44 truncate rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-foreground sm:inline-flex">
-                {displayName}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={t("auth.logout")}
-                disabled={logoutMutation.isPending}
-                onClick={() => {
-                  logoutMutation.mutate(undefined, {
-                    onSettled: () => {
-                      void navigate({ to: ROUTES.login });
-                    },
-                  });
-                }}
-              >
-                <LogOut className="size-4" aria-hidden="true" />
-              </Button>
-            </>
+        <SiteHeader
+          navItems={headerNavItems}
+          navLabel={t("adminLayout.navigationLabel")}
+          skipToContentLabel={t("navigation.skipToContent")}
+          showSkipLink={false}
+          brand={{
+            title: t("adminLayout.brandTitle"),
+            subtitle: "Review operations",
+          }}
+          user={{
+            displayName,
+            avatarUrl: currentUser.avatarUrl,
+            profileSubtitle: t("navigation.adminPanel"),
+            online: true,
+            menuItems: [
+              { label: t("navigation.adminOverview"), to: ROUTES.admin },
+            ],
+          }}
+          onLogout={() => {
+            logoutMutation.mutate(undefined, {
+              onSettled: () => {
+                void navigate({ to: ROUTES.login });
+              },
+            });
+          }}
+          utilityActions={
+            <NotificationPopover
+              allNotificationsHref={ROUTES.adminNotifications}
+            />
           }
         />
       }

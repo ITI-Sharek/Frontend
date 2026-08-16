@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 export function DiscussionPostComposer({
   isSubmitting,
@@ -19,7 +22,7 @@ export function DiscussionPostComposer({
 
   return (
     <form
-      className="flex flex-col gap-3 rounded-card border border-border bg-card p-5"
+      className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
         if (!canSubmit) return;
@@ -27,29 +30,35 @@ export function DiscussionPostComposer({
       }}
     >
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="discussion-title" className="text-sm font-medium text-foreground">
+        <Label
+          htmlFor="discussion-title"
+          className="text-sm font-medium tracking-normal text-foreground"
+        >
           {t("discussions.composer.titleLabel")}
-        </label>
-        <input
+        </Label>
+        <Input
           id="discussion-title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           maxLength={120}
-          className="min-h-11 w-full rounded-input border border-border bg-input-bg px-3 text-sm text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary"
+          className="h-11 min-h-11 px-3 text-sm"
           placeholder={t("discussions.composer.titlePlaceholder")}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="discussion-body" className="text-sm font-medium text-foreground">
+        <Label
+          htmlFor="discussion-body"
+          className="text-sm font-medium tracking-normal text-foreground"
+        >
           {t("discussions.composer.bodyLabel")}
-        </label>
-        <textarea
+        </Label>
+        <Textarea
           id="discussion-body"
           value={body}
           onChange={(event) => setBody(event.target.value)}
           rows={5}
-          className="w-full resize-y rounded-input border border-border bg-input-bg p-3 text-sm leading-6 text-foreground outline-none placeholder:text-input-placeholder focus-visible:ring-2 focus-visible:ring-primary"
+          className="resize-y p-3"
           placeholder={t("discussions.composer.bodyPlaceholder")}
         />
       </div>
@@ -59,7 +68,9 @@ export function DiscussionPostComposer({
           {t("common.cancel")}
         </Button>
         <Button type="submit" size="sm" disabled={!canSubmit}>
-          {isSubmitting ? t("discussions.composer.publishing") : t("common.publish")}
+          {isSubmitting
+            ? t("discussions.composer.publishing")
+            : t("common.publish")}
         </Button>
       </div>
     </form>

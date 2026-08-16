@@ -38,7 +38,7 @@ export function AttentionFeed({ items }: { items: AttentionItemDto[] }) {
         </span>
       </div>
       <div className="mt-4 divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <div
             key={item.id}
             className="group flex flex-col gap-3 p-4 transition-colors hover:bg-surface-fog/70 sm:flex-row sm:items-center sm:p-5"
@@ -65,7 +65,7 @@ export function AttentionFeed({ items }: { items: AttentionItemDto[] }) {
             <Button
               asChild
               size="sm"
-              variant="outline"
+              variant={index === 0 ? "primary" : "outline"}
               className="shrink-0 self-start sm:self-center"
             >
               <Link to={ROUTES.tasks}>

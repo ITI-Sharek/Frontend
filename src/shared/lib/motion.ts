@@ -63,33 +63,6 @@ export const pageVariants: Variants = {
   },
 };
 
-// ─── Dropdown / popover ────────────────────────────────────────────────────────
-
-/**
- * Used for menus, dropdowns, popovers — a small origin-top scale + fade.
- * The transform-origin should be set via CSS on the container.
- */
-export const dropdownVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.97,
-    y: -4,
-    transition: transition.fast,
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { ...transition.normal, duration: 0.15 },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.97,
-    y: -4,
-    transition: transition.fast,
-  },
-};
-
 // ─── Modal / dialog ────────────────────────────────────────────────────────────
 
 export const modalBackdropVariants: Variants = {

@@ -231,12 +231,55 @@
     "noPosts": "لا توجد منشورات بعد.",
     "needHelp": "بحاجة مساعدة؟",
     "supportDescription": "راسل فريق الدعم أو اطّلع على أساسيات Sharek.",
-    "goToSupport": "الذهاب لصفحة الدعم"
+    "goToSupport": "الذهاب لصفحة الدعم",
+    "marketplace": {
+      "browseMore": "تصفح المزيد",
+      "welcome": "مرحباً بك، {{name}}",
+      "heroTitle": "إليك كل ما تحتاجه لإدارة مشاريعك ومتابعة نشاطك على شارك.",
+      "searchPlaceholder": "ابحث عن خدمة...",
+      "searchAction": "إبحث الآن",
+      "pauseHero": "إيقاف العرض",
+      "categories": {
+        "design": "التصميم",
+        "development": "البرمجة والتطوير",
+        "marketing": "التسويق الرقمي",
+        "education": "التعليم",
+        "motion": "الموشن جرافيك",
+        "ai": "خدمات الذكاء الاصطناعي",
+        "photo": "التصوير والمونتاج",
+        "audio": "الصوتيات",
+        "writing": "الكتابة والترجمة",
+        "data": "البيانات",
+        "advertising": "الدعاية والإعلان"
+      },
+      "pendingBalance": "الرصيد المعلق",
+      "availableBalance": "الرصيد المتاح",
+      "totalBalance": "الرصيد الكلي",
+      "currency": "﷼",
+      "balanceDetails": "عرض تفاصيل الرصيد",
+      "portfolio": "معرض الأعمال",
+      "services": "عدد الخدمات",
+      "totalOrders": "إجمالي الطلبات",
+      "showDetails": "عرض التفاصيل",
+      "addService": "أضف خدمتك الآن",
+      "illustrationAlt": "مساحة لإدارة الخدمات والطلبات",
+      "orderStatuses": {
+        "inProgress": "قيد التنفيذ",
+        "waiting": "قيد الانتظار",
+        "delivered": "تم التسليم",
+        "deliveryRequested": "طلب تسليم",
+        "completed": "مكتمل",
+        "revision": "طلب تعديل",
+        "rejected": "مرفوض",
+        "reported": "تم الإبلاغ"
+      }
+    }
   },
   "dashboard": {
     "greeting": "صباح الخير، {{name}}",
     "title": "لوحة التحكم",
     "description": "ابدأ بما يحتاج قراراً منك، ثم راجع فرص المساهمة المطابقة لمهاراتك.",
+    "continueSetup": "متابعة إعداد الملف",
     "exploreRequests": "استكشف طلبات المساهمة",
     "loading": "جارٍ تحميل لوحة التحكم...",
     "profileVerified": "ملفك موثق",
@@ -387,8 +430,10 @@
     "registryLabel": "سجل المشاريع المفتوحة",
     "title": "استكشاف المشاريع",
     "description": "اعثر على مشروع مفتوح المصدر يناسب مهاراتك — كل مشروع منشور بتقنياته وتصنيفه ومستوى صعوبته.",
+    "search": "ابحث في المشاريع",
     "searchPlaceholder": "ابحث بالاسم أو الوصف",
     "clearSearch": "مسح البحث",
+    "searchButton": "بحث",
     "filtersButton": "فلاتر",
     "filtersTitle": "الفلاتر",
     "resetFilters": "إعادة تعيين",
@@ -1622,7 +1667,26 @@
     }
   },
   "footer": {
-    "description": "مساحة تعاون تحفظ دليلاً موثوقاً على العمل المكتمل."
+    "description": "مساحة تعاون تحفظ دليلاً موثوقاً على العمل المكتمل.",
+    "aboutTitle": "عن Sharek",
+    "quickLinksTitle": "روابط سريعة",
+    "contactTitle": "طرق التواصل",
+    "principlesTitle": "مبادئ Sharek",
+    "principles": {
+      "evidence": "الدليل أولاً",
+      "human": "قرار بشري",
+      "record": "سجل مفهوم"
+    },
+    "social": {
+      "title": "روابط Sharek",
+      "github": "مستودع Sharek على GitHub",
+      "documentation": "توثيق Sharek",
+      "support": "صفحة دعم Sharek",
+      "email": "راسل فريق Sharek"
+    },
+    "copyright": "جميع الحقوق محفوظة © {{year}} Sharek",
+    "repository": "مستودع GitHub",
+    "documentation": "التوثيق"
   },
   "theme": {
     "toggle": "تبديل المظهر",

@@ -1,9 +1,11 @@
 import {
+  Link,
   Outlet,
   createFileRoute,
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,12 +24,8 @@ import {
 import { storageService } from "@/services/storage.service";
 import { AppShell } from "@/shared/components/layout/app-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
+import { SiteHeader } from "@/shared/components/layout/site-header";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
-import { WorkspaceTopBar } from "@/shared/components/layout/workspace-top-bar";
-import { HeaderSearch } from "@/shared/components/navigation/header-search";
-import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
-import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
-import { ThemeSwitcher } from "@/shared/components/navigation/theme-switcher";
 
 export const Route = createFileRoute("/_appLayout")({
   beforeLoad: requireMemberRoute,
@@ -105,7 +103,6 @@ function AppLayout() {
   const navigation = getMemberNavigation({
     role: currentUser.role,
     pathname,
-    username,
     unreadCount,
     t,
   });
@@ -116,39 +113,67 @@ function AppLayout() {
     ...(currentUser.role === "contributor" && username
       ? [{ label: t("profile.viewProfile"), to: ROUTES.contributorProfile(username) }]
       : []),
+    ...(currentUser.role === "contributor"
+      ? [
+          { label: t("navigation.skillAnalysis"), to: ROUTES.githubSkillAnalysis },
+          { label: t("navigation.discussions"), to: ROUTES.discussions },
+        ]
+      : []),
     { label: t("navigation.settings"), to: ROUTES.settings },
+    { label: t("navigation.support"), to: ROUTES.support },
   ];
+  const headerNavItems = navigation
+    .filter(
+      (item) =>
+        !item.secondary && !item.disabled && item.to !== ROUTES.home,
+    )
+    .slice(0, 4)
+    .map((item) => ({
+      label: item.label,
+      href: item.to,
+      active: item.active,
+    }));
 
   return (
     <AppShell
       nav={navigation}
       topBar={
-        <WorkspaceTopBar
-          title={
-            currentUser.role === "owner"
-              ? t("workspace.ownerSpace")
-              : t("workspace.memberSpace")
-          }
-          description={t("workspace.everythingInOnePlace")}
-          search={<HeaderSearch />}
-          actions={
+        <SiteHeader
+          navItems={currentUser.role === "owner" ? headerNavItems : []}
+          navLabel={t("navigation.mainNavigation")}
+          skipToContentLabel={t("navigation.skipToContent")}
+          showSkipLink={false}
+          user={{
+            displayName,
+            avatarUrl: currentUser.avatarUrl,
+            profileSubtitle:
+              currentUser.role === "owner"
+                ? t("auth.role.owner")
+                : t("auth.role.contributor"),
+            online: true,
+            menuItems: profileItems,
+          }}
+          onLogout={() => {
+            logoutMutation.mutate(undefined, {
+              onSettled: () => {
+                void navigate({ to: ROUTES.login });
+              },
+            });
+          }}
+          utilityActions={
             <>
-              <LanguageSwitcher />
-              <ThemeSwitcher />
+              {currentUser.role === "owner" && (
+                <Link
+                  to={ROUTES.newProject}
+                  aria-label={t("myProjects.importProject")}
+                  className="hidden h-8 items-center gap-1 rounded-full border border-border px-2.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:inline-flex"
+                >
+                  <Plus className="size-3.5" aria-hidden="true" />
+                  <span>{t("myProjects.importProject")}</span>
+                </Link>
+              )}
               <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
-              <ProfileMenu
-                displayName={displayName}
-                avatarUrl={currentUser.avatarUrl}
-                items={profileItems}
-                onLogout={() => {
-                  logoutMutation.mutate(undefined, {
-                    onSettled: () => {
-                      void navigate({ to: ROUTES.login });
-                    },
-                  });
-                }}
-              />
             </>
           }
         />

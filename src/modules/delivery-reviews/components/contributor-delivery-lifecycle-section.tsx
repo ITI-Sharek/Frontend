@@ -1,4 +1,4 @@
-import { CircleAlert, ClipboardCheck, Loader2 } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +23,10 @@ export function ContributorDeliveryLifecycleSection({
     queryFn: () => client.getContributorLifecycle(),
   });
 
+  if (query.isPending || query.data?.contributions.length === 0) {
+    return null;
+  }
+
   return (
     <section id="deliveries" aria-labelledby="contributor-deliveries-heading">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -36,12 +40,7 @@ export function ContributorDeliveryLifecycleSection({
         </div>
       </div>
 
-      {query.isPending ? (
-        <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" aria-hidden />
-          {t("deliveryReviews.contributorLifecycle.loading")}
-        </p>
-      ) : query.isError ? (
+      {query.isError ? (
         <Card className="border-destructive/25 p-5">
           <p role="alert" className="flex items-center gap-2 text-sm text-destructive">
             <CircleAlert className="size-4" aria-hidden />
@@ -50,14 +49,6 @@ export function ContributorDeliveryLifecycleSection({
           <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => void query.refetch()}>
             {t("common.retry")}
           </Button>
-        </Card>
-      ) : query.data.contributions.length === 0 ? (
-        <Card className="border-dashed p-6 text-center">
-          <ClipboardCheck className="mx-auto size-7 text-muted-foreground" aria-hidden />
-          <p className="mt-2 font-semibold text-foreground">{t("deliveryReviews.contributorLifecycle.emptyTitle")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("deliveryReviews.contributorLifecycle.emptyDescription")}
-          </p>
         </Card>
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
