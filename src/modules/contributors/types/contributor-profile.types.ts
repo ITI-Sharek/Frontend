@@ -70,6 +70,13 @@ export interface ContributorFieldDto {
   key: string;
   labelEn: string;
   labelAr: string;
+  categoryId?: string;
+  category?: {
+    id: string;
+    key: string;
+    labelEn: string;
+    labelAr: string;
+  } | null;
 }
 
 export type ContributorExperienceLevelDto = ContributorFieldDto;
