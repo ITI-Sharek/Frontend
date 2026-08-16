@@ -13,16 +13,16 @@ export function RoleStep({ role, onSelect }: RoleStepProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-col gap-1 text-right">
-        <h2 className="text-lg font-bold text-foreground">
+    <div className="flex w-full flex-col gap-3">
+      <div className="flex flex-col gap-0.5 text-right">
+        <h2 className="text-sm font-bold text-foreground">
           {t("register.role.title")}
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("register.role.subtitle")}
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {getRoleOptions(t).map((option) => (
           <RoleOptionCard
             key={option.value}
@@ -34,7 +34,7 @@ export function RoleStep({ role, onSelect }: RoleStepProps) {
           />
         ))}
       </div>
-      <p className="text-right text-xs text-muted-foreground">
+      <p className="text-right text-[11px] text-muted-foreground">
         {t("register.role.disclaimer")}
       </p>
     </div>

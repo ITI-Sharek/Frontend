@@ -13,12 +13,12 @@ export const Route = createFileRoute("/_authLayout/forgot-password")({
 function ForgotPasswordPage() {
   const { t } = useTranslation();
   return (
-    <>
+    <div className="flex w-full flex-col gap-3.5">
       <AuthHero
         heading={t("forgotPassword.title")}
         subtext={t("forgotPassword.description")}
       />
       <ForgotPasswordForm />
-    </>
+    </div>
   );
 }

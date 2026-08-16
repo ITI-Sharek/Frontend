@@ -7,8 +7,7 @@ import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
-import { StepIndicator } from "@/shared/components/navigation/step-indicator";
+import { Stepper, Step } from "@/shared/components/ui/reactbits/stepper";
 import type { ChipOption } from "@/shared/components/forms/chip-select";
 
 import { useUsernameAvailabilityQuery } from "../api/queries/use-username-availability-query";
@@ -165,44 +164,47 @@ export function RegisterForm({
 
   if (pendingVerification) {
     return (
-      <>
-        <Card className="flex flex-col gap-6">
+      <div className="flex w-full flex-col gap-6">
+        <div className="flex w-full flex-col gap-6">
           <VerifyEmailStep
             email={pendingVerification.email}
             verificationExpiresAt={pendingVerification.verificationExpiresAt}
             onVerified={handleVerified}
           />
-        </Card>
+        </div>
 
-        <p className="w-full text-center text-base">
-          <span className="text-muted-foreground">{t("auth.verificationCodeSent")} </span>
-          <Link to={ROUTES.login} className="font-bold text-primary">
+        <p className="w-full text-center text-xs text-muted-foreground">
+          <span>{t("auth.verificationCodeSent")} </span>
+          <Link to={ROUTES.login} className="font-bold text-primary hover:underline">
             {t("auth.loginLink")}
           </Link>
         </p>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Card className="flex flex-col gap-6">
-        <StepIndicator steps={localizedSteps} currentStep={step} />
-
-        <form
-          className="flex w-full flex-col gap-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleNext();
-          }}
+    <div className="flex w-full flex-col gap-4">
+      <form
+        className="flex w-full flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleNext();
+        }}
+      >
+        <Stepper
+          currentStep={step + 1}
+          stepLabels={localizedSteps}
+          disableStepIndicators={isSubmitting}
+          hideFooter
         >
-          {step === 0 && (
+          <Step>
             <RoleStep
               role={formData.role}
               onSelect={(role) => setField("role", role)}
             />
-          )}
-          {step === 1 && (
+          </Step>
+          <Step>
             <AccountStep
               firstName={formData.firstName}
               lastName={formData.lastName}
@@ -221,59 +223,59 @@ export function RegisterForm({
                 suggestion: usernameQuery.data?.suggestion ?? null,
               }}
             />
-          )}
-          {step === 2 && (
+          </Step>
+          <Step>
             <DetailsStep
               data={formData}
               onFieldChange={setField}
               experienceLevelOptions={experienceLevelOptions}
               isExperienceLevelsLoading={isExperienceLevelsLoading}
             />
-          )}
+          </Step>
+        </Stepper>
 
-          {submitError && (
-            <p className="w-full text-right text-sm text-destructive">
-              {submitError}
-            </p>
-          )}
+        {submitError && (
+          <p className="w-full text-right text-xs text-destructive">
+            {submitError}
+          </p>
+        )}
 
-          <div className="flex w-full items-center gap-3 pt-2">
-            {step > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={handleBack}
-                disabled={isSubmitting}
-              >
-                <ArrowRight className="size-4" />
-                <span>{t("register.backButton")}</span>
-              </Button>
-            )}
+        <div className="flex w-full items-center gap-3 pt-1">
+          {step > 0 && (
             <Button
-              type="submit"
-              className="flex-1"
-              disabled={!canProceed || isSubmitting}
+              type="button"
+              variant="outline"
+              className="flex-1 h-10"
+              onClick={handleBack}
+              disabled={isSubmitting}
             >
-              <ArrowLeft className="size-4" />
-              <span>
-                {isSubmitting
-                  ? t("register.creating")
-                  : isLastStep
-                    ? t("register.createFreeAccount")
-                    : t("common.next")}
-              </span>
+              <ArrowRight className="size-4" />
+              <span>{t("register.backButton")}</span>
             </Button>
-          </div>
-        </form>
-      </Card>
+          )}
+          <Button
+            type="submit"
+            className="flex-1 h-10 font-bold shadow-sm"
+            disabled={!canProceed || isSubmitting}
+          >
+            <ArrowLeft className="size-4" />
+            <span>
+              {isSubmitting
+                ? t("register.creating")
+                : isLastStep
+                  ? t("register.createFreeAccount")
+                  : t("common.next")}
+            </span>
+          </Button>
+        </div>
+      </form>
 
-      <p className="w-full text-center text-base">
-        <span className="text-muted-foreground">{t("auth.alreadyHaveAccount")} </span>
-        <Link to={ROUTES.login} className="font-bold text-primary">
+      <p className="w-full text-center text-xs text-muted-foreground">
+        <span>{t("auth.alreadyHaveAccount")} </span>
+        <Link to={ROUTES.login} className="font-bold text-primary hover:underline">
           {t("auth.login")}
         </Link>
       </p>
-    </>
+    </div>
   );
 }

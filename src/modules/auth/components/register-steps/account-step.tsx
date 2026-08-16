@@ -44,12 +44,12 @@ export function AccountStep({
   const { t } = useTranslation();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-1 text-right">
-        <h2 className="text-lg font-bold text-foreground">
+    <div className="flex w-full flex-col gap-2.5">
+      <div className="flex flex-col gap-0.5 text-right">
+        <h2 className="text-sm font-bold text-foreground">
           {t("register.account.title")}
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("register.account.subtitle")}
         </p>
       </div>
@@ -57,7 +57,7 @@ export function AccountStep({
       <SocialAuthButtons intent="register" role={role ?? "contributor"} />
       <AuthDivider label={t("register.account.orViaEmail")} />
 
-      <div className="grid w-full grid-cols-2 gap-4">
+      <div className="grid w-full grid-cols-2 gap-2">
         <AuthTextField
           id="firstName"
           label={t("register.account.firstName")}

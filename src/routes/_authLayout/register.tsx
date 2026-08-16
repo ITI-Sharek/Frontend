@@ -40,7 +40,7 @@ function RegisterPage() {
   const experienceLevelsQuery = useExperienceLevelsQuery();
 
   return (
-    <>
+    <div className="flex w-full flex-col gap-3.5">
       <AuthHero
         heading={t("auth.registerHero")}
         subtext={t("auth.registerSubtext")}
@@ -52,6 +52,6 @@ function RegisterPage() {
         isExperienceLevelsLoading={experienceLevelsQuery.isPending}
         onContributorDetailsCollected={persistContributorSignupDetails}
       />
-    </>
+    </div>
   );
 }

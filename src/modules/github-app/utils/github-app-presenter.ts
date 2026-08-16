@@ -109,6 +109,7 @@ export function isRestartableCallbackError(code: string | null): boolean {
   return (
     code === "GITHUB_APP_STATE_INVALID" ||
     code === "GITHUB_APP_STATE_USER_MISMATCH" ||
+    code === "GITHUB_APP_ACCOUNT_MISMATCH" ||
     code === "GITHUB_APP_INSTALLATION_NOT_VERIFIED" ||
     code === "GITHUB_APP_INSTALLATION_ACCESS_NOT_VERIFIED"
   );

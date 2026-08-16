@@ -95,6 +95,8 @@ describe("github app installation presenter", () => {
   it("maps each documented GitHub App error code to safe copy", () => {
     const codes = [
       "GITHUB_APP_STATE_INVALID",
+      "GITHUB_APP_IDENTITY_REQUIRED",
+      "GITHUB_APP_ACCOUNT_MISMATCH",
       "GITHUB_APP_INSTALLATION_ACCESS_NOT_VERIFIED",
       "GITHUB_APP_INSTALLATION_NOT_VERIFIED",
       "GITHUB_APP_REPOSITORY_NOT_SELECTED",
@@ -114,6 +116,7 @@ describe("github app installation presenter", () => {
     expect(
       isRestartableCallbackError("GITHUB_APP_INSTALLATION_ACCESS_NOT_VERIFIED"),
     ).toBe(true);
+    expect(isRestartableCallbackError("GITHUB_APP_ACCOUNT_MISMATCH")).toBe(true);
     expect(isRestartableCallbackError("GITHUB_APP_PROVIDER_UNAVAILABLE")).toBe(
       false,
     );

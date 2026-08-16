@@ -92,7 +92,7 @@ function LoginPage() {
   }, []);
 
   return (
-    <>
+    <div className="flex w-full flex-col gap-3.5">
       <AuthHero heading={t("auth.loginHero")} subtext={t("auth.loginSubtext")} />
       {sessionError && (
         <ContributorProfileErrorView
@@ -111,6 +111,6 @@ function LoginPage() {
           }
         }}
       />
-    </>
+    </div>
   );
 }
