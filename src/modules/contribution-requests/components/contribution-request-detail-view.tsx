@@ -47,7 +47,7 @@ import {
 } from "../utils/contributor-presentation";
 import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
 
-type RequestWorkspaceTab =
+export type RequestWorkspaceTab =
   | "details"
   | "applications"
   | "matches"
@@ -60,12 +60,16 @@ export function ContributionRequestDetailView({
   materialsSlot,
   deliverySlot,
   matchingSlot,
+  activeSection,
+  onSectionChange,
 }: {
   requestId: string;
   projectHref: (projectId: string) => string;
   materialsSlot?: ReactNode;
   deliverySlot?: ReactNode;
   matchingSlot?: ReactNode;
+  activeSection?: RequestWorkspaceTab;
+  onSectionChange?: (section: RequestWorkspaceTab) => void;
 }) {
   const { t } = useTranslation();
   const query = useContributionRequestQuery(requestId);
@@ -96,7 +100,16 @@ export function ContributionRequestDetailView({
   const [cancelOpen, setCancelOpen] = useState(false);
   const [focusLifecycle, setFocusLifecycle] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<RequestWorkspaceTab>("details");
+  const [internalTab, setInternalTab] = useState<RequestWorkspaceTab>("details");
+  const activeTab = activeSection ?? internalTab;
+
+  function handleTabChange(tab: RequestWorkspaceTab) {
+    if (onSectionChange) {
+      onSectionChange(tab);
+    } else {
+      setInternalTab(tab);
+    }
+  }
 
   useEffect(() => {
     if (focusLifecycle) lifecycleFocusRef.current?.focus();
@@ -252,14 +265,14 @@ export function ContributionRequestDetailView({
           icon={FileText}
           label={t("contributionRequests.detail.tabs.details")}
           selected={activeTab === "details"}
-          onClick={() => setActiveTab("details")}
+          onClick={() => handleTabChange("details")}
         />
         {request.status !== "draft" && request.status !== "discarded" && (
           <RequestTab
             icon={Users}
             label={t("contributionRequests.detail.tabs.applications")}
             selected={activeTab === "applications"}
-            onClick={() => setActiveTab("applications")}
+            onClick={() => handleTabChange("applications")}
           />
         )}
         {matchingSlot && request.status === "published" && (
@@ -267,7 +280,7 @@ export function ContributionRequestDetailView({
             icon={Sparkles}
             label={t("contributionRequests.detail.tabs.matches")}
             selected={activeTab === "matches"}
-            onClick={() => setActiveTab("matches")}
+            onClick={() => handleTabChange("matches")}
           />
         )}
         {deliverySlot && (
@@ -275,7 +288,7 @@ export function ContributionRequestDetailView({
             icon={GitPullRequest}
             label={t("contributionRequests.detail.tabs.delivery")}
             selected={activeTab === "delivery"}
-            onClick={() => setActiveTab("delivery")}
+            onClick={() => handleTabChange("delivery")}
           />
         )}
         {materialsSlot && (
@@ -283,7 +296,7 @@ export function ContributionRequestDetailView({
             icon={Paperclip}
             label={t("contributionRequests.detail.tabs.materials")}
             selected={activeTab === "materials"}
-            onClick={() => setActiveTab("materials")}
+            onClick={() => handleTabChange("materials")}
           />
         )}
       </nav>

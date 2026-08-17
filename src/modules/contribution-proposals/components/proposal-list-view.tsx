@@ -29,6 +29,8 @@ export function ProposalListView({
   isLoadingMore = false,
   onLoadMore,
   loadMoreError = null,
+  activeSection,
+  onSectionChange,
 }: {
   proposals: ContributionProposalSummaryDto[];
   role: "owner" | "contributor";
@@ -39,12 +41,15 @@ export function ProposalListView({
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   loadMoreError?: string | null;
+  activeSection?: ContributionProposalStatus | "ALL";
+  onSectionChange?: (status: ContributionProposalStatus | "ALL") => void;
 }) {
   const { i18n, t } = useTranslation();
   const statusMeta = getProposalStatusMeta(t);
-  const [activeStatus, setActiveStatus] = useState<
+  const [internalStatus, setInternalStatus] = useState<
     ContributionProposalStatus | "ALL"
   >("ALL");
+  const activeStatus = activeSection ?? internalStatus;
 
   if (isLoading) {
     return (
@@ -115,7 +120,11 @@ export function ProposalListView({
       onValueChange={(value) => {
         const nextStatus = statusTabs.find((tab) => tab.id === value)?.id;
         if (nextStatus) {
-          setActiveStatus(nextStatus);
+          if (onSectionChange) {
+            onSectionChange(nextStatus);
+          } else {
+            setInternalStatus(nextStatus);
+          }
         }
       }}
       className="gap-0"

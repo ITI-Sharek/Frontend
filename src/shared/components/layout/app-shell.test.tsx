@@ -73,4 +73,19 @@ describe("AppShell accessibility", () => {
 
     expect(separator?.getAttribute("aria-valuenow")).toBe("256");
   });
+
+  it("does not render a footer in workspace app shell", async () => {
+    await act(async () => {
+      root.render(
+        <AppShell
+          nav={[{ label: "الرئيسية", to: "/home", icon: NavigationIcon }]}
+        >
+          <p>المحتوى</p>
+        </AppShell>,
+      );
+    });
+
+    const footer = container.querySelector("footer");
+    expect(footer).toBeNull();
+  });
 });

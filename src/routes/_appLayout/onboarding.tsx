@@ -1,81 +1,64 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
-import { useQuery } from "@tanstack/react-query";
-
 import { ROUTES } from "@/config/routes.config";
-import { requireContributorRoute } from "@/modules/auth";
-import { getOnboardingState, OnboardingView } from "@/modules/contributors";
-import { startGitHubConnect } from "@/modules/github";
-import type {
-  OnboardingOutcome,
-  OnboardingStep,
+import { requireContributorRoute, useCurrentUserQuery } from "@/modules/auth";
+import {
+  ContributorProfileErrorView,
+  ContributorWalkthrough,
+  useContributorProfileQuery,
 } from "@/modules/contributors";
-
-const STEPS: OnboardingStep[] = [
-  "connect",
-  "analysis",
-  "preview",
-  "review",
-  "decision",
-];
-const OUTCOMES = ["approved", "partial", "rejected"] as const;
-
-interface OnboardingSearch {
-  /** Dev/demo switches while the flow is mocked. */
-  step?: OnboardingStep;
-  outcome?: (typeof OUTCOMES)[number];
-}
-
-const OUTCOME_MAP: Record<
-  (typeof OUTCOMES)[number],
-  OnboardingOutcome
-> = {
-  approved: "approved",
-  partial: "partially_approved",
-  rejected: "rejected",
-};
+import {
+  useLatestSkillProfileGenerationQuery,
+  useSkillProfileGenerationQuery,
+} from "@/modules/skill-profiles";
 
 export const Route = createFileRoute("/_appLayout/onboarding")({
   beforeLoad: requireContributorRoute,
-  head: () => ({ meta: [{ title: "Sharek" }] }),
-  validateSearch: (search: Record<string, unknown>): OnboardingSearch => ({
-    ...(STEPS.includes(search.step as OnboardingStep)
-      ? { step: search.step as OnboardingStep }
-      : {}),
-    ...(OUTCOMES.includes(search.outcome as (typeof OUTCOMES)[number])
-      ? { outcome: search.outcome as (typeof OUTCOMES)[number] }
-      : {}),
-  }),
+  head: () => ({ meta: [{ title: "Contributor walkthrough | Sharek" }] }),
   component: OnboardingPage,
 });
 
 function OnboardingPage() {
   const { t } = useTranslation();
-  const { step = "connect", outcome = "approved" } = Route.useSearch();
-  const navigate = Route.useNavigate();
-
-  const onboardingQuery = useQuery({
-    queryKey: ["contributors", "onboarding", step],
-    queryFn: () => getOnboardingState(step),
+  const currentUserQuery = useCurrentUserQuery();
+  const username = currentUserQuery.data?.username ?? "";
+  const profileQuery = useContributorProfileQuery(username);
+  const latestGenerationQuery = useLatestSkillProfileGenerationQuery({
+    enabled: Boolean(profileQuery.data),
   });
+  const latestGeneration = latestGenerationQuery.data ?? null;
+  const generationQuery = useSkillProfileGenerationQuery({
+    generationId: latestGeneration?.generationId ?? "",
+    enabled: latestGeneration !== null,
+  });
+  const generation = generationQuery.data ?? latestGeneration;
 
-  if (onboardingQuery.data === undefined) {
+  if (
+    !profileQuery.data &&
+    (currentUserQuery.isPending || profileQuery.isPending)
+  ) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">{t("common.loading")}</p>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+      </div>
+    );
+  }
+
+  if (!profileQuery.data) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center px-4">
+        <ContributorProfileErrorView onRetry={() => void profileQuery.refetch()} />
       </div>
     );
   }
 
   return (
-    <OnboardingView
-      state={onboardingQuery.data}
-      outcome={OUTCOME_MAP[outcome]}
-      onGoToStep={(nextStep) =>
-        void navigate({ search: { step: nextStep, outcome }, replace: true })
-      }
-      onConnectGitHub={() => startGitHubConnect(ROUTES.onboarding)}
+    <ContributorWalkthrough
+      profile={profileQuery.data}
+      generation={generation}
+      profileEditHref={ROUTES.profileEdit}
+      analysisHref={ROUTES.githubSkillAnalysis}
       exploreHref={ROUTES.explore}
       dashboardHref={ROUTES.dashboard}
     />

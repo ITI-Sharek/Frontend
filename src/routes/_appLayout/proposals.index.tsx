@@ -8,15 +8,32 @@ import {
   ProposalListView,
   useMyContributionProposalsQuery,
 } from "@/modules/contribution-proposals";
+import type { ContributionProposalStatus } from "@/modules/contribution-proposals/types/contribution-proposal.types";
+
+interface ProposalsSearch {
+  section?: ContributionProposalStatus | "ALL";
+}
 
 export const Route = createFileRoute("/_appLayout/proposals/")({
   beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: i18n.t("pageTitle.proposals") }] }),
+  validateSearch: (search: Record<string, unknown>): ProposalsSearch => {
+    const raw = search.section ?? search.tab;
+    const isValid =
+      raw === "ALL" ||
+      raw === "PENDING" ||
+      raw === "ACCEPTED" ||
+      raw === "DECLINED" ||
+      raw === "WITHDRAWN";
+    return isValid ? { section: raw as ContributionProposalStatus | "ALL" } : {};
+  },
   component: MyProposalsPage,
 });
 
 function MyProposalsPage() {
   const { t } = useTranslation();
+  const { section } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const query = useMyContributionProposalsQuery();
   const proposals = query.data?.pages.flatMap((page) => page.proposals) ?? [];
   // A failed *next* page keeps `data` populated, so route it to the inline
@@ -37,6 +54,13 @@ function MyProposalsPage() {
       <ProposalListView
         proposals={proposals}
         role="contributor"
+        activeSection={section}
+        onSectionChange={(nextSection) => {
+          void navigate({
+            search: { section: nextSection },
+            replace: true,
+          });
+        }}
         isLoading={query.isPending}
         error={hasLoadedAnyPage ? null : message}
         loadMoreError={hasLoadedAnyPage ? message : null}
