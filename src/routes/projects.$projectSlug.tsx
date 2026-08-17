@@ -99,6 +99,7 @@ function PublicProjectDetailsPage() {
             />
           ) : null
         }
+        canSave={currentUserQuery.data?.status === "active"}
       />
     </PublicProjectsShell>
   );

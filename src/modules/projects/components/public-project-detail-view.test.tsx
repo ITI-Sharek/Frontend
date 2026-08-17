@@ -1,4 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
+import type { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import { PublicProjectDetailView } from "./public-project-detail-view";
@@ -14,18 +16,33 @@ const publicBackedProject: PublicProjectDetailDto = {
   category: "web",
   difficulty: "intermediate",
   publishedAt: "2026-07-21T10:10:00.000Z",
+  owner: null,
   source: {
     provider: "github",
     attributionStatus: "public",
     fullName: "sharek/example",
     repositoryUrl: "https://github.com/sharek/example",
     fetchedAt: "2026-07-21T10:00:02.000Z",
+    statistics: {
+      stars: 0,
+      forks: 0,
+      contributors: null,
+      latestCommitAt: null,
+      sourceUpdatedAt: null,
+      defaultBranch: null,
+      recentCommits: [],
+      rootEntries: [],
+      rootEntriesUnavailableReason: null,
+      treeEntries: [],
+      treeTruncated: false,
+      treeUnavailableReason: null,
+    },
   },
 };
 
 describe("PublicProjectDetailView", () => {
   it("renders repository attribution and fetch time for a public-backed project", () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       <PublicProjectDetailView project={publicBackedProject} exploreHref="/explore" />,
     );
 
@@ -40,7 +57,7 @@ describe("PublicProjectDetailView", () => {
       source: { provider: "github", attributionStatus: "withheld" },
     };
 
-    const html = renderToStaticMarkup(
+    const html = render(
       <PublicProjectDetailView project={withheld} exploreHref="/explore" />,
     );
 
@@ -63,10 +80,24 @@ describe("PublicProjectDetailView", () => {
         fullName: "sharek/example",
         repositoryUrl: "https://github.com/sharek/example",
         fetchedAt: null,
+        statistics: {
+          stars: 0,
+          forks: 0,
+          contributors: null,
+          latestCommitAt: null,
+          sourceUpdatedAt: null,
+          defaultBranch: null,
+          recentCommits: [],
+          rootEntries: [],
+          rootEntriesUnavailableReason: null,
+          treeEntries: [],
+          treeTruncated: false,
+          treeUnavailableReason: null,
+        },
       },
     };
 
-    const html = renderToStaticMarkup(
+    const html = render(
       <PublicProjectDetailView project={minimal} exploreHref="/explore" />,
     );
 
@@ -75,7 +106,7 @@ describe("PublicProjectDetailView", () => {
   });
 
   it("renders the route-composed proposal action without coupling project UI to proposals", () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       <PublicProjectDetailView
         project={publicBackedProject}
         exploreHref="/explore"
@@ -88,7 +119,7 @@ describe("PublicProjectDetailView", () => {
   });
 
   it("renders route-composed Project Materials for an authenticated reader", () => {
-    const html = renderToStaticMarkup(
+    const html = render(
       <PublicProjectDetailView
         project={publicBackedProject}
         exploreHref="/explore"
@@ -99,3 +130,12 @@ describe("PublicProjectDetailView", () => {
     expect(html).toContain("كراسة المشروع متاحة للقراءة");
   });
 });
+
+function render(view: ReactNode) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return renderToStaticMarkup(
+    <QueryClientProvider client={queryClient}>{view}</QueryClientProvider>,
+  );
+}

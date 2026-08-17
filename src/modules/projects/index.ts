@@ -24,6 +24,10 @@ export {
 export {
   listPublishedProjects,
   getPublishedProjectBySlug,
+  getPublishedProjectApplicants,
+  getPublishedProjectSavedState,
+  savePublishedProject,
+  unsavePublishedProject,
 } from "./services/public-projects.service";
 
 export { projectsQueryKeys } from "./api/query-keys";
@@ -33,6 +37,9 @@ export { useMyProjectsQuery } from "./api/queries/use-my-projects-query";
 export { useOwnerProjectQuery } from "./api/queries/use-owner-project-query";
 export { usePublicProjectsQuery } from "./api/queries/use-public-projects-query";
 export { usePublicProjectBySlugQuery } from "./api/queries/use-public-project-by-slug-query";
+export { usePublicProjectApplicantsQuery } from "./api/queries/use-public-project-applicants-query";
+export { usePublicProjectSavedStateQuery } from "./api/queries/use-public-project-saved-state-query";
+export { useSetPublicProjectSavedMutation } from "./api/mutations/use-set-public-project-saved-mutation";
 
 export { usePreviewGitHubRepositoryMutation } from "./api/mutations/use-preview-github-repository-mutation";
 export { useCreateProjectDraftMutation } from "./api/mutations/use-create-project-draft-mutation";
@@ -96,6 +103,10 @@ export type {
 } from "./types/my-projects.types";
 export type {
   PublicProjectDetailDto,
+  PublicProjectOwnerDto,
+  PublicProjectApplicantDto,
+  PublicProjectApplicantsResponseDto,
+  PublicProjectSavedStateDto,
   PublicProjectListItemDto,
   PublicProjectSourceDto,
   PublicProjectsListParams,

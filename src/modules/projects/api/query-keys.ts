@@ -22,4 +22,8 @@ export const projectsQueryKeys = {
     [...PUBLIC_ROOT, "list", params] as const,
   publicBySlug: (projectSlug: string) =>
     [...PUBLIC_ROOT, "detail", projectSlug] as const,
+  publicApplicants: (projectSlug: string) =>
+    [...PUBLIC_ROOT, "applicants", projectSlug] as const,
+  publicSavedState: (projectSlug: string) =>
+    [...PUBLIC_ROOT, "saved-state", projectSlug] as const,
 };

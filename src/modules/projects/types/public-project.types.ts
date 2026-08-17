@@ -17,6 +17,37 @@ export interface PublicProjectPublicSourceDto {
   repositoryUrl: string;
   /** Nullable: a reconciled legacy source may not carry a fetch timestamp. */
   fetchedAt: string | null;
+  statistics: {
+    stars: number;
+    forks: number;
+    contributors: number | null;
+    latestCommitAt: string | null;
+    sourceUpdatedAt: string | null;
+    defaultBranch: string | null;
+    recentCommits: Array<{
+      sha: string;
+      url: string | null;
+      message: string;
+      author: string | null;
+      authoredAt: string | null;
+    }>;
+    rootEntries: Array<{
+      name: string;
+      path: string;
+      type: "file" | "directory" | "symlink" | "submodule" | "unknown";
+      size: number | null;
+      url: string | null;
+    }>;
+    rootEntriesUnavailableReason: string | null;
+    treeEntries: Array<{
+      path: string;
+      type: "file" | "directory" | "submodule" | "unknown";
+      size: number | null;
+      url: string;
+    }>;
+    treeTruncated: boolean;
+    treeUnavailableReason: string | null;
+  };
 }
 
 export interface PublicProjectWithheldSourceDto {
@@ -38,10 +69,37 @@ export interface PublicProjectListItemDto {
   category: ProjectCategory | null;
   difficulty: ProjectDifficulty | null;
   publishedAt: string;
+  owner: PublicProjectOwnerDto | null;
   source: PublicProjectSourceDto;
 }
 
+export interface PublicProjectOwnerDto {
+  username: string | null;
+  displayName: string;
+  avatarUrl: string | null;
+  publishedProjectsCount: number;
+}
+
 export type PublicProjectDetailDto = PublicProjectListItemDto;
+
+export interface PublicProjectApplicantDto {
+  applicationId: string;
+  contributionRequest: { id: string; title: string };
+  contributor: {
+    username: string | null;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  submittedAt: string;
+}
+
+export interface PublicProjectApplicantsResponseDto {
+  items: PublicProjectApplicantDto[];
+}
+
+export interface PublicProjectSavedStateDto {
+  saved: boolean;
+}
 
 export interface PublicProjectsListParams {
   cursor?: string;

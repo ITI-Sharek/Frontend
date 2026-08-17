@@ -183,4 +183,29 @@ describe("PersonalInformationSettingsPage", () => {
 
     expect(handleNavigate).toHaveBeenCalledWith("notifications");
   });
+
+  it("switches to the phone sub-tab and renders the phone settings form", async () => {
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <PersonalInformationSettingsPage
+            user={{ ...mockUser, phoneNumber: "+201012345678", phoneVerifiedAt: "2026-08-09T00:00:00.000Z" }}
+            profile={mockProfile}
+          />
+        </QueryClientProvider>,
+      );
+    });
+
+    const phoneNavBtn = [
+      ...container.querySelectorAll("button"),
+    ].find((b) => b.textContent.includes("الهاتف") || b.textContent.includes("phone"));
+    if (!phoneNavBtn) throw new Error("Expected phone nav button");
+
+    await act(async () => {
+      phoneNavBtn.click();
+    });
+
+    expect(container.textContent).toContain("+201012345678");
+    expect(container.querySelector("#phone-number")).not.toBeNull();
+  });
 });

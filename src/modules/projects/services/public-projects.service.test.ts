@@ -3,16 +3,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import {
+  getPublishedProjectApplicants,
+  getPublishedProjectSavedState,
   getPublishedProjectBySlug,
   listPublishedProjects,
+  savePublishedProject,
+  unsavePublishedProject,
 } from "./public-projects.service";
 import type {
   PublicProjectDetailDto,
+  PublicProjectApplicantsResponseDto,
   PublicProjectsListResponseDto,
 } from "../types/public-project.types";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
-  axiosInstance: { get: vi.fn() },
+  axiosInstance: { get: vi.fn(), post: vi.fn(), delete: vi.fn() },
 }));
 
 const mockedAxios = vi.mocked(axiosInstance);
@@ -33,12 +38,27 @@ describe("public projects service", () => {
           category: "web",
           difficulty: "intermediate",
           publishedAt: "2026-07-21T10:10:00.000Z",
+          owner: null,
           source: {
             provider: "github",
             attributionStatus: "public",
             fullName: "sharek/example",
             repositoryUrl: "https://github.com/sharek/example",
             fetchedAt: "2026-07-21T10:00:02.000Z",
+            statistics: {
+              stars: 0,
+              forks: 0,
+              contributors: null,
+              latestCommitAt: null,
+              sourceUpdatedAt: null,
+              defaultBranch: null,
+              recentCommits: [],
+              rootEntries: [],
+              rootEntriesUnavailableReason: null,
+              treeEntries: [],
+              treeTruncated: false,
+              treeUnavailableReason: null,
+            },
           },
         },
       ],
@@ -65,12 +85,27 @@ describe("public projects service", () => {
       category: null,
       difficulty: null,
       publishedAt: "2026-07-21T10:10:00.000Z",
+      owner: null,
       source: {
         provider: "github",
         attributionStatus: "public",
         fullName: "sharek/example",
         repositoryUrl: "https://github.com/sharek/example",
         fetchedAt: null,
+        statistics: {
+          stars: 0,
+          forks: 0,
+          contributors: null,
+          latestCommitAt: null,
+          sourceUpdatedAt: null,
+          defaultBranch: null,
+          recentCommits: [],
+          rootEntries: [],
+          rootEntriesUnavailableReason: null,
+          treeEntries: [],
+          treeTruncated: false,
+          treeUnavailableReason: null,
+        },
       },
     };
     mockedAxios.get.mockResolvedValueOnce({ data: detail });
@@ -80,6 +115,57 @@ describe("public projects service", () => {
     );
     expect(mockedAxios.get).toHaveBeenCalledWith(
       "/public/projects/sharek-example",
+    );
+  });
+
+  it("gets the public applicant cards for a published project", async () => {
+    const response: PublicProjectApplicantsResponseDto = {
+      items: [
+        {
+          applicationId: "application-1",
+          contributionRequest: { id: "request-1", title: "Build an API" },
+          contributor: {
+            username: "Karim-Muhammad",
+            displayName: "Karim Muhammad",
+            avatarUrl: null,
+          },
+          submittedAt: "2026-08-17T10:00:00.000Z",
+        },
+      ],
+    };
+    mockedAxios.get.mockResolvedValueOnce({ data: response });
+
+    await expect(
+      getPublishedProjectApplicants("sharek-example"),
+    ).resolves.toEqual(response);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/public/projects/sharek-example/applicants",
+    );
+  });
+
+  it("reads and updates the signed-in reader's saved state", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: { saved: true } });
+    mockedAxios.post.mockResolvedValueOnce({ data: { saved: true } });
+    mockedAxios.delete.mockResolvedValueOnce({ data: { saved: false } });
+
+    await expect(
+      getPublishedProjectSavedState("sharek-example"),
+    ).resolves.toEqual({ saved: true });
+    await expect(savePublishedProject("sharek-example")).resolves.toEqual({
+      saved: true,
+    });
+    await expect(unsavePublishedProject("sharek-example")).resolves.toEqual({
+      saved: false,
+    });
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "/public/projects/sharek-example/save",
+    );
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      "/public/projects/sharek-example/save",
+    );
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      "/public/projects/sharek-example/save",
     );
   });
 
@@ -94,6 +180,7 @@ describe("public projects service", () => {
       category: null,
       difficulty: null,
       publishedAt: "2026-07-21T10:10:00.000Z",
+      owner: null,
       source: { provider: "github", attributionStatus: "withheld" },
     };
     mockedAxios.get.mockResolvedValueOnce({ data: detail });
