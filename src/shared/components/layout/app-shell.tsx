@@ -169,15 +169,16 @@ export function AppShell({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="border-t border-border/60 px-4 py-3"
+              className="m-2 rounded-input border border-border bg-surface-fog px-3 py-2.5"
             >
-              <p
-                dir="ltr"
-                className="text-end font-mono text-xs font-semibold text-foreground"
-              >
+              <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.07em] text-primary">
+                <span
+                  aria-hidden
+                  className="inline-block size-1.5 rounded-full bg-evidence-teal"
+                />
                 {planChip.planName}
               </p>
-              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
                 {planChip.quotaLabel}
               </p>
             </motion.div>
@@ -317,19 +318,21 @@ function CollapseToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       aria-label={label}
       title={label}
       className={cn(
-        "hidden md:flex w-full items-center justify-end gap-2 border-b border-border/60 px-3 py-2",
-        "text-muted-foreground transition-colors duration-150 hover:bg-border/20 hover:text-foreground",
+        "hidden md:flex w-full items-center justify-end gap-1.5 px-3 py-2",
+        "text-subtle-foreground transition-colors duration-150 hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
         collapsed && "justify-center px-0",
       )}
     >
       {!collapsed && (
-        <span className="text-[11px] font-medium">{t("shell.collapseSidebar")}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">
+          {t("shell.collapseSidebar")}
+        </span>
       )}
       {collapsed ? (
-        <ChevronLeft className="size-4 shrink-0" aria-hidden />
+        <ChevronLeft className="size-3.5 shrink-0" aria-hidden />
       ) : (
-        <ChevronRight className="size-4 shrink-0" aria-hidden />
+        <ChevronRight className="size-3.5 shrink-0" aria-hidden />
       )}
     </button>
   );
@@ -342,17 +345,25 @@ function SidebarItem({ item, collapsed }: { item: AppShellNavItem; collapsed: bo
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  /*
+   * The active item is marked by a solid rule on the rail's *start* edge —
+   * the same evidence-spine gesture the record cards use — rather than by a
+   * filled pill. It keeps the rail quiet enough to sit beside content all day
+   * and reads correctly in both text directions.
+   */
   const baseClass = cn(
-    "group relative flex w-full items-center gap-3 rounded-input px-2.5 py-2.5 text-start text-sm transition-all duration-150",
+    "group relative flex w-full items-center gap-3 rounded-input px-2.5 py-2.5 text-start text-[13.5px] font-medium",
+    "transition-[background-color,color] duration-150 ease-out",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-card",
     collapsed && "justify-center px-0",
     item.active
       ? [
-          "bg-primary/10 font-semibold text-primary",
-          "before:absolute before:end-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary",
+          "bg-primary-soft font-semibold text-primary",
+          "before:absolute before:inset-y-1.5 before:start-[-8px] before:w-[3px] before:rounded-e-full before:bg-primary",
         ]
-      : "text-muted-foreground hover:bg-border/30 hover:text-foreground",
-    item.disabled && "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-muted-foreground",
+      : "text-muted-foreground hover:bg-surface-fog hover:text-foreground",
+    item.disabled &&
+      "cursor-not-allowed opacity-45 hover:bg-transparent hover:text-muted-foreground",
   );
 
   const iconEl = (
@@ -388,7 +399,7 @@ function SidebarItem({ item, collapsed }: { item: AppShellNavItem; collapsed: bo
     >
       {item.label}
       {item.badge !== undefined && item.badge > 0 && (
-        <span className="ms-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+        <span className="ms-1.5 rounded-full bg-review-amber px-1.5 py-0.5 text-[10px] font-semibold text-white">
           {item.badge > 99 ? "99+" : item.badge}
         </span>
       )}
@@ -416,7 +427,7 @@ function SidebarItem({ item, collapsed }: { item: AppShellNavItem; collapsed: bo
       {!collapsed && badgeEl}
       {/* Compact badge when collapsed */}
       {collapsed && item.badge !== undefined && item.badge > 0 && (
-        <span className="absolute top-1 end-1 flex size-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-white">
+        <span className="absolute top-1 end-1 flex size-4 items-center justify-center rounded-full bg-review-amber text-[9px] font-bold text-white">
           {item.badge > 9 ? "9+" : item.badge}
         </span>
       )}
@@ -495,7 +506,7 @@ function NavBadge({ count, compact = false }: { count?: number; compact?: boolea
     <span
       aria-label={t("shell.badgeAriaLabel", { count })}
       className={cn(
-        "inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white",
+        "tnum inline-flex min-w-5 items-center justify-center rounded-full bg-review-amber px-1.5 py-0.5 text-[10px] font-bold leading-none text-white",
         compact && "absolute -start-3 -top-2",
       )}
     >

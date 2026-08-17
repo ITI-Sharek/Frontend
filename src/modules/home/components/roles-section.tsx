@@ -1,9 +1,10 @@
-import { ArrowLeft, Check, FolderGit2, UserRound } from "lucide-react";
+import { Check, FolderGit2, UserRound } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Button } from "@/shared/components/ui/button";
 
 function getContributorPoints(t: TFunction) {
@@ -115,7 +116,7 @@ function RolePanel({
       >
         <Link to={ROUTES.register}>
           {action}
-          <ArrowLeft className="size-4" aria-hidden />
+          <DirectionalArrow />
         </Link>
       </Button>
     </article>

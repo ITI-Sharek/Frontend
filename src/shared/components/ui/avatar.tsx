@@ -26,6 +26,14 @@ const DOT_SIZES = {
   xl: "size-5",
 } as const;
 
+/** The initial has to scale with the circle, or `sm` overflows its own ring. */
+const FALLBACK_TEXT = {
+  sm: "text-xs",
+  md: "text-sm",
+  lg: "text-lg",
+  xl: "text-3xl",
+} as const;
+
 type AvatarSize = keyof typeof AVATAR_SIZES;
 
 interface AvatarProps {
@@ -67,7 +75,11 @@ export function Avatar({
         <span
           role={alt ? "img" : undefined}
           aria-label={alt || undefined}
-          className="flex size-full items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_30%,var(--border))] text-2xl font-bold text-foreground"
+          className={cn(
+            "flex size-full items-center justify-center rounded-full font-bold uppercase",
+            "bg-[linear-gradient(145deg,var(--sk-indigo-600),var(--sk-indigo-800))] text-white",
+            FALLBACK_TEXT[size],
+          )}
         >
           {fallback}
         </span>
@@ -76,9 +88,9 @@ export function Avatar({
         <span
           aria-hidden="true"
           className={cn(
-            "absolute -right-px -bottom-px rounded-full border-2 border-card",
+            "absolute -bottom-px -right-px rounded-full border-2 border-card",
             DOT_SIZES[size],
-            online ? "bg-[#22c55e]" : "bg-muted-foreground",
+            online ? "bg-evidence-teal" : "bg-muted-foreground",
           )}
         />
       )}

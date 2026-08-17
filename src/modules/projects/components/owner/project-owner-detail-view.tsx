@@ -236,7 +236,7 @@ export function ProjectOwnerDetailView({
       )}
 
       {project.status === "archived" && (
-        <Card className="border-border/60 bg-muted/20">
+        <Card className="border-border/60 bg-surface-fog">
           <p className="text-xs leading-relaxed text-muted-foreground">
             {t("project.owner.archivedNote")}
           </p>

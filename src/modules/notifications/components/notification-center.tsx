@@ -122,7 +122,7 @@ export function NotificationCenter() {
               >
                 {tab.label}
                 {tab.id === "unread" && hasUnread && (
-                  <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary">
+                  <span className="tnum inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
                     {unreadCountQuery.data?.unreadCount ?? 0}
                   </span>
                 )}
@@ -183,6 +183,7 @@ export function NotificationCenter() {
       ) : notifications.length === 0 ? (
         <PageFeedback
           className="mt-6"
+          command="sharek ls notifications"
           icon={connectionStatus === "connected" ? Bell : WifiOff}
           title={t("notifications.emptyTitle")}
           description={
@@ -250,10 +251,17 @@ function NotificationRow({
 
   return (
     <li className="border-b border-border last:border-b-0">
+      {/*
+       * Read state was carried only by a 2px dot and a barely-tinted row, so a
+       * full inbox looked uniform. Unread now takes the spine and the tinted
+       * field; read notifications drop both and lighten, which is what makes
+       * the unread ones findable at a glance.
+       */}
       <article
+        data-spine={notification.isRead ? undefined : "active"}
         className={cn(
           "relative flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5",
-          !notification.isRead && "bg-primary/5",
+          notification.isRead ? "bg-card" : "bg-primary-soft/60",
         )}
       >
         <div className="min-w-0 flex-1">
@@ -264,23 +272,30 @@ function NotificationRow({
                 aria-label={t("notifications.unread")}
               />
             )}
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-[11px] font-bold uppercase tracking-[0.07em] text-subtle-foreground">
               {getNotificationTypeLabel(t, notification.type)}
             </span>
-            <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span className="rounded-full border border-border-strong bg-card px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
               {getNotificationPriorityLabel(t, notification.priority)}
             </span>
-            <span aria-hidden="true" className="text-border">
+            <span aria-hidden="true" className="text-border-strong">
               ·
             </span>
             <time
               dateTime={notification.createdAt}
-              className="font-mono text-[11px] text-muted-foreground"
+              className="tnum text-[11px] text-subtle-foreground"
             >
               {formatNotificationDate(notification.createdAt, i18n.language)}
             </time>
           </div>
-          <h2 className="mt-2 break-words text-base font-bold text-foreground">
+          <h2
+            className={cn(
+              "mt-2 break-words text-base leading-snug",
+              notification.isRead
+                ? "font-semibold text-muted-foreground"
+                : "font-bold text-foreground",
+            )}
+          >
             {content.title}
           </h2>
           <p className="mt-1 max-w-3xl break-words text-sm leading-6 text-muted-foreground">
@@ -334,7 +349,7 @@ function ConnectionStatus({
         aria-hidden="true"
         className={cn(
           "size-2 rounded-full",
-          isConnected ? "bg-emerald-500" : "bg-amber-500",
+          isConnected ? "bg-evidence-teal" : "bg-review-amber",
         )}
       />
       {t(`notifications.connection.${status}`)}

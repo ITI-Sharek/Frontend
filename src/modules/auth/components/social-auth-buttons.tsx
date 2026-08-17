@@ -110,14 +110,14 @@ export function SocialAuthButtons({
 
       {message && (
         <p
-          className="text-right text-[11px] leading-4 text-muted-foreground"
+          className="text-start text-[11px] leading-4 text-muted-foreground"
           role="status"
         >
           {message}
         </p>
       )}
 
-      <p className="text-right text-[11px] leading-4 text-muted-foreground/80">
+      <p className="text-start text-[11px] leading-4 text-muted-foreground/80">
         {t("auth.githubIdentityNote")}
       </p>
     </div>

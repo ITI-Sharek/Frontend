@@ -1,9 +1,10 @@
-import { ArrowLeft, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 
 import { AuthTextField } from "./auth-text-field";
 
@@ -22,8 +23,8 @@ export function ForgotPasswordForm() {
         />
 
         <Button type="submit" className="w-full mt-2 h-11 text-sm font-bold shadow-sm">
-          <ArrowLeft className="size-4" />
           <span>{t("auth.sendResetLink")}</span>
+          <DirectionalArrow />
         </Button>
       </form>
 

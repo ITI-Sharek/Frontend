@@ -1,8 +1,9 @@
-import { ArrowLeft } from "lucide-react";
+
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Button } from "@/shared/components/ui/button";
 
 import { VerificationSeal } from "./illustrations/verification-seal";
@@ -33,7 +34,7 @@ export function CtaSection() {
             >
               <Link to={ROUTES.register}>
                 {t("landing.ctaCreateAccount")}
-                <ArrowLeft className="size-4" aria-hidden />
+                <DirectionalArrow />
               </Link>
             </Button>
             <Button

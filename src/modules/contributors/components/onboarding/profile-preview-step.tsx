@@ -63,7 +63,7 @@ export function ProfilePreviewStep({
               className={cn(
                 "flex flex-wrap items-center gap-3 rounded-input border px-4 py-3",
                 isFlagged
-                  ? "border-amber-500/60 bg-amber-500/5"
+                  ? "border-review-amber/60 bg-review-amber-soft"
                   : "border-border bg-background",
               )}
             >

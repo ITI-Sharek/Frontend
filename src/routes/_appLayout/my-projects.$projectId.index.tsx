@@ -359,7 +359,7 @@ function RepositoryControlRecovery() {
   }
 
   return (
-    <div className="mt-4 rounded-card border border-amber-500/30 bg-amber-500/5 p-4">
+    <div className="mt-4 rounded-card border border-review-amber/30 bg-review-amber-soft p-4">
       <h3 className="text-sm font-bold text-foreground">
         {t("project.repositoryRecovery.title")}
       </h3>

@@ -46,6 +46,7 @@
     "loading_ellipsis": "Loading…"
   },
   "navigation": {
+    "backToHome": "Back to the site",
     "skipToContent": "Skip to content",
     "home": "Home",
     "dashboard": "Dashboard",
@@ -330,6 +331,7 @@
       "verifiedProgress": "Verified progress",
       "recordTitle": "Your contribution record",
       "rating": "Contribution rating",
+      "ratingPrevious": "was {{value}}",
       "growthPath": "Your reputation is built from approved deliveries and project owner ratings. First step: apply to a task that matches your verified skills — your first approved contribution starts your record.",
       "completedContributions": "{{count}} completed contributions · {{rate}}% success rate",
       "skillsThisMonth": "+{{count}} skills verified this month"
@@ -2218,6 +2220,13 @@
       "changesRequested": "Changes requested on the delivery",
       "deliveryRejected": "Delivery rejected",
       "completed": "Contribution completed"
+    },
+    "journey": {
+      "title": "Where this contribution stands",
+      "applied": "Applied",
+      "review": "Owner review",
+      "delivery": "Delivery",
+      "approved": "Approved"
     },
     "contributorLifecycle": {
       "title": "Your contribution journey",
