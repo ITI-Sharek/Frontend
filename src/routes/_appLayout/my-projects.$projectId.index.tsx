@@ -39,15 +39,20 @@ import { cn } from "@/lib/utils";
 
 type ProjectWorkspaceTab = "overview" | "materials" | "analysis" | "proposals";
 
-function validateSearch(search: Record<string, unknown>): {
-  tab: ProjectWorkspaceTab;
-} {
-  const tab = search.tab;
+interface ProjectWorkspaceSearch {
+  section?: ProjectWorkspaceTab;
+  tab?: ProjectWorkspaceTab;
+}
+
+function validateSearch(search: Record<string, unknown>): ProjectWorkspaceSearch {
+  const raw = search.section ?? search.tab;
+  const tab: ProjectWorkspaceTab =
+    raw === "materials" || raw === "analysis" || raw === "proposals"
+      ? raw
+      : "overview";
   return {
-    tab:
-      tab === "materials" || tab === "analysis" || tab === "proposals"
-        ? tab
-        : "overview",
+    section: tab,
+    tab,
   };
 }
 
@@ -71,7 +76,8 @@ function useProjectActionKey(operation: string, revision: number) {
 function OwnerProjectManagementPage() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
-  const { tab } = Route.useSearch();
+  const { section, tab } = Route.useSearch();
+  const activeTab = section ?? tab ?? "overview";
   const navigate = Route.useNavigate();
   const projectQuery = useOwnerProjectQuery(projectId);
 
@@ -97,9 +103,9 @@ function OwnerProjectManagementPage() {
     <OwnerProjectManagement
       projectId={projectId}
       project={projectQuery.data}
-      activeTab={tab}
+      activeTab={activeTab}
       onTabChange={(nextTab) =>
-        void navigate({ search: { tab: nextTab }, replace: true })
+        void navigate({ search: { section: nextTab, tab: nextTab }, replace: true })
       }
     />
   );

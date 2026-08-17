@@ -1,7 +1,10 @@
 export { ContributorProfileEmptyState } from "./components/contributor-profile-empty-state";
 export { ContributorProfileErrorView } from "./components/contributor-profile-error";
 export { ContributorProfileNotFound } from "./components/contributor-profile-not-found";
-export { ContributorProfileView } from "./components/contributor-profile-view";
+export {
+  ContributorProfileView,
+  type ProfileTabValue,
+} from "./components/contributor-profile-view";
 export {
   ContributorGithubSkillsSection,
   GITHUB_SKILL_ANALYSIS_PATH,
@@ -43,6 +46,7 @@ export {
 } from "./services/contributor-profile-completion.service";
 export type { UpdateProfileDetailsPayload } from "./services/contributor-profile-completion.service";
 export { OnboardingView } from "./components/onboarding/onboarding-view";
+export { ContributorWalkthrough } from "./components/onboarding/contributor-walkthrough";
 export { getOnboardingState } from "./services/onboarding.service";
 export type {
   OnboardingOutcome,

@@ -7,6 +7,12 @@ export { LanguageSettingsSection } from "./components/language-settings-section"
 export { useLogoutMutation } from "./api/mutations/use-logout-mutation";
 export { useUpdateCurrentUserPreferencesMutation } from "./api/mutations/use-current-user-preferences-mutation";
 export { useCurrentUserQuery } from "./api/queries/use-current-user-query";
+export {
+  useChangePasswordMutation, useExportAccountDataMutation, useUpdateEmailMutation,
+  useUpdatePersonalDetailsMutation, useUpdatePhoneMutation, useUpdatePrivacyMutation,
+  useUpdateUsernameMutation, useUploadIdentityDocumentMutation,
+} from "./api/mutations/use-account-settings-mutations";
+export { useUsernameAvailabilityQuery } from "./api/queries/use-username-availability-query";
 export { useResolvedCurrentUser } from "./hooks/use-resolved-current-user";
 export {
   requireAdminRoute,
@@ -32,5 +38,7 @@ export type {
   LoginPayload,
   RegisterPayload,
   UpdateCurrentUserPreferencesDto,
+  UpdatePersonalDetailsDto,
+  UpdatePrivacyDto,
   UserRole,
 } from "./types/auth.types";

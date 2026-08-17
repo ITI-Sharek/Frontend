@@ -1,3 +1,12 @@
 export { SettingsShell } from "./components/settings-shell";
 export type { SettingsSectionItem } from "./components/settings-shell";
+export { PersonalInformationSettingsPage } from "./components/personal-information-settings-page";
+export { PersonalProfileForm } from "./components/personal-profile-form";
+export { PersonalDetailsForm } from "./components/personal-details-form";
+export { ChangePasswordForm } from "./components/change-password-form";
+export { PrivacySettingsForm } from "./components/privacy-settings-form";
+export { IdentityVerificationPanel } from "./components/identity-verification-panel";
+export { EmailSettingsForm } from "./components/email-settings-form";
+export { PhoneSettingsForm } from "./components/phone-settings-form";
+export { UsernameSettingsForm } from "./components/username-settings-form";
 export { SubscriptionSettingsSection } from "./components/subscription-settings-section";

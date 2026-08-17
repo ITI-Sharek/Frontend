@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ImagePlus, Loader2 } from "lucide-react";
+import { Check, ChevronDown, ImagePlus, Loader2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -29,10 +29,15 @@ import type {
 /** Settings → profile details, dynamic fields, declared skills, and avatar. */
 export function ContributorProfileSettingsSection({
   profile,
+  onCancel,
+  onSaved,
 }: {
   profile: ContributorProfileDto;
+  onCancel?: () => void;
+  onSaved?: (profile: ContributorProfileDto) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language.startsWith("ar");
   const mutation = useUpdateProfileDetailsMutation();
   const avatarMutation = useUploadContributorAvatarMutation();
   const fieldsQuery = useContributorFieldsQuery();
@@ -71,7 +76,7 @@ export function ContributorProfileSettingsSection({
     [avatarPreview],
   );
 
-  const canSave = bio.trim().length > 0 && !mutation.isPending;
+  const canSave = !mutation.isPending;
 
   return (
     <form
@@ -80,22 +85,22 @@ export function ContributorProfileSettingsSection({
         e.preventDefault();
         if (!canSave) return;
         mutation.mutate({
-          bio,
+          bio: bio.trim() || null,
           availability: availability || null,
           experienceLevelId: experienceLevelId || null,
           fieldIds,
           declaredSkills,
-        });
+        }, { onSuccess: onSaved });
       }}
     >
-      <div className="flex flex-col gap-3 rounded-input border border-border p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-800/40 sm:flex-row sm:items-center">
         <Avatar
           src={avatarPreview ?? profile.avatarUrl}
           alt={profile.displayName}
           fallback={profile.displayName.charAt(0)}
           size="xl"
         />
-        <div className="flex-1 text-right">
+        <div className="flex-1 text-start">
           <p className="font-semibold text-foreground">{t("contributor.settings.profileImage")}</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
             {t("contributor.settings.profileImageHint")}
@@ -134,61 +139,61 @@ export function ContributorProfileSettingsSection({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="settings-profile-bio" className="text-right">
+        <Label htmlFor="settings-profile-bio" className="text-start">
           {t("contributor.settings.bioLabel")}
         </Label>
         <Textarea
           id="settings-profile-bio"
-          dir="rtl"
+          dir="auto"
           rows={4}
           maxLength={500}
           placeholder={t("contributor.settings.bioPlaceholder")}
-          className="px-[17px] py-[13px] text-right text-base"
+          className="px-[17px] py-[13px] text-start text-base"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
         />
-        <p className="text-left text-xs text-muted-foreground" dir="ltr">
+        <p className="text-end text-xs text-muted-foreground" dir="ltr">
           {bio.length}/500
         </p>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="settings-profile-availability" className="text-right">
+        <Label htmlFor="settings-profile-availability" className="text-start">
           {t("contributor.settings.availabilityLabel")}
         </Label>
         <Input
           id="settings-profile-availability"
-          dir="rtl"
+          dir="auto"
           placeholder={t("contributor.settings.availabilityPlaceholder")}
-          className="h-[50px] px-[17px] text-right text-base"
+          className="h-[50px] px-[17px] text-start text-base"
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="settings-profile-experience" className="text-right">
+        <Label htmlFor="settings-profile-experience" className="text-start">
           {t("contributor.settings.experienceLevelLabel")}
         </Label>
         <NativeSelect
           id="settings-profile-experience"
           value={experienceLevelId}
           onChange={(event) => setExperienceLevelId(event.target.value)}
-          className="text-right text-base"
+          className="text-start text-base"
         >
           <NativeSelectOption value="">
             {t("contributor.settings.experienceLevelPlaceholder")}
           </NativeSelectOption>
           {experienceLevelsQuery.data?.map((level) => (
             <NativeSelectOption key={level.id} value={level.id}>
-              {level.labelAr}
+              {isArabic ? level.labelAr : level.labelEn}
             </NativeSelectOption>
           ))}
         </NativeSelect>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-right text-sm font-medium text-foreground">
+        <span className="text-start text-sm font-medium text-foreground">
           {t("contributor.settings.fieldsLabel")}
         </span>
         <details className="group relative">
@@ -207,7 +212,7 @@ export function ContributorProfileSettingsSection({
               fieldsByCategory.map((category) => (
                 <div key={`${category.labelEn}-${category.labelAr}`} className="pb-2 last:pb-0">
                   <p className="px-3 pb-1 pt-2 text-xs font-bold text-muted-foreground">
-                    {category.labelAr}
+                    {isArabic ? category.labelAr : category.labelEn}
                   </p>
                   {category.fields.map((field) => (
                     <label
@@ -224,7 +229,7 @@ export function ContributorProfileSettingsSection({
                           )
                         }
                       />
-                      <span>{field.labelAr}</span>
+                      <span>{isArabic ? field.labelAr : field.labelEn}</span>
                     </label>
                   ))}
                 </div>
@@ -246,12 +251,18 @@ export function ContributorProfileSettingsSection({
       />
 
       {mutation.isError && (
-        <p className="text-right text-xs text-destructive">
+        <p className="text-start text-xs text-destructive">
           {getApiErrorMessage(mutation.error, t("contributor.settings.saveError"))}
         </p>
       )}
 
-      <div className="flex items-center justify-start gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+        {onCancel && (
+          <Button type="button" size="sm" variant="outline" onClick={onCancel}>
+            <X className="size-4" />
+            <span>{t("common.cancel")}</span>
+          </Button>
+        )}
         <Button type="submit" size="sm" disabled={!canSave}>
           {mutation.isPending ? (
             <>
