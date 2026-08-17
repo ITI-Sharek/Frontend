@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ClipboardCheck, Inbox } from "lucide-react";
+import { ClipboardCheck, Inbox } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Button } from "@/shared/components/ui/button";
 
 import {
@@ -123,7 +124,7 @@ export function AdminSkillReviewSummary() {
                 </span>
                 <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
                   {t("skillProfile.reviewSummary.openReview")}
-                  <ArrowLeft className="size-4" aria-hidden="true" />
+                  <DirectionalArrow />
                 </span>
               </Link>
             ))}
@@ -137,7 +138,7 @@ export function AdminSkillReviewSummary() {
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           {t("skillProfile.reviewSummary.viewQueue")}
-          <ArrowLeft className="size-4" aria-hidden="true" />
+          <DirectionalArrow />
         </Link>
       </div>
     </section>

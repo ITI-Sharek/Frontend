@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
 import { ProfileMenu } from "@/shared/components/navigation/profile-menu";
@@ -41,6 +42,12 @@ interface SiteHeaderProps {
   utilityActions?: ReactNode;
   skipToContentLabel?: string;
   showSkipLink?: boolean;
+  /**
+   * Overrides the centred marketing container. The workspace passes a
+   * full-bleed container so the brand lockup sits directly above the sidebar
+   * rail instead of floating inboard of it.
+   */
+  containerClassName?: string;
 }
 
 export function SiteHeader({
@@ -52,6 +59,7 @@ export function SiteHeader({
   utilityActions,
   skipToContentLabel,
   showSkipLink = true,
+  containerClassName,
 }: SiteHeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const { t } = useTranslation();
@@ -68,22 +76,29 @@ export function SiteHeader({
     to: ROUTES.landing,
     ...brand,
   };
+  /*
+   * The lockup pairs the mark with a two-line wordmark. The Arabic name sits
+   * on the baseline of the Latin one rather than beneath it as a caption —
+   * both scripts are the product's name, not a translation of it.
+   */
   const brandContent = (
     <>
       {resolvedBrand.logoSrc && (
-        <img
-          src={resolvedBrand.logoSrc}
-          alt=""
-          width={40}
-          height={40}
-          className="size-10 object-cover object-center"
-        />
+        <span className="relative flex size-10 items-center justify-center rounded-2xl bg-primary-soft transition-transform duration-300 ease-out group-hover/brand:scale-105">
+          <img
+            src={resolvedBrand.logoSrc}
+            alt=""
+            width={40}
+            height={40}
+            className="size-8 object-contain object-center"
+          />
+        </span>
       )}
-      <span className="flex flex-col items-end gap-0.5 leading-none">
-        <span className="text-[17px] font-extrabold text-primary">
+      <span className="flex flex-col gap-px leading-none">
+        <span className="text-[19px] font-extrabold tracking-tight text-primary">
           {resolvedBrand.title}
         </span>
-        <span className="font-wordmark text-[11px] font-bold tracking-[0.02em] text-primary">
+        <span className="text-[11px] font-bold tracking-[0.04em] text-evidence-teal">
           {resolvedBrand.subtitle}
         </span>
       </span>
@@ -91,26 +106,35 @@ export function SiteHeader({
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-card">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-header-bg backdrop-blur-md supports-[backdrop-filter]:bg-header-bg">
       {showSkipLink && (
         <a
           href="#main-content"
-          className="sr-only fixed start-4 top-4 z-50 rounded-input bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground focus:not-sr-only"
+          className="sr-only fixed start-4 top-4 z-50 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground focus:not-sr-only"
         >
           {skipToContentLabel ?? t("navigation.skipToContent")}
         </a>
       )}
-      <div className="mx-auto flex h-[60px] w-full max-w-[1120px] items-center justify-between gap-4 px-4 sm:px-6">
+      <div
+        className={cn(
+          "mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between gap-4 px-4 sm:px-6",
+          containerClassName,
+        )}
+      >
         {resolvedBrand.to ? (
           <Link
             to={resolvedBrand.to}
             dir="ltr"
-            className="flex shrink-0 items-center gap-2.5"
+            className="group/brand flex shrink-0 items-center gap-2.5"
           >
             {brandContent}
           </Link>
         ) : (
-          <a href={ROUTES.landing} dir="ltr" className="flex shrink-0 items-center gap-2.5">
+          <a
+            href={ROUTES.landing}
+            dir="ltr"
+            className="group/brand flex shrink-0 items-center gap-2.5"
+          >
             {brandContent}
           </a>
         )}
@@ -132,7 +156,7 @@ export function SiteHeader({
             type="button"
             aria-label={t("theme.toggle")}
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             {mounted && resolvedTheme === "dark" ? (
               <Sun className="size-4" aria-hidden="true" />
@@ -172,8 +196,18 @@ export function SiteHeader({
 }
 
 function HeaderNavLink({ item }: { item: SiteHeaderNavItem }) {
-  const className =
-    "flex min-h-10 items-center whitespace-nowrap text-[15px] font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded-social focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
+  /*
+   * The active page is marked with a short rule under the label rather than a
+   * pill, so the header keeps a single horizontal line of type.
+   */
+  const className = cn(
+    "relative flex min-h-10 items-center whitespace-nowrap text-[15px] font-semibold transition-colors",
+    "after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-center after:rounded-full after:bg-primary after:transition-transform after:duration-200 after:ease-out",
+    "focus-visible:rounded-social focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+    item.active
+      ? "text-foreground after:scale-x-100"
+      : "text-muted-foreground after:scale-x-0 hover:text-foreground hover:after:scale-x-100",
+  );
 
   if (item.href.startsWith("#") || item.href.startsWith("http")) {
     return (
@@ -212,7 +246,7 @@ export function HeaderIconLink({
       to={to}
       aria-label={label}
       title={label}
-      className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {children}
     </Link>

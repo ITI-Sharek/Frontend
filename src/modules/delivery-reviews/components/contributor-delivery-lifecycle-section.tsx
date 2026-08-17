@@ -6,6 +6,7 @@ import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 
+import { ContributionJourneyPath } from "./contribution-journey-path";
 import { getDeliveryLifecycleCopy, formatDeliveryDate } from "./delivery-lifecycle-copy";
 import { deliveryKeys } from "../api/query-keys";
 import { httpDeliveryClient } from "../services/delivery-client";
@@ -51,23 +52,45 @@ export function ContributorDeliveryLifecycleSection({
           </Button>
         </Card>
       ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+        <div className="grid gap-4">
           {query.data.contributions.map((contribution) => {
             const dueAt = formatDeliveryDate(contribution.deliveryDueAt, i18n.language);
             return (
-              <article key={contribution.applicationId} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <h3 className="font-bold text-foreground">{contribution.contributionRequestTitle}</h3>
-                  <p role="status" className="mt-1 text-sm font-medium text-evidence-teal-foreground dark:text-evidence-teal">
-                    {lifecycleCopy[contribution.lifecycleStatus]}
-                  </p>
-                  {dueAt && contribution.lifecycleStatus === "AWAITING_DELIVERY" && (
-                    <p className="mt-1 text-xs text-muted-foreground">{t("deliveryReviews.contributorLifecycle.dueAt", { date: dueAt })}</p>
-                  )}
+              <article
+                key={contribution.applicationId}
+                className="overflow-hidden rounded-card border border-border bg-card shadow-[var(--shadow-record)]"
+              >
+                <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="bidi text-pretty text-[17px] font-bold leading-snug text-foreground">
+                      {contribution.contributionRequestTitle}
+                    </h3>
+                    <p
+                      role="status"
+                      className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-evidence-teal/30 bg-evidence-soft px-2.5 py-1 text-xs font-bold text-evidence-soft-foreground"
+                    >
+                      {lifecycleCopy[contribution.lifecycleStatus]}
+                    </p>
+                    {dueAt && contribution.lifecycleStatus === "AWAITING_DELIVERY" && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {t("deliveryReviews.contributorLifecycle.dueAt", { date: dueAt })}
+                      </p>
+                    )}
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+                    <a href={ROUTES.application(contribution.applicationId)}>
+                      {t("deliveryReviews.contributorLifecycle.open")}
+                    </a>
+                  </Button>
                 </div>
-                <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
-                  <a href={ROUTES.application(contribution.applicationId)}>{t("deliveryReviews.contributorLifecycle.open")}</a>
-                </Button>
+
+                {/* The same status, drawn against the stages it belongs to. */}
+                <div className="bg-surface-fog/60 px-4 pb-3 pt-5 sm:px-6">
+                  <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-subtle-foreground">
+                    {t("deliveryReviews.journey.title")}
+                  </p>
+                  <ContributionJourneyPath status={contribution.lifecycleStatus} />
+                </div>
               </article>
             );
           })}

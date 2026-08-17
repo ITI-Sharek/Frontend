@@ -1,4 +1,4 @@
-import { ArrowLeft, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import { ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 
 import { AuthDivider } from "./auth-divider";
@@ -93,7 +94,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
 
         {submitError && (
-          <p className="w-full text-right text-xs text-destructive">
+          <p className="w-full text-start text-xs text-destructive">
             {submitError}
           </p>
         )}
@@ -103,8 +104,8 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           className="w-full mt-1 h-10 text-sm font-bold shadow-sm"
           disabled={!canSubmit || isSubmitting}
         >
-          <ArrowLeft className="size-4" />
           <span>{isSubmitting ? t("auth.loggingIn") : t("auth.loginButton")}</span>
+          <DirectionalArrow />
         </Button>
       </form>
 

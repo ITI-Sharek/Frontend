@@ -24,14 +24,14 @@ export function RoleOptionCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "relative flex w-full flex-col items-start gap-2 rounded-input border p-4 text-right transition-colors",
+        "relative flex w-full flex-col items-start gap-2 rounded-input border p-4 text-start transition-colors",
         selected
           ? "border-primary bg-primary/5"
           : "border-border bg-input-bg hover:border-primary/50",
       )}
     >
       {selected && (
-        <span className="absolute top-3 left-3 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+        <span className="absolute top-3 end-3 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <Check className="size-3" />
         </span>
       )}

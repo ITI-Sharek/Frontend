@@ -5,10 +5,11 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { SearchField } from "@/shared/components/ui/search-field";
+import { ExploreCategoryTiles } from "./explore-category-tiles";
 import { cn } from "@/lib/utils";
 
 import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
@@ -79,19 +80,25 @@ export function ExploreView({
   const pagination = result?.pagination;
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
-      <header className="border-b border-border pb-6">
-        <p className="text-xs font-semibold text-primary">
+    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 md:px-6 md:py-8">
+      {/*
+       * The registry opens on a brand band carrying the search, the way a
+       * marketplace front page does — search is the primary act here, so it
+       * gets the strongest surface rather than sitting as one more grey input
+       * under a heading.
+       */}
+      <header className="sk-hero px-5 py-8 md:px-9 md:py-10">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-evidence-teal">
           {t("explore.registryLabel")}
         </p>
-        <h1 className="mt-2 text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+        <h1 className="mt-2.5 max-w-2xl text-balance text-[28px] font-extrabold leading-[1.12] tracking-tight text-hero-ink md:text-[40px]">
           {t("explore.title")}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        <p className="mt-3 max-w-2xl text-pretty text-[15px] leading-7 text-hero-ink-soft">
           {t("explore.description")}
         </p>
 
-        <div className="mt-6 flex w-full flex-col gap-2.5 sm:flex-row sm:items-start">
+        <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:items-start">
           <SearchField
             className="min-w-0 flex-1"
             value={searchDraft}
@@ -100,6 +107,7 @@ export function ExploreView({
             clearSearchLabel={t("explore.clearSearch")}
             searchButtonLabel={t("explore.searchButton")}
             placeholder={t("explore.searchPlaceholder")}
+            tone="hero"
             onSearch={() =>
               onParamsChange({
                 q: searchDraft.trim() || undefined,
@@ -114,12 +122,12 @@ export function ExploreView({
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-input border border-border bg-card px-4 text-sm font-medium text-foreground lg:hidden sm:w-auto"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 text-sm font-bold text-hero-ink backdrop-blur-sm transition-colors hover:bg-white/20 sm:w-auto lg:hidden"
           >
             <SlidersHorizontal className="size-4" />
             {t("explore.filtersButton")}
             {filtersCount > 0 && (
-              <span className="rounded-full bg-primary px-1.5 py-0.5 font-mono text-[10px] leading-none text-primary-foreground">
+              <span className="tnum rounded-full bg-evidence-teal px-1.5 py-0.5 text-[10px] font-bold leading-none text-evidence-teal-foreground">
                 {filtersCount}
               </span>
             )}
@@ -127,7 +135,15 @@ export function ExploreView({
         </div>
       </header>
 
-      <div className="mt-6 flex items-start gap-7">
+      {/* Coarse filter first, as a picture row. */}
+      <div className="mt-7">
+        <ExploreCategoryTiles
+          active={params.category}
+          onSelect={(category) => onParamsChange({ category, page: undefined })}
+        />
+      </div>
+
+      <div className="mt-7 flex items-start gap-7">
         <aside className="sticky top-24 hidden w-60 shrink-0 rounded-card border border-border bg-surface-fog px-4 py-1 lg:block">
           <ExploreFilters
             params={params}
@@ -138,10 +154,20 @@ export function ExploreView({
 
         <div className="min-w-0 flex-1">
           <div className="flex min-h-10 flex-wrap items-center gap-2 border-b border-border pb-4">
-            <p className="me-auto text-sm text-foreground">
-              {t("explore.totalResults", {
-                count: pagination?.total ?? 0,
-              })}
+            <p className="me-auto text-sm text-muted-foreground">
+              {/*
+               * The locale string emphasises the count with a <b> tag. Passing
+               * it through `t()` rendered the tag as literal text ("<b>4</b>
+               * matching projects"); <Trans> is what actually maps it to an
+               * element.
+               */}
+              <Trans
+                i18nKey="explore.totalResults"
+                count={pagination?.total ?? 0}
+                components={{
+                  b: <span className="tnum font-bold text-foreground" />,
+                }}
+              />
               {params.q !== undefined && (
                 <span className="text-muted-foreground">
                   {" "}
