@@ -1,8 +1,11 @@
 import {
+  AlertCircle,
   BadgeCheck,
+  Check,
   Loader2,
   Phone,
   Send,
+  ShieldAlert,
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
@@ -30,13 +33,34 @@ export function PhoneSettingsForm({ user }: PhoneSettingsFormProps) {
   const [countryCode, setCountryCode] = useState("+20");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [enable2fa, setEnable2fa] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const updatePhone = useUpdatePhoneMutation();
-  // TODO: Replace this with the API's verified-phone field when it exists.
-  const verifiedPhone = user.phoneVerifiedAt ? user.phoneNumber ?? null : null;
+
+  const currentPhone = user.phoneNumber?.trim() || null;
+  const isVerified = Boolean(user.phoneVerifiedAt && currentPhone);
 
   function handleSendCode(event: React.FormEvent) {
     event.preventDefault();
-    updatePhone.mutate(`${countryCode}${phoneNumber.replace(/^0+/, "")}`);
+    setSubmitError(null);
+    const sanitizedNumber = phoneNumber.replace(/\D/g, "").replace(/^0+/, "");
+    if (!sanitizedNumber) return;
+
+    const fullNumber = `${countryCode}${sanitizedNumber}`;
+    updatePhone.mutate(fullNumber, {
+      onSuccess: () => {
+        setCodeSent(true);
+      },
+      onError: (err: unknown) => {
+        const message =
+          err && typeof err === "object" && "message" in err
+            ? String((err as { message: unknown }).message)
+            : isArabic
+              ? "تعذر تحديث رقم الهاتف، يرجى المحاولة مرة أخرى."
+              : "Could not update phone number. Please try again.";
+        setSubmitError(message);
+      },
+    });
   }
 
   return (
@@ -63,18 +87,27 @@ export function PhoneSettingsForm({ user }: PhoneSettingsFormProps) {
             </span>
             <div>
               <p dir="ltr" className="font-mono text-sm font-bold text-foreground">
-                {verifiedPhone ?? (isArabic ? "لا يوجد رقم هاتف مسجل" : "No phone on file")}
+                {currentPhone ?? (isArabic ? "لا يوجد رقم هاتف مسجل" : "No phone on file")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {isArabic ? "يُستخدم لاسترداد الحساب وتأكيد العمليات الحساسة." : "Used for account recovery and sensitive action confirmations."}
+                {isArabic
+                  ? "يُستخدم لاسترداد الحساب وتأكيد العمليات الحساسة."
+                  : "Used for account recovery and sensitive action confirmations."}
               </p>
             </div>
           </div>
-          {verifiedPhone && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              <BadgeCheck className="size-3.5" />
-              <span>{t("settings.personal.phone.verifiedBadge")}</span>
-            </span>
+          {currentPhone && (
+            isVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <BadgeCheck className="size-3.5" />
+                <span>{t("settings.personal.phone.verifiedBadge")}</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                <ShieldAlert className="size-3.5" />
+                <span>{isArabic ? "غير موثّق" : "Unverified"}</span>
+              </span>
+            )
           )}
         </div>
       </div>
@@ -86,62 +119,83 @@ export function PhoneSettingsForm({ user }: PhoneSettingsFormProps) {
             {t("settings.personal.phone.updateTitle")}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {isArabic ? "أدخل رقم هاتفك الجديد وسنرسل رمز تأكيد مكونًا من 6 أرقام." : "Enter your new phone number and we will send a 6-digit confirmation code."}
+            {isArabic
+              ? "أدخل رقم هاتفك الجديد وسنرسل رمز تأكيد مكونًا من 6 أرقام."
+              : "Enter your new phone number and we will send a 6-digit confirmation code."}
           </p>
         </div>
 
-        <form onSubmit={handleSendCode} className="grid grid-cols-1 gap-4 max-w-lg">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="phone-number" className="text-xs font-semibold text-foreground">
-              {t("settings.personal.phone.phoneLabel")} *
-            </Label>
-            <div className="flex gap-2" dir="ltr">
-              <NativeSelect
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="h-11 w-32 shrink-0 rounded-xl border-border bg-background px-2 text-xs font-semibold"
-              >
-                <NativeSelectOption value="+20">🇪🇬 +20</NativeSelectOption>
-                <NativeSelectOption value="+966">🇸🇦 +966</NativeSelectOption>
-                <NativeSelectOption value="+971">🇦🇪 +971</NativeSelectOption>
-                <NativeSelectOption value="+962">🇯🇴 +962</NativeSelectOption>
-                <NativeSelectOption value="+212">🇲🇦 +212</NativeSelectOption>
-                <NativeSelectOption value="+965">🇰🇼 +965</NativeSelectOption>
-              </NativeSelect>
+        {codeSent ? (
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-50/50 p-4 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+            <Check className="size-4 shrink-0 text-emerald-600" />
+            <span>
+              {isArabic
+                ? `تم تحديث رقم الهاتف بنجاح إلى (${countryCode}${phoneNumber.replace(/\D/g, "").replace(/^0+/, "")})`
+                : `Phone number successfully updated to (${countryCode}${phoneNumber.replace(/\D/g, "").replace(/^0+/, "")})`}
+            </span>
+          </div>
+        ) : (
+          <form onSubmit={handleSendCode} className="grid grid-cols-1 gap-4 max-w-lg">
+            {submitError && (
+              <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-semibold text-destructive">
+                <AlertCircle className="size-4 shrink-0" />
+                <span>{submitError}</span>
+              </div>
+            )}
 
-              <div className="relative flex-1">
-                <Smartphone className="absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="phone-number"
-                  type="tel"
-                  dir="ltr"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder={t("settings.personal.phone.phonePlaceholder")}
-                  className="h-11 ps-10 rounded-xl border-border bg-background text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  required
-                />
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="phone-number" className="text-xs font-semibold text-foreground">
+                {t("settings.personal.phone.phoneLabel")} *
+              </Label>
+              <div className="flex items-center gap-2" dir="ltr">
+                <NativeSelect
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  wrapperClassName="w-36 shrink-0"
+                  className="h-11 rounded-xl border-border bg-background px-3 text-xs font-semibold"
+                >
+                  <NativeSelectOption value="+20">🇪🇬 +20</NativeSelectOption>
+                  <NativeSelectOption value="+966">🇸🇦 +966</NativeSelectOption>
+                  <NativeSelectOption value="+971">🇦🇪 +971</NativeSelectOption>
+                  <NativeSelectOption value="+962">🇯🇴 +962</NativeSelectOption>
+                  <NativeSelectOption value="+212">🇲🇦 +212</NativeSelectOption>
+                  <NativeSelectOption value="+965">🇰🇼 +965</NativeSelectOption>
+                </NativeSelect>
+
+                <div className="relative flex-1 min-w-0">
+                  <Smartphone className="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone-number"
+                    type="tel"
+                    dir="ltr"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder={t("settings.personal.phone.phonePlaceholder")}
+                    className="h-11 ps-10 rounded-xl border-border bg-background text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    required
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex justify-start">
-            <Button
-              type="submit"
-              disabled={updatePhone.isPending || !phoneNumber}
-              className="gap-2 rounded-xl text-xs font-semibold"
-            >
-              {updatePhone.isPending ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Send className="size-3.5" />
-              )}
-              <span>
-                {isArabic ? "حفظ رقم الهاتف" : "Save phone number"}
-              </span>
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-start pt-1">
+              <Button
+                type="submit"
+                disabled={updatePhone.isPending || !phoneNumber.trim()}
+                className="gap-2 rounded-xl text-xs font-semibold"
+              >
+                {updatePhone.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Send className="size-3.5" />
+                )}
+                <span>
+                  {isArabic ? "حفظ رقم الهاتف" : "Save phone number"}
+                </span>
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* 2FA Security Card */}

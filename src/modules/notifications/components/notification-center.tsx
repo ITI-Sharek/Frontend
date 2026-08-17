@@ -113,35 +113,35 @@ export function NotificationCenter({
           aria-label={t("notifications.center.filters")}
           className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-end sm:justify-between"
         >
-        <TabsList
-          variant="line"
-          aria-label={t("notifications.center.readState")}
-          className="flex gap-1 overflow-x-auto"
-        >
-          {(
-            [
-              { id: "all", label: t("notifications.center.all") },
-              { id: "unread", label: t("notifications.center.unread") },
-              { id: "read", label: t("notifications.center.read") },
-            ] as const
-          ).map((tab) => {
-            return (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                data-read-state={tab.id}
-                className="min-h-11 shrink-0"
-              >
-                {tab.label}
-                {tab.id === "unread" && hasUnread && (
-                  <span className="tnum inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
-                    {unreadCountQuery.data?.unreadCount ?? 0}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+          <TabsList
+            variant="line"
+            aria-label={t("notifications.center.readState")}
+            className="-mb-px flex h-auto gap-4 border-b-0 bg-transparent p-0"
+          >
+            {(
+              [
+                { id: "all", label: t("notifications.center.all") },
+                { id: "unread", label: t("notifications.center.unread") },
+                { id: "read", label: t("notifications.center.read") },
+              ] as const
+            ).map((tab) => {
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  data-read-state={tab.id}
+                  className="min-h-11 shrink-0 px-2 py-3 text-sm font-medium transition-colors data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=active]:text-primary"
+                >
+                  {tab.label}
+                  {tab.id === "unread" && hasUnread && (
+                    <span className="tnum inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {unreadCountQuery.data?.unreadCount ?? 0}
+                    </span>
+                  )}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
         <label className="grid gap-1.5 pb-3 text-xs font-semibold text-foreground">
           {t("notifications.center.type")}
             <NativeSelect

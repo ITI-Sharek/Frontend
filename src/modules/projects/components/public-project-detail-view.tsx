@@ -1,152 +1,235 @@
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { getCategoryLabel, getDifficultyLabel } from "./explore-filters";
+import { useContributionRequestsQuery } from "@/modules/contribution-requests";
+import { usePublicProjectApplicantsQuery } from "../api/queries/use-public-project-applicants-query";
+import { usePublicProjectSavedStateQuery } from "../api/queries/use-public-project-saved-state-query";
+import { useSetPublicProjectSavedMutation } from "../api/mutations/use-set-public-project-saved-mutation";
+
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+
+import { PublicProjectHero } from "./public-project-hero";
+import { PublicProjectOverviewTab } from "./public-project-overview-tab";
+import { PublicProjectTasksTab } from "./public-project-tasks-tab";
+import { PublicProjectFilesTab } from "./public-project-files-tab";
+import { PublicProjectApplicantsTab } from "./public-project-applicants-tab";
+import { PublicProjectActivityTab } from "./public-project-activity-tab";
+import { PublicProjectDiscussionsTab } from "./public-project-discussions-tab";
+import { PublicProjectSidebar } from "./public-project-sidebar";
+import {
+  ApplyProjectDialog,
+  ShareProjectDialog,
+  TaskDetailDialog,
+} from "./public-project-modals";
+import type { TaskItemData } from "./public-project-modals";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
-function formatPublishedDate(publishedAt: string, locale: string): string {
-  return new Date(publishedAt).toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-interface PublicProjectDetailViewProps {
+export interface PublicProjectDetailViewProps {
   project: PublicProjectDetailDto;
   exploreHref: string;
   proposalAction?: ReactNode;
   materialsSlot?: ReactNode;
+  canSave?: boolean;
 }
 
-/**
- * Minimal, honest public project presentation (SK-112 contract §10): renders
- * only `PublicProjectDetailDto`'s allowlisted fields plus explicit route-level
- * slots. Contribution requests/tasks, owner identity, stars, and fit hints are
- * a separate, not-yet-implemented discovery-detail feature and must never be
- * fabricated here — the public contract does not return them.
- */
 export function PublicProjectDetailView({
   project,
   exploreHref,
   proposalAction,
   materialsSlot,
+  canSave = false,
 }: PublicProjectDetailViewProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<string>("overview");
+
+  // Modal dialog states
+  const [applyDialogOpen, setApplyDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskItemData | null>(null);
+  const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const contributionRequestsQuery = useContributionRequestsQuery();
+  const applicantsQuery = usePublicProjectApplicantsQuery(project.slug);
+  const savedStateQuery = usePublicProjectSavedStateQuery(project.slug, canSave);
+  const setSaved = useSetPublicProjectSavedMutation(project.slug);
+  const applicants = applicantsQuery.data?.items ?? [];
+  const tasks: TaskItemData[] = (contributionRequestsQuery.data?.items ?? [])
+    .filter((request) => request.projectId === project.id)
+    .map((request) => ({
+      id: request.id,
+      title: request.title,
+      tags: request.technologyTags,
+      difficulty: request.difficulty ?? "beginner",
+      dueDate:
+        request.targetCompletionDate ??
+        request.applicationsCloseAt ??
+        t("common.notAvailable", "Not available"),
+      reward: request.reward
+        ? `${request.reward.amount} ${request.reward.currency}`
+        : t("project.detail.noReward", "No reward"),
+      status: "open",
+    }));
+
+  const handleViewTask = (task: TaskItemData) => {
+    setSelectedTask(task);
+    setTaskDetailOpen(true);
+  };
+
+  const handleApplyToTask = (task: TaskItemData) => {
+    setSelectedTask(task);
+    setApplyDialogOpen(true);
+  };
+
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
-      <a
-        href={exploreHref}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      {/* ── 1. Top Breadcrumb & Hero Header Section ── */}
+      <PublicProjectHero
+        project={project}
+        exploreHref={exploreHref}
+        onApplyClick={() => {
+          setSelectedTask(null);
+          setApplyDialogOpen(true);
+        }}
+        onShareClick={() => setShareDialogOpen(true)}
+        onSaveClick={() => setSaved.mutate(!(savedStateQuery.data?.saved ?? false))}
+        canSave={canSave}
+        isSaved={savedStateQuery.data?.saved ?? false}
+        isSavePending={setSaved.isPending || savedStateQuery.isPending}
+        proposalAction={proposalAction}
+      />
+
+      {/* ── 2. Tabbed Content & Sidebars ── */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full space-y-6"
       >
-        <ArrowRight className="size-4" />
-        {t("project.detail.backToExplore")}
-      </a>
-
-      <header className="rounded-card border border-border bg-card p-6">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <h1
-            dir="ltr"
-            className="font-mono text-xl font-bold tracking-[0.65px] text-foreground"
+        {/* Navigation Tabs Bar */}
+        <div className="border-b border-border/80 pb-px">
+          <TabsList
+            variant="line"
+            className="flex w-full justify-start gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6"
           >
-            {project.title}
-          </h1>
-          {project.difficulty !== null && (
-            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-              {getDifficultyLabel(t, project.difficulty)}
-            </span>
-          )}
-          {project.category !== null && (
-            <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-              {getCategoryLabel(t, project.category)}
-            </span>
-          )}
-          {project.source.attributionStatus === "public" && (
-            <a
-              dir="ltr"
-              href={project.source.repositoryUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="ms-auto inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.65px] text-muted-foreground transition-colors hover:text-foreground"
+            <TabsTrigger
+              value="overview"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
             >
-              <ExternalLink className="size-3.5" />
-              {t("project.detail.openOnGithub")}
-            </a>
-          )}
+              {t("project.detail.tabs.overview", "Overview")}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="tasks"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
+            >
+              {t("project.detail.tabs.tasks", "Tasks")} ({tasks.length})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="files"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
+            >
+              {t("project.detail.tabs.files", "Files")}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="applicants"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
+            >
+              {t("project.detail.tabs.applicants", "Applicants")} ({applicants.length})
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="activity"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
+            >
+              {t("project.detail.tabs.activity", "Activity")}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="discussions"
+              className="text-xs sm:text-sm font-semibold pb-3 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary"
+            >
+              {t("project.detail.tabs.discussions", "Discussions")}
+            </TabsTrigger>
+          </TabsList>
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          {t("project.detail.publishedOn", {
-            date: formatPublishedDate(project.publishedAt, i18n.language),
-          })}
-        </p>
+        {/* ── 3. Tab Contents Layout ── */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Main Left Column (2/3 width) */}
+          <div className="min-w-0 lg:col-span-2">
+            <TabsContent value="overview" className="mt-0 outline-none">
+              <PublicProjectOverviewTab
+                project={project}
+                tasks={tasks}
+                onViewTask={handleViewTask}
+                materialsSlot={materialsSlot}
+              />
+            </TabsContent>
 
-        {(project.technologies.length > 0 || project.tags.length > 0) && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {project.technologies.map((tech) => (
-              <span
-                key={`tech-${tech}`}
-                dir="ltr"
-                className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[11px] tracking-[0.65px] text-muted-foreground"
-              >
-                {tech}
-              </span>
-            ))}
-            {project.tags.map((tag) => (
-              <span
-                key={`tag-${tag}`}
-                className="rounded-full bg-border/40 px-2 py-0.5 text-[11px] text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
+            <TabsContent value="tasks" className="mt-0 outline-none">
+              <PublicProjectTasksTab
+                tasks={tasks}
+                onViewTask={handleViewTask}
+                onApplyToTask={handleApplyToTask}
+              />
+            </TabsContent>
+
+            <TabsContent value="files" className="mt-0 outline-none">
+              <PublicProjectFilesTab project={project} />
+            </TabsContent>
+
+            <TabsContent value="applicants" className="mt-0 outline-none">
+              <PublicProjectApplicantsTab
+                applicants={applicants}
+                isLoading={applicantsQuery.isLoading}
+              />
+            </TabsContent>
+
+            <TabsContent value="activity" className="mt-0 outline-none">
+              <PublicProjectActivityTab project={project} />
+            </TabsContent>
+
+            <TabsContent value="discussions" className="mt-0 outline-none">
+              <PublicProjectDiscussionsTab />
+            </TabsContent>
           </div>
-        )}
-      </header>
 
-      {proposalAction && (
-        <section className="rounded-card border border-primary/25 bg-primary/5 p-5">
-          {proposalAction}
-        </section>
-      )}
-
-      <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-lg font-bold text-foreground">{t("project.detail.overview")}</h2>
-        <p className="mt-3 leading-8 text-muted-foreground">
-          {project.description ?? t("explore.noDescription")}
-        </p>
-      </section>
-
-      <section className="rounded-card border border-border bg-card p-6">
-        <h2 className="text-sm font-bold text-foreground">{t("project.source.title")}</h2>
-        {project.source.attributionStatus === "public" ? (
-          <>
-            <p
-              dir="ltr"
-              className="mt-2 text-end font-mono text-sm tracking-[0.65px] text-foreground"
-            >
-              {project.source.fullName}
-            </p>
-            {project.source.fetchedAt && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("project.detail.lastFetched")}{" "}
-                {new Date(project.source.fetchedAt).toLocaleString(i18n.language)}
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            {t("project.detail.sourceUnavailable")}
-          </p>
-        )}
-      </section>
-
-      {materialsSlot && (
-        <div className="rounded-card border border-border bg-card p-6">
-          {materialsSlot}
+          {/* Right Sidebar Widgets Column (1/3 width) */}
+          <div className="min-w-0 lg:col-span-1">
+            <PublicProjectSidebar
+              project={project}
+            />
+          </div>
         </div>
-      )}
+      </Tabs>
+
+      {/* ── 4. Interactive Modals ── */}
+      <ApplyProjectDialog
+        open={applyDialogOpen}
+        onOpenChange={setApplyDialogOpen}
+        project={project}
+        tasks={tasks}
+        initialTask={selectedTask}
+      />
+
+      <TaskDetailDialog
+        open={taskDetailOpen}
+        onOpenChange={setTaskDetailOpen}
+        task={selectedTask}
+        onApply={handleApplyToTask}
+      />
+
+      <ShareProjectDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        project={project}
+      />
     </div>
   );
 }

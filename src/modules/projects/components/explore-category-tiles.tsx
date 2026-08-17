@@ -1,3 +1,4 @@
+import { Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -5,19 +6,6 @@ import { cn } from "@/lib/utils";
 import { getCategoryLabel, PROJECT_CATEGORIES } from "./explore-filters";
 import type { ProjectCategory } from "../types/explore.types";
 
-/**
- * Category as an illustrated tile row rather than a column of radio buttons.
- *
- * The categories are the registry's primary axis — most people arrive knowing
- * roughly what kind of project they want — but they were buried three controls
- * down a grey sidebar. Promoting them to a picture row puts the coarsest,
- * most-used filter first and turns the top of the page into something worth
- * looking at.
- *
- * Every tile is a real `<button>` driving the same `category` search param the
- * radio group drove; the sidebar radios stay for keyboard users and for the
- * mobile filter sheet, so no way of filtering was removed.
- */
 const CATEGORY_ART: Record<ProjectCategory, string> = {
   web: "/art/cat-web.png",
   mobile: "/art/cat-mobile.png",
@@ -37,7 +25,7 @@ export function ExploreCategoryTiles({
 
   return (
     <div
-      className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+      className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 pt-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
       role="group"
       aria-label={t("project.filters.category")}
     >
@@ -76,18 +64,21 @@ function CategoryTile({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "group relative flex w-[124px] shrink-0 snap-start flex-col items-center gap-2 rounded-card border p-3 text-center",
-        "transition-[transform,border-color,background-color,box-shadow] duration-200 ease-out",
+        "group relative flex w-[130px] shrink-0 snap-start flex-col items-center gap-2.5 rounded-card border p-3.5 text-center sm:w-[140px]",
+        "transition-all duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         selected
-          ? "-translate-y-0.5 border-primary bg-primary text-primary-foreground shadow-[var(--shadow-primary)]"
+          ? "-translate-y-1 border-primary bg-primary text-primary-foreground shadow-[var(--shadow-primary)] ring-1 ring-primary/50"
           : "border-border bg-card text-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-raised)]",
       )}
     >
+      {/* Visual icon/art box */}
       <span
         className={cn(
-          "flex size-14 items-center justify-center rounded-2xl transition-colors",
-          selected ? "bg-white/15" : "bg-surface-fog",
+          "relative flex size-14 items-center justify-center rounded-2xl transition-all duration-200",
+          selected
+            ? "bg-white/15 shadow-inner"
+            : "bg-surface-fog group-hover:bg-surface-muted",
         )}
       >
         {art ? (
@@ -97,20 +88,22 @@ function CategoryTile({
             width={56}
             height={56}
             loading="lazy"
-            className="size-12 object-contain transition-transform duration-300 ease-out group-hover:scale-110"
+            className="size-11 object-contain transition-transform duration-300 ease-out group-hover:scale-110"
           />
         ) : (
-          /* "All" has no illustration; a grid of dots stands in for "any". */
-          <span
-            aria-hidden
+          <Layers
             className={cn(
-              "sk-dotgrid size-9 rounded-xl",
-              selected && "[--texture-ink:rgba(255,255,255,0.5)]",
+              "size-6 transition-transform duration-200 group-hover:scale-110",
+              selected ? "text-white" : "text-primary",
             )}
+            aria-hidden
           />
         )}
       </span>
-      <span className="text-[12.5px] font-bold leading-tight">{label}</span>
+
+      <span className="text-[13px] font-bold leading-tight line-clamp-1">
+        {label}
+      </span>
     </button>
   );
 }
