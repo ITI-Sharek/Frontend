@@ -3,6 +3,7 @@ import { Fragment, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AppProviders } from "@/providers/app-providers";
+import { RouteTransitionLoader } from "@/shared/components/feedback";
 
 import appCss from "../styles.css?url";
 
@@ -36,6 +37,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="antialiased">
         <AppProviders>
+          <RouteTransitionLoader />
           <LocalizedDocumentContent>{children}</LocalizedDocumentContent>
         </AppProviders>
         <Scripts />

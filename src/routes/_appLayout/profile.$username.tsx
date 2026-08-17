@@ -9,6 +9,7 @@ import {
   ContributorProfileView,
   useContributorProfileQuery,
 } from "@/modules/contributors";
+import type { ProfileTabValue } from "@/modules/contributors";
 import { shouldRedirectUnauthenticatedProfile } from "./profile-auth.helpers";
 import { getProfileRouteState } from "./profile-route-state";
 
@@ -18,10 +19,25 @@ export function beforeLoadContributorProfile() {
   }
 }
 
+interface ProfileSearch {
+  section?: ProfileTabValue;
+}
+
 export const Route = createFileRoute("/_appLayout/profile/$username")({
   head: ({ params }) => ({
     meta: [{ title: `@${params.username} | Sharek` }],
   }),
+  validateSearch: (search: Record<string, unknown>): ProfileSearch => {
+    const raw = search.section ?? search.tab;
+    const isValid =
+      raw === "overview" ||
+      raw === "skills" ||
+      raw === "repositories" ||
+      raw === "projects" ||
+      raw === "activity" ||
+      raw === "reviews";
+    return isValid ? { section: raw as ProfileTabValue } : {};
+  },
   beforeLoad: beforeLoadContributorProfile,
   component: ContributorProfilePage,
 });
@@ -29,7 +45,8 @@ export const Route = createFileRoute("/_appLayout/profile/$username")({
 function ContributorProfilePage() {
   const { t } = useTranslation();
   const { username } = Route.useParams();
-  const navigate = useNavigate();
+  const { section } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const logoutMutation = useLogoutMutation();
   const profileQuery = useContributorProfileQuery(username);
 
@@ -84,6 +101,16 @@ function ContributorProfilePage() {
   }
 
   return (
-    <ContributorProfileView profile={profileQuery.data} onLogout={handleLogout} />
+    <ContributorProfileView
+      profile={profileQuery.data}
+      onLogout={handleLogout}
+      activeSection={section}
+      onSectionChange={(nextSection) => {
+        void navigate({
+          search: { section: nextSection },
+          replace: true,
+        });
+      }}
+    />
   );
 }

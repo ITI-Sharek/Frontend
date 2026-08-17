@@ -1,7 +1,13 @@
 export { ContributionRequestCreateView } from "./components/contribution-request-create-view";
-export { ContributionRequestDetailView } from "./components/contribution-request-detail-view";
+export {
+  ContributionRequestDetailView,
+  type RequestWorkspaceTab,
+} from "./components/contribution-request-detail-view";
 export { ContributionRequestForm } from "./components/contribution-request-form";
-export { OwnerContributionRequestsWorkspace } from "./components/owner-contribution-requests-workspace";
+export {
+  OwnerContributionRequestsWorkspace,
+  type OwnerSectionStatus,
+} from "./components/owner-contribution-requests-workspace";
 export { OwnerApplicationReview } from "./components/owner-application-review";
 export { AdvisoryFitAssessment } from "./components/advisory-fit-assessment";
 export { AcceptApplicationDialog } from "./components/accept-application-dialog";

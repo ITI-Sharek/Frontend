@@ -8,6 +8,7 @@ import {
   OwnerContributionRequestsWorkspace,
   getContributionRequestErrorMessage,
 } from "@/modules/contribution-requests";
+import type { OwnerSectionStatus } from "@/modules/contribution-requests";
 import { requireOwnerRoute } from "@/modules/auth";
 import { useOwnerProjectQuery } from "@/modules/projects";
 import { ROUTES } from "@/config/routes.config";
@@ -18,17 +19,34 @@ import {
   PageFeedback,
 } from "@/shared/components/layout/page-layout";
 
+interface OwnerRequestsSearch {
+  section?: OwnerSectionStatus;
+}
+
 export const Route = createFileRoute(
   "/_appLayout/my-projects/$projectId/contribution-requests/",
 )({
   beforeLoad: requireOwnerRoute,
   head: () => ({ meta: [{ title: "Sharek" }] }),
+  validateSearch: (search: Record<string, unknown>): OwnerRequestsSearch => {
+    const raw = search.section ?? search.tab;
+    const isValid =
+      raw === "published" ||
+      raw === "applicationsClosed" ||
+      raw === "draft" ||
+      raw === "assigned" ||
+      raw === "completed" ||
+      raw === "cancelled" ||
+      raw === "discarded";
+    return isValid ? { section: raw as OwnerSectionStatus } : {};
+  },
   component: OwnerContributionRequestsPage,
 });
 
 function OwnerContributionRequestsPage() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
+  const { section } = Route.useSearch();
   const navigate = Route.useNavigate();
   const projectQuery = useOwnerProjectQuery(projectId);
   const [createOpen, setCreateOpen] = useState(false);
@@ -79,6 +97,13 @@ function OwnerContributionRequestsPage() {
         requestHref={(requestId) => ROUTES.contributionRequest(requestId)}
         newRequestHref={ROUTES.newContributionRequest(projectId)}
         onCreateRequest={() => setCreateOpen(true)}
+        activeSection={section}
+        onSectionChange={(nextSection) => {
+          void navigate({
+            search: { section: nextSection },
+            replace: true,
+          });
+        }}
       />
       <SidePanel
         open={createOpen}

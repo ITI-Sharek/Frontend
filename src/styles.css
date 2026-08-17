@@ -256,6 +256,130 @@ a {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   Route Loader & Sharek Handoff Animations
+   Exact brand animation matching the video screencast:
+   - Orbiting rotor with two chasing arcs (Evidence Teal and Institutional Indigo)
+   - Prominent leading head beads on each arc
+   - Concentric pulse ring expanding from the center core twice per 360deg revolution
+   - Static central core node
+───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes sharek-rotor-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sharek-arc-flex-teal {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes sharek-arc-flex-indigo {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes sharek-center-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.95;
+    stroke-width: 2.5px;
+  }
+  24% {
+    transform: scale(2.2);
+    opacity: 0;
+    stroke-width: 1px;
+  }
+  50% {
+    transform: scale(0.35);
+    opacity: 0.95;
+    stroke-width: 2.5px;
+  }
+  74% {
+    transform: scale(2.2);
+    opacity: 0;
+    stroke-width: 1px;
+  }
+  100% {
+    transform: scale(0.35);
+    opacity: 0.95;
+    stroke-width: 2.5px;
+  }
+}
+
+@keyframes sharek-center-dot-glow {
+  0%, 50%, 100% {
+    transform: scale(1);
+  }
+  25%, 75% {
+    transform: scale(1.12);
+  }
+}
+
+.sharek-loader__rotor {
+  transform-origin: 50px 50px;
+  animation: sharek-rotor-spin 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.sharek-loader__arc-group--teal {
+  transform-origin: 50px 50px;
+  animation: sharek-arc-flex-teal 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.sharek-loader__arc-group--indigo {
+  transform-origin: 50px 50px;
+  animation: sharek-arc-flex-indigo 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.sharek-loader__pulse {
+  transform-origin: 50px 50px;
+  animation: sharek-center-pulse 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.sharek-loader__center-dot {
+  transform-origin: 50px 50px;
+  animation: sharek-center-dot-glow 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.sharek-loader__wordmark {
+  transition: opacity 0.2s ease;
+}
+
+/* Reduced motion support: static pristine mark with zero animations */
+@media (prefers-reduced-motion: reduce) {
+  .sharek-loader__rotor,
+  .sharek-loader__arc-group--teal,
+  .sharek-loader__arc-group--indigo,
+  .sharek-loader__pulse,
+  .sharek-loader__center-dot,
+  .sharek-loader__wordmark {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .sharek-loader__pulse {
+    display: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    Public footer
    The footer intentionally keeps a calm, institutional surface while borrowing
    the compact column rhythm of the product's Arabic-first reference layout.

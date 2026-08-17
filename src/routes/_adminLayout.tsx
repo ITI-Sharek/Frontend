@@ -24,6 +24,7 @@ import { AppShell } from "@/shared/components/layout/app-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
 import { SiteHeader } from "@/shared/components/layout/site-header";
 import { getAdminNavigation } from "@/shared/components/layout/workspace-navigation";
+import { SharekLoader } from "@/shared/components/feedback";
 
 export const beforeLoadAdminRoute = requireAdminRoute;
 
@@ -137,7 +138,11 @@ function AdminSessionLoadingState() {
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      <span suppressHydrationWarning>{t("common.loading_admin_session")}</span>
+      <SharekLoader
+        size="md"
+        showLabel
+        label={t("common.loading_admin_session", "جارٍ تحميل جلسة المسؤول...")}
+      />
     </div>
   );
 }

@@ -53,13 +53,224 @@ function confidenceLabel(t: TFunction, confidence: number): string {
 }
 
 const UNVERIFIED_STATUS_META: Record<
-  Exclude<ContributorSkillDto["status"], "approved">,
+  Exclude<ContributorSkillDto["status"], "approved" | "superseded">,
   { icon: ComponentType<{ className?: string }>; labelKey: string }
 > = {
   pending: { icon: Clock, labelKey: "contributor.profile.skillStatusPending" },
   rejected: { icon: CircleSlash, labelKey: "contributor.profile.skillStatusRejected" },
   disputed: { icon: CircleAlert, labelKey: "contributor.profile.skillStatusDisputed" },
 };
+
+export function ContributorAboutPanel({
+  profile,
+}: {
+  profile: ContributorProfileDto;
+}) {
+  const { t } = useTranslation();
+  const sections = getPublicProfileSections(profile);
+
+  return (
+    <div className="flex-1 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.aboutTitle")}</h2>
+      {sections.hasBio ? (
+        <p className="mt-3 max-w-prose leading-8 text-muted-foreground">
+          {profile.bio}
+        </p>
+      ) : (
+        <ContributorProfileEmptyState
+          title={t("contributor.profile.aboutEmptyTitle")}
+          description={t("contributor.profile.aboutEmptyDescription")}
+        />
+      )}
+
+      <dl className="mt-6 grid gap-x-8 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">{t("contributor.profile.roleLabel")}</dt>
+          <dd className="font-medium text-foreground">{profile.roleLabel}</dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">{t("contributor.profile.availabilityLabel")}</dt>
+          <dd className="font-medium text-foreground">
+            {profile.availability ?? t("contributor.profile.unspecified")}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">{t("contributor.profile.githubAccountLabel")}</dt>
+          <dd className="font-medium text-foreground">
+            {profile.githubStatus.connected &&
+            profile.githubStatus.username ? (
+              <a
+                dir="ltr"
+                href={`https://github.com/${profile.githubStatus.username}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[13px] tracking-[0.65px] text-primary hover:opacity-80"
+              >
+                @{profile.githubStatus.username}
+              </a>
+            ) : (
+              t("contributor.githubStatus.disconnected")
+            )}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">{t("contributor.profile.usernameLabel")}</dt>
+          <dd dir="ltr" className="font-mono text-[13px] tracking-[0.65px] text-foreground">
+            @{profile.username}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">{t("contributor.profile.experienceLevelLabel")}</dt>
+          <dd className="font-medium text-foreground">
+            {profile.experienceLevel?.labelAr ?? t("contributor.profile.experienceLevelUnspecified")}
+          </dd>
+        </div>
+        <div className="flex items-start justify-between gap-4 sm:col-span-2">
+          <dt className="shrink-0 text-muted-foreground">{t("contributor.profile.fieldsLabel")}</dt>
+          <dd className="text-end font-medium text-foreground">
+            {profile.fields.length > 0 ? (
+              profile.fields.map((field) => field.labelAr).join(t("contributor.profile.fieldsSeparator"))
+            ) : (
+              t("contributor.profile.unspecified")
+            )}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+export function ContributorSkillsPanel({
+  profile,
+}: {
+  profile: ContributorProfileDto;
+}) {
+  const { t } = useTranslation();
+  const sections = getPublicProfileSections(profile);
+  const verifiedSkills = profile.skills.filter(
+    (skill) => skill.status === "approved",
+  );
+  const unverifiedSkills = profile.skills.filter(
+    (skill) => skill.status !== "approved" && skill.status !== "superseded",
+  );
+  const showUnverified =
+    profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
+
+  return (
+    <div className="flex-1 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.skillsTitle")}</h2>
+        {verifiedSkills.length > 0 && (
+          <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+            {t("contributor.profile.verifiedCount", { count: verifiedSkills.length })}
+          </span>
+        )}
+      </div>
+
+      {sections.hasSkills ? (
+        <div className="mt-4 flex flex-col gap-2.5">
+          {verifiedSkills.map((skill, index) => (
+            <VerifiedSkillRow key={`${skill.name}-${index}`} skill={skill} />
+          ))}
+
+          {verifiedSkills.length === 0 && (
+            <p className="text-sm leading-6 text-muted-foreground">
+              {t("contributor.profile.skillsInReview")}
+            </p>
+          )}
+
+          {showUnverified && (
+            <div className="mt-2 border-t border-border pt-4">
+              <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+                {t("contributor.profile.unverifiedOnlyYou")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {unverifiedSkills.map((skill, index) => (
+                  <UnverifiedSkillChip
+                    key={`${skill.name}-${skill.status}-${index}`}
+                    skill={skill}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <ContributorProfileEmptyState
+          title={t("contributor.profile.skillsEmptyTitle")}
+          description={t("contributor.profile.skillsEmptyDescription")}
+        />
+      )}
+
+      {profile.declaredSkills.length > 0 && (
+        <div className="mt-6 border-t border-border pt-4">
+          <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+            {t("contributor.profile.declaredSkillsLabel")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {profile.declaredSkills.map((skill) => (
+              <span
+                key={skill}
+                dir="ltr"
+                className="rounded-full border border-border bg-background px-3 py-1.5 font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ContributorContributionsPanel({
+  profile,
+}: {
+  profile: ContributorProfileDto;
+}) {
+  const { t } = useTranslation();
+  const sections = getPublicProfileSections(profile);
+
+  return (
+    <div className="flex-1 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.contributionsTitle")}</h2>
+      {sections.hasHistory ? (
+        <ol className="mt-4 flex flex-col">
+          {profile.contributionHistory.map((item, index) => (
+            <li
+              key={item.id}
+              className={cn(
+                "relative border-s-2 border-border ps-5 pb-5",
+                index === profile.contributionHistory.length - 1 &&
+                  "border-s-transparent pb-0",
+              )}
+            >
+              <span
+                aria-hidden
+                className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-evidence-teal"
+              />
+              <h3 className="font-semibold text-foreground">{item.title}</h3>
+              {item.role && (
+                <p className="mt-1 text-sm text-evidence-teal">{item.role}</p>
+              )}
+              {item.description && (
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {item.description}
+                </p>
+              )}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <ContributorProfileEmptyState
+          title={t("contributor.profile.contributionsEmptyTitle")}
+          description={t("contributor.profile.contributionsEmptyDescription")}
+        />
+      )}
+    </div>
+  );
+}
 
 type ProfileTabId = "about" | "skills" | "contributions";
 
@@ -77,11 +288,6 @@ const TABS: {
   },
 ];
 
-/**
- * Profile content as tabs (à la Mostaql): personal data / skills with review
- * status / contribution history. Inactive panels stay in the DOM (`hidden`)
- * so the full content renders server-side and stays crawlable.
- */
 export function ContributorProfileSections({
   profile,
 }: {
@@ -89,15 +295,6 @@ export function ContributorProfileSections({
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ProfileTabId>("about");
-  const sections = getPublicProfileSections(profile);
-  const verifiedSkills = profile.skills.filter(
-    (skill) => skill.status === "approved",
-  );
-  const unverifiedSkills = profile.skills.filter(
-    (skill) => skill.status !== "approved",
-  );
-  const showUnverified =
-    profile.viewerRelationship === "owner" && unverifiedSkills.length > 0;
 
   return (
     <Tabs
@@ -130,7 +327,6 @@ export function ContributorProfileSections({
         })}
       </TabsList>
 
-      {/* ——— البيانات الشخصية ——— */}
       <TabsContent
         value="about"
         forceMount
@@ -138,74 +334,9 @@ export function ContributorProfileSections({
         aria-labelledby="profile-tab-about"
         className="flex-1 p-6"
       >
-        <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.aboutTitle")}</h2>
-        {sections.hasBio ? (
-          <p className="mt-3 max-w-prose leading-8 text-muted-foreground">
-            {profile.bio}
-          </p>
-        ) : (
-          <ContributorProfileEmptyState
-            title={t("contributor.profile.aboutEmptyTitle")}
-            description={t("contributor.profile.aboutEmptyDescription")}
-          />
-        )}
-
-        <dl className="mt-6 grid gap-x-8 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.roleLabel")}</dt>
-            <dd className="font-medium text-foreground">{profile.roleLabel}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.availabilityLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.availability ?? t("contributor.profile.unspecified")}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.githubAccountLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.githubStatus.connected &&
-              profile.githubStatus.username ? (
-                <a
-                  dir="ltr"
-                  href={`https://github.com/${profile.githubStatus.username}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-mono text-[13px] tracking-[0.65px] text-primary hover:opacity-80"
-                >
-                  @{profile.githubStatus.username}
-                </a>
-              ) : (
-                t("contributor.githubStatus.disconnected")
-              )}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.usernameLabel")}</dt>
-            <dd dir="ltr" className="font-mono text-[13px] tracking-[0.65px] text-foreground">
-              @{profile.username}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.experienceLevelLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.experienceLevel?.labelAr ?? t("contributor.profile.experienceLevelUnspecified")}
-            </dd>
-          </div>
-          <div className="flex items-start justify-between gap-4 sm:col-span-2">
-            <dt className="shrink-0 text-muted-foreground">{t("contributor.profile.fieldsLabel")}</dt>
-            <dd className="text-end font-medium text-foreground">
-              {profile.fields.length > 0 ? (
-                profile.fields.map((field) => field.labelAr).join(t("contributor.profile.fieldsSeparator"))
-              ) : (
-                t("contributor.profile.unspecified")
-              )}
-            </dd>
-          </div>
-        </dl>
+        <ContributorAboutPanel profile={profile} />
       </TabsContent>
 
-      {/* ——— المهارات ——— */}
       <TabsContent
         value="skills"
         forceMount
@@ -213,71 +344,9 @@ export function ContributorProfileSections({
         aria-labelledby="profile-tab-skills"
         className="flex-1 p-6"
       >
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.skillsTitle")}</h2>
-          {verifiedSkills.length > 0 && (
-            <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {t("contributor.profile.verifiedCount", { count: verifiedSkills.length })}
-            </span>
-          )}
-        </div>
-
-        {sections.hasSkills ? (
-          <div className="mt-4 flex flex-col gap-2.5">
-            {verifiedSkills.map((skill, index) => (
-              <VerifiedSkillRow key={`${skill.name}-${index}`} skill={skill} />
-            ))}
-
-            {verifiedSkills.length === 0 && (
-              <p className="text-sm leading-6 text-muted-foreground">
-                {t("contributor.profile.skillsInReview")}
-              </p>
-            )}
-
-            {showUnverified && (
-              <div className="mt-2 border-t border-border pt-4">
-                <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-                  {t("contributor.profile.unverifiedOnlyYou")}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {unverifiedSkills.map((skill, index) => (
-                    <UnverifiedSkillChip
-                      key={`${skill.name}-${skill.status}-${index}`}
-                      skill={skill}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <ContributorProfileEmptyState
-            title={t("contributor.profile.skillsEmptyTitle")}
-            description={t("contributor.profile.skillsEmptyDescription")}
-          />
-        )}
-
-        {profile.declaredSkills.length > 0 && (
-          <div className="mt-6 border-t border-border pt-4">
-            <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {t("contributor.profile.declaredSkillsLabel")}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {profile.declaredSkills.map((skill) => (
-                <span
-                  key={skill}
-                  dir="ltr"
-                  className="rounded-full border border-border bg-background px-3 py-1.5 font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <ContributorSkillsPanel profile={profile} />
       </TabsContent>
 
-      {/* ——— المساهمات ——— */}
       <TabsContent
         value="contributions"
         forceMount
@@ -285,49 +354,12 @@ export function ContributorProfileSections({
         aria-labelledby="profile-tab-contributions"
         className="flex-1 p-6"
       >
-        <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.contributionsTitle")}</h2>
-        {sections.hasHistory ? (
-          <ol className="mt-4 flex flex-col">
-            {profile.contributionHistory.map((item, index) => (
-              <li
-                key={item.id}
-                className={cn(
-                  "relative border-s-2 border-border ps-5 pb-5",
-                  index === profile.contributionHistory.length - 1 &&
-                    "border-s-transparent pb-0",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className="absolute -start-[7px] top-1 size-3 rounded-full border-2 border-card bg-evidence-teal"
-                />
-                <h3 className="font-semibold text-foreground">{item.title}</h3>
-                {item.role && (
-                  <p className="mt-1 text-sm text-evidence-teal">{item.role}</p>
-                )}
-                {item.description && (
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {item.description}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <ContributorProfileEmptyState
-            title={t("contributor.profile.contributionsEmptyTitle")}
-            description={t("contributor.profile.contributionsEmptyDescription")}
-          />
-        )}
+        <ContributorContributionsPanel profile={profile} />
       </TabsContent>
     </Tabs>
   );
 }
 
-/**
- * Verified skill row: proficiency + labeled confidence + evidence expander.
- * Verified and unverified skills must never look identical.
- */
 function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
   const { t } = useTranslation();
   const hasEvidence =
@@ -379,7 +411,7 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
 
 function UnverifiedSkillChip({ skill }: { skill: ContributorSkillDto }) {
   const { t } = useTranslation();
-  if (skill.status === "approved") return null;
+  if (skill.status === "approved" || skill.status === "superseded") return null;
   const meta = UNVERIFIED_STATUS_META[skill.status];
   const StatusIcon = meta.icon;
 
