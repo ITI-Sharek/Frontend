@@ -15,7 +15,10 @@ import {
   disconnectGitHubAccount,
   startGitHubConnect,
 } from "@/modules/github";
-import { SettingsShell } from "@/modules/settings";
+import {
+  PersonalInformationSettingsPage,
+  SettingsShell,
+} from "@/modules/settings";
 import { NotificationPreferencesPanel } from "@/modules/notifications";
 import { SubscriptionSettingsSection } from "@/modules/subscriptions";
 import type { SettingsSectionItem } from "@/modules/settings";
@@ -34,14 +37,14 @@ interface SettingsSearch {
 export const Route = createFileRoute("/_appLayout/settings")({
   head: () => ({ meta: [{ title: "Sharek" }] }),
   validateSearch: (search: Record<string, unknown>): SettingsSearch => {
-    const section = search.section;
+    const section = search.section ?? search.tab;
     const isValid =
       section === "profile" ||
       section === "github" ||
       section === "language" ||
       section === "subscription" ||
       section === "notifications";
-    return isValid ? { section } : {};
+    return isValid ? { section: section as SettingsSectionId } : {};
   },
   component: SettingsPage,
 });
@@ -50,20 +53,20 @@ function SettingsPage() {
   const { t } = useTranslation();
   const navigate = Route.useNavigate();
   const { section } = Route.useSearch();
-  const currentUserQuery = useCurrentUserQuery();
-  const role = currentUserQuery.data?.role;
-  const username = currentUserQuery.data?.username;
+  const routeContext = Route.useRouteContext();
+  const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
+  const currentUser = routeContext.currentUser ?? currentUserQuery.data;
+  const role = currentUser?.role;
+  const username = currentUser?.username;
 
   const isContributor = role === "contributor";
-  const profileQuery = useContributorProfileQuery(username ?? "");
+  const profileQuery = useContributorProfileQuery(
+    isContributor ? username ?? "" : "",
+  );
 
   const sections: SettingsSectionItem[] = [
-    ...(isContributor
-      ? [
-          { id: "profile", label: t("settings.sections.profile") },
-          { id: "github", label: "GitHub" },
-        ]
-      : []),
+    { id: "profile", label: t("settings.sections.profile") },
+    ...(isContributor ? [{ id: "github", label: "GitHub" }] : []),
     { id: "language", label: t("settings.sections.language") },
     { id: "notifications", label: t("settings.sections.notifications") },
     { id: "subscription", label: t("settings.sections.subscription") },
@@ -73,6 +76,18 @@ function SettingsPage() {
 
   function handleSelectSection(id: string) {
     navigate({ search: { section: id as SettingsSectionId } });
+  }
+
+  if (activeSectionId === "profile" && currentUser) {
+    return (
+      <PersonalInformationSettingsPage
+        user={currentUser}
+        profile={profileQuery.data}
+        onNavigateToSection={(nextSection) =>
+          navigate({ search: { section: nextSection } })
+        }
+      />
+    );
   }
 
   return (

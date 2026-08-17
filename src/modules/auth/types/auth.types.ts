@@ -10,6 +10,19 @@ export interface AuthUserDto {
   role: UserRole;
   status: string;
   preferredLanguage: "en" | "ar";
+  phoneNumber?: string | null;
+  phoneVerifiedAt?: string | null;
+  country?: string | null;
+  region?: string | null;
+  city?: string | null;
+  gender?: "male" | "female" | "prefer_not_to_say" | null;
+  dateOfBirth?: string | null;
+  profileVisibility?: "public" | "members" | "private";
+  showEmail?: boolean;
+  showPhone?: boolean;
+  showActivity?: boolean;
+  allowIndexing?: boolean;
+  identityVerificationStatus?: "unverified" | "pending" | "verified" | "rejected";
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
@@ -44,6 +57,16 @@ export interface LoginPayload {
 
 export interface UpdateCurrentUserPreferencesDto {
   preferredLanguage: "en" | "ar";
+}
+
+export interface UpdatePersonalDetailsDto {
+  firstName: string; lastName: string; country?: string; region?: string;
+  city?: string; gender?: "male" | "female" | "prefer_not_to_say"; dateOfBirth?: string;
+}
+
+export interface UpdatePrivacyDto {
+  profileVisibility: "public" | "members" | "private";
+  showEmail: boolean; showPhone: boolean; showActivity: boolean; allowIndexing: boolean;
 }
 
 /**

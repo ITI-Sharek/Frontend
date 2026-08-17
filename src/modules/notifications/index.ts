@@ -1,4 +1,7 @@
-export { NotificationCenter } from "./components/notification-center";
+export {
+  NotificationCenter,
+  type ReadStateFilter,
+} from "./components/notification-center";
 export { NotificationPopover } from "./components/notification-popover";
 export { NotificationPreferencesPanel } from "./components/notification-preferences-panel";
 export {

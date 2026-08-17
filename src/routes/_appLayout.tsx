@@ -26,6 +26,7 @@ import { AppShell } from "@/shared/components/layout/app-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
 import { SiteHeader } from "@/shared/components/layout/site-header";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
+import { SharekLoader } from "@/shared/components/feedback";
 
 export const Route = createFileRoute("/_appLayout")({
   beforeLoad: requireMemberRoute,
@@ -194,7 +195,11 @@ function SessionLoadingState() {
       aria-live="polite"
       className="flex min-h-dvh items-center justify-center bg-background px-4 text-sm text-muted-foreground"
     >
-      {t("common.loading_session")}
+      <SharekLoader
+        size="md"
+        showLabel
+        label={t("common.loading_session", "جارٍ تحميل الجلسة...")}
+      />
     </div>
   );
 }

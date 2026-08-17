@@ -186,14 +186,67 @@ describe("contributor profile view helpers", () => {
     expect(reputationHtml).not.toContain("Node.js");
   });
 
+  it("renders repository and contribution facts without profile mock content", () => {
+    const html = renderToStaticMarkup(
+      <ContributorProfileView
+        profile={makeProfile({
+          githubInstallations: [
+            {
+              installationLinkId: "installation-1",
+              accountLogin: "sara-dev",
+              accountType: "user",
+              status: "active",
+              verifiedAt: "2026-08-17T08:00:00.000Z",
+              manageUrl: null,
+              repositories: [
+                {
+                  repositoryId: "repo-1",
+                  fullName: "sara-dev/real-project",
+                  visibility: "public",
+                  defaultBranch: "main",
+                },
+              ],
+            },
+          ],
+          contributionHistory: [
+            {
+              id: "contribution-1",
+              title: "Implemented the real project search",
+              description: "Published contribution record",
+              role: "Contributor",
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(html).toContain("sara-dev/real-project");
+    expect(html).toContain("Implemented the real project search");
+    expect(html).not.toContain("todo-app");
+    expect(html).not.toContain("Cairo, Egypt");
+    expect(html).not.toContain("Joined Mar 2023");
+  });
+
   it("renders the profile sections with one accessible tabs primitive", () => {
     const html = renderToStaticMarkup(
       <ContributorProfileView profile={makeProfile()} />,
     );
 
     expect(html.match(/role="tablist"/g)).toHaveLength(1);
-    expect(html.match(/role="tab"/g)).toHaveLength(3);
-    expect(html.match(/role="tabpanel"/g)).toHaveLength(3);
+    expect(html.match(/role="tab"/g)).toHaveLength(6);
+    expect(html.match(/role="tabpanel"/g)).toHaveLength(6);
     expect(html).toContain('aria-label="أقسام الملف الشخصي"');
+  });
+
+  it("renders the requested activeSection tab when passed from URL", () => {
+    const html = renderToStaticMarkup(
+      <ContributorProfileView
+        profile={makeProfile()}
+        activeSection="skills"
+      />,
+    );
+
+    expect(html).toContain('id="profile-panel-skills"');
+    expect(html).toContain('data-state="active"');
   });
 });

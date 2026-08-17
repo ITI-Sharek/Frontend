@@ -24,7 +24,7 @@ import type {
   ContributionRequestsByStatusDto,
 } from "../types/contribution-request.types";
 
-type OwnerSectionStatus =
+export type OwnerSectionStatus =
   keyof ContributionRequestsByStatusDto | "applicationsClosed";
 
 const SECTION_ORDER: Array<{
@@ -48,6 +48,8 @@ export function OwnerContributionRequestsWorkspace({
   requestHref,
   newRequestHref,
   onCreateRequest,
+  activeSection,
+  onSectionChange,
 }: {
   projectId: string;
   projectTitle: string;
@@ -55,11 +57,14 @@ export function OwnerContributionRequestsWorkspace({
   requestHref: (requestId: string) => string;
   newRequestHref: string;
   onCreateRequest?: () => void;
+  activeSection?: OwnerSectionStatus;
+  onSectionChange?: (section: OwnerSectionStatus) => void;
 }) {
   const { t } = useTranslation();
   const query = useOwnerProjectContributionRequestsQuery(projectId);
-  const [activeStatus, setActiveStatus] =
+  const [internalStatus, setInternalStatus] =
     useState<OwnerSectionStatus>("published");
+  const activeStatus = activeSection ?? internalStatus;
 
   if (query.isPending) {
     return (
@@ -148,7 +153,13 @@ export function OwnerContributionRequestsWorkspace({
             const nextStatus = SECTION_ORDER.find(
               (section) => section.status === value,
             )?.status;
-            if (nextStatus) setActiveStatus(nextStatus);
+            if (nextStatus) {
+              if (onSectionChange) {
+                onSectionChange(nextStatus);
+              } else {
+                setInternalStatus(nextStatus);
+              }
+            }
           }}
           className="mt-6 gap-0"
         >

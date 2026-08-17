@@ -1,95 +1,220 @@
-import { Github, LogOut, UserRoundCheck } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Avatar } from "@/shared/components/ui/avatar";
-import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { ContributorBadgesCard } from "./contributor-badges-card";
+import { ContributorCompletionCard } from "./contributor-completion-card";
+import { ContributorGithubReposCard } from "./contributor-github-repos-card";
 import { ContributorGithubSkillsSection } from "./contributor-github-skills-section";
-import { ContributorProfileCompletion } from "./contributor-profile-completion";
-import { ContributorProfileSections } from "./contributor-profile-sections";
+import { ContributorProfileHeader } from "./contributor-profile-header";
+import {
+  ContributorAboutPanel,
+  ContributorContributionsPanel,
+  ContributorSkillsPanel,
+} from "./contributor-profile-sections";
+import { ContributorQuickActionsCard } from "./contributor-quick-actions-card";
+import { ContributorRecentActivityCard } from "./contributor-recent-activity-card";
 import { ContributorReputationStrip } from "./contributor-reputation-strip";
+import { ContributorSkillProfileCard } from "./contributor-skill-profile-card";
+import { ContributorStatsCard } from "./contributor-stats-card";
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
 
-/**
- * Public contributor profile (screen-inventory §1.8) as a viewport-filling
- * grid: identity header + stats panel side by side on desktop, then the
- * content sections as columns — minimal vertical scroll. Mobile stacks.
- */
+export type ProfileTabValue =
+  | "overview"
+  | "skills"
+  | "repositories"
+  | "projects"
+  | "activity"
+  | "reviews";
+
+const TABS: { id: ProfileTabValue; labelKey: string }[] = [
+  { id: "overview", labelKey: "contributor.dynamic.tabOverview" },
+  { id: "skills", labelKey: "contributor.dynamic.tabSkills" },
+  { id: "repositories", labelKey: "contributor.dynamic.tabRepositories" },
+  { id: "projects", labelKey: "contributor.dynamic.tabContributions" },
+  { id: "activity", labelKey: "contributor.dynamic.tabActivity" },
+  { id: "reviews", labelKey: "contributor.dynamic.tabReputation" },
+];
+
 export function ContributorProfileView({
   profile,
   onLogout,
+  activeSection,
+  onSectionChange,
 }: {
   profile: ContributorProfileDto;
   /** Injected by the route. Optional so public/viewer contexts can omit it. */
   onLogout?: () => void;
+  activeSection?: ProfileTabValue;
+  onSectionChange?: (section: ProfileTabValue) => void;
 }) {
   const { t } = useTranslation();
+  const [internalTab, setInternalTab] = useState<ProfileTabValue>("overview");
+  const activeTab = activeSection ?? internalTab;
+
+  function handleTabChange(val: ProfileTabValue) {
+    if (onSectionChange) {
+      onSectionChange(val);
+    } else {
+      setInternalTab(val);
+    }
+  }
+
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 md:px-6 lg:grid-cols-4">
-      <Card className="lg:col-span-3">
-        <div className="flex h-full flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar
-              src={profile.avatarUrl}
-              alt={profile.displayName}
-              size="xl"
-              fallback={profile.displayName.slice(0, 1)}
-              online={profile.githubStatus.connected ? true : undefined}
-            />
-            <div>
-              <p
-                dir="ltr"
-                className="flex items-center justify-end gap-2 font-mono text-[13px] tracking-[0.65px] text-primary"
+    <div className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      {/* 1. Identity Header Hero Card */}
+      <ContributorProfileHeader profile={profile} onLogout={onLogout} />
+
+      {/* 2. Navigation Tabs & Content */}
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => handleTabChange(val as ProfileTabValue)}
+        className="w-full gap-0"
+      >
+        <div className="border-b border-slate-200/90 dark:border-slate-800">
+          <TabsList
+            variant="line"
+            aria-label={t("contributor.profile.tabsAriaLabel") || "Profile sections"}
+            className="flex h-auto w-full justify-start gap-8 bg-transparent p-0"
+          >
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                id={`profile-tab-${tab.id}`}
+                className="relative -mb-px flex-none rounded-none border-b-2 border-transparent px-2 py-3.5 text-sm font-medium text-slate-600 shadow-none transition-colors hover:text-slate-900 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:font-bold data-[state=active]:text-blue-600 dark:text-slate-400 dark:hover:text-white dark:data-[state=active]:border-blue-400 dark:data-[state=active]:text-blue-400"
               >
-                <UserRoundCheck className="size-4" />
-                @{profile.username}
-              </p>
-              <h1 className="mt-1 text-3xl font-bold text-foreground">
-                {profile.displayName}
-              </h1>
-              <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-                {profile.roleLabel}
-                {profile.githubStatus.connected &&
-                  profile.githubStatus.username && (
-                    <a
-                      dir="ltr"
-                      href={`https://github.com/${profile.githubStatus.username}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <Github className="size-3.5" />
-                      github.com/{profile.githubStatus.username}
-                    </a>
-                  )}
-              </p>
+                {t(tab.labelKey)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
+        {/* ——— Tab 1: Overview (Pixel-perfect replica of mockup) ——— */}
+        <TabsContent
+          value="overview"
+          forceMount
+          id="profile-panel-overview"
+          aria-labelledby="profile-tab-overview"
+          className={`mt-6 gap-6 ${activeTab === "overview" ? "grid grid-cols-1 lg:grid-cols-12" : "hidden"}`}
+        >
+          {/* Left Column (8 cols) */}
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <ContributorSkillProfileCard
+              profile={profile}
+              onViewFullProfile={() => handleTabChange("skills")}
+            />
+            <ContributorGithubReposCard
+              profile={profile}
+              onViewAll={() => handleTabChange("repositories")}
+            />
+            <ContributorRecentActivityCard
+              profile={profile}
+              onViewAll={() => handleTabChange("activity")}
+            />
+          </div>
+
+          {/* Right Column (4 cols) */}
+          <div className="flex flex-col gap-6 lg:col-span-4">
+            <ContributorCompletionCard profile={profile} />
+            <ContributorQuickActionsCard profile={profile} />
+            <ContributorStatsCard profile={profile} />
+            <ContributorBadgesCard
+              onViewAll={() => handleTabChange("reviews")}
+            />
+          </div>
+        </TabsContent>
+
+        {/* ——— Tab 2: Skills ——— */}
+        <TabsContent
+          value="skills"
+          forceMount
+          id="profile-panel-skills"
+          aria-labelledby="profile-tab-skills"
+          className={`mt-6 ${activeTab === "skills" ? "block" : "hidden"}`}
+        >
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <ContributorSkillsPanel profile={profile} />
+            </div>
+            <div className="lg:col-span-4">
+              <ContributorReputationStrip profile={profile} />
             </div>
           </div>
-          <div className="flex items-center gap-2 self-start md:self-center">
-            <span className="rounded-full border border-border bg-background px-4 py-2 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {profile.viewerRelationship === "owner"
-                ? t("contributor.profileView.ownLabel")
-                : t("contributor.profileView.publicLabel")}
-            </span>
-            {profile.viewerRelationship === "owner" && onLogout && (
-              <Button type="button" variant="outline" size="sm" onClick={onLogout}>
-                <LogOut className="size-4" />
-                <span>{t("contributor.profileView.logout")}</span>
-              </Button>
-            )}
+        </TabsContent>
+
+        {/* ——— Tab 3: Repositories ——— */}
+        <TabsContent
+          value="repositories"
+          forceMount
+          id="profile-panel-repositories"
+          aria-labelledby="profile-tab-repositories"
+          className={`mt-6 ${activeTab === "repositories" ? "block" : "hidden"}`}
+        >
+          <div className="flex flex-col gap-6">
+            <ContributorGithubReposCard profile={profile} />
+            <ContributorGithubSkillsSection profile={profile} />
           </div>
-        </div>
-      </Card>
+        </TabsContent>
 
-      <div className="lg:col-span-1 lg:row-span-2">
-        <ContributorReputationStrip profile={profile} />
-      </div>
+        {/* ——— Tab 4: Projects / Contributions ——— */}
+        <TabsContent
+          value="projects"
+          forceMount
+          id="profile-panel-projects"
+          aria-labelledby="profile-tab-projects"
+          className={`mt-6 ${activeTab === "projects" ? "block" : "hidden"}`}
+        >
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <ContributorContributionsPanel profile={profile} />
+            </div>
+            <div className="lg:col-span-4">
+              <ContributorStatsCard profile={profile} />
+            </div>
+          </div>
+        </TabsContent>
 
-      <div className="flex flex-col gap-4 lg:col-span-3">
-        <ContributorProfileCompletion profile={profile} />
-        <ContributorGithubSkillsSection profile={profile} />
-        <ContributorProfileSections profile={profile} />
+        {/* ——— Tab 5: Activity ——— */}
+        <TabsContent
+          value="activity"
+          forceMount
+          id="profile-panel-activity"
+          aria-labelledby="profile-tab-activity"
+          className={`mt-6 ${activeTab === "activity" ? "block" : "hidden"}`}
+        >
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <ContributorRecentActivityCard profile={profile} />
+            </div>
+            <div className="lg:col-span-4">
+              <ContributorStatsCard profile={profile} />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* ——— Tab 6: Reviews & Reputation ——— */}
+        <TabsContent
+          value="reviews"
+          forceMount
+          id="profile-panel-reviews"
+          aria-labelledby="profile-tab-reviews"
+          className={`mt-6 ${activeTab === "reviews" ? "block" : "hidden"}`}
+        >
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <ContributorReputationStrip profile={profile} />
+            </div>
+            <div className="lg:col-span-5">
+              <ContributorBadgesCard />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Hidden About panel for static markup accessibility and crawlability */}
+      <div className="sr-only" aria-hidden="true">
+        <ContributorAboutPanel profile={profile} />
       </div>
     </div>
   );

@@ -37,11 +37,19 @@ import {
   getNotificationTypeLabel,
 } from "./notification-presenter";
 
-type ReadStateFilter = "all" | "read" | "unread";
+export type ReadStateFilter = "all" | "read" | "unread";
 
-export function NotificationCenter() {
+export function NotificationCenter({
+  activeSection,
+  onSectionChange,
+}: {
+  activeSection?: ReadStateFilter;
+  onSectionChange?: (section: ReadStateFilter) => void;
+} = {}) {
   const { t } = useTranslation();
-  const [readState, setReadState] = useState<ReadStateFilter>("all");
+  const [internalReadState, setInternalReadState] =
+    useState<ReadStateFilter>("all");
+  const readState = activeSection ?? internalReadState;
   const [type, setType] = useState<NotificationType | "all">("all");
   const { connectionStatus } = useNotifications();
   const listQuery = useNotificationListQuery({
@@ -92,7 +100,11 @@ export function NotificationCenter() {
         value={readState}
         onValueChange={(value) => {
           if (value === "all" || value === "read" || value === "unread") {
-            setReadState(value);
+            if (onSectionChange) {
+              onSectionChange(value);
+            } else {
+              setInternalReadState(value);
+            }
           }
         }}
         className="mt-6 gap-0"
