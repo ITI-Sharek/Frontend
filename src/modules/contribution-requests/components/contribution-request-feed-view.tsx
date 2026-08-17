@@ -1,10 +1,12 @@
 import { ChevronDown, CircleAlert, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
+import { StatValue } from "@/shared/components/data-display/stat";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
   NativeSelect,
@@ -334,6 +336,7 @@ function ContributionRequestResults({
   if (items.length === 0) {
     return (
       <PageFeedback
+        command="sharek ls requests --open"
         title={t("tasks.noMatch")}
         description={t("tasks.noMatchDescription")}
         action={
@@ -346,8 +349,18 @@ function ContributionRequestResults({
   }
   return (
     <section aria-live="polite">
-      <p className="mb-3 text-sm text-muted-foreground">
-        {t("tasks.available", { count: totalCount })}
+      {/*
+       * `tasks.available` emphasises the count with a <strong> tag, which
+       * `t()` renders as literal text. <Trans> maps it to a real element.
+       */}
+      <p className="mb-4 text-sm text-muted-foreground">
+        <Trans
+          i18nKey="tasks.available"
+          count={totalCount}
+          components={{
+            strong: <span className="tnum font-bold text-foreground" />,
+          }}
+        />
       </p>
       <div
         className={cn(
@@ -374,62 +387,100 @@ function ContributionRequestCard({
   request: ContributionRequestListItemDto;
   requestHref: FeedViewProps["requestHref"];
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const reward = request.reward;
+  const locale = i18n.language.startsWith("en") ? "en-US" : "ar-EG";
+
   return (
-    <Card className="flex h-full flex-col p-5 shadow-none">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="font-bold text-foreground">{request.title}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {request.projectName}
-          </p>
+    <Card
+      interactive
+      padding="none"
+      className="group flex h-full flex-col overflow-hidden"
+    >
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="bidi text-pretty font-bold leading-snug text-foreground">
+              {request.title}
+            </h2>
+            <p className="bidi mt-1 truncate text-sm text-muted-foreground">
+              {request.projectName}
+            </p>
+          </div>
+          {request.difficulty && (
+            <span className="shrink-0 rounded-full border border-border-strong bg-surface-fog px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
+              {getContributionRequestDifficultyLabel(request.difficulty)}
+            </span>
+          )}
         </div>
-        {request.difficulty && (
-          <span className="rounded-full bg-border/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
-            {getContributionRequestDifficultyLabel(request.difficulty)}
-          </span>
-        )}
+
+        <div className="mt-3.5 flex flex-wrap gap-1.5">
+          {request.technologyTags.map((technology) => (
+            <span
+              key={technology}
+              dir="ltr"
+              className="rounded-social border border-border bg-surface-fog px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+            >
+              {technology}
+            </span>
+          ))}
+        </div>
+
+        {/*
+         * The two dates are constraints on the same decision, so they share
+         * one row and one hairline; the reward is the decision's payoff and
+         * gets the whole opposite side to itself.
+         */}
+        <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-2 pt-5 text-sm">
+          <Metadata
+            label={t("tasks.deadline")}
+            value={formatContributionDateTime(request.applicationsCloseAt)}
+          />
+          <Metadata
+            label={t("tasks.targetCompletion")}
+            value={formatContributionDate(request.targetCompletionDate)}
+          />
+        </dl>
       </div>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {request.technologyTags.map((technology) => (
-          <span
-            key={technology}
-            dir="ltr"
-            className="rounded-full border border-border bg-background px-2 py-1 font-mono text-[11px] text-muted-foreground"
-          >
-            {technology}
-          </span>
-        ))}
+
+      <div className="flex items-center justify-between gap-4 border-t border-border bg-surface-fog px-5 py-3.5">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-subtle-foreground">
+            {t("tasks.reward")}
+          </p>
+          <div className="mt-0.5" dir="ltr">
+            {reward ? (
+              <StatValue
+                value={reward.amount.toLocaleString(locale)}
+                unit={reward.currency}
+                size="md"
+              />
+            ) : (
+              <span className="text-sm font-medium text-muted-foreground">
+                {formatContributionReward(reward)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <Button asChild size="sm" className="shrink-0">
+          <a href={requestHref(request.id)}>
+            {t("tasks.viewRequest")}
+            <DirectionalArrow className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+          </a>
+        </Button>
       </div>
-      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <Metadata
-          label={t("tasks.deadline")}
-          value={formatContributionDateTime(request.applicationsCloseAt)}
-        />
-        <Metadata
-          label={t("tasks.targetCompletion")}
-          value={formatContributionDate(request.targetCompletionDate)}
-        />
-        <Metadata
-          label={t("tasks.reward")}
-          value={formatContributionReward(request.reward)}
-        />
-      </dl>
-      <Button asChild size="sm" className="mt-auto w-full">
-        <a href={requestHref(request.id)}>{t("tasks.viewRequest")}</a>
-      </Button>
     </Card>
   );
 }
 
 function Metadata({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd
-        dir="ltr"
-        className="mt-1 text-end font-mono text-sm font-medium text-foreground"
-      >
+    <div className="min-w-0">
+      <dt className="truncate text-[11px] font-medium text-subtle-foreground">
+        {label}
+      </dt>
+      <dd className="tnum mt-0.5 text-[13px] font-semibold text-foreground">
         {value}
       </dd>
     </div>

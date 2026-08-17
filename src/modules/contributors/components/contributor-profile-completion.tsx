@@ -1,9 +1,10 @@
-import { ChevronLeft, Check, FileText, Github, Sparkles } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, FileText, Github, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import { cn } from "@/lib/utils";
 import { Card } from "@/shared/components/ui/card";
 
 import type { ContributorProfileDto } from "../types/contributor-profile.types";
@@ -40,6 +41,52 @@ function isKnownPrompt(prompt: string): prompt is CompletionPrompt {
 }
 
 /**
+ * A progress ring rather than a bar.
+ *
+ * Completion here is three discrete steps, not a continuous quantity, so the
+ * ring is drawn as three separate arcs with a gap between them: you can count
+ * what is left without reading the fraction. A bar would imply that being
+ * two-thirds done is a smooth position rather than "one task remaining".
+ */
+function CompletionRing({ done, total }: { done: number; total: number }) {
+  const size = 62;
+  const stroke = 5;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  /* ~9% of the ring per gap, so adjacent completed steps stay countable. */
+  const gap = circumference * 0.06;
+  const arc = circumference / total - gap;
+
+  return (
+    <span className="relative inline-flex shrink-0" aria-hidden>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
+          {Array.from({ length: total }).map((_, index) => (
+            <circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              stroke={
+                index < done ? "var(--primary)" : "var(--surface-muted)"
+              }
+              strokeDasharray={`${arc} ${circumference - arc}`}
+              strokeDashoffset={-(index * (arc + gap)) - gap / 2}
+            />
+          ))}
+        </g>
+      </svg>
+      <span className="tnum absolute inset-0 flex items-center justify-center text-sm font-bold text-foreground">
+        {done}/{total}
+      </span>
+    </span>
+  );
+}
+
+/**
  * Status checklist only — every item links to the relevant /settings
  * section for the actual edit (per DEC: profile completion is a status
  * summary, not an inline editor).
@@ -49,7 +96,8 @@ export function ContributorProfileCompletion({
 }: {
   profile: ContributorProfileDto;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = !i18n.language.startsWith("en");
   if (profile.viewerRelationship !== "owner") return null;
 
   const incomplete = new Set(profile.completionPrompts.filter(isKnownPrompt));
@@ -57,86 +105,76 @@ export function ContributorProfileCompletion({
 
   if (incomplete.size === 0) return null;
 
+  const Chevron = isRtl ? ChevronLeft : ChevronRight;
+
   return (
-    <Card className="flex flex-col gap-5 border-primary/40 bg-primary/5">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-foreground">{t("contributor.completion.title")}</h2>
-          <span className="text-sm font-semibold text-primary">
-            {t("contributor.completion.progress", {
-              done: completedCount,
-              total: KNOWN_PROMPTS.length,
-            })}
-          </span>
+    <Card tone="quiet" className="border-primary/25 bg-primary-soft">
+      <div className="flex items-center gap-4">
+        <CompletionRing done={completedCount} total={KNOWN_PROMPTS.length} />
+        <div className="min-w-0">
+          <h2 className="text-lg font-bold leading-snug text-foreground">
+            {t("contributor.completion.title")}
+          </h2>
+          <p className="mt-1 text-[13px] leading-6 text-muted-foreground">
+            {t("contributor.completion.description")}
+          </p>
         </div>
-        <div
-          className="h-1.5 w-full overflow-hidden rounded-full bg-border"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={KNOWN_PROMPTS.length}
-          aria-valuenow={completedCount}
-          aria-label={t("contributor.completion.progressLabel")}
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{
-              width: `${(completedCount / KNOWN_PROMPTS.length) * 100}%`,
-            }}
-          />
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {t("contributor.completion.description")}
-        </p>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <ul className="mt-5 flex flex-col gap-2">
         {KNOWN_PROMPTS.map((prompt) => {
           const meta = PROMPT_META[prompt];
           const Icon = meta.icon;
           const isDone = !incomplete.has(prompt);
 
           return (
-            <div
+            <li
               key={prompt}
-              className="flex items-center justify-between gap-3 rounded-input border border-border bg-card p-3.5"
+              data-spine={isDone ? "verified" : "neutral"}
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-input rounded-s-sm border border-border bg-card p-3 ps-3.5",
+                isDone && "opacity-70",
+              )}
             >
               <span className="flex min-w-0 items-center gap-3">
                 <span
-                  className={
+                  className={cn(
+                    "flex size-8 shrink-0 items-center justify-center rounded-full",
                     isDone
-                      ? "flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
-                      : "flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
-                  }
+                      ? "bg-evidence-soft text-evidence-teal"
+                      : "bg-surface-muted text-muted-foreground",
+                  )}
                 >
                   <Icon className="size-4" />
                 </span>
                 <span
-                  className={
+                  className={cn(
+                    "truncate text-sm",
                     isDone
-                      ? "truncate text-sm text-muted-foreground line-through"
-                      : "truncate text-sm font-medium text-foreground"
-                  }
+                      ? "text-muted-foreground line-through decoration-1"
+                      : "font-semibold text-foreground",
+                  )}
                 >
                   {t(meta.titleKey)}
                 </span>
               </span>
 
               {isDone ? (
-                <Check className="size-4 shrink-0 text-primary" />
+                <Check className="size-4 shrink-0 text-evidence-teal" />
               ) : (
                 <Link
                   to={ROUTES.settings}
                   search={{ section: meta.settingsSection }}
-                  className="flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:opacity-80"
+                  className="group/link flex shrink-0 items-center gap-0.5 rounded-input px-2 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft"
                 >
                   {t("contributor.completion.completeLink")}
-                  <ChevronLeft className="size-4" />
+                  <Chevron className="size-4 transition-transform duration-200 ease-out group-hover/link:translate-x-0.5 rtl:group-hover/link:-translate-x-0.5" />
                 </Link>
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </Card>
   );
 }

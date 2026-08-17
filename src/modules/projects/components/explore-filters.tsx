@@ -191,7 +191,11 @@ function FilterGroup({
 }) {
   return (
     <fieldset className={cn("py-4", !first && "border-t border-border")}>
-      <legend className="mb-2 font-mono text-[12px] tracking-[0.65px] text-muted-foreground">
+      {/*
+       * Filter group names are prose, not identifiers — they were set in the
+       * mono face, which read as decoration rather than as a label.
+       */}
+      <legend className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.08em] text-subtle-foreground">
         {title}
       </legend>
       {children}

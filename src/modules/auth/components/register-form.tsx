@@ -1,4 +1,3 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +6,7 @@ import { getPostLoginPath, ROUTES } from "@/config/routes.config";
 import { storageService } from "@/services/storage.service";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Stepper, Step } from "@/shared/components/ui/reactbits/stepper";
 import type { ChipOption } from "@/shared/components/forms/chip-select";
 
@@ -235,7 +235,7 @@ export function RegisterForm({
         </Stepper>
 
         {submitError && (
-          <p className="w-full text-right text-xs text-destructive">
+          <p className="w-full text-start text-xs text-destructive">
             {submitError}
           </p>
         )}
@@ -249,7 +249,7 @@ export function RegisterForm({
               onClick={handleBack}
               disabled={isSubmitting}
             >
-              <ArrowRight className="size-4" />
+              <DirectionalArrow direction="back" />
               <span>{t("register.backButton")}</span>
             </Button>
           )}
@@ -258,7 +258,6 @@ export function RegisterForm({
             className="flex-1 h-10 font-bold shadow-sm"
             disabled={!canProceed || isSubmitting}
           >
-            <ArrowLeft className="size-4" />
             <span>
               {isSubmitting
                 ? t("register.creating")
@@ -266,6 +265,8 @@ export function RegisterForm({
                   ? t("register.createFreeAccount")
                   : t("common.next")}
             </span>
+            {/* Trailing, so the arrow leads the eye onward in both scripts. */}
+            <DirectionalArrow />
           </Button>
         </div>
       </form>

@@ -22,7 +22,7 @@ import {
   useUnreadNotificationCountQuery,
 } from "@/modules/notifications";
 import { storageService } from "@/services/storage.service";
-import { AppShell } from "@/shared/components/layout/app-shell";
+import { WorkspaceShell } from "@/shared/components/layout/workspace-shell";
 import { PageTransition } from "@/shared/components/layout/page-transition";
 import { SiteHeader } from "@/shared/components/layout/site-header";
 import { getMemberNavigation } from "@/shared/components/layout/workspace-navigation";
@@ -122,24 +122,24 @@ function AppLayout() {
     { label: t("navigation.settings"), to: ROUTES.settings },
     { label: t("navigation.support"), to: ROUTES.support },
   ];
-  const headerNavItems = navigation
-    .filter(
-      (item) =>
-        !item.secondary && !item.disabled && item.to !== ROUTES.home,
-    )
-    .slice(0, 4)
-    .map((item) => ({
-      label: item.label,
-      href: item.to,
-      active: item.active,
-    }));
-
   return (
-    <AppShell
+    <WorkspaceShell
       nav={navigation}
+      navigationLabel={t("navigation.mainNavigation")}
+      ribbonEnd={
+        currentUser.role === "owner" ? (
+          <Link
+            to={ROUTES.newProject}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-[13px] font-bold text-primary-foreground shadow-[var(--shadow-primary)] transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">{t("myProjects.importProject")}</span>
+          </Link>
+        ) : null
+      }
       topBar={
         <SiteHeader
-          navItems={currentUser.role === "owner" ? headerNavItems : []}
+          navItems={[]}
           navLabel={t("navigation.mainNavigation")}
           skipToContentLabel={t("navigation.skipToContent")}
           showSkipLink={false}
@@ -162,16 +162,6 @@ function AppLayout() {
           }}
           utilityActions={
             <>
-              {currentUser.role === "owner" && (
-                <Link
-                  to={ROUTES.newProject}
-                  aria-label={t("myProjects.importProject")}
-                  className="hidden h-8 items-center gap-1 rounded-full border border-border px-2.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:inline-flex"
-                >
-                  <Plus className="size-3.5" aria-hidden="true" />
-                  <span>{t("myProjects.importProject")}</span>
-                </Link>
-              )}
               <MessagesButton unreadCount={conversationUnreadCount} />
               <NotificationPopover allNotificationsHref={ROUTES.notifications} />
             </>
@@ -182,7 +172,7 @@ function AppLayout() {
       <PageTransition routeKey={pathname}>
         <Outlet />
       </PageTransition>
-    </AppShell>
+    </WorkspaceShell>
   );
 }
 

@@ -40,7 +40,7 @@ export function UsernameField({
 
   return (
     <div className="flex w-full flex-col gap-1.5">
-      <Label htmlFor={id} className="w-full text-right">
+      <Label htmlFor={id} className="w-full text-start">
         {t("auth.username.label")}
       </Label>
       <div className="relative w-full">
@@ -56,13 +56,13 @@ export function UsernameField({
           onChange={(e) => onChange(e.target.value)}
           aria-describedby={`${id}-status`}
         />
-        <AtSign className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <AtSign className="absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" />
         {showStatus && (
-          <span className="absolute top-1/2 right-3 -translate-y-1/2">
+          <span className="absolute top-1/2 end-3 -translate-y-1/2">
             {isChecking ? (
               <Loader2 className="size-4 animate-spin text-muted-foreground" />
             ) : checkFailed ? null : available === true ? (
-              <Check className="size-4 text-emerald-600" />
+              <Check className="size-4 text-evidence-teal" />
             ) : available === false ? (
               <X className="size-4 text-destructive" />
             ) : null}
@@ -74,11 +74,11 @@ export function UsernameField({
         id={`${id}-status`}
         aria-live="polite"
         className={cn(
-          "min-h-[1.25rem] w-full text-right text-xs",
+          "min-h-[1.25rem] w-full text-start text-xs",
           available === false && !isChecking
             ? "text-destructive"
             : available === true && !isChecking
-              ? "text-emerald-600"
+              ? "text-evidence-teal"
               : "text-muted-foreground",
         )}
       >

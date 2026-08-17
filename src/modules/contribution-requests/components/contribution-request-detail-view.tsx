@@ -382,7 +382,7 @@ export function ContributionRequestDetailView({
             {applicationsClosed && (
               <div
                 role="status"
-                className="mt-6 rounded-input border border-amber-500/30 bg-amber-500/5 p-4"
+                className="mt-6 rounded-input border border-review-amber/30 bg-review-amber-soft p-4"
               >
                 <h2 className="font-bold text-foreground">{t("contributionRequests.status.applicationsClosed")}</h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -527,7 +527,7 @@ function ReadOnlyRequest({
         vanished at the moment the work became public.
       */}
       {request.attribution && (
-        <div className="sm:col-span-2 rounded-lg border border-border/60 bg-muted/30 p-3">
+        <div className="sm:col-span-2 rounded-lg border border-border/60 bg-surface-fog p-3">
           <dt className="text-xs text-muted-foreground">
             {t("contributionRequests.detail.acceptedProposal")}
           </dt>

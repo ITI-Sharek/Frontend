@@ -1,51 +1,206 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Share-k design tokens
+   ---------------------------------------------------------------------------
+   Palette is derived from the logo mark, sampled directly from public/logo-1.png:
+   indigo #283480 and teal #0abb9f. Those two hues are not interchangeable
+   decoration — they carry meaning throughout the product:
+
+     indigo  → the platform itself: structure, navigation, owner-side action.
+     teal    → evidence: anything the system has *verified* rather than been
+               told. Verified skills, completed deliveries, earned reputation.
+               Never used as a decorative accent.
+
+   Surfaces stay in a warm green-black family (the "paper" of the ledger) so
+   the two brand hues read as ink on a page rather than as UI chrome.
+───────────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #f6f7f4;
-  --foreground: #14201c;
-  --muted-foreground: #60706a;
-  --border: #dde3df;
-  --card: #ffffff;
-  --header-bg: rgba(246, 247, 244, 0.92);
-  --input-bg: #ffffff;
-  --input-placeholder: #6b7280;
-  --footer-bg: #eef1ed;
-  --surface-fog: #eef1ed;
-  --surface-muted: #e7ece8;
-  --primary: #30348c;
+  /* ── Brand ramps ───────────────────────────────────────────────────────── */
+  /* indigo — anchored on the logo's #283480 at step 700 */
+  --sk-indigo-50: #eef0f9;
+  --sk-indigo-100: #dee2f3;
+  --sk-indigo-200: #bfc6e8;
+  --sk-indigo-300: #929dd7;
+  --sk-indigo-400: #6674c1;
+  --sk-indigo-500: #4553a8;
+  --sk-indigo-600: #333f92;
+  --sk-indigo-700: #283480;
+  --sk-indigo-800: #212a67;
+  --sk-indigo-900: #1a2153;
+  --sk-indigo-950: #10142f;
+
+  /* teal — anchored on the logo's #0abb9f at step 500 */
+  --sk-teal-50: #e7fbf6;
+  --sk-teal-100: #c4f5e9;
+  --sk-teal-200: #8beada;
+  --sk-teal-300: #4bd9c0;
+  --sk-teal-400: #1cc6a9;
+  --sk-teal-500: #0abb9f;
+  --sk-teal-600: #049783;
+  --sk-teal-700: #06786a;
+  --sk-teal-800: #0a6055;
+  --sk-teal-900: #0b4f47;
+  --sk-teal-950: #022e29;
+
+  /* ── Paper: the warm green-black neutral family ───────────────────────── */
+  --sk-paper-0: #ffffff;
+  --sk-paper-25: #fbfcfa;
+  --sk-paper-50: #f5f7f3;
+  --sk-paper-100: #eef1eb;
+  --sk-paper-200: #e3e8e2;
+  --sk-paper-300: #cfd7d1;
+  --sk-paper-400: #a8b4ad;
+  --sk-paper-500: #7b8a83;
+  --sk-paper-600: #5b6a64;
+  --sk-paper-700: #3f4c47;
+  --sk-paper-800: #232e2a;
+  --sk-paper-900: #131a17;
+  --sk-paper-950: #0b100e;
+
+  /* ── Semantic surfaces ────────────────────────────────────────────────── */
+  --background: var(--sk-paper-50);
+  --foreground: var(--sk-paper-900);
+  --muted-foreground: var(--sk-paper-600);
+  --subtle-foreground: var(--sk-paper-500);
+  --border: var(--sk-paper-200);
+  --border-strong: var(--sk-paper-300);
+  --card: var(--sk-paper-0);
+  --card-raised: var(--sk-paper-25);
+  --header-bg: rgba(245, 247, 243, 0.86);
+  --input-bg: var(--sk-paper-0);
+  --input-placeholder: var(--sk-paper-500);
+  --footer-bg: var(--sk-paper-100);
+  --surface-fog: var(--sk-paper-100);
+  --surface-muted: var(--sk-paper-200);
+
+  /* ── Brand roles ──────────────────────────────────────────────────────── */
+  --primary: var(--sk-indigo-700);
+  --primary-hover: var(--sk-indigo-800);
   --primary-foreground: #ffffff;
-  --destructive: #dc2626;
+  --primary-soft: var(--sk-indigo-50);
+  --primary-soft-foreground: var(--sk-indigo-700);
+
   --brand-indigo: var(--primary);
   --brand-indigo-foreground: var(--primary-foreground);
-  --evidence-teal: #2dd4bf;
-  --evidence-teal-foreground: #0e1513;
-  --review-amber: #d97706;
+
+  /* Evidence: reserved for verified / earned / proven states. */
+  --evidence-teal: var(--sk-teal-600);
+  --evidence-teal-foreground: #ffffff;
+  --evidence-soft: var(--sk-teal-50);
+  --evidence-soft-foreground: var(--sk-teal-700);
+
+  /* ── Provenance & workflow tones ──────────────────────────────────────── */
+  --review-amber: #b06a05;
+  --review-amber-soft: #fdf3e0;
   --advisory-violet: #6b5ca5;
-  --radius-card: 12px;
-  --radius-input: 8px;
-  --radius-social: 4px;
+  --advisory-violet-soft: #f1eefa;
+  --destructive: #c0362b;
+  --destructive-soft: #fdeceb;
+
+  /* ── Hero surfaces ────────────────────────────────────────────────────── */
+  /*
+   * The deep band that opens every workspace page. It is the one place the
+   * brand gets to be loud, so it is a real gradient with the mark's dot field
+   * over it rather than a flat fill.
+   */
+  --hero-from: #141a3d;
+  --hero-to: #2d3a90;
+  --hero-ink: #ffffff;
+  --hero-ink-soft: rgba(255, 255, 255, 0.72);
+  --mint: #eefaf7;
+  --mint-strong: #d8f4ed;
+
+  /* ── Radii ────────────────────────────────────────────────────────────── */
+  /*
+   * Generous and consistent. The old scale (8–14px) read as a default
+   * component library; this one is a deliberate, softer shape language.
+   */
+  --radius-card: 18px;
+  --radius-input: 12px;
+  --radius-social: 8px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --radius-hero: 26px;
+  --radius-pill: 9999px;
+
+  /* ── Elevation ────────────────────────────────────────────────────────── */
+  /* Soft and wide rather than tight and dark — panels resting on paper. */
+  --shadow-record:
+    0 1px 2px rgba(19, 26, 23, 0.04),
+    0 4px 14px -8px rgba(19, 26, 23, 0.12);
+  --shadow-raised:
+    0 2px 6px -2px rgba(19, 26, 23, 0.07),
+    0 14px 32px -12px rgba(19, 26, 23, 0.16);
+  --shadow-overlay:
+    0 10px 24px -10px rgba(19, 26, 23, 0.18),
+    0 32px 64px -28px rgba(19, 26, 23, 0.26);
+  --shadow-primary: 0 6px 18px -8px rgba(40, 52, 128, 0.55);
+  --shadow-evidence: 0 6px 18px -8px rgba(4, 151, 131, 0.5);
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 340ms;
+
+  /* ── Texture ──────────────────────────────────────────────────────────── */
+  /* Used by .sk-hatch / .sk-dotgrid for pending & empty states. */
+  --texture-ink: rgba(19, 26, 23, 0.055);
 }
 
 .dark {
-  --background: #0e1513;
-  --foreground: #dde4e1;
-  --muted-foreground: #bacac5;
-  --border: #3c4a46;
-  --card: #1a211f;
-  --header-bg: #161d1b;
-  --input-bg: #09100e;
-  --input-placeholder: rgba(186, 202, 197, 0.4);
-  --footer-bg: #09100e;
-  --surface-fog: #161d1b;
-  --surface-muted: #222c28;
-  --primary: #9aa3f0;
-  --primary-foreground: #10132b;
-  --destructive: #f87171;
-  --brand-indigo: var(--primary);
-  --brand-indigo-foreground: var(--primary-foreground);
-  --evidence-teal: #57f1db;
-  --evidence-teal-foreground: #003731;
-  --review-amber: #fbbf24;
+  --background: #0d1412;
+  --foreground: #e3e9e5;
+  --muted-foreground: #97a8a1;
+  --subtle-foreground: #74847d;
+  --border: #26332e;
+  --border-strong: #35443e;
+  --card: #151d1a;
+  --card-raised: #1a2320;
+  --header-bg: rgba(13, 20, 18, 0.86);
+  --input-bg: #0b110f;
+  --input-placeholder: #6d7d76;
+  --footer-bg: #0b110f;
+  --surface-fog: #161f1c;
+  --surface-muted: #202b27;
+
+  --primary: var(--sk-indigo-300);
+  --primary-hover: var(--sk-indigo-200);
+  --primary-foreground: #12162f;
+  --primary-soft: rgba(146, 157, 215, 0.14);
+  --primary-soft-foreground: var(--sk-indigo-200);
+
+  --evidence-teal: var(--sk-teal-300);
+  --evidence-teal-foreground: #02231f;
+  --evidence-soft: rgba(75, 217, 192, 0.13);
+  --evidence-soft-foreground: var(--sk-teal-200);
+
+  --review-amber: #eab308;
+  --review-amber-soft: rgba(234, 179, 8, 0.14);
   --advisory-violet: #a78bfa;
-  --radius-card: 8px;
-  --radius-input: 4px;
-  --radius-social: 2px;
+  --advisory-violet-soft: rgba(167, 139, 250, 0.14);
+  --destructive: #f4796d;
+  --destructive-soft: rgba(244, 121, 109, 0.13);
+
+  --hero-from: #0d1327;
+  --hero-to: #232e70;
+  --hero-ink: #f2f5f4;
+  --hero-ink-soft: rgba(242, 245, 244, 0.7);
+  --mint: rgba(75, 217, 192, 0.08);
+  --mint-strong: rgba(75, 217, 192, 0.14);
+
+  --shadow-record:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 4px 16px -8px rgba(0, 0, 0, 0.5);
+  --shadow-raised:
+    0 2px 6px -2px rgba(0, 0, 0, 0.5),
+    0 14px 34px -12px rgba(0, 0, 0, 0.55);
+  --shadow-overlay:
+    0 10px 24px -10px rgba(0, 0, 0, 0.6),
+    0 32px 64px -28px rgba(0, 0, 0, 0.7);
+  --shadow-primary: 0 6px 20px -10px rgba(146, 157, 215, 0.6);
+  --shadow-evidence: 0 6px 20px -10px rgba(75, 217, 192, 0.5);
+
+  --texture-ink: rgba(227, 233, 229, 0.05);
 }

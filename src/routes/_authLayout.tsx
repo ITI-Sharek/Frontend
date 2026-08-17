@@ -1,9 +1,10 @@
 import { Link, Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Lock, Moon, RefreshCw, Sun } from "lucide-react";
+import { Moon, Sun, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ROUTES } from "@/config/routes.config";
 import { LanguageSwitcher } from "@/shared/components/navigation/language-switcher";
 
 export const Route = createFileRoute("/_authLayout")({
@@ -22,55 +23,54 @@ export function AuthLayout() {
 
   const isRtl = i18n.language.startsWith("ar");
   const pathname = routerState.location.pathname;
-  const displayUrl = pathname.includes("register")
-    ? "sharek.app/register"
+  /* The headerbar's subtitle names the view, the way a GTK app titles itself. */
+  const windowSubtitleKey = pathname.includes("register")
+    ? "pageTitles.register"
     : pathname.includes("forgot-password")
-      ? "sharek.app/forgot-password"
-      : "sharek.app/auth";
+      ? "pageTitles.forgotPassword"
+      : "pageTitles.login";
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background p-2 sm:p-4 lg:p-6 transition-colors">
-      {/* Outer Browser Window Frame */}
-      <div className="relative mx-auto flex w-full max-w-5xl xl:max-w-6xl h-[calc(100vh-1.5rem)] sm:h-[calc(100vh-2.5rem)] min-h-[640px] max-h-[920px] flex-col overflow-hidden rounded-2xl md:rounded-3xl border border-border/80 bg-card shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.35)] transition-all">
-        {/* Browser Top Bar / Window Controls */}
-        <div
-          dir="ltr"
-          className="flex h-11 shrink-0 items-center justify-between border-b border-border/70 bg-surface-muted/40 px-4 sm:px-5"
-        >
-          {/* Window action dots and navigation */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-[#ff5f56] transition-opacity hover:opacity-80" />
-              <span className="size-2.5 rounded-full bg-[#ffbd2e] transition-opacity hover:opacity-80" />
-              <span className="size-2.5 rounded-full bg-[#27c93f] transition-opacity hover:opacity-80" />
-            </div>
-
-            <div className="hidden sm:flex items-center gap-1 text-muted-foreground/70 ms-2">
-              <span className="flex size-5 items-center justify-center rounded-md hover:bg-surface-muted hover:text-foreground">
-                <ChevronLeft className="size-3" />
-              </span>
-              <span className="flex size-5 items-center justify-center rounded-md hover:bg-surface-muted hover:text-foreground">
-                <ChevronRight className="size-3" />
-              </span>
-              <span className="flex size-5 items-center justify-center rounded-md hover:bg-surface-muted hover:text-foreground">
-                <RefreshCw className="size-2.5" />
-              </span>
-            </div>
+      {/*
+       * The auth screen is framed as a desktop application window — but a
+       * Linux one. The macOS traffic lights and browser address bar were the
+       * wrong flag for a platform whose whole subject is open-source work, so
+       * the frame is now a GTK4 / libadwaita HeaderBar: a centred title stack,
+       * flat circular controls in the end box, and a hairline under a
+       * slightly-raised bar. Corner radius drops from macOS's generous curve
+       * to GNOME's tighter 14px.
+       */}
+      <div className="relative mx-auto flex h-[calc(100vh-1.5rem)] max-h-[920px] min-h-[640px] w-full max-w-5xl flex-col overflow-hidden rounded-[14px] border border-border bg-card shadow-[var(--shadow-overlay)] transition-all sm:h-[calc(100vh-2.5rem)] xl:max-w-6xl">
+        <div className="flex h-[46px] shrink-0 items-center gap-2 border-b border-border bg-surface-fog px-2.5">
+          {/* Start box — the app identity, as a GNOME headerbar carries it. */}
+          <div className="flex w-28 shrink-0 items-center gap-2">
+            <img
+              src="/logo-1.png"
+              alt=""
+              width={20}
+              height={20}
+              className="size-5 object-contain"
+            />
           </div>
 
-          {/* Center Address Pill */}
-          <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-input-bg/90 px-3.5 py-0.5 text-[11px] font-mono text-muted-foreground shadow-xs">
-            <Lock className="size-2.5 text-primary" aria-hidden="true" />
-            <span className="select-all">{displayUrl}</span>
+          {/* Title stack — libadwaita's signature: name over current view. */}
+          <div className="flex min-w-0 flex-1 flex-col items-center justify-center leading-none">
+            <span className="truncate text-[13px] font-bold text-foreground">
+              {t("brand.title")}
+            </span>
+            <span className="mt-0.5 truncate text-[11px] text-muted-foreground">
+              {t(windowSubtitleKey)}
+            </span>
           </div>
 
-          {/* Right utility buttons: Theme & Language */}
-          <div className="flex items-center gap-2">
+          {/* End box — real controls only; nothing here is decorative. */}
+          <div className="flex w-28 shrink-0 items-center justify-end gap-1">
             <button
               type="button"
               aria-label={t("theme.toggle")}
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="flex size-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+              className="flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               {mounted && resolvedTheme === "dark" ? (
                 <Sun className="size-3.5" aria-hidden="true" />
@@ -78,7 +78,20 @@ export function AuthLayout() {
                 <Moon className="size-3.5" aria-hidden="true" />
               )}
             </button>
-            <LanguageSwitcher />
+            <LanguageSwitcher compact />
+            {/*
+             * GNOME's close button sits in the end box. It is a real
+             * destination rather than a prop: it leaves the auth flow for the
+             * public site, which is what "closing" this window means here.
+             */}
+            <Link
+              to={ROUTES.landing}
+              aria-label={t("navigation.backToHome")}
+              title={t("navigation.backToHome")}
+              className="flex size-7 items-center justify-center rounded-full bg-surface-muted text-muted-foreground transition-colors hover:bg-destructive hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <X className="size-3.5" aria-hidden="true" />
+            </Link>
           </div>
         </div>
 
@@ -157,22 +170,12 @@ export function AuthLayout() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-white/80" dir="ltr">
-                    <button
-                      type="button"
-                      aria-label="Previous quote"
-                      className="flex size-6 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
-                    >
-                      <ChevronLeft className="size-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Next quote"
-                      className="flex size-6 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
-                    >
-                      <ChevronRight className="size-3.5" />
-                    </button>
-                  </div>
+                  {/*
+                   * The prev/next controls that sat here were wired to
+                   * nothing — there is a single quote. Dead buttons in a
+                   * sign-in window read as a broken build, so they are gone
+                   * until there is a second testimonial to page to.
+                   */}
                 </div>
               </div>
             </div>

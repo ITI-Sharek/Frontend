@@ -46,6 +46,7 @@
     "loading_ellipsis": "جارٍ التحميل…"
   },
   "navigation": {
+    "backToHome": "العودة إلى الموقع",
     "skipToContent": "تخطي إلى المحتوى",
     "home": "الرئيسية",
     "dashboard": "لوحة التحكم",
@@ -338,6 +339,7 @@
       "verifiedProgress": "تقدم موثّق",
       "recordTitle": "سجل مساهماتك",
       "rating": "تقييم المساهمات",
+      "ratingPrevious": "كان {{value}}",
       "growthPath": "سمعتك تُبنى من التسليمات المعتمدة وتقييمات أصحاب المشاريع. الخطوة الأولى: قدّم على مهمة مطابقة لمهاراتك الموثقة — أول مساهمة معتمدة تبدأ سجلّك.",
       "completedContributions": "{{count}} مساهمات مكتملة · معدل نجاح {{rate}}٪",
       "skillsThisMonth": "+{{count}} مهارة موثقة هذا الشهر"
@@ -2262,6 +2264,13 @@
       "changesRequested": "طُلبت تغييرات على التسليم",
       "deliveryRejected": "رُفض التسليم",
       "completed": "اكتملت المساهمة"
+    },
+    "journey": {
+      "title": "أين وصلت هذه المساهمة",
+      "applied": "تم التقديم",
+      "review": "مراجعة صاحب المشروع",
+      "delivery": "التسليم",
+      "approved": "الاعتماد"
     },
     "contributorLifecycle": {
       "title": "مسار مساهماتك",

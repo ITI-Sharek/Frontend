@@ -258,7 +258,7 @@ export function ImportProjectStepper({
                   "rounded-full px-2.5 py-1 text-xs font-medium",
                   preview.evidence.completeness === "complete"
                     ? "bg-evidence-teal/10 text-evidence-teal"
-                    : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+                    : "bg-review-amber-soft text-amber-600 dark:text-amber-400",
                 )}
               >
                 {preview.evidence.completeness === "complete"

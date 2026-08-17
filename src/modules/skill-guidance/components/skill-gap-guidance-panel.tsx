@@ -58,7 +58,7 @@ export function SkillGapGuidancePanel({
         </p>
       )}
       {result?.kind === "system_limit" && (
-        <p role="status" className="rounded-input border border-amber-500/30 bg-amber-500/5 p-3 text-sm leading-6 text-muted-foreground">
+        <p role="status" className="rounded-input border border-review-amber/30 bg-review-amber-soft p-3 text-sm leading-6 text-muted-foreground">
           {t("skillGuidance.systemLimit")}
         </p>
       )}

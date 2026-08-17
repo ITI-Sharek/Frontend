@@ -23,6 +23,12 @@ export interface SearchFieldProps {
   inputId?: string;
   className?: string;
   disabled?: boolean;
+  /**
+   * `hero` places the field on a dark brand band: the input becomes an opaque
+   * white capsule and the submit button switches to the evidence hue so it
+   * still separates from the surface behind it.
+   */
+  tone?: "default" | "hero";
 }
 
 /**
@@ -44,9 +50,11 @@ export function SearchField({
   inputId,
   className,
   disabled = false,
+  tone = "default",
 }: SearchFieldProps) {
   const generatedInputId = useId();
   const resolvedInputId = inputId ?? generatedInputId;
+  const hero = tone === "hero";
 
   return (
     <form
@@ -60,7 +68,13 @@ export function SearchField({
       <label className="sr-only" htmlFor={resolvedInputId}>
         {searchLabel}
       </label>
-      <InputGroup className="min-w-0 flex-1">
+      <InputGroup
+        className={cn(
+          "min-w-0 flex-1",
+          hero &&
+            "h-12 rounded-full border-transparent bg-white shadow-[var(--shadow-raised)] focus-within:ring-4 focus-within:ring-white/25 dark:bg-card",
+        )}
+      >
         <InputGroupInput
           id={resolvedInputId}
           type="search"
@@ -68,7 +82,10 @@ export function SearchField({
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className="min-w-0 text-sm [&::-webkit-search-cancel-button]:appearance-none"
+          className={cn(
+            "min-w-0 text-sm [&::-webkit-search-cancel-button]:appearance-none",
+            hero && "text-[15px] text-[#131a17] placeholder:text-[#7b8a83] dark:text-foreground",
+          )}
         />
         <InputGroupAddon align="inline-start">
           <Search className="size-4" aria-hidden="true" />
@@ -86,7 +103,12 @@ export function SearchField({
           </InputGroupAddon>
         )}
       </InputGroup>
-      <Button type="submit" disabled={disabled}>
+      <Button
+        type="submit"
+        disabled={disabled}
+        variant={hero ? "evidence" : "primary"}
+        className={cn(hero && "h-12 rounded-full px-7")}
+      >
         {searchButtonLabel}
       </Button>
     </form>

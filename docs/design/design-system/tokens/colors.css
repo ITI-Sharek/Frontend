@@ -1,51 +1,73 @@
-/* Share-k color tokens — verbatim from src/styles/tokens.css (ITI-Sharek/Frontend) */
+/* Share-k color tokens — mirrors src/styles/tokens.css (ITI-Sharek/Frontend).
+ *
+ * The palette is sampled from the logo mark (public/logo-1.png): indigo
+ * #283480 and teal #0abb9f. The two hues are semantic, not interchangeable:
+ *
+ *   indigo → the platform: structure, navigation, actions.
+ *   teal   → evidence: anything the system verified rather than was told.
+ *
+ * Surfaces sit in a warm green-black "paper" family so the brand hues read as
+ * ink on a page rather than as UI chrome.
+ */
 :root {
-  /* base neutrals */
-  --sk-white: #ffffff;
-  --sk-ink: #0e1513;
-  --sk-slate-500: #64748b;
-  --sk-slate-200: #e2e8f0;
-  --sk-slate-50: #f8fafc;
+  /* brand — indigo, anchored on the logo at step 700 */
+  --sk-indigo-50: #eef0f9;
+  --sk-indigo-300: #929dd7;
+  --sk-indigo-600: #333f92;
+  --sk-indigo-700: #283480;
+  --sk-indigo-900: #1a2153;
 
-  /* dark-mode neutrals */
-  --sk-ink-900: #0e1513;
-  --sk-ink-800: #161d1b;
-  --sk-ink-850: #09100e;
-  --sk-ink-750: #1a211f;
-  --sk-fog-100: #dde4e1;
-  --sk-fog-300: #bacac5;
-  --sk-fog-600: #3c4a46;
+  /* brand — teal, anchored on the logo at step 500 */
+  --sk-teal-50: #e7fbf6;
+  --sk-teal-300: #4bd9c0;
+  --sk-teal-500: #0abb9f;
+  --sk-teal-600: #049783;
+  --sk-teal-700: #06786a;
 
-  /* brand */
-  --sk-teal-500: #2dd4bf;   /* primary, light theme */
-  --sk-teal-300: #57f1db;   /* primary, dark theme */
+  /* paper neutrals */
+  --sk-paper-0: #ffffff;
+  --sk-paper-50: #f5f7f3;
+  --sk-paper-200: #e3e8e2;
+  --sk-paper-300: #cfd7d1;
+  --sk-paper-600: #5b6a64;
+  --sk-paper-900: #131a17;
 
   /* semantic — light (default) */
-  --background: var(--sk-white);
-  --foreground: var(--sk-ink);
-  --muted-foreground: var(--sk-slate-500);
-  --border: var(--sk-slate-200);
-  --card: var(--sk-white);
-  --header-bg: var(--sk-white);
-  --input-bg: var(--sk-white);
-  --input-placeholder: #6b7280;
-  --footer-bg: var(--sk-slate-50);
-  --primary: var(--sk-teal-500);
-  --primary-foreground: var(--sk-ink);
-  --destructive: #dc2626;
+  --background: var(--sk-paper-50);
+  --foreground: var(--sk-paper-900);
+  --muted-foreground: var(--sk-paper-600);
+  --border: var(--sk-paper-200);
+  --border-strong: var(--sk-paper-300);
+  --card: var(--sk-paper-0);
+  --header-bg: rgba(245, 247, 243, 0.86);
+  --input-bg: var(--sk-paper-0);
+  --footer-bg: #eef1eb;
+  --primary: var(--sk-indigo-700);
+  --primary-foreground: #ffffff;
+  --primary-soft: var(--sk-indigo-50);
+  --evidence-teal: var(--sk-teal-600);
+  --evidence-soft: var(--sk-teal-50);
+  --review-amber: #b06a05;
+  --advisory-violet: #6b5ca5;
+  --destructive: #c0362b;
 }
 
 .dark {
-  --background: var(--sk-ink-900);
-  --foreground: var(--sk-fog-100);
-  --muted-foreground: var(--sk-fog-300);
-  --border: var(--sk-fog-600);
-  --card: var(--sk-ink-750);
-  --header-bg: var(--sk-ink-800);
-  --input-bg: var(--sk-ink-850);
-  --input-placeholder: rgba(186, 202, 197, 0.4);
-  --footer-bg: var(--sk-ink-850);
-  --primary: var(--sk-teal-300);
-  --primary-foreground: #003731;
-  --destructive: #f87171;
+  --background: #0d1412;
+  --foreground: #e3e9e5;
+  --muted-foreground: #97a8a1;
+  --border: #26332e;
+  --border-strong: #35443e;
+  --card: #151d1a;
+  --header-bg: rgba(13, 20, 18, 0.86);
+  --input-bg: #0b110f;
+  --footer-bg: #0b110f;
+  --primary: var(--sk-indigo-300);
+  --primary-foreground: #12162f;
+  --primary-soft: rgba(146, 157, 215, 0.14);
+  --evidence-teal: var(--sk-teal-300);
+  --evidence-soft: rgba(75, 217, 192, 0.13);
+  --review-amber: #eab308;
+  --advisory-violet: #a78bfa;
+  --destructive: #f4796d;
 }

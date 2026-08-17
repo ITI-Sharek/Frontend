@@ -135,7 +135,7 @@ export function NotificationPopover({
       >
         <Icon className="size-4.5" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -start-1 -top-1 min-w-5 rounded-full bg-amber-500 px-1.5 py-0.5 font-mono text-[10px] leading-none text-white">
+          <span className="absolute -start-1 -top-1 min-w-5 rounded-full bg-review-amber px-1.5 py-0.5 font-mono text-[10px] leading-none text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
