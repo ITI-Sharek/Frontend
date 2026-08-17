@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowLeft, BadgeCheck, Clock, Inbox } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Clock, Inbox } from "lucide-react";
 
 import { ROUTES } from "@/config/routes.config";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { cn } from "@/lib/utils";
 import {
   PageContainer,
@@ -243,7 +244,7 @@ function ReviewLink({
       )}
     >
       {t("skillProfile.reviewQueue.openReview")}
-      <ArrowLeft className="size-4" aria-hidden="true" />
+      <DirectionalArrow />
     </Link>
   );
 }

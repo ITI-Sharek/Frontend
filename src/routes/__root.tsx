@@ -3,6 +3,15 @@ import { Fragment, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { AppProviders } from "@/providers/app-providers";
+import {
+  RouteProgressBar,
+  RouteTransitionVeil,
+} from "@/shared/components/feedback/sharek-loader";
+import {
+  ACTIVE_ROUTE_TRANSITION,
+  useDelayedFlag,
+  useIsNavigating,
+} from "@/shared/hooks/use-route-loading";
 
 import appCss from "../styles.css?url";
 
@@ -56,7 +65,30 @@ function LocalizedDocumentContent({ children }: { children: React.ReactNode }) {
     document.title = `${t(getRouteTitleKey(pathname))} | Sharek`;
   }, [direction, language, pathname, t]);
 
-  return <Fragment key={language}>{children}</Fragment>;
+  return (
+    <Fragment key={language}>
+      <RouteTransition />
+      {children}
+    </Fragment>
+  );
+}
+
+/**
+ * Global navigation feedback. Mounted once at the document root so every
+ * route — public, workspace and admin alike — gets the same transition
+ * instead of each layout inventing its own spinner.
+ */
+function RouteTransition() {
+  const navigating = useIsNavigating();
+  const showBar = useDelayedFlag(navigating, ACTIVE_ROUTE_TRANSITION.bar);
+  const showVeil = useDelayedFlag(navigating, ACTIVE_ROUTE_TRANSITION.veil);
+
+  return (
+    <>
+      {showBar ? <RouteProgressBar /> : null}
+      {showVeil ? <RouteTransitionVeil /> : null}
+    </>
+  );
 }
 
 function getRouteTitleKey(pathname: string) {

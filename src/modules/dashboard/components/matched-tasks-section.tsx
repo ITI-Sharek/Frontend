@@ -1,11 +1,67 @@
-import { ArrowLeft, BadgeCheck } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
+import { SectionHeading } from "@/shared/components/layout/page-layout";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 
 import type { MatchedTaskDto } from "../types/dashboard.types";
+
+/**
+ * The fit gauge.
+ *
+ * "3/3 fit" as a piece of text tells you nothing until you have read both
+ * numbers and done the division. A row of pips — one per skill the request
+ * asks for, filled where the contributor has *verified* that skill — is
+ * legible before it is read, and it makes an incomplete match visibly
+ * incomplete rather than merely a smaller number.
+ *
+ * The fraction stays in the accessible name so screen readers get the precise
+ * value rather than a count of decorative dots.
+ */
+function FitGauge({
+  matched,
+  required,
+  label,
+}: {
+  matched: number;
+  required: number;
+  label: string;
+}) {
+  const full = matched >= required && required > 0;
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border py-1 pe-2.5 ps-2",
+        full
+          ? "border-evidence-teal/35 bg-evidence-soft text-evidence-soft-foreground"
+          : "border-border-strong bg-surface-fog text-muted-foreground",
+      )}
+      title={label}
+    >
+      <span className="flex items-center gap-[3px]" aria-hidden>
+        {Array.from({ length: required }).map((_, index) => (
+          <span
+            key={index}
+            className={cn(
+              "block h-2.5 w-[5px] rounded-[1.5px]",
+              index < matched
+                ? full
+                  ? "bg-evidence-teal"
+                  : "bg-primary"
+                : "bg-border-strong",
+            )}
+          />
+        ))}
+      </span>
+      <span className="tnum text-[11px] font-bold leading-none">{label}</span>
+      {full ? <BadgeCheck className="size-3.5 shrink-0" aria-hidden /> : null}
+    </span>
+  );
+}
 
 /**
  * WF-02 "MATCHED TASKS": section title carries the *why* (verified skills);
@@ -19,86 +75,85 @@ export function MatchedTasksSection({
   matchReason: string;
 }) {
   const { t } = useTranslation();
+
   return (
     <section
       id="matches"
       className="scroll-mt-28"
       aria-labelledby="matched-heading"
     >
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold text-evidence-teal-foreground dark:text-evidence-teal">
-            {t("dashboard.matches.eyebrow")}
-          </p>
-          <h2
-            id="matched-heading"
-            className="mt-1 text-xl font-bold text-foreground"
+      <SectionHeading
+        eyebrow={t("dashboard.matches.eyebrow")}
+        title={
+          <span id="matched-heading">{t("dashboard.matches.title")}</span>
+        }
+        description={t("dashboard.matches.reason", { reason: matchReason })}
+        action={
+          <Link
+            to={ROUTES.tasks}
+            className="group/all inline-flex min-h-10 items-center gap-1.5 rounded-input px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft"
           >
-            {t("dashboard.matches.title")}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("dashboard.matches.reason", { reason: matchReason })}
-          </p>
-        </div>
-        <Link
-          to={ROUTES.tasks}
-          className="inline-flex min-h-10 items-center gap-1.5 rounded-input px-2 text-sm font-semibold text-primary hover:bg-primary/[0.06]"
-        >
-          {t("dashboard.matches.viewAll")}
-          <ArrowLeft className="size-4" />
-        </Link>
-      </div>
+            {t("dashboard.matches.viewAll")}
+            <DirectionalArrow className="size-4 transition-transform duration-200 ease-out group-hover/all:translate-x-0.5 rtl:group-hover/all:-translate-x-0.5" />
+          </Link>
+        }
+      />
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        {tasks.map((task) => {
-          const fullMatch = task.matchedCount === task.requiredCount;
-          return (
-            <Link
-              key={task.id}
-              to={ROUTES.task(task.id)}
-              className="group flex min-w-0 flex-col rounded-card border border-border bg-card p-5 transition-[border-color,background-color] hover:border-primary/40 hover:bg-primary/[0.018] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      <div className="grid gap-3.5 lg:grid-cols-3">
+        {tasks.map((task, index) => (
+          <Link
+            key={task.id}
+            to={ROUTES.task(task.id)}
+            data-card-hover
+            style={{ animationDelay: `${Math.min(index, 4) * 55}ms` }}
+            className={cn(
+              "sk-rise group flex min-w-0 flex-col rounded-card border border-border bg-card p-5",
+              "shadow-[var(--shadow-record)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            )}
+          >
+            <FitGauge
+              matched={task.matchedCount}
+              required={task.requiredCount}
+              label={t("dashboard.matches.fit", {
+                matched: task.matchedCount,
+                required: task.requiredCount,
+              })}
+            />
+
+            <h3 className="bidi mt-3.5 text-pretty font-bold leading-snug text-foreground">
+              {task.title}
+            </h3>
+
+            {/*
+             * The project is an identifier, not prose — mono is doing real
+             * work here rather than dressing the card up as "technical".
+             */}
+            <p
+              dir="ltr"
+              className="mt-1.5 truncate font-mono text-[11.5px] text-subtle-foreground"
             >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] tracking-[0.65px]",
-                  fullMatch
-                    ? "border-evidence-teal/50 bg-evidence-teal/10 text-evidence-teal"
-                    : "border-border bg-background text-muted-foreground",
-                )}
-              >
-                {fullMatch && <BadgeCheck className="size-3.5" />}
-                {t("dashboard.matches.fit", { matched: task.matchedCount, required: task.requiredCount })}
-              </span>
-              <h3 className="mt-3 font-semibold text-foreground">
-                {task.title}
-              </h3>
-              <p
-                dir="ltr"
-                className="mt-1 text-end font-mono text-[12px] tracking-[0.65px] text-muted-foreground"
-              >
-                {task.projectName}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {task.requiredSkills.map((skill) => (
-                  <span
-                    key={skill}
-                    dir="ltr"
-                    className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[11px] tracking-[0.65px] text-muted-foreground"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-                {t("dashboard.matches.review")}
-                <ArrowLeft
-                  className="size-4 transition-transform group-hover:-translate-x-1"
-                  aria-hidden
-                />
-              </span>
-            </Link>
-          );
-        })}
+              {task.projectName}
+            </p>
+
+            <div className="mt-3.5 flex flex-wrap gap-1.5">
+              {task.requiredSkills.map((skill) => (
+                <span
+                  key={skill}
+                  dir="ltr"
+                  className="rounded-social border border-border bg-surface-fog px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-primary">
+              {t("dashboard.matches.review")}
+              <DirectionalArrow className="size-4 transition-transform duration-200 ease-out group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+            </span>
+          </Link>
+        ))}
       </div>
     </section>
   );

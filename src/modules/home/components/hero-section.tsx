@@ -1,9 +1,10 @@
 import { lazy, Suspense } from "react";
-import { ArrowLeft, CheckCircle2, FileCheck2, UsersRound } from "lucide-react";
+import { CheckCircle2, FileCheck2, UsersRound } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Button } from "@/shared/components/ui/button";
 
 const ContributionStoryPlayer = lazy(
@@ -44,7 +45,7 @@ export function HeroSection() {
               >
                 <Link to={ROUTES.register}>
                   {t("landing.heroStartAsContributor")}
-                  <ArrowLeft className="size-4" aria-hidden />
+                  <DirectionalArrow />
                 </Link>
               </Button>
               <Button
@@ -122,7 +123,7 @@ function ContributionStoryFallback() {
         <div className="space-y-3 text-sm">
           <p>{t("landing.heroFallbackOwnerDecision")}</p>
           <p>{t("landing.heroFallbackEvidence")}</p>
-          <p className="font-semibold text-emerald-600">
+          <p className="font-semibold text-evidence-teal">
             {t("landing.heroFallbackVerified")}
           </p>
         </div>

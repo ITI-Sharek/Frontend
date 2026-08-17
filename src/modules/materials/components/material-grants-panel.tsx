@@ -71,7 +71,7 @@ export function MaterialGrantsPanel({
   }
 
   return (
-    <section className="space-y-3 rounded-lg bg-muted/30 p-3">
+    <section className="space-y-3 rounded-lg bg-surface-fog p-3">
       <div>
         <h4 className="text-sm font-semibold">{t("material.grantsPanelTitle")}</h4>
         <p className="mt-1 text-xs text-muted-foreground">

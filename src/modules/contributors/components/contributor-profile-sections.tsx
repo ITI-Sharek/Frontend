@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
 import { cn } from "@/lib/utils";
+import { ShieldBadge } from "@/shared/components/data-display/shield-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import { ContributorProfileEmptyState } from "./contributor-profile-empty-state";
@@ -150,58 +151,54 @@ export function ContributorProfileSections({
           />
         )}
 
-        <dl className="mt-6 grid gap-x-8 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.roleLabel")}</dt>
-            <dd className="font-medium text-foreground">{profile.roleLabel}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.availabilityLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.availability ?? t("contributor.profile.unspecified")}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.githubAccountLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.githubStatus.connected &&
-              profile.githubStatus.username ? (
-                <a
-                  dir="ltr"
-                  href={`https://github.com/${profile.githubStatus.username}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-mono text-[13px] tracking-[0.65px] text-primary hover:opacity-80"
-                >
-                  @{profile.githubStatus.username}
-                </a>
-              ) : (
-                t("contributor.githubStatus.disconnected")
-              )}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.usernameLabel")}</dt>
-            <dd dir="ltr" className="font-mono text-[13px] tracking-[0.65px] text-foreground">
+        {/*
+         * A fact table, read down rather than across: each row is a hairline
+         * with the label at the start edge and the value at the end, so the
+         * values form a single column the eye can run down.
+         */}
+        <dl className="mt-6 grid gap-x-10 border-t border-border pt-1 text-sm sm:grid-cols-2">
+          <FactRow label={t("contributor.profile.roleLabel")}>
+            {profile.roleLabel}
+          </FactRow>
+          <FactRow label={t("contributor.profile.availabilityLabel")}>
+            {profile.availability ?? t("contributor.profile.unspecified")}
+          </FactRow>
+          <FactRow label={t("contributor.profile.githubAccountLabel")}>
+            {profile.githubStatus.connected && profile.githubStatus.username ? (
+              <a
+                dir="ltr"
+                href={`https://github.com/${profile.githubStatus.username}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[13px] text-primary hover:underline"
+              >
+                @{profile.githubStatus.username}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">
+                {t("contributor.githubStatus.disconnected")}
+              </span>
+            )}
+          </FactRow>
+          <FactRow label={t("contributor.profile.usernameLabel")}>
+            <span dir="ltr" className="font-mono text-[13px]">
               @{profile.username}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">{t("contributor.profile.experienceLevelLabel")}</dt>
-            <dd className="font-medium text-foreground">
-              {profile.experienceLevel?.labelAr ?? t("contributor.profile.experienceLevelUnspecified")}
-            </dd>
-          </div>
-          <div className="flex items-start justify-between gap-4 sm:col-span-2">
-            <dt className="shrink-0 text-muted-foreground">{t("contributor.profile.fieldsLabel")}</dt>
-            <dd className="text-end font-medium text-foreground">
-              {profile.fields.length > 0 ? (
-                profile.fields.map((field) => field.labelAr).join(t("contributor.profile.fieldsSeparator"))
-              ) : (
-                t("contributor.profile.unspecified")
-              )}
-            </dd>
-          </div>
+            </span>
+          </FactRow>
+          <FactRow label={t("contributor.profile.experienceLevelLabel")}>
+            {profile.experienceLevel?.labelAr ??
+              t("contributor.profile.experienceLevelUnspecified")}
+          </FactRow>
+          <FactRow
+            label={t("contributor.profile.fieldsLabel")}
+            className="sm:col-span-2"
+          >
+            {profile.fields.length > 0
+              ? profile.fields
+                  .map((field) => field.labelAr)
+                  .join(t("contributor.profile.fieldsSeparator"))
+              : t("contributor.profile.unspecified")}
+          </FactRow>
         </dl>
       </TabsContent>
 
@@ -216,9 +213,12 @@ export function ContributorProfileSections({
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-foreground">{t("contributor.profile.skillsTitle")}</h2>
           {verifiedSkills.length > 0 && (
-            <span className="font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
-              {t("contributor.profile.verifiedCount", { count: verifiedSkills.length })}
-            </span>
+            <ShieldBadge
+              icon={BadgeCheck}
+              label={t("contributor.profile.verifiedBadge")}
+              value={verifiedSkills.length}
+              tone="verified"
+            />
           )}
         </div>
 
@@ -257,9 +257,15 @@ export function ContributorProfileSections({
           />
         )}
 
+        {/*
+         * Self-declared skills carry no evidence, so they are drawn with a
+         * dashed edge and no teal anywhere — the same visual grammar as an
+         * empty state. Nothing on this page should let an unverified claim
+         * borrow the appearance of a verified one.
+         */}
         {profile.declaredSkills.length > 0 && (
           <div className="mt-6 border-t border-border pt-4">
-            <p className="mb-3 font-mono text-[13px] tracking-[0.65px] text-muted-foreground">
+            <p className="mb-3 text-[13px] font-medium text-muted-foreground">
               {t("contributor.profile.declaredSkillsLabel")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -267,7 +273,7 @@ export function ContributorProfileSections({
                 <span
                   key={skill}
                   dir="ltr"
-                  className="rounded-full border border-border bg-background px-3 py-1.5 font-mono text-[13px] tracking-[0.65px] text-muted-foreground"
+                  className="rounded-full border border-dashed border-border-strong bg-surface-fog px-3 py-1.5 font-mono text-[13px] text-muted-foreground"
                 >
                   {skill}
                 </span>
@@ -328,6 +334,30 @@ export function ContributorProfileSections({
  * Verified skill row: proficiency + labeled confidence + evidence expander.
  * Verified and unverified skills must never look identical.
  */
+function FactRow({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-baseline justify-between gap-6 border-b border-border/70 py-2.5",
+        className,
+      )}
+    >
+      <dt className="shrink-0 text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-end font-medium text-foreground">
+        {children}
+      </dd>
+    </div>
+  );
+}
+
 function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
   const { t } = useTranslation();
   const hasEvidence =
@@ -335,45 +365,86 @@ function VerifiedSkillRow({ skill }: { skill: ContributorSkillDto }) {
 
   const header = (
     <>
-      <span dir="ltr" className="font-mono text-sm tracking-[0.65px] text-foreground">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-evidence-teal text-white">
+        <BadgeCheck className="size-3.5" />
+      </span>
+
+      <span
+        dir="ltr"
+        className="font-mono text-sm font-medium tracking-[0.4px] text-foreground"
+      >
         {skill.name}
       </span>
-      <span className="text-xs text-muted-foreground">
+
+      <span className="rounded-full bg-card px-2 py-0.5 text-[11px] font-semibold text-muted-foreground ring-1 ring-inset ring-border">
         {t(PROFICIENCY_LABEL_KEYS[skill.proficiencyLevel])}
       </span>
-      <span className="inline-flex items-center gap-1 text-xs text-evidence-teal">
-        <BadgeCheck className="size-3.5" />
-        {t("contributor.profile.verifiedBadge")}
-      </span>
-      <span className="font-mono text-[11px] tracking-[0.65px] text-muted-foreground">
-        {t("contributor.profile.confidence", {
-          confidence: confidenceLabel(t, skill.confidence),
-        })}
-      </span>
+
+      <ConfidenceGauge confidence={skill.confidence} />
     </>
   );
 
   if (!hasEvidence) {
     return (
-      <div className="flex flex-wrap items-center gap-3 rounded-input border border-evidence-teal/40 bg-evidence-teal/5 px-4 py-3">
+      <div
+        data-spine="verified"
+        className="flex flex-wrap items-center gap-2.5 rounded-input rounded-s-sm border border-evidence-teal/25 bg-evidence-soft/60 px-3.5 py-3"
+      >
         {header}
       </div>
     );
   }
 
   return (
-    <details className="group rounded-input border border-evidence-teal/40 bg-evidence-teal/5">
-      <summary className="flex cursor-pointer flex-wrap items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+    <details
+      data-spine="verified"
+      className="group rounded-input rounded-s-sm border border-evidence-teal/25 bg-evidence-soft/60"
+    >
+      <summary className="flex cursor-pointer flex-wrap items-center gap-2.5 px-3.5 py-3 [&::-webkit-details-marker]:hidden">
         {header}
-        <span className="ms-auto inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <span className="ms-auto inline-flex items-center gap-1 text-xs font-semibold text-evidence-soft-foreground">
           {t("contributor.profile.evidenceLabel")}
-          <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
+          <ChevronDown className="size-3.5 transition-transform duration-200 group-open:rotate-180" />
         </span>
       </summary>
-      <p className="border-t border-evidence-teal/20 px-4 py-3 text-sm leading-6 text-muted-foreground">
+      <p className="border-t border-evidence-teal/20 px-3.5 py-3 text-sm leading-7 text-muted-foreground">
         {skill.evidenceSummary}
       </p>
     </details>
+  );
+}
+
+/**
+ * Confidence arrives from the analyser as a decimal, which WF-06 forbids
+ * showing raw. Three segments carry the band visually and the words carry it
+ * for anyone who cannot see the segments — neither is decoration for the
+ * other.
+ */
+function ConfidenceGauge({ confidence }: { confidence: number }) {
+  const { t } = useTranslation();
+  const level = confidence >= 0.8 ? 3 : confidence >= 0.5 ? 2 : 1;
+  const label = t("contributor.profile.confidence", {
+    confidence: confidenceLabel(t, confidence),
+  });
+
+  return (
+    <span className="ms-auto inline-flex items-center gap-1.5" title={label}>
+      <span className="flex items-end gap-[2px]" aria-hidden>
+        {[1, 2, 3].map((step) => (
+          <span
+            key={step}
+            className={cn(
+              "block w-[3px] rounded-[1px]",
+              step === 1 ? "h-1.5" : step === 2 ? "h-2.5" : "h-3.5",
+              step <= level ? "bg-evidence-teal" : "bg-border-strong",
+            )}
+          />
+        ))}
+      </span>
+      <span className="text-[11px] font-medium text-muted-foreground">
+        {label}
+      </span>
+    </span>
   );
 }
 
@@ -384,11 +455,11 @@ function UnverifiedSkillChip({ skill }: { skill: ContributorSkillDto }) {
   const StatusIcon = meta.icon;
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground">
-      <span dir="ltr" className="font-mono text-[13px] tracking-[0.65px]">
+    <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-border-strong bg-surface-fog px-3 py-1.5 text-sm text-muted-foreground">
+      <span dir="ltr" className="font-mono text-[13px]">
         {skill.name}
       </span>
-      <span className="inline-flex items-center gap-1 text-xs">
+      <span className="inline-flex items-center gap-1 text-xs font-medium">
         <StatusIcon className="size-3.5" />
         {t(meta.labelKey)}
       </span>

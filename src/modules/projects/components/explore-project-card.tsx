@@ -1,17 +1,13 @@
-import { ArrowLeft, ExternalLink, Star } from "lucide-react";
+import { ExternalLink, Star } from "lucide-react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 
 import { getCategoryLabel, getDifficultyLabel } from "./explore-filters";
+import { getLanguageColor } from "../utils/language-colors";
 import type { DiscoveredProjectDto } from "../types/explore.types";
-
-const LANGUAGE_BAR_COLORS = [
-  "var(--primary)",
-  "var(--brand-indigo)",
-  "var(--border)",
-];
 
 const MAX_LANGUAGES_SHOWN = 3;
 
@@ -67,73 +63,101 @@ export function ExploreProjectCard({
   const repoOwner = project.githubRepoUrl.split("/").slice(-2, -1)[0] ?? "";
 
   return (
-    <article className="group flex flex-col rounded-card border border-border bg-card p-5 transition-[border-color,background-color] hover:border-primary/40 hover:bg-primary/[0.018] sm:p-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-lg font-bold leading-snug text-foreground">
+    <article
+      data-card-hover
+      className="group flex flex-col rounded-card border border-border bg-card p-5 shadow-[var(--shadow-record)] sm:p-6"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="bidi text-pretty text-lg font-bold leading-snug text-foreground">
           {project.title}
         </h3>
         {project.difficulty !== null && (
-          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+          <span className="shrink-0 rounded-full border border-primary/20 bg-primary-soft px-2.5 py-1 text-[11px] font-bold text-primary-soft-foreground">
             {getDifficultyLabel(t, project.difficulty)}
-          </span>
-        )}
-        {project.category !== null && (
-          <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-            {getCategoryLabel(t, project.category)}
           </span>
         )}
       </div>
 
-      <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
+      {project.category !== null && (
+        <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-subtle-foreground">
+          {getCategoryLabel(t, project.category)}
+        </p>
+      )}
+
+      <p className="bidi mt-3 text-sm leading-6 text-muted-foreground">
         {project.description ?? t("explore.noDescription")}
       </p>
 
+      {/*
+       * Repository composition, drawn the way GitHub draws it: one bar in the
+       * languages' own colours, with a keyed legend underneath. The colours do
+       * the identifying, so the legend can stay small.
+       */}
       {languages.length > 0 && (
-        <>
+        <div className="mt-4">
           <div
-            className="mt-4 flex h-1 overflow-hidden bg-border/50"
+            className="flex h-1.5 gap-px overflow-hidden rounded-full bg-surface-muted"
             aria-hidden
           >
-            {languages.map((lang, index) => (
+            {languages.map((lang) => (
               <span
                 key={lang.name}
                 style={{
                   width: `${lang.percent}%`,
-                  background:
-                    LANGUAGE_BAR_COLORS[index % LANGUAGE_BAR_COLORS.length],
+                  background: getLanguageColor(lang.name),
                 }}
               />
             ))}
-            {otherPercent > 0 && <span style={{ width: `${otherPercent}%` }} />}
+            {otherPercent > 0 && (
+              <span
+                style={{
+                  width: `${otherPercent}%`,
+                  background: "var(--border-strong)",
+                }}
+              />
+            )}
           </div>
-          <p
+          <ul
             dir="ltr"
-            className="mt-1.5 text-end font-mono text-[11px] tracking-[0.65px] text-muted-foreground"
+            className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1"
           >
-            {languages
-              .map((lang) => `${lang.name} ${lang.percent}%`)
-              .join(" · ")}
-          </p>
-        </>
+            {languages.map((lang) => (
+              <li
+                key={lang.name}
+                className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"
+              >
+                <span
+                  aria-hidden
+                  className="size-2 shrink-0 rounded-full"
+                  style={{ background: getLanguageColor(lang.name) }}
+                />
+                <span className="font-medium text-foreground">{lang.name}</span>
+                <span className="tnum">{lang.percent}%</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="mt-3.5 flex flex-wrap gap-1.5">
         {project.technologies.map((tech) => (
           <span
             key={tech}
             dir="ltr"
-            className="rounded-full border border-border bg-background px-2 py-0.5 font-mono text-[11px] tracking-[0.65px] text-muted-foreground"
+            className="rounded-social border border-border bg-surface-fog px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
           >
             {tech}
           </span>
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3 text-xs text-subtle-foreground">
         {stars !== null && (
           <span className="inline-flex items-center gap-1">
-            <Star className="size-3.5" />
-            <bdi>{stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}</bdi>
+            <Star className="size-3.5 text-review-amber" />
+            <bdi className="tnum font-semibold text-muted-foreground">
+              {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
+            </bdi>
           </span>
         )}
         {publishedAgo !== null && (
@@ -145,27 +169,24 @@ export function ExploreProjectCard({
             target="_blank"
             rel="noreferrer"
             dir="ltr"
-            className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[0.65px] hover:text-foreground"
+            className="ms-auto inline-flex items-center gap-1 font-mono text-[11px] transition-colors hover:text-foreground"
           >
             <ExternalLink className="size-3" />@{repoOwner}
           </a>
         )}
       </div>
 
-      <div className="mt-auto pt-5">
+      <div className="mt-auto pt-4">
         <Button
           asChild
           size="sm"
           variant="outline"
-          className="w-full justify-between border-primary/25 text-primary group-hover:border-primary/50"
+          className="w-full justify-between"
         >
           {/* URL contract per DEC-025: /projects/:projectSlug */}
           <a href={`/projects/${project.slug}`}>
             {t("explore.openProject")}
-            <ArrowLeft
-              className="size-4 transition-transform group-hover:-translate-x-1"
-              aria-hidden
-            />
+            <DirectionalArrow className="transition-transform duration-200 ease-out group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
           </a>
         </Button>
       </div>
