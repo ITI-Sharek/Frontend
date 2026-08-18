@@ -2201,7 +2201,8 @@
     "projectOwners": "Published project owners",
     "profileFields": "Contributor categories",
     "experienceLevels": "Experience levels",
-    "adminNotifications": "Admin notifications"
+    "adminNotifications": "Admin notifications",
+    "paymentResult": "Payment result"
   },
   "adminLayout": { "brandTitle": "Sharek administration", "navigationLabel": "Administration navigation", "workspaceTitle": "Review workspace", "workspaceDescription": "Trust and safety queues" },
   "adminReview": { "workspaceTitle": "Contributor review workspace", "loadingDescription": "Loading skills and evidence…", "loading": "Loading review workspace…", "loadErrorTitle": "Could not load review data", "loadErrorDescription": "Check your connection and try again. No new decision was saved." },
@@ -2710,7 +2711,37 @@
       "whatYouHave": "What your plan includes",
       "price": "500 EGP / month",
       "goldDescription": "Gold raises your daily Application allowance and unlocks matched projects chosen from your approved skills.",
-      "checkoutPending": "Purchasing Gold is not open yet. Card payment arrives with the payments release; nothing on this page will charge you."
+      "checkoutDescription": "You will continue to Paymob's hosted, PCI-compliant card page.",
+      "checkoutRedirectNote": "Sharek activates Gold only after its verified payment callback.",
+      "checkoutCta": "Continue to Paymob",
+      "checkoutStarting": "Opening secure checkout…",
+      "checkoutError": "Could not start the payment. Your card has not been charged.",
+      "checkoutRedirectError": "The payment was created, but its hosted checkout link was invalid. Try again or contact support.",
+      "payment": {
+        "title": "Payment verification",
+        "missingTitle": "Payment attempt not found",
+        "missingDescription": "Open the payment result from the same browser session that started checkout, or return to your plan.",
+        "verifyingTitle": "Verifying payment",
+        "verifyingDescription": "We are checking Sharek's payment record. Do not rely on the redirect page alone.",
+        "statusErrorTitle": "Payment status unavailable",
+        "statusErrorDescription": "We could not read the payment record yet. No success has been recorded in this browser.",
+        "pendingTitle": "Payment is still processing",
+        "pendingDescription": "Sharek is waiting for Paymob's verified callback. This page checks again automatically.",
+        "pendingTimeoutTitle": "Payment still needs verification",
+        "pendingTimeoutDescription": "The provider has not confirmed this attempt yet. Check again later; Gold is not active until Sharek records paid.",
+        "checkAgain": "Check again",
+        "paidTitle": "Gold is active",
+        "paidDescription": "Sharek verified the payment and activated your Gold benefits. You can continue to your plan.",
+        "failedTitle": "Payment was not completed",
+        "failedDescription": "No Gold benefits were activated for this attempt. You can safely start a new checkout from the plan page.",
+        "cancelledTitle": "Payment was cancelled",
+        "cancelledDescription": "This attempt was cancelled and did not activate Gold. You can return to the plan page when you are ready.",
+        "refundedTitle": "Payment was refunded",
+        "refundedDescription": "Paymob reports this payment as refunded. Check your current plan status and contact support if your access does not match the refund.",
+        "tryAgain": "Try payment again",
+        "returnToPlan": "Back to plans",
+        "continue": "View my plan"
+      }
     }
   },
   "deliveryReviews": {

@@ -1,13 +1,21 @@
 import { BadgeCheck, CircleAlert, Loader2, LockKeyhole } from "lucide-react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
+import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 import { Meter } from "@/shared/components/data-display/stat";
 import { PageHeader } from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { formatServerInstant } from "@/shared/utils/format-server-instant";
 
+import { useCreateSubscriptionCheckoutMutation } from "../api/mutations/use-subscription-payment-mutations";
 import { useSubscriptionStatusQuery } from "../api/queries/use-subscription-query";
+import {
+  isSafeHostedCheckoutUrl,
+  savePendingPaymentId,
+} from "../services/payment-session.service";
 import type {
   SubscriptionBenefitDto,
   SubscriptionPlan,
@@ -64,13 +72,16 @@ function BenefitRow({ benefit }: { benefit: SubscriptionBenefitDto }) {
  *   *limits* from a plan name, which nothing here does. When PAY-02's plan
  *   catalog ships, this string should be replaced by the served price.
  *
- * There is no purchase affordance that does not work. Checkout arrives with
- * PAY-05; until then this page says so plainly instead of showing a dead
- * button.
+ * The upgrade action starts a backend-owned, idempotent attempt and then hands
+ * the browser to Paymob's hosted checkout. The result page never trusts the
+ * provider redirect; it asks the backend for the payment status instead.
  */
 export function PlanPageView() {
   const { t, i18n } = useTranslation();
   const query = useSubscriptionStatusQuery();
+  const checkoutMutation = useCreateSubscriptionCheckoutMutation();
+  const idempotencyKey = useRef<string | null>(null);
+  const [redirectError, setRedirectError] = useState(false);
 
   if (query.isPending) {
     return (
@@ -109,6 +120,25 @@ export function PlanPageView() {
   const renewsAt = formatServerInstant(status.usage?.periodEnd, i18n.language);
 
   const usage = status.usage;
+
+  function beginGoldCheckout() {
+    idempotencyKey.current ??= createIdempotencyKey();
+    setRedirectError(false);
+    checkoutMutation.mutate({
+      planType: "gold",
+      roleContext: status.roleContext,
+      idempotencyKey: idempotencyKey.current,
+    }, {
+      onSuccess: (checkout) => {
+        if (!isSafeHostedCheckoutUrl(checkout.checkout.checkoutUrl)) {
+          setRedirectError(true);
+          return;
+        }
+        savePendingPaymentId(checkout.paymentId);
+        window.location.assign(checkout.checkout.checkoutUrl);
+      },
+    });
+  }
 
   return (
     <section className="mx-auto grid w-full max-w-3xl gap-6 px-4 py-6 sm:px-6 md:py-8">
@@ -235,18 +265,43 @@ export function PlanPageView() {
             {t("subscriptions.plan.goldDescription")}
           </p>
 
-          {/*
-            The upgrade seam. PAY-05 replaces this block with the Paymob
-            hosted-checkout entry point; until the backend can start a checkout
-            there is nothing honest to put behind a button, so the page says so
-            rather than rendering one that does nothing.
-          */}
-          <div
-            className="sk-hatch rounded-input border border-dashed border-border-strong p-4 text-sm leading-6 text-muted-foreground"
-            role="note"
-          >
-            {t("subscriptions.plan.checkoutPending")}
+          <div className="grid gap-3 sm:flex sm:items-center sm:justify-between">
+            <div className="text-xs leading-5 text-muted-foreground">
+              <p>{t("subscriptions.plan.checkoutDescription")}</p>
+              <p>{t("subscriptions.plan.checkoutRedirectNote")}</p>
+            </div>
+            <Button
+              type="button"
+              className="shrink-0"
+              onClick={beginGoldCheckout}
+              disabled={checkoutMutation.isPending}
+              data-testid="start-gold-checkout"
+            >
+              {checkoutMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : null}
+              {checkoutMutation.isPending
+                ? t("subscriptions.plan.checkoutStarting")
+                : t("subscriptions.plan.checkoutCta")}
+            </Button>
           </div>
+          {checkoutMutation.isError ? (
+            <div role="alert" className="flex items-start gap-2 text-sm text-destructive">
+              <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span>
+                {getApiErrorMessage(
+                  checkoutMutation.error,
+                  t("subscriptions.plan.checkoutError"),
+                )}
+              </span>
+            </div>
+          ) : null}
+          {redirectError ? (
+            <div role="alert" className="flex items-start gap-2 text-sm text-destructive">
+              <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span>{t("subscriptions.plan.checkoutRedirectError")}</span>
+            </div>
+          ) : null}
         </Card>
       )}
     </section>

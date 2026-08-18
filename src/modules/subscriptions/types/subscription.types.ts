@@ -11,6 +11,40 @@ export type SubscriptionSource =
   | "demo"
   | "payment_provider";
 
+export type PaymentAttemptStatus =
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled"
+  | "refunded";
+
+export interface CreateSubscriptionCheckoutPayload {
+  planType: "gold";
+  roleContext: SubscriptionRoleContext;
+  idempotencyKey: string;
+}
+
+export interface PaymentCheckoutDto {
+  paymentId: string;
+  checkout: {
+    provider: "paymob";
+    /** Browser-safe Paymob client secret. The hosted URL is the navigation target. */
+    clientSecret: string;
+    checkoutUrl: string;
+  };
+}
+
+export interface PaymentStatusDto {
+  paymentId: string;
+  planType: "gold";
+  roleContext: SubscriptionRoleContext;
+  amountCents: number;
+  currency: string;
+  status: PaymentAttemptStatus;
+  createdAt: string;
+  paidAt: string | null;
+}
+
 export interface SubscriptionUsageDto {
   used: number;
   limit: number;
