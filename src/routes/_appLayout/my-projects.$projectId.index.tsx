@@ -444,7 +444,8 @@ function RepositoryControlRecovery() {
           {t("githubSkillPage.connectAccount")}
         </Button>
         <Link
-          to="/profile/github"
+          to="/settings"
+          search={{ section: "github" }}
           className="text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
         >
           {t("project.repositoryRecovery.manageLinks")}

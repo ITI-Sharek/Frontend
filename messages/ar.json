@@ -43,7 +43,11 @@
     "disconnected": "غير متصل",
     "loading_session": "جارٍ التحقق من صلاحية الجلسة…",
     "loading_admin_session": "جارٍ التحقق من صلاحية الإدارة…",
-    "loading_ellipsis": "جارٍ التحميل…"
+    "loading_ellipsis": "جارٍ التحميل…",
+    "upload": "رفع",
+    "uploadImage": "رفع صورة",
+    "change": "تغيير",
+    "add": "إضافة"
   },
   "navigation": {
     "backToHome": "العودة إلى الموقع",
@@ -717,6 +721,7 @@
     "saveProject": "حفظ",
     "saveProjectAria": "حفظ المشروع",
     "noDescription": "لا يوجد وصف لهذا المشروع بعد.",
+    "noTech": "لم تُحدد وسوم تقنية",
     "publishedToday": "اليوم",
     "publishedDaysAgo_one": "منذ يوم",
     "publishedDaysAgo_other": "منذ {{count}} أيام",
@@ -1905,6 +1910,15 @@
       "unavailableWarning": "تعذّر جلب بعض البيانات حالياً ({{areas}}) — يمكنك إكمالها لاحقاً بالتحديث.",
       "reviewData": "تفاصيل وهوية المشروع",
       "reviewDescription": "اضبط البيانات المستخرجة من المستودع، وحدد تصنيف المشروع والتقنيات المستخدمة.",
+      "titlePlaceholder": "مثال: منصة شارك",
+      "descriptionPlaceholder": "صف مشروعك بإيجاز وما يقوم ببنائه...",
+      "customTechPlaceholder": "أضف وسم تقنية مخصص (مثال: GraphQL، Redis)...",
+      "heroImage": "صورة غلاف المشروع",
+      "heroImageHint": "اختياري · PNG أو JPEG أو WebP · حتى 5 ميجابايت",
+      "heroImageEmpty": "أضف هوية بصرية لمشروعك المنشور.",
+      "heroImagePreview": "صورة غلاف المشروع المحددة",
+      "uploadHeroImage": "رفع صورة",
+      "changeHeroImage": "تغيير",
       "categoryTitle": "تصنيف المشروع",
       "categoryDescription": "اختر التصنيف الأنسب لنوع المشروع ومجاله.",
       "difficultyTitle": "مستوى الخبرة المطلوب",
@@ -1933,7 +1947,12 @@
       "goToProject": "الانتقال للوحة إدارة المشروع",
       "copyLink": "نسخ الرابط العام",
       "linkCopied": "تم نسخ الرابط!",
-      "saveNote": "النشر سيجعل مشروعك متاحاً فوراً في صفحة الاستكشاف. الحفظ كمسودة يبقيه خاصاً."
+      "saveNote": "النشر سيجعل مشروعك متاحاً فوراً في صفحة الاستكشاف. الحفظ كمسودة يبقيه خاصاً.",
+      "livePreview": "المعاينة الحية للبطاقة",
+      "discoverMode": "طريقة العرض في الاستكشاف",
+      "notConnected": "لم يتم الاختيار",
+      "pendingTitle": "العنوان والتصنيف",
+      "ready": "جاهز للإطلاق"
     },
     "myProjectsList": {
       "quota": "{{used}} من {{monthlyLimit}} طلب مساهمة هذا الشهر",

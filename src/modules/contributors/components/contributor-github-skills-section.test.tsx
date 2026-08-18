@@ -63,7 +63,7 @@ describe("optional github skills section", () => {
     );
     expect(html).toContain("اختياري");
     expect(html).toContain("لا يوجد أي ربط لتطبيق GitHub");
-    expect(html).toContain("/profile/github");
+    expect(html).toContain("/settings");
   });
 
   it("keeps GitHub social login independent from repository analysis", () => {

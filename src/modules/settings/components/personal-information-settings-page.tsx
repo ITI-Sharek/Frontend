@@ -63,8 +63,6 @@ export interface PersonalInformationSettingsPageProps {
   user: AuthUserDto;
   profile?: ContributorProfileDto;
   activeSectionId?: "profile" | "github" | "language" | "notifications" | "subscription";
-  /** Route-composed contributor-only profile fields, kept inside Settings. */
-  profileDetailsSlot?: ReactNode;
   githubSlot?: ReactNode;
   languageSlot?: ReactNode;
   notificationsSlot?: ReactNode;
@@ -78,7 +76,6 @@ export function PersonalInformationSettingsPage({
   user,
   profile,
   activeSectionId = "profile",
-  profileDetailsSlot,
   githubSlot,
   languageSlot,
   notificationsSlot,
@@ -327,14 +324,7 @@ export function PersonalInformationSettingsPage({
           {/* Active Content Card */}
           <main className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-2xs sm:p-8 lg:col-span-8 xl:col-span-8.5">
             {activeItem === "profile" && (
-              <div className="flex flex-col gap-8">
-                <PersonalProfileForm user={user} profile={profile} />
-                {profileDetailsSlot && (
-                  <section className="border-t border-border pt-8">
-                    {profileDetailsSlot}
-                  </section>
-                )}
-              </div>
+              <PersonalProfileForm user={user} profile={profile} />
             )}
 
             {activeItem === "personal" && (

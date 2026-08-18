@@ -59,7 +59,7 @@ export function ContributorQuickActionsCard({
           variant="outline"
           className="h-10 w-full rounded-xl border-slate-200/90 bg-white font-semibold text-slate-800 shadow-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 text-xs"
         >
-          <Link to={ROUTES.githubSkillAnalysis}>
+          <Link to={ROUTES.settings} search={{ section: "github" }}>
             <Github className="size-4 text-slate-600 dark:text-slate-300" />
             <span>{t("contributor.dynamic.manageGithubEvidence")}</span>
           </Link>

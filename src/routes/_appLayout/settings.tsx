@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Github } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
@@ -9,7 +8,6 @@ import {
 } from "@/modules/auth";
 import {
   ContributorGithubSettingsSection,
-  ContributorProfileSettingsSection,
   useContributorProfileQuery,
 } from "@/modules/contributors";
 import {
@@ -19,7 +17,7 @@ import {
 import { PersonalInformationSettingsPage } from "@/modules/settings";
 import { NotificationPreferencesPanel } from "@/modules/notifications";
 import { SubscriptionSettingsSection } from "@/modules/subscriptions";
-import { Button } from "@/shared/components/ui/button";
+import { OwnerGithubSettingsSection } from "@/modules/projects";
 
 type SettingsSectionId =
   | "profile"
@@ -30,6 +28,8 @@ type SettingsSectionId =
 
 interface SettingsSearch {
   section?: SettingsSectionId;
+  attemptId?: string;
+  error?: string;
 }
 
 export const Route = createFileRoute("/_appLayout/settings")({
@@ -42,7 +42,14 @@ export const Route = createFileRoute("/_appLayout/settings")({
       section === "language" ||
       section === "subscription" ||
       section === "notifications";
-    return isValid ? { section } : {};
+    const result: SettingsSearch = isValid ? { section } : {};
+    if (typeof search.attemptId === "string" && search.attemptId !== "") {
+      result.attemptId = search.attemptId;
+    }
+    if (typeof search.error === "string" && search.error !== "") {
+      result.error = search.error;
+    }
+    return result;
   },
   component: SettingsPage,
 });
@@ -50,10 +57,10 @@ export const Route = createFileRoute("/_appLayout/settings")({
 function SettingsPage() {
   const { t } = useTranslation();
   const navigate = Route.useNavigate();
-  const { section } = Route.useSearch();
+  const { section, attemptId, error } = Route.useSearch();
   const routeContext = Route.useRouteContext();
   const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
-  const currentUser = routeContext.currentUser ?? currentUserQuery.data;
+  const currentUser = currentUserQuery.data ?? routeContext.currentUser;
   const role = currentUser?.role;
   const username = currentUser?.username;
 
@@ -78,14 +85,6 @@ function SettingsPage() {
       user={currentUser}
       profile={profileQuery.data}
       activeSectionId={activeSectionId}
-      profileDetailsSlot={
-        isContributor && profileQuery.data ? (
-          <ContributorProfileSettingsSection
-            profile={profileQuery.data}
-            onSaved={() => void profileQuery.refetch()}
-          />
-        ) : null
-      }
       githubSlot={
         isContributor ? (
           profileQuery.data ? (
@@ -99,7 +98,9 @@ function SettingsPage() {
                 await profileQuery.refetch();
               }}
               onOpenRepositories={() => {
-                void navigate({ to: ROUTES.githubSkillAnalysis });
+                void navigate({
+                  search: { section: "github" },
+                });
               }}
             />
           ) : (
@@ -108,22 +109,16 @@ function SettingsPage() {
             </p>
           )
         ) : isOwner ? (
-          <div className="flex items-start gap-4">
-            <Github className="mt-1 size-6 shrink-0 text-foreground" aria-hidden="true" />
-            <div className="space-y-2">
-              <h2 className="text-lg font-bold text-foreground">
-                {t("project.ownerGithub.title")}
-              </h2>
-              <p className="text-sm leading-6 text-muted-foreground">
-                {t("project.ownerGithub.description")}
-              </p>
-              <Button className="mt-2" asChild>
-                <a href={ROUTES.githubSkillAnalysis}>
-                  {t("project.ownerGithub.manage")}
-                </a>
-              </Button>
-            </div>
-          </div>
+          <OwnerGithubSettingsSection
+            attemptId={attemptId}
+            callbackError={error}
+            onClearCallback={() =>
+              void navigate({
+                search: { section: "github" },
+                replace: true,
+              })
+            }
+          />
         ) : null
       }
       languageSlot={<LanguageSettingsSection />}

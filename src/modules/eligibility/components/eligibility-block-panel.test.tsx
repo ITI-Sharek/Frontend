@@ -64,7 +64,7 @@ describe("EligibilityBlockPanel", () => {
       root.render(
         <EligibilityBlockPanel
           blockingSkills={blockingSkills}
-          skillAnalysisHref="/profile/github"
+          skillAnalysisHref="/settings?section=github"
           {...props}
         />,
       ),
@@ -104,7 +104,7 @@ describe("EligibilityBlockPanel", () => {
     it("offers the recovery path to the skill analysis workspace", async () => {
       await render();
 
-      const link = container.querySelector('a[href="/profile/github"]');
+      const link = container.querySelector('a[href="/settings?section=github"]');
       expect(link).not.toBeNull();
       expect(link?.textContent).toContain("أضف مستودعات");
     });
@@ -115,7 +115,7 @@ describe("EligibilityBlockPanel", () => {
       const onRecoveryNavigate = vi.fn();
       await render({ onRecoveryNavigate });
 
-      const link = container.querySelector('a[href="/profile/github"]');
+      const link = container.querySelector('a[href="/settings?section=github"]');
       await act(async () => (link as HTMLAnchorElement).click());
 
       expect(onRecoveryNavigate).toHaveBeenCalledWith(blockingSkills);

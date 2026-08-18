@@ -43,7 +43,11 @@
     "disconnected": "Not connected",
     "loading_session": "Verifying session…",
     "loading_admin_session": "Verifying admin session…",
-    "loading_ellipsis": "Loading…"
+    "loading_ellipsis": "Loading…",
+    "upload": "Upload",
+    "uploadImage": "Upload image",
+    "change": "Change",
+    "add": "Add"
   },
   "navigation": {
     "backToHome": "Back to the site",
@@ -709,6 +713,7 @@
     "saveProject": "Save",
     "saveProjectAria": "Save project",
     "noDescription": "No description for this project yet.",
+    "noTech": "No tech tags specified",
     "publishedToday": "Today",
     "publishedDaysAgo_one": "1 day ago",
     "publishedDaysAgo_other": "{{count}} days ago",
@@ -1877,6 +1882,15 @@
       "unavailableWarning": "Could not fetch some data right now ({{areas}}) — you can complete it later with a refresh.",
       "reviewData": "Project Details & Identity",
       "reviewDescription": "Fine-tune the detected information, categorize your project, and set technical tags.",
+      "titlePlaceholder": "e.g. Sharek Platform",
+      "descriptionPlaceholder": "Briefly describe your project and what it builds...",
+      "customTechPlaceholder": "Add custom tech tag (e.g. GraphQL, Redis)...",
+      "heroImage": "Project hero image",
+      "heroImageHint": "Optional · PNG, JPEG, or WebP · up to 5 MB",
+      "heroImageEmpty": "Add a visual identity to your published project.",
+      "heroImagePreview": "Selected project hero image",
+      "uploadHeroImage": "Upload image",
+      "changeHeroImage": "Change",
       "categoryTitle": "Project Category",
       "categoryDescription": "Choose the best classification for your project.",
       "difficultyTitle": "Experience Level",
@@ -1905,7 +1919,12 @@
       "goToProject": "Go to Project Workspace",
       "copyLink": "Copy Public Link",
       "linkCopied": "Link Copied!",
-      "saveNote": "Publishing will immediately feature your project on the Discover page. Saving as draft keeps it private."
+      "saveNote": "Publishing will immediately feature your project on the Discover page. Saving as draft keeps it private.",
+      "livePreview": "Live Card Preview",
+      "discoverMode": "Discover View",
+      "notConnected": "Not selected",
+      "pendingTitle": "Title & Category",
+      "ready": "Ready"
     },
     "myProjectsList": {
       "quota": "{{used}} of {{monthlyLimit}} contribution requests this month",

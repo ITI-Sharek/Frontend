@@ -537,7 +537,8 @@ export function AuthenticatedHomeView({
 
               {/* Action 2: GitHub Analysis */}
               <Link
-                to={ROUTES.githubSkillAnalysis}
+                to={ROUTES.settings}
+                search={{ section: "github" }}
                 className="group flex items-center justify-between rounded-xl border border-border/80 bg-surface-fog/40 p-3 text-start transition-all hover:border-primary/50 hover:bg-card"
               >
                 <div className="flex items-center gap-3">

@@ -58,7 +58,7 @@ function OnboardingPage() {
       profile={profileQuery.data}
       generation={generation}
       profileEditHref={ROUTES.settings}
-      analysisHref={ROUTES.githubSkillAnalysis}
+      analysisHref={`${ROUTES.settings}?section=github`}
       exploreHref={ROUTES.explore}
       dashboardHref={ROUTES.dashboard}
     />

@@ -51,8 +51,8 @@ export const ROUTES = {
   plan: "/plan",
   /** Paymob returns here; the page verifies the attempt with Sharek's API. */
   paymentResult: "/payments/result",
-  /** Optional GitHub App skill-analysis workspace (backend callback target). */
-  githubSkillAnalysis: "/profile/github",
+  /** Optional GitHub App skill-analysis and workspace settings. Pass search={{ section: 'github' }}. */
+  githubSkillAnalysis: "/settings",
   contributorProfile: (username: string) =>
     `/profile/${encodeURIComponent(username)}`,
 } as const;

@@ -86,14 +86,14 @@ describe("ContributorWalkthrough", () => {
         profile={profile}
         generation={generation}
         profileEditHref="/profile/edit"
-        analysisHref="/profile/github"
+        analysisHref="/settings?section=github"
         exploreHref="/explore"
         dashboardHref="/dashboard"
       />,
     );
 
     expect(html).toContain("2 من 3");
-    expect(html).toContain("/profile/github");
+    expect(html).toContain("/settings?section=github");
     expect(html).not.toContain("sara-dev/real-project");
   });
 });

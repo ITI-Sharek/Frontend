@@ -7,7 +7,12 @@ import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
   server: { host: "0.0.0.0" },
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    tsconfigPaths: true,
+    // Hooks require every component and renderer to use the same React runtime.
+    // This is especially important with pnpm's isolated dependency layout.
+    dedupe: ["react", "react-dom"],
+  },
   plugins: [tailwindcss(), tanstackStart(), viteReact()],
 });
 

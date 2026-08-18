@@ -116,7 +116,6 @@ function AppLayout() {
       : []),
     ...(currentUser.role === "contributor"
       ? [
-          { label: t("navigation.skillAnalysis"), to: ROUTES.githubSkillAnalysis },
           { label: t("navigation.discussions"), to: ROUTES.discussions },
         ]
       : []),

@@ -1,5 +1,6 @@
 import {
   Check,
+  ChevronLeft,
   ChevronRight,
   Copy,
   ExternalLink,
@@ -24,6 +25,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import {
   InputGroup,
@@ -31,7 +33,6 @@ import {
   InputGroupInput,
 } from "@/shared/components/ui/input-group";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Stepper, Step } from "@/shared/components/ui/reactbits/stepper";
 import {
   Dialog,
   DialogContent,
@@ -52,9 +53,7 @@ import {
   isPreviewStaleError,
 } from "../../utils/project-error-presenter";
 import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
-import {
-  getDifficultyLabel,
-} from "../explore-filters";
+import { getDifficultyLabel } from "../explore-filters";
 import type {
   ProjectCategory,
   ProjectDifficulty,
@@ -120,11 +119,43 @@ const POPULAR_TECH_PRESETS = [
 
 function getCategoryIcon(key: string): typeof Globe {
   const lower = key.toLowerCase();
-  if (lower.includes("mobile") || lower.includes("app") || lower.includes("ios") || lower.includes("android") || lower.includes("تطبيقات")) return Smartphone;
-  if (lower.includes("ai") || lower.includes("ml") || lower.includes("data") || lower.includes("intelligence") || lower.includes("ذكاء")) return Sparkles;
-  if (lower.includes("devops") || lower.includes("cloud") || lower.includes("infra") || lower.includes("سحاب")) return Layers;
-  if (lower.includes("system") || lower.includes("embedded") || lower.includes("core") || lower.includes("أنظمة")) return FileCode;
-  if (lower.includes("tool") || lower.includes("util") || lower.includes("cli") || lower.includes("أدوات")) return Wrench;
+  if (
+    lower.includes("mobile") ||
+    lower.includes("app") ||
+    lower.includes("ios") ||
+    lower.includes("android") ||
+    lower.includes("تطبيقات")
+  )
+    return Smartphone;
+  if (
+    lower.includes("ai") ||
+    lower.includes("ml") ||
+    lower.includes("data") ||
+    lower.includes("intelligence") ||
+    lower.includes("ذكاء")
+  )
+    return Sparkles;
+  if (
+    lower.includes("devops") ||
+    lower.includes("cloud") ||
+    lower.includes("infra") ||
+    lower.includes("سحاب")
+  )
+    return Layers;
+  if (
+    lower.includes("system") ||
+    lower.includes("embedded") ||
+    lower.includes("core") ||
+    lower.includes("أنظمة")
+  )
+    return FileCode;
+  if (
+    lower.includes("tool") ||
+    lower.includes("util") ||
+    lower.includes("cli") ||
+    lower.includes("أدوات")
+  )
+    return Wrench;
   return Globe;
 }
 
@@ -146,15 +177,13 @@ export function ImportProjectStepper({
   const heroImageInputRef = useRef<HTMLInputElement>(null);
 
   const categoryOptions = categories ?? [];
-
   const techPresets =
     propTechnologies && propTechnologies.length > 0
       ? propTechnologies
       : POPULAR_TECH_PRESETS;
-
   const difficultyOptions = difficulties ?? [];
 
-  // Stepper state (1-indexed for ReactBits Stepper)
+  // Stepper state (1: Repo, 2: Details & Identity, 3: Materials, 4: Launch)
   const [currentStep, setCurrentStep] = useState(1);
 
   // Step 1: Repository Reference & Preview
@@ -165,7 +194,9 @@ export function ImportProjectStepper({
   const [draftIdempotencyKey, setDraftIdempotencyKey] = useState<string | null>(
     null,
   );
-  const [createdDraft, setCreatedDraft] = useState<ProjectOwnerViewDto | null>(null);
+  const [createdDraft, setCreatedDraft] = useState<ProjectOwnerViewDto | null>(
+    null,
+  );
 
   // Step 2: Project Metadata
   const [title, setTitle] = useState("");
@@ -311,7 +342,6 @@ export function ImportProjectStepper({
     setSubmitError(null);
 
     try {
-      // 1. Create the draft once. A retry resumes this transaction safely.
       let project = createdDraft;
       if (!project) {
         project = await createDraftMutation.mutateAsync({
@@ -333,7 +363,6 @@ export function ImportProjectStepper({
         setCreatedDraft(project);
       }
 
-      // 2. Persist the hero before publishing so its revision is authoritative.
       if (heroImage && uploadedHeroImage !== heroImage) {
         project = await uploadHeroImageMutation.mutateAsync({
           projectId: project.id,
@@ -345,7 +374,6 @@ export function ImportProjectStepper({
         setUploadedHeroImage(heroImage);
       }
 
-      // 3. Upload queued materials if any
       if (queuedMaterials.length > 0 && onUploadMaterials) {
         try {
           await onUploadMaterials(project.id, queuedMaterials);
@@ -354,7 +382,6 @@ export function ImportProjectStepper({
         }
       }
 
-      // 4. Publish if requested
       if (shouldPublish) {
         await publishMutation.mutateAsync({
           projectId: project.id,
@@ -389,486 +416,500 @@ export function ImportProjectStepper({
   const STEP_ICONS = [FolderGit2, Sparkles, FileText, Rocket];
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6">
-      {/* ── Top Signature Hero Banner ── */}
-      <div className="sk-hero relative overflow-hidden rounded-2xl p-6 shadow-[var(--shadow-record)] sm:p-8">
-        <div className="relative z-10 space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-white backdrop-blur-xs shadow-xs">
-            <Sparkles className="size-3.5 text-evidence-teal" />
-            <span>{t("project.import.wizardBadge", "Project Launch Studio")}</span>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6">
+      {/* ── Compact Top Studio Header & Step Navigator ── */}
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-border bg-card p-5">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <a href="/my-projects" className="transition-colors hover:text-foreground">
+              {t("project.owner.myProjects", "My projects")}
+            </a>
+            <span>/</span>
+            <span className="font-semibold text-foreground">
+              {t("project.import.wizardTitle", "Launch a New Project")}
+            </span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
-            {t("project.import.wizardTitle", "Launch a New Project")}
-          </h1>
-          <p className="max-w-2xl text-xs sm:text-sm font-normal text-white/80 leading-relaxed">
-            {t(
-              "project.import.wizardSubtitle",
-              "Connect your GitHub repository, configure specifications, and launch to contributors in 4 simple steps.",
-            )}
-          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">
+              {t("project.import.wizardTitle", "Launch a New Project")}
+            </h1>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+              <Sparkles className="size-3" />
+              {t("project.import.wizardBadge", "Project Launch Studio")}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* ── Framer-Motion Stepper ── */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-record)] sm:p-8">
-        <Stepper
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-          stepLabels={stepLabels}
-          hideFooter
-          disableStepIndicators={isSubmitting}
-          renderStepIndicator={({ step, currentStep: activeStep, onStepClick }) => {
-            const isComplete = activeStep > step;
-            const isActive = activeStep === step;
-            const Icon = STEP_ICONS[step - 1] ?? Sparkles;
-
+        {/* Stepper Navigation Pills */}
+        <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border bg-surface-fog p-1">
+          {stepLabels.map((label, idx) => {
+            const stepNumber = idx + 1;
+            const isActive = currentStep === stepNumber;
+            const isComplete = currentStep > stepNumber;
+            const Icon = STEP_ICONS[idx] ?? Sparkles;
             return (
               <button
+                key={label}
                 type="button"
-                disabled={isSubmitting}
-                onClick={() => onStepClick(step)}
-                aria-label={`${stepLabels[step - 1] ?? `Step ${step}`}`}
+                disabled={
+                  isSubmitting || (!isComplete && !preview && stepNumber > 1)
+                }
+                onClick={() => {
+                  if (isComplete || preview || stepNumber <= currentStep) {
+                    setCurrentStep(stepNumber);
+                  }
+                }}
                 className={cn(
-                  "group relative flex size-10 items-center justify-center rounded-xl font-mono text-xs font-bold transition-all",
+                  "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all disabled:opacity-40",
                   isActive
-                    ? "border-2 border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-105"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : isComplete
-                      ? "border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
-                      : "border border-border/80 bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
+                      ? "bg-card text-primary hover:bg-surface-muted"
+                      : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {isComplete ? (
-                  <Check className="size-4 text-primary" />
+                  <Check className="size-3.5" />
                 ) : (
-                  <Icon
-                    className={cn(
-                      "size-4 transition-colors",
-                      isActive
-                        ? "text-primary-foreground"
-                        : "text-muted-foreground group-hover:text-foreground",
-                    )}
-                  />
+                  <Icon className="size-3.5" />
                 )}
+                <span className="hidden sm:inline">{label}</span>
+                <span className="sm:hidden">{stepNumber}</span>
               </button>
             );
-          }}
-        >
-          {/* ═════════ STEP 1: Repository Sync ═════════ */}
-          <Step>
-            <div className="space-y-6 pt-2">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {t("project.import.stepRepository", "Connect Repository")}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t(
-                    "project.import.referencePlaceholder",
-                    "Enter a repository name or full GitHub link to fetch repository data.",
-                  )}
-                </p>
-              </div>
+          })}
+        </div>
+      </div>
 
-              {/* Direct Input Form */}
-              <form
-                className="flex flex-col gap-3 sm:flex-row sm:items-stretch"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handlePreview(reference);
-                }}
-              >
-                <div className="relative flex-1">
-                  <InputGroup className="h-11 rounded-xl border-border bg-card shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
-                    <InputGroupInput
-                      dir="ltr"
-                      value={reference}
-                      onChange={(e) => setReference(e.target.value)}
-                      placeholder="e.g. facebook/react or https://github.com/owner/repo"
-                      className="h-full font-mono text-xs sm:text-sm tracking-wide placeholder:text-muted-foreground/60"
-                    />
-                    <InputGroupAddon align="inline-start">
-                      <Search className="size-4 text-muted-foreground" />
-                    </InputGroupAddon>
-                  </InputGroup>
-                </div>
-                <Button
-                  type="submit"
-                  disabled={previewMutation.isPending || reference.trim() === ""}
-                  className="h-11 shrink-0 gap-2 rounded-xl bg-primary px-6 font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {previewMutation.isPending ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      <span>{t("project.import.fetchingPreview", "Analyzing...")}</span>
-                    </>
-                  ) : (
-                    <>
-                      <FolderGit2 className="size-4" />
-                      <span>{t("project.import.previewRepository", "Inspect Repository")}</span>
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              {previewMutation.isError && (
-                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive">
-                  {getProjectApiErrorMessage(t, previewMutation.error)}
-                </div>
-              )}
-
-              {/* Linked Repositories Picker */}
-              {suggestedRepositories.length > 0 && (
-                <div className="space-y-3 border-t border-border/80 pt-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      {t("project.import.chooseLinked", "Or select from your linked repositories")}
-                    </h3>
-                    {suggestedRepositories.length > 4 && (
-                      <div className="w-48">
-                        <Input
-                          placeholder={t("project.import.searchLinkedRepos", "Filter repos...")}
-                          value={repoSearch}
-                          onChange={(e) => setRepoSearch(e.target.value)}
-                          className="h-8 text-xs"
-                        />
-                      </div>
+      {/* ── Main Wide 2-Column Grid ── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Left / Main Workspace Column (8 cols) */}
+        <div className="lg:col-span-8">
+          {/* STEP 1: Repository Sync */}
+          {currentStep === 1 && (
+            <Card className="flex h-full flex-col justify-between p-6">
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-base font-bold text-foreground">
+                    {t("project.import.stepRepository", "Connect Repository")}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t(
+                      "project.import.referencePlaceholder",
+                      "Enter a repository name or full GitHub link to fetch repository data.",
                     )}
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                    {filteredSuggestedRepos.map((repo) => (
-                      <button
-                        key={repo.fullName}
-                        type="button"
-                        disabled={previewMutation.isPending}
-                        onClick={() => handlePreview(repo.fullName)}
-                        className={cn(
-                          "group flex items-start gap-3 rounded-xl border border-border/80 bg-surface-fog p-3.5 text-start transition-all hover:border-primary/50 hover:bg-card hover:shadow-sm",
-                          reference === repo.fullName && "border-primary bg-primary/5 ring-1 ring-primary/30",
-                        )}
-                      >
-                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          <FolderGit2 className="size-4" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              dir="ltr"
-                              className="truncate font-mono text-xs font-bold text-foreground group-hover:text-primary"
-                            >
-                              {repo.fullName}
-                            </span>
-                            {repo.isPrivate && (
-                              <Lock className="size-3 shrink-0 text-muted-foreground" />
-                            )}
-                          </div>
-                          {repo.description && (
-                            <p className="mt-1 line-clamp-1 text-[11.5px] text-muted-foreground">
-                              {repo.description}
-                            </p>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                  </p>
                 </div>
-              )}
 
-              {suggestedRepositoriesLoading && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Loader2 className="size-3.5 animate-spin" />
-                  <span>{t("project.import.loadingLinked", "Loading your linked repositories...")}</span>
-                </div>
-              )}
-
-              {suggestedRepositoriesError && (
-                <p role="alert" className="text-xs text-destructive">
-                  {suggestedRepositoriesError}
-                </p>
-              )}
-
-              {needsGitHubConnection && onConnectGitHub && (
-                <div className="flex flex-col gap-3.5 rounded-xl border border-border bg-surface-fog p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs">
-                      <FolderGit2 className="size-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-foreground">
-                        {t("project.import.connectGitHub", "Connect GitHub Account")}
-                      </p>
-                      <p className="text-[11.5px] text-muted-foreground">
-                        {t(
-                          "project.import.connectGitHubDescription",
-                          "Connect the Sharek GitHub App to browse your repositories directly.",
-                        )}
-                      </p>
-                    </div>
+                {/* Direct Input Form */}
+                <form
+                  className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePreview(reference);
+                  }}
+                >
+                  <div className="relative flex-1">
+                    <InputGroup className="h-10 rounded-xl border-border bg-card shadow-xs focus-within:border-primary">
+                      <InputGroupInput
+                        dir="ltr"
+                        value={reference}
+                        onChange={(e) => setReference(e.target.value)}
+                        placeholder="e.g. facebook/react or https://github.com/owner/repo"
+                        className="h-full font-mono text-xs sm:text-sm tracking-wide"
+                      />
+                      <InputGroupAddon align="inline-start">
+                        <Search className="size-4 text-muted-foreground" />
+                      </InputGroupAddon>
+                    </InputGroup>
                   </div>
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5 rounded-lg border-border bg-card text-xs font-bold shadow-xs hover:bg-surface-muted"
-                    onClick={onConnectGitHub}
+                    type="submit"
+                    disabled={previewMutation.isPending || reference.trim() === ""}
+                    className="h-10 shrink-0 gap-2 rounded-xl font-bold"
                   >
-                    <ExternalLink className="size-3.5" />
-                    <span>{t("project.import.connectGitHub", "Connect GitHub Account")}</span>
-                  </Button>
-                </div>
-              )}
-
-              {/* Verified Preview Card (if already previewed) */}
-              {preview && (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Check className="size-4 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                        {t("project.import.completeData", "Repository Verified")}
-                      </span>
-                    </div>
-                    <span dir="ltr" className="font-mono text-xs font-semibold text-foreground">
-                      {preview.source.fullName}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => setCurrentStep(2)}
-                      className="gap-1.5 text-xs font-bold"
-                    >
-                      <span>{t("project.import.continue", "Continue to Details")}</span>
-                      <Sparkles className="size-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </Step>
-
-          {/* ═════════ STEP 2: Project Identity & Categorization ═════════ */}
-          <Step>
-            <div className="space-y-6 pt-2">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {t("project.import.reviewData", "Project Details & Identity")}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t(
-                    "project.import.reviewDescription",
-                    "Fine-tune the detected information, categorize your project, and set technical tags.",
-                  )}
-                </p>
-              </div>
-
-              {/* Title & Description */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-foreground">
-                    {t("project.fields.title", "Project Title")} *
-                  </label>
-                  <Input
-                    dir="ltr"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Sharek Platform"
-                    className="mt-1.5 text-xs sm:text-sm font-semibold"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-foreground">
-                    {t("project.fields.description", "Description / Summary")}
-                  </label>
-                  <Textarea
-                    rows={3}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder={t("explore.noDescription", "Briefly describe your project and what it builds...")}
-                    className="mt-1.5 text-xs sm:text-sm leading-relaxed"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                <div className="flex items-baseline justify-between gap-3">
-                  <label className="text-xs font-bold text-foreground">
-                    {t("project.import.heroImage", "Project hero image")}
-                  </label>
-                  <span className="text-[11px] text-muted-foreground">
-                    {t("project.import.heroImageHint", "Optional · PNG, JPEG, or WebP · up to 5 MB")}
-                  </span>
-                </div>
-                <input
-                  ref={heroImageInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={(event) => handleHeroImageChange(event.target.files)}
-                />
-                <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border bg-surface-fog p-3 sm:flex-row sm:items-center">
-                  {heroImagePreview ? (
-                    <img
-                      src={heroImagePreview}
-                      alt={t("project.import.heroImagePreview", "Selected project hero image")}
-                      className="h-24 w-full rounded-lg border border-border object-cover sm:w-40"
-                    />
-                  ) : (
-                    <div className="flex h-24 w-full items-center justify-center rounded-lg border border-border bg-card text-muted-foreground sm:w-40">
-                      <UploadCloud className="size-6" aria-hidden="true" />
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-foreground">
-                      {heroImage?.name ?? t("project.import.heroImageEmpty", "Add a visual identity to your published project.")}
-                    </p>
-                    {heroImage && (
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {(heroImage.size / 1024 / 1024).toFixed(1)} MB
-                      </p>
+                    {previewMutation.isPending ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        <span>{t("project.import.fetchingPreview", "Analyzing...")}</span>
+                      </>
+                    ) : (
+                      <>
+                        <FolderGit2 className="size-4" />
+                        <span>{t("project.import.previewRepository", "Inspect Repository")}</span>
+                      </>
                     )}
+                  </Button>
+                </form>
+
+                {previewMutation.isError && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                    {getProjectApiErrorMessage(t, previewMutation.error)}
+                  </div>
+                )}
+
+                {/* Linked Repositories Picker in 2-Column Grid */}
+                {suggestedRepositories.length > 0 && (
+                  <div className="space-y-3 border-t border-border pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {t("project.import.chooseLinked", "Or select from your linked repositories")}
+                      </h3>
+                      {suggestedRepositories.length > 4 && (
+                        <div className="w-44">
+                          <Input
+                            placeholder={t("project.import.searchLinkedRepos", "Filter repos...")}
+                            value={repoSearch}
+                            onChange={(e) => setRepoSearch(e.target.value)}
+                            className="h-7 text-xs"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                      {filteredSuggestedRepos.map((repo) => (
+                        <button
+                          key={repo.fullName}
+                          type="button"
+                          disabled={previewMutation.isPending}
+                          onClick={() => handlePreview(repo.fullName)}
+                          className={cn(
+                            "group flex items-start gap-2.5 rounded-xl border border-border bg-surface-fog p-3 text-start transition-all hover:border-primary/50 hover:bg-card hover:shadow-xs",
+                            reference === repo.fullName &&
+                              "border-primary bg-primary/5 ring-1 ring-primary/30",
+                          )}
+                        >
+                          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <FolderGit2 className="size-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                dir="ltr"
+                                className="truncate font-mono text-xs font-bold text-foreground group-hover:text-primary"
+                              >
+                                {repo.fullName}
+                              </span>
+                              {repo.isPrivate && (
+                                <Lock className="size-3 shrink-0 text-muted-foreground" />
+                              )}
+                            </div>
+                            {repo.description && (
+                              <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">
+                                {repo.description}
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {suggestedRepositoriesLoading && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>{t("project.import.loadingLinked", "Loading your linked repositories...")}</span>
+                  </div>
+                )}
+
+                {suggestedRepositoriesError && (
+                  <p role="alert" className="text-xs text-destructive">
+                    {suggestedRepositoriesError}
+                  </p>
+                )}
+
+                {needsGitHubConnection && onConnectGitHub && (
+                  <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-fog p-3.5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-primary shadow-xs">
+                        <FolderGit2 className="size-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-foreground">
+                          {t("project.import.connectGitHub", "Connect GitHub Account")}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {t(
+                            "project.import.connectGitHubDescription",
+                            "Connect the Sharek GitHub App to browse your repositories directly.",
+                          )}
+                        </p>
+                      </div>
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="mt-3 gap-1.5 text-xs"
-                      onClick={() => heroImageInputRef.current?.click()}
+                      className="shrink-0 gap-1.5 text-xs font-bold"
+                      onClick={onConnectGitHub}
                     >
-                      <UploadCloud className="size-3.5" />
-                      {heroImage ? t("common.change", "Change") : t("common.upload", "Upload image")}
+                      <ExternalLink className="size-3.5" />
+                      <span>{t("project.import.connectGitHub", "Connect GitHub Account")}</span>
                     </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 1 Footer (if repository already verified) */}
+              {preview && (
+                <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <Check className="size-4" />
+                    <span>{t("project.import.completeData", "Repository Verified")}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setCurrentStep(2)}
+                    className="gap-1.5 text-xs font-bold"
+                  >
+                    <span>{t("project.import.continue", "Continue to Details")}</span>
+                    <ChevronRight className="size-3.5 rtl:hidden" />
+                    <ChevronLeft className="size-3.5 ltr:hidden" />
+                  </Button>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* STEP 2: Project Details & Identity */}
+          {currentStep === 2 && (
+            <Card className="flex h-full flex-col justify-between p-6">
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-base font-bold text-foreground">
+                    {t("project.import.reviewData", "Project Details & Identity")}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t(
+                      "project.import.reviewDescription",
+                      "Fine-tune the detected information, categorize your project, and set technical tags.",
+                    )}
+                  </p>
+                </div>
+
+                {/* 2-Column Form Grid */}
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  {/* Left Column: Title, Description, Hero Image */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-bold text-foreground">
+                        {t("project.fields.title", "Project Title")} *
+                      </label>
+                      <Input
+                        dir="ltr"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder={t("project.import.titlePlaceholder", "e.g. Sharek Platform")}
+                        className="mt-1.5 text-xs sm:text-sm font-semibold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-foreground">
+                        {t("project.fields.description", "Description / Summary")}
+                      </label>
+                      <Textarea
+                        rows={3}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder={t(
+                          "project.import.descriptionPlaceholder",
+                          "Briefly describe your project and what it builds...",
+                        )}
+                        className="mt-1.5 text-xs leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Hero Image Uploader */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <label className="text-xs font-bold text-foreground">
+                          {t("project.import.heroImage", "Project hero image")}
+                        </label>
+                        <span className="text-[10px] text-muted-foreground">
+                          {t("project.import.heroImageHint", "Optional · PNG, JPEG, or WebP · up to 5 MB")}
+                        </span>
+                      </div>
+                      <input
+                        ref={heroImageInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={(event) => handleHeroImageChange(event.target.files)}
+                      />
+                      <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-surface-fog p-2.5">
+                        {heroImagePreview ? (
+                          <img
+                            src={heroImagePreview}
+                            alt={t("project.import.heroImagePreview", "Selected project hero image")}
+                            className="size-14 shrink-0 rounded-lg border border-border object-cover"
+                          />
+                        ) : (
+                          <div className="flex size-14 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
+                            <UploadCloud className="size-5" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-foreground">
+                            {heroImage?.name ??
+                              t(
+                                "project.import.heroImageEmpty",
+                                "Add a visual identity to your published project.",
+                              )}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="mt-1.5 h-7 gap-1 px-2.5 text-[11px]"
+                            onClick={() => heroImageInputRef.current?.click()}
+                          >
+                            <UploadCloud className="size-3" />
+                            {heroImage
+                              ? t("project.import.changeHeroImage", t("common.change", "Change"))
+                              : t("project.import.uploadHeroImage", t("common.uploadImage", "Upload image"))}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Category, Difficulty, Tech Stack */}
+                  <div className="space-y-4">
+                    {/* Category Selector Grid */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-foreground">
+                        {t("project.import.categoryTitle", "Project Category")} *
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {categoryOptions.map((cat) => {
+                          const isSelected = category === cat.id;
+                          const Icon = cat.icon ?? getCategoryIcon(cat.id);
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setCategory(cat.id as ProjectCategory)}
+                              className={cn(
+                                "flex items-center gap-2 rounded-xl border p-2 text-start transition-all",
+                                isSelected
+                                  ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/30"
+                                  : "border-border bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
+                              )}
+                            >
+                              <div
+                                className={cn(
+                                  "flex size-7 shrink-0 items-center justify-center rounded-lg",
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-card text-muted-foreground",
+                                )}
+                              >
+                                <Icon className="size-3.5" />
+                              </div>
+                              <span className="truncate text-xs font-bold">
+                                {cat.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Difficulty Level */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-foreground">
+                        {t("project.import.difficultyTitle", "Target Contributor Difficulty")} *
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {difficultyOptions.map((diff) => {
+                          const isSelected = difficulty === diff.id;
+                          return (
+                            <button
+                              key={diff.id}
+                              type="button"
+                              onClick={() => setDifficulty(diff.id as ProjectDifficulty)}
+                              className={cn(
+                                "rounded-xl border py-1.5 px-2 text-center text-xs transition-all",
+                                isSelected
+                                  ? "border-primary bg-primary/10 font-bold text-primary ring-1 ring-primary/30"
+                                  : "border-border bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
+                              )}
+                            >
+                              <span className="capitalize">{diff.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Technologies & Tech Presets */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-foreground">
+                        {t("project.fields.technologies", "Technologies & Stack")}
+                      </label>
+                      <div className="flex flex-wrap gap-1">
+                        {techPresets.slice(0, 10).map((preset) => {
+                          const isSelected = selectedTechs.some(
+                            (tItem) => tItem.toLowerCase() === preset.toLowerCase(),
+                          );
+                          return (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => toggleTechnology(preset)}
+                              className={cn(
+                                "rounded-full border px-2.5 py-0.5 font-mono text-[10.5px] font-medium transition-colors",
+                                isSelected
+                                  ? "border-primary bg-primary text-primary-foreground font-bold"
+                                  : "border-border bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
+                              )}
+                            >
+                              {isSelected ? `✓ ${preset}` : `+ ${preset}`}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Custom Tech Input */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          dir="ltr"
+                          value={newTechInput}
+                          onChange={(e) => setNewTechInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomTechnology();
+                            }
+                          }}
+                          placeholder={t(
+                            "project.import.customTechPlaceholder",
+                            "Add custom tech tag (e.g. GraphQL, Redis)...",
+                          )}
+                          className="h-8 font-mono text-xs"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addCustomTechnology}
+                          className="h-8 gap-1 px-3 text-xs"
+                        >
+                          <Plus className="size-3.5" />
+                          <span>{t("common.add", "Add")}</span>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Category Selector Cards */}
-              <div className="space-y-2.5">
-                <label className="text-xs font-bold text-foreground">
-                  {t("project.import.categoryTitle", "Project Category")} *
-                </label>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                  {categoryOptions.map((cat) => {
-                    const isSelected = category === cat.id;
-                    const Icon = cat.icon ?? getCategoryIcon(cat.id);
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setCategory(cat.id as ProjectCategory)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-xl border p-3 text-start transition-all",
-                          isSelected
-                            ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/30"
-                            : "border-border/80 bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "flex size-8 shrink-0 items-center justify-center rounded-lg",
-                            isSelected ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground",
-                          )}
-                        >
-                          <Icon className="size-4" />
-                        </div>
-                        <span className="truncate text-xs font-bold">
-                          {cat.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Difficulty Level */}
-              <div className="space-y-2.5">
-                <label className="text-xs font-bold text-foreground">
-                  {t("project.import.difficultyTitle", "Target Contributor Difficulty")} *
-                </label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {difficultyOptions.map((diff) => {
-                    const isSelected = difficulty === diff.id;
-                    return (
-                      <button
-                        key={diff.id}
-                        type="button"
-                        onClick={() => setDifficulty(diff.id as ProjectDifficulty)}
-                        className={cn(
-                          "flex flex-col items-center justify-center gap-1 rounded-xl border py-2.5 px-2 text-center transition-all",
-                          isSelected
-                            ? "border-primary bg-primary/10 font-bold text-primary ring-1 ring-primary/30"
-                            : "border-border/80 bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
-                        )}
-                      >
-                        <span className="text-xs font-semibold capitalize">
-                          {diff.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Technologies & Tech Presets */}
-              <div className="space-y-2.5">
-                <label className="text-xs font-bold text-foreground">
-                  {t("project.fields.technologies", "Technologies & Stack")}
-                </label>
-
-                {/* Dynamic Presets Pills */}
-                <div className="flex flex-wrap gap-1.5">
-                  {techPresets.slice(0, 12).map((preset) => {
-                    const isSelected = selectedTechs.some(
-                      (tItem) => tItem.toLowerCase() === preset.toLowerCase(),
-                    );
-                    return (
-                      <button
-                        key={preset}
-                        type="button"
-                        onClick={() => toggleTechnology(preset)}
-                        className={cn(
-                          "rounded-full border px-3 py-1 font-mono text-[11px] font-medium transition-colors",
-                          isSelected
-                            ? "border-primary bg-primary text-primary-foreground font-bold shadow-xs"
-                            : "border-border/70 bg-surface-fog text-muted-foreground hover:bg-surface-muted hover:text-foreground",
-                        )}
-                      >
-                        {isSelected ? `✓ ${preset}` : `+ ${preset}`}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Custom Tech Input */}
-                <div className="flex items-center gap-2 pt-1">
-                  <Input
-                    dir="ltr"
-                    value={newTechInput}
-                    onChange={(e) => setNewTechInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addCustomTechnology();
-                      }
-                    }}
-                    placeholder="Add custom tech tag (e.g. GraphQL, Redis)..."
-                    className="h-8 font-mono text-xs"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addCustomTechnology}
-                    className="h-8 gap-1 px-3 text-xs"
-                  >
-                    <Plus className="size-3.5" />
-                    <span>{t("common.add", "Add")}</span>
-                  </Button>
-                </div>
-              </div>
-
-              {/* Navigation Actions */}
-              <div className="flex items-center justify-between border-t border-border/80 pt-4">
+              {/* Step 2 Footer */}
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -876,7 +917,9 @@ export function ImportProjectStepper({
                   onClick={() => setCurrentStep(1)}
                   className="text-xs font-semibold"
                 >
-                  {t("project.import.back", "Back")}
+                  <ChevronLeft className="size-3.5 rtl:hidden" />
+                  <ChevronRight className="size-3.5 ltr:hidden" />
+                  <span>{t("project.import.back", "Back")}</span>
                 </Button>
                 <Button
                   type="button"
@@ -886,132 +929,126 @@ export function ImportProjectStepper({
                   className="gap-1.5 text-xs font-bold"
                 >
                   <span>{t("project.import.continue", "Continue to Materials")}</span>
-                  <ChevronRight className="size-3.5 rtl:rotate-180" />
+                  <ChevronRight className="size-3.5 rtl:hidden" />
+                  <ChevronLeft className="size-3.5 ltr:hidden" />
                 </Button>
               </div>
-            </div>
-          </Step>
+            </Card>
+          )}
 
-          {/* ═════════ STEP 3: Integrated Materials Upload ═════════ */}
-          <Step>
-            <div className="space-y-6 pt-2">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {t("project.import.materialsTitle", "Project Materials & Documentation (Optional)")}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t(
-                    "project.import.materialsSubtitle",
-                    "Upload architecture blueprints, onboarding guides, or READMEs. Projects with documentation attract 3x more contributors.",
-                  )}
-                </p>
-              </div>
-
-              {/* Drag and Drop Zone */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                className="hidden"
-                onChange={(e) => handleAddFiles(e.target.files)}
-              />
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleAddFiles(e.dataTransfer.files);
-                }}
-                className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/80 bg-surface-fog/60 p-8 text-center transition-all hover:border-primary hover:bg-surface-muted/50"
-              >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
-                  <UploadCloud className="size-6" />
-                </div>
+          {/* STEP 3: Integrated Materials Upload */}
+          {currentStep === 3 && (
+            <Card className="flex h-full flex-col justify-between p-6">
+              <div className="space-y-5">
                 <div>
-                  <p className="text-sm font-bold text-foreground">
-                    {t("project.import.dropMaterialsHere", "Drag & drop project files here, or browse")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("project.import.supportedFileTypes", "PDF, Markdown (.md), Text, DOCX up to 10MB")}
-                  </p>
-                </div>
-              </div>
-
-              {/* Queued Materials List */}
-              {queuedMaterials.length > 0 ? (
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    {t("project.import.queuedMaterials", { count: queuedMaterials.length })}
-                  </h3>
-                  <div className="space-y-2.5">
-                    {queuedMaterials.map((mat) => (
-                      <div
-                        key={mat.id}
-                        className="flex flex-col gap-3 rounded-xl border border-border/80 bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <FileText className="size-4" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <Input
-                              value={mat.title}
-                              onChange={(e) =>
-                                handleUpdateMaterial(mat.id, { title: e.target.value })
-                              }
-                              placeholder={t("project.import.materialTitlePlaceholder", "Document title")}
-                              className="h-8 text-xs font-semibold"
-                            />
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                              {(mat.file.size / 1024).toFixed(1)} KB · {mat.file.name}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                          <select
-                            value={mat.visibility}
-                            onChange={(e) =>
-                              handleUpdateMaterial(mat.id, {
-                                visibility: e.target.value as "PUBLIC" | "RESTRICTED_PROJECT",
-                              })
-                            }
-                            className="h-8 rounded-lg border border-border bg-background px-2.5 text-xs font-medium text-foreground focus:outline-none"
-                          >
-                            <option value="PUBLIC">{t("project.import.publicVisibility", "Public")}</option>
-                            <option value="RESTRICTED_PROJECT">{t("project.import.restrictedVisibility", "Restricted")}</option>
-                          </select>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveMaterial(mat.id)}
-                            className="size-8 p-0 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-border/60 bg-surface-fog p-4 text-center">
-                  <p className="text-xs text-muted-foreground">
+                  <h2 className="text-base font-bold text-foreground">
+                    {t("project.import.materialsTitle", "Project Materials & Documentation (Optional)")}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {t(
-                      "project.import.skipMaterialsNote",
-                      "You can skip this step and add materials later from the project management workspace.",
+                      "project.import.materialsSubtitle",
+                      "Upload architecture blueprints, onboarding guides, or READMEs. Projects with documentation attract 3x more contributors.",
                     )}
                   </p>
                 </div>
-              )}
 
-              {/* Navigation Actions */}
-              <div className="flex items-center justify-between border-t border-border/80 pt-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {/* Drag and Drop Zone */}
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleAddFiles(e.target.files)}
+                    />
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddFiles(e.dataTransfer.files);
+                      }}
+                      className="group flex h-48 cursor-pointer flex-col items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-border bg-surface-fog/60 p-5 text-center transition-all hover:border-primary hover:bg-surface-muted/50"
+                    >
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                        <UploadCloud className="size-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-foreground">
+                          {t("project.import.dropMaterialsHere", "Drag & drop project files here, or browse")}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {t("project.import.supportedFileTypes", "PDF, Markdown (.md), Text, DOCX up to 10MB")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Queued Materials List */}
+                  <div className="space-y-2.5">
+                    {queuedMaterials.length > 0 ? (
+                      <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
+                        {queuedMaterials.map((mat) => (
+                          <div
+                            key={mat.id}
+                            className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 shadow-xs"
+                          >
+                            <FileText className="size-4 shrink-0 text-primary" />
+                            <div className="min-w-0 flex-1">
+                              <Input
+                                value={mat.title}
+                                onChange={(e) =>
+                                  handleUpdateMaterial(mat.id, { title: e.target.value })
+                                }
+                                placeholder={t("project.import.materialTitlePlaceholder", "Document title")}
+                                className="h-6 px-1.5 text-xs font-semibold"
+                              />
+                            </div>
+                            <select
+                              value={mat.visibility}
+                              onChange={(e) =>
+                                handleUpdateMaterial(mat.id, {
+                                  visibility: e.target.value as "PUBLIC" | "RESTRICTED_PROJECT",
+                                })
+                              }
+                              className="h-6 rounded border border-border bg-background px-1.5 text-[11px] font-medium text-foreground"
+                            >
+                              <option value="PUBLIC">{t("project.import.publicVisibility", "Public")}</option>
+                              <option value="RESTRICTED_PROJECT">{t("project.import.restrictedVisibility", "Restricted")}</option>
+                            </select>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveMaterial(mat.id)}
+                              className="size-6 p-0 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex h-48 items-center justify-center rounded-xl border border-border/60 bg-surface-fog p-4 text-center">
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "project.import.skipMaterialsNote",
+                            "You can skip this step and add materials later from the project management workspace.",
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 Footer */}
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -1019,7 +1056,9 @@ export function ImportProjectStepper({
                   onClick={() => setCurrentStep(2)}
                   className="text-xs font-semibold"
                 >
-                  {t("project.import.back", "Back")}
+                  <ChevronLeft className="size-3.5 rtl:hidden" />
+                  <ChevronRight className="size-3.5 ltr:hidden" />
+                  <span>{t("project.import.back", "Back")}</span>
                 </Button>
                 <Button
                   type="button"
@@ -1028,97 +1067,79 @@ export function ImportProjectStepper({
                   className="gap-1.5 text-xs font-bold"
                 >
                   <span>{t("project.import.continue", "Continue to Launch")}</span>
-                  <ChevronRight className="size-3.5 rtl:rotate-180" />
+                  <ChevronRight className="size-3.5 rtl:hidden" />
+                  <ChevronLeft className="size-3.5 ltr:hidden" />
                 </Button>
               </div>
-            </div>
-          </Step>
+            </Card>
+          )}
 
-          {/* ═════════ STEP 4: Live Preview & One-Click Launch ═════════ */}
-          <Step>
-            <div className="space-y-6 pt-2">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {t("project.import.previewTitle", "Launch Readiness & Live Preview")}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t(
-                    "project.import.previewSubtitle",
-                    "Review how your project card will appear on the Discover page before launching.",
-                  )}
-                </p>
-              </div>
-
-              {/* Live Project Card Preview */}
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5">
-                <div className="rounded-xl border border-border/80 bg-card p-5 shadow-[var(--shadow-record)]">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl font-bold text-primary">
-                      {title ? title.slice(0, 1).toUpperCase() : "P"}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                        {categoryOptions.find((item) => item.id === category)?.label ?? "—"}
-                      </span>
-                      <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        {difficulty ? getDifficultyLabel(t, difficulty) : "Intermediate"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <h3 className="text-base font-bold text-foreground">
-                      {title || "Untitled Project"}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                      {description || t("explore.noDescription", "No description provided yet.")}
-                    </p>
-                  </div>
-
-                  {/* Tech Tags */}
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {selectedTechs.length > 0 ? (
-                      selectedTechs.map((tech) => (
-                        <span
-                          key={tech}
-                          dir="ltr"
-                          className="rounded-full border border-border/70 bg-surface-fog px-2.5 py-0.5 font-mono text-[10.5px] text-muted-foreground"
-                        >
-                          {tech}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground italic">
-                        {t("explore.noTech", "No tech tags specified")}
-                      </span>
+          {/* STEP 4: Live Preview & One-Click Launch */}
+          {currentStep === 4 && (
+            <Card className="flex h-full flex-col justify-between p-6">
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-base font-bold text-foreground">
+                    {t("project.import.previewTitle", "Launch Readiness & Live Preview")}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t(
+                      "project.import.previewSubtitle",
+                      "Review how your project card will appear on the Discover page before launching.",
                     )}
-                  </div>
+                  </p>
+                </div>
 
-                  {/* Readiness Badges */}
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-3 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <GitBranch className="size-3.5 text-primary" />
-                      <span dir="ltr" className="font-mono font-medium text-foreground">
+                {/* Readiness Verification Card */}
+                <div className="rounded-xl border border-border bg-surface-fog p-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {t("project.import.reviewData", "Project Details & Identity")}
+                  </h3>
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                    <div className="rounded-lg border border-border bg-card p-2.5">
+                      <span className="text-[11px] text-muted-foreground">
+                        {t("project.import.stepRepository", "Repository")}
+                      </span>
+                      <p dir="ltr" className="mt-1 truncate font-mono font-bold text-foreground">
                         {preview?.source.fullName || reference}
-                      </span>
+                      </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span>
-                        📁 {queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
+                    <div className="rounded-lg border border-border bg-card p-2.5">
+                      <span className="text-[11px] text-muted-foreground">
+                        {t("project.fields.category", "Category")}
                       </span>
+                      <p className="mt-1 truncate font-bold text-primary">
+                        {categoryOptions.find((item) => item.id === category)?.label ?? "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-card p-2.5">
+                      <span className="text-[11px] text-muted-foreground">
+                        {t("project.fields.difficulty", "Difficulty level")}
+                      </span>
+                      <p className="mt-1 truncate font-bold text-emerald-600 dark:text-emerald-400">
+                        {difficulty ? getDifficultyLabel(t, difficulty) : "—"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-card p-2.5">
+                      <span className="text-[11px] text-muted-foreground">
+                        {t("project.import.stepMaterials", "Materials")}
+                      </span>
+                      <p className="mt-1 font-bold text-foreground">
+                        {queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
+                      </p>
                     </div>
                   </div>
                 </div>
+
+                {submitError && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                    {submitError}
+                  </div>
+                )}
               </div>
 
-              {submitError && (
-                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive">
-                  {submitError}
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="space-y-3 border-t border-border/80 pt-5">
+              {/* Step 4 Actions */}
+              <div className="mt-6 space-y-3 border-t border-border pt-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <Button
                     type="button"
@@ -1127,16 +1148,18 @@ export function ImportProjectStepper({
                     onClick={() => setCurrentStep(3)}
                     className="text-xs font-semibold"
                   >
-                    {t("project.import.back", "Back")}
+                    <ChevronLeft className="size-3.5 rtl:hidden" />
+                    <ChevronRight className="size-3.5 ltr:hidden" />
+                    <span>{t("project.import.back", "Back")}</span>
                   </Button>
 
                   <div className="flex flex-wrap items-center gap-2.5">
                     <Button
                       type="button"
-                      variant="subtle"
+                      variant="outline"
                       disabled={isSubmitting}
                       onClick={() => executeSave(false)}
-                      className="h-10 text-xs font-semibold"
+                      className="text-xs font-semibold"
                     >
                       {isSubmitting ? (
                         <Loader2 className="size-4 animate-spin" />
@@ -1149,7 +1172,7 @@ export function ImportProjectStepper({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => executeSave(true)}
-                      className="h-10 gap-2 bg-primary px-5 text-xs font-bold text-primary-foreground shadow-[var(--shadow-primary)] hover:bg-primary-hover"
+                      className="gap-2 bg-primary px-5 text-xs font-bold text-primary-foreground"
                     >
                       {isSubmitting ? (
                         <>
@@ -1172,9 +1195,146 @@ export function ImportProjectStepper({
                   )}
                 </p>
               </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Right / Sidebar Column: Real-time Live Project Card Preview (4 cols) */}
+        <div className="flex flex-col gap-4 lg:col-span-4">
+          <Card className="sticky top-6 p-5">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {t("project.import.livePreview", "Live Card Preview")}
+              </h3>
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                {t("project.import.discoverMode", "Discover View")}
+              </span>
             </div>
-          </Step>
-        </Stepper>
+
+            {/* Live Interactive Project Card Preview */}
+            <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-xs">
+              {/* Card Header: Avatar / Hero + Category & Difficulty Badges */}
+              <div className="flex items-start justify-between gap-3">
+                {heroImagePreview ? (
+                  <img
+                    src={heroImagePreview}
+                    alt={title || "Project Hero"}
+                    className="size-11 rounded-xl border border-border object-cover"
+                  />
+                ) : (
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-lg font-bold text-primary">
+                    {title ? title.slice(0, 1).toUpperCase() : "P"}
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    {categoryOptions.find((item) => item.id === category)?.label ?? "—"}
+                  </span>
+                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    {difficulty
+                      ? getDifficultyLabel(t, difficulty)
+                      : t("project.difficulty.intermediate", "Intermediate")}
+                  </span>
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="mt-3">
+                <h4 className="truncate text-sm font-bold text-foreground">
+                  {title || t("project.detail.noTitle", "Untitled Project")}
+                </h4>
+                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  {description ||
+                    t("explore.noDescription", "No description for this project yet.")}
+                </p>
+              </div>
+
+              {/* Tech Tags */}
+              <div className="mt-3 flex flex-wrap gap-1">
+                {selectedTechs.length > 0 ? (
+                  selectedTechs.map((tech) => (
+                    <span
+                      key={tech}
+                      dir="ltr"
+                      className="rounded-full border border-border bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+                    >
+                      {tech}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[10px] text-muted-foreground italic">
+                    {t("explore.noTech", "No tech tags specified")}
+                  </span>
+                )}
+              </div>
+
+              {/* Repository & Materials Readiness Footer */}
+              <div className="mt-3 flex items-center justify-between border-t border-border pt-2.5 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <GitBranch className="size-3 text-primary" />
+                  <span dir="ltr" className="truncate font-mono font-medium text-foreground max-w-[120px]">
+                    {preview?.source.fullName || reference || t("project.import.notConnected", "Not selected")}
+                  </span>
+                </div>
+                <span>
+                  📁 {queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
+                </span>
+              </div>
+            </div>
+
+            {/* Step Progress Mini-Checklist */}
+            <div className="mt-4 space-y-2 border-t border-border pt-3 text-xs">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      preview ? "bg-emerald-500" : "bg-muted-foreground/40",
+                    )}
+                  />
+                  {t("project.import.stepRepository", "Repository")}
+                </span>
+                <span className="font-mono text-[11px]">
+                  {preview ? "✓" : "—"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      title.trim() !== "" && category !== null
+                        ? "bg-emerald-500"
+                        : "bg-muted-foreground/40",
+                    )}
+                  />
+                  {t("project.import.stepIdentity", "Identity")}
+                </span>
+                <span className="font-mono text-[11px]">
+                  {title.trim() !== "" && category !== null ? "✓" : "—"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      queuedMaterials.length > 0
+                        ? "bg-emerald-500"
+                        : "bg-muted-foreground/40",
+                    )}
+                  />
+                  {t("project.import.stepMaterials", "Materials")}
+                </span>
+                <span className="font-mono text-[11px]">
+                  {queuedMaterials.length > 0
+                    ? `✓ (${queuedMaterials.length})`
+                    : t("common.optional", "(optional)")}
+                </span>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* ── Success Modal Dialog ── */}
@@ -1186,15 +1346,15 @@ export function ImportProjectStepper({
           }
         }}
       >
-        <DialogContent className="sm:max-w-md text-center">
+        <DialogContent className="text-center sm:max-w-md">
           <DialogHeader className="flex flex-col items-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-2">
+            <div className="mb-2 flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Rocket className="size-7" />
             </div>
             <DialogTitle className="text-xl font-bold">
               {t("project.import.launchSuccessTitle", "Project Launched Successfully!")}
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-1">
+            <DialogDescription className="mt-1 text-xs text-muted-foreground sm:text-sm">
               {t(
                 "project.import.launchSuccessDesc",
                 "Your project is now live on Sharek. Start publishing contribution requests to welcome developers.",
@@ -1204,8 +1364,11 @@ export function ImportProjectStepper({
 
           {/* Copy Link Row */}
           {publishedProject && (
-            <div className="mt-4 flex items-center gap-2 rounded-xl border border-border/80 bg-surface-fog p-2.5">
-              <span dir="ltr" className="truncate font-mono text-xs text-muted-foreground flex-1 text-start">
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-surface-fog p-2.5">
+              <span
+                dir="ltr"
+                className="flex-1 truncate text-start font-mono text-xs text-muted-foreground"
+              >
                 {`${window.location.origin}/projects/${publishedProject.slug}`}
               </span>
               <Button
@@ -1219,10 +1382,21 @@ export function ImportProjectStepper({
                   setCopiedLink(true);
                   setTimeout(() => setCopiedLink(false), 2000);
                 }}
-                className="h-8 gap-1.5 text-xs font-semibold shrink-0"
+                className="h-8 shrink-0 gap-1.5 text-xs font-semibold"
               >
-                {copiedLink ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
-                <span>{t(copiedLink ? "project.import.linkCopied" : "project.import.copyLink", copiedLink ? "Copied!" : "Copy")}</span>
+                {copiedLink ? (
+                  <Check className="size-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="size-3.5" />
+                )}
+                <span>
+                  {t(
+                    copiedLink
+                      ? "project.import.linkCopied"
+                      : "project.import.copyLink",
+                    copiedLink ? "Copied!" : "Copy",
+                  )}
+                </span>
               </Button>
             </div>
           )}
@@ -1230,13 +1404,17 @@ export function ImportProjectStepper({
           <DialogFooter className="mt-6 flex flex-col gap-2 sm:flex-col">
             {publishedProject && (
               <>
-                <Button
-                  asChild
-                  className="w-full gap-1.5 text-xs font-bold"
-                >
-                  <a href={`/my-projects/${publishedProject.id}/contribution-requests/new`}>
+                <Button asChild className="w-full gap-1.5 text-xs font-bold">
+                  <a
+                    href={`/my-projects/${publishedProject.id}/contribution-requests/new`}
+                  >
                     <Plus className="size-4" />
-                    <span>{t("project.import.createFirstRequest", "Create First Contribution Request")}</span>
+                    <span>
+                      {t(
+                        "project.import.createFirstRequest",
+                        "Create First Contribution Request",
+                      )}
+                    </span>
                   </a>
                 </Button>
                 <Button
@@ -1245,7 +1423,12 @@ export function ImportProjectStepper({
                   className="w-full text-xs font-semibold"
                 >
                   <a href={`/my-projects/${publishedProject.id}`}>
-                    <span>{t("project.import.goToProject", "Go to Project Workspace")}</span>
+                    <span>
+                      {t(
+                        "project.import.goToProject",
+                        "Go to Project Workspace",
+                      )}
+                    </span>
                   </a>
                 </Button>
               </>
