@@ -88,6 +88,7 @@ function getRouteTitleKey(pathname: string) {
   if (pathname.startsWith("/discussions/")) return "pageTitles.discussion";
   if (pathname.startsWith("/discussions")) return "pageTitles.discussions";
   if (pathname.startsWith("/settings")) return "pageTitles.settings";
+  if (pathname.startsWith("/payments/result")) return "pageTitles.paymentResult";
   if (pathname.startsWith("/support")) return "pageTitles.support";
   if (pathname.startsWith("/onboarding")) return "pageTitles.onboarding";
   if (pathname.startsWith("/profile/github")) return "pageTitles.githubSkills";
