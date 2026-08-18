@@ -12,7 +12,8 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useUpdatePhoneMutation, type AuthUserDto } from "@/modules/auth";
+import { useUpdatePhoneMutation  } from "@/modules/auth";
+import type {AuthUserDto} from "@/modules/auth";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
@@ -54,7 +55,7 @@ export function PhoneSettingsForm({ user }: PhoneSettingsFormProps) {
       onError: (err: unknown) => {
         const message =
           err && typeof err === "object" && "message" in err
-            ? String((err as { message: unknown }).message)
+            ? String((err).message)
             : isArabic
               ? "تعذر تحديث رقم الهاتف، يرجى المحاولة مرة أخرى."
               : "Could not update phone number. Please try again.";

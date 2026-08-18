@@ -10,7 +10,8 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useUploadIdentityDocumentMutation, type AuthUserDto } from "@/modules/auth";
+import { useUploadIdentityDocumentMutation  } from "@/modules/auth";
+import type {AuthUserDto} from "@/modules/auth";
 import type { ContributorProfileDto } from "@/modules/contributors";
 
 interface IdentityVerificationPanelProps {

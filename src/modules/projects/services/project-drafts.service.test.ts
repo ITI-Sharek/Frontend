@@ -11,6 +11,7 @@ import {
   previewGitHubRepository,
   publishProject,
   refreshProjectSource,
+  uploadProjectHeroImage,
 } from "./project-drafts.service";
 import type {
   PreviewGitHubRepositoryResponseDto,
@@ -24,6 +25,7 @@ vi.mock("@/lib/axios/axios-instance", () => ({
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
+    put: vi.fn(),
   },
 }));
 
@@ -41,6 +43,7 @@ const ownerProject: ProjectOwnerViewDto = {
     technologies: ["TypeScript"],
     category: "web",
     difficulty: "intermediate",
+    heroImageUrl: null,
     manualOverrides: ["title"],
   },
   source: {
@@ -202,6 +205,31 @@ describe("project drafts service", () => {
       { expectedRevision: 3 },
       { headers: { "Idempotency-Key": "key-3" } },
     );
+  });
+
+  it("uploads a hero image as multipart form data with an Idempotency-Key header", async () => {
+    mockedAxios.put.mockResolvedValueOnce({ data: ownerProject });
+    const image = new File(["hero"], "hero.png", { type: "image/png" });
+
+    await expect(
+      uploadProjectHeroImage({
+        projectId: "project-1",
+        idempotencyKey: "hero-key-1",
+        expectedRevision: 3,
+        file: image,
+      }),
+    ).resolves.toEqual(ownerProject);
+
+    const [, formData, config] = mockedAxios.put.mock.calls[0] ?? [];
+    expect(formData).toBeInstanceOf(FormData);
+    expect((formData as FormData).get("expectedRevision")).toBe("3");
+    expect((formData as FormData).get("file")).toBe(image);
+    expect(config).toEqual({
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Idempotency-Key": "hero-key-1",
+      },
+    });
   });
 
   it("publishes a draft with an Idempotency-Key header", async () => {

@@ -208,4 +208,23 @@ describe("PersonalInformationSettingsPage", () => {
     expect(container.textContent).toContain("+201012345678");
     expect(container.querySelector("#phone-number")).not.toBeNull();
   });
+
+  it("renders non-profile sections in the unified layout with corresponding slot", async () => {
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <PersonalInformationSettingsPage
+            user={mockUser}
+            profile={mockProfile}
+            activeSectionId="language"
+            languageSlot={<div data-testid="language-content">Language Settings Content</div>}
+          />
+        </QueryClientProvider>,
+      );
+    });
+
+    expect(container.textContent).toContain("الإعدادات");
+    expect(container.querySelector('[data-testid="language-content"]')).not.toBeNull();
+    expect(container.textContent).toContain("Language Settings Content");
+  });
 });

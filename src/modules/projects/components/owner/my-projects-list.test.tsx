@@ -39,4 +39,55 @@ describe("MyProjectsList", () => {
     expect(html).not.toContain("eligible");
     expect(html).not.toContain("ineligible");
   });
+
+  it("renders status tabs and search field when projects exist", () => {
+    const html = renderToStaticMarkup(
+      <MyProjectsList
+        projects={[project]}
+        quota={quota}
+        pageInfo={pageInfo}
+        importHref="/my-projects/new"
+        onProjectHref={(id) => `/my-projects/${id}`}
+        filters={{ status: "published", q: "sharek" }}
+      />,
+    );
+
+    expect(html).toContain("الكل");
+    expect(html).toContain("منشور");
+    expect(html).toContain("مسودة");
+    expect(html).toContain("مؤرشف");
+    expect(html).toContain('value="sharek"');
+    expect(html).toContain("sharek-example");
+  });
+
+  it("renders empty filtered state when search/filter returns no projects", () => {
+    const html = renderToStaticMarkup(
+      <MyProjectsList
+        projects={[]}
+        quota={quota}
+        pageInfo={pageInfo}
+        importHref="/my-projects/new"
+        onProjectHref={(id) => `/my-projects/${id}`}
+        filters={{ q: "nonexistent" }}
+        onResetFilters={() => {}}
+      />,
+    );
+
+    expect(html).toContain("لم يتم العثور على مشاريع مطابقة");
+    expect(html).toContain("إعادة تعيين الفلاتر");
+  });
+
+  it("renders first-import onboarding hero when user has no projects and no filter", () => {
+    const html = renderToStaticMarkup(
+      <MyProjectsList
+        projects={[]}
+        quota={quota}
+        pageInfo={pageInfo}
+        importHref="/my-projects/new"
+        onProjectHref={(id) => `/my-projects/${id}`}
+      />,
+    );
+
+    expect(html).toContain("استورد مشروعك الأول من GitHub");
+  });
 });

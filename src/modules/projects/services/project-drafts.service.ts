@@ -14,6 +14,7 @@ import type {
   ProjectTransitionResultDto,
   PublishProjectPayload,
   RefreshProjectSourcePayload,
+  UploadProjectHeroImagePayload,
 } from "../types/project-draft.types";
 
 /**
@@ -96,6 +97,31 @@ export async function refreshProjectSource({
     `/projects/me/${encodeURIComponent(projectId)}/source/refresh`,
     payload,
     { headers: { "Idempotency-Key": idempotencyKey } },
+  );
+  return data;
+}
+
+export async function uploadProjectHeroImage({
+  projectId,
+  idempotencyKey,
+  expectedRevision,
+  file,
+}: UploadProjectHeroImagePayload & {
+  projectId: string;
+  idempotencyKey: string;
+}): Promise<ProjectOwnerViewDto> {
+  const formData = new FormData();
+  formData.append("expectedRevision", String(expectedRevision));
+  formData.append("file", file);
+  const { data } = await axiosInstance.put<ProjectOwnerViewDto>(
+    `/projects/me/${encodeURIComponent(projectId)}/hero-image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Idempotency-Key": idempotencyKey,
+      },
+    },
   );
   return data;
 }

@@ -58,14 +58,22 @@ function PublicProjectDetailsPage() {
     );
   }
 
+  const currentUser = currentUserQuery.data;
+  const isOwner =
+    currentUser?.role === "owner" &&
+    (!projectQuery.data.owner?.username ||
+      currentUser.username === projectQuery.data.owner.username);
+
   return (
     <PublicProjectsShell>
       <PublicProjectDetailView
         project={projectQuery.data}
         exploreHref={ROUTES.publicProjects}
+        isOwner={isOwner}
+        currentUserRole={currentUser?.role}
         proposalAction={
-          currentUserQuery.data?.role === "contributor" &&
-          currentUserQuery.data.status === "active" ? (
+          currentUser?.role === "contributor" &&
+          currentUser.status === "active" ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-bold text-foreground">
@@ -99,7 +107,7 @@ function PublicProjectDetailsPage() {
             />
           ) : null
         }
-        canSave={currentUserQuery.data?.status === "active"}
+        canSave={currentUser?.status === "active"}
       />
     </PublicProjectsShell>
   );

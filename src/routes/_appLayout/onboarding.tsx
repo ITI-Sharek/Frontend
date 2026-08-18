@@ -57,7 +57,7 @@ function OnboardingPage() {
     <ContributorWalkthrough
       profile={profileQuery.data}
       generation={generation}
-      profileEditHref={ROUTES.profileEdit}
+      profileEditHref={ROUTES.settings}
       analysisHref={ROUTES.githubSkillAnalysis}
       exploreHref={ROUTES.explore}
       dashboardHref={ROUTES.dashboard}

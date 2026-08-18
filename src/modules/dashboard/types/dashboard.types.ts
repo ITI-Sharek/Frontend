@@ -1,7 +1,5 @@
 /**
- * Contributor dashboard contract (WF-02). No backend endpoint exists yet —
- * `dashboard.service.ts` serves mock data with this exact shape; this file
- * is the handoff contract for `GET /contributors/dashboard`.
+ * Contributor dashboard contract returned by `GET /contributors/me/dashboard`.
  */
 
 /** WF-02 lifecycle states: A = active, B = onboarding, C = verified with zero applications. */

@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_appLayout/profile/$username")({
       raw === "projects" ||
       raw === "activity" ||
       raw === "reviews";
-    return isValid ? { section: raw as ProfileTabValue } : {};
+    return isValid ? { section: raw } : {};
   },
   beforeLoad: beforeLoadContributorProfile,
   component: ContributorProfilePage,

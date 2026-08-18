@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_appLayout/proposals/")({
       raw === "ACCEPTED" ||
       raw === "DECLINED" ||
       raw === "WITHDRAWN";
-    return isValid ? { section: raw as ContributionProposalStatus | "ALL" } : {};
+    return isValid ? { section: raw } : {};
   },
   component: MyProposalsPage,
 });

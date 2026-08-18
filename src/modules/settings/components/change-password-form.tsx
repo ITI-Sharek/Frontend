@@ -10,7 +10,8 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useChangePasswordMutation, type AuthUserDto } from "@/modules/auth";
+import { useChangePasswordMutation  } from "@/modules/auth";
+import type {AuthUserDto} from "@/modules/auth";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";

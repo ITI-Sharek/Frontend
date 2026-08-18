@@ -2,11 +2,7 @@ import { FilePlus2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Card } from "@/shared/components/ui/card";
-import {
-  PageContainer,
-  PageHeader,
-} from "@/shared/components/layout/page-layout";
+import { PageContainer } from "@/shared/components/layout/page-layout";
 
 import { ContributionRequestForm } from "./contribution-request-form";
 import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
@@ -55,44 +51,44 @@ export function ContributionRequestCreateView({
   }
 
   const form = (
-    <>
+    <div className="space-y-6">
       {presentation === "page" && (
-        <PageHeader
-          title={t("contributionRequests.create.title")}
-          description={t("contributionRequests.create.description", { project: projectTitle })}
-        />
-      )}
-      <Card
-        className={
-          presentation === "page" ? "mt-6" : "border-0 bg-transparent p-0"
-        }
-      >
-        <div className="mb-6 flex items-center gap-3 border-b border-border pb-5">
-          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <FilePlus2 className="size-5" aria-hidden="true" />
-          </span>
-          <div>
-            <h2 className="font-bold text-foreground">{t("contributionRequests.create.draftDetails")}</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("contributionRequests.create.ownerProjectNotice")}
-            </p>
+        <div className="flex flex-col gap-2 border-b border-border/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3.5">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <FilePlus2 className="size-6 stroke-[2.2]" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+                  {t("contributionRequests.create.title")}
+                </h1>
+                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+                  {projectTitle}
+                </span>
+              </div>
+              <p className="mt-1 text-sm font-medium text-muted-foreground">
+                {t("contributionRequests.create.description", { project: projectTitle })}
+              </p>
+            </div>
           </div>
         </div>
-        <ContributionRequestForm
-          initialState={createEmptyContributionRequestForm()}
-          isSubmitting={mutation.isPending}
-          submitError={error}
-          submitLabel={t("contributionRequests.create.saveDraft")}
-          cancelHref={cancelHref}
-          onCancel={onCancel}
-          onSubmit={create}
-        />
-      </Card>
-    </>
+      )}
+
+      <ContributionRequestForm
+        initialState={createEmptyContributionRequestForm()}
+        isSubmitting={mutation.isPending}
+        submitError={error}
+        submitLabel={t("contributionRequests.create.saveDraft")}
+        cancelHref={cancelHref}
+        onCancel={onCancel}
+        onSubmit={create}
+      />
+    </div>
   );
 
   return presentation === "page" ? (
-    <PageContainer className="max-w-4xl">{form}</PageContainer>
+    <PageContainer className="max-w-7xl px-4 py-6 md:px-6 md:py-8">{form}</PageContainer>
   ) : (
     form
   );

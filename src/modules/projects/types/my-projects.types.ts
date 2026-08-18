@@ -35,9 +35,16 @@ export interface CursorPageInfoDto {
   hasNextPage: boolean;
 }
 
+export interface MyProjectsFilters {
+  status?: MyProjectStatus | "all";
+  q?: string;
+}
+
 export interface MyProjectsListParams {
   cursor?: string;
   limit?: number;
+  status?: MyProjectStatus;
+  q?: string;
 }
 
 export interface MyProjectsListResponseDto {

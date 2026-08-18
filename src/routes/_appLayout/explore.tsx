@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { requireMemberRoute } from "@/modules/auth";
-import { ExploreView } from "@/modules/projects";
+import {
+  useContributorFieldsQuery,
+} from "@/modules/contributors";
+import {
+  ExploreView,
+  useProjectCategoriesQuery,
+  useProjectDifficultiesQuery,
+} from "@/modules/projects";
 import type {
   ExploreSearchParamsDto,
   ProjectCategory,
   ProjectDifficulty,
 } from "@/modules/projects";
 
-const CATEGORIES: ProjectCategory[] = [
-  "web",
-  "mobile",
-  "ai_ml",
-  "devops",
-  "tools_utilities",
-];
 const DIFFICULTIES: ProjectDifficulty[] = [
   "beginner",
   "intermediate",
@@ -37,7 +39,7 @@ function validateSearch(search: Record<string, unknown>): ExploreSearchParamsDto
   ) {
     if (tech.length > 0) params.technologies = tech;
   }
-  if (CATEGORIES.includes(search.category as ProjectCategory)) {
+  if (typeof search.category === "string" && search.category.length > 0) {
     params.category = search.category as ProjectCategory;
   }
   if (DIFFICULTIES.includes(search.difficulty as ProjectDifficulty)) {
@@ -59,8 +61,35 @@ export const Route = createFileRoute("/_appLayout/explore")({
 });
 
 function ExplorePage() {
+  const { i18n } = useTranslation();
+  const isArabic = i18n.language.startsWith("ar");
   const params = Route.useSearch();
   const navigate = Route.useNavigate();
+  const categoriesQuery = useProjectCategoriesQuery();
+  const fieldsQuery = useContributorFieldsQuery();
+  const difficultiesQuery = useProjectDifficultiesQuery();
+
+  const dynamicCategories = useMemo(() => {
+    const map = new Map<string, { key: string; labelAr: string; labelEn: string }>();
+    for (const category of categoriesQuery.data ?? []) {
+      map.set(category.key, category);
+    }
+    return Array.from(map.values()).map((cat) => ({
+      key: cat.key,
+      label: isArabic ? cat.labelAr : cat.labelEn,
+    }));
+  }, [categoriesQuery.data, isArabic]);
+
+  const dynamicTechnologies = useMemo(() =>
+    (fieldsQuery.data ?? []).map((field) => field.labelEn || field.key),
+  [fieldsQuery.data]);
+
+  const dynamicDifficulties = useMemo(() => {
+    return (difficultiesQuery.data ?? []).map((difficulty) => ({
+      key: difficulty.key,
+      label: isArabic ? difficulty.labelAr : difficulty.labelEn,
+    }));
+  }, [difficultiesQuery.data, isArabic]);
 
   function applyParams(partial: Partial<ExploreSearchParamsDto>) {
     const next = { ...params, ...partial };
@@ -85,6 +114,9 @@ function ExplorePage() {
       params={params}
       onParamsChange={applyParams}
       onReset={() => void navigate({ search: {}, replace: true })}
+      categories={dynamicCategories}
+      technologies={dynamicTechnologies}
+      difficulties={dynamicDifficulties}
     />
   );
 }

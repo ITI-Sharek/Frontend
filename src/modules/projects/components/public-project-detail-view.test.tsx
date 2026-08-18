@@ -15,6 +15,7 @@ const publicBackedProject: PublicProjectDetailDto = {
   technologies: ["TypeScript"],
   category: "web",
   difficulty: "intermediate",
+  heroImageUrl: null,
   publishedAt: "2026-07-21T10:10:00.000Z",
   owner: null,
   source: {
@@ -128,6 +129,35 @@ describe("PublicProjectDetailView", () => {
     );
 
     expect(html).toContain("كراسة المشروع متاحة للقراءة");
+  });
+
+  it("renders Edit Project and omits Apply button when viewed by project owner", () => {
+    const html = render(
+      <PublicProjectDetailView
+        project={publicBackedProject}
+        exploreHref="/explore"
+        isOwner={true}
+        currentUserRole="owner"
+      />,
+    );
+
+    expect(html).toContain("تعديل المشروع");
+    expect(html).toContain("/my-projects/project-1");
+    expect(html).not.toContain("تقديم على المشروع");
+  });
+
+  it("renders Apply button when viewed by a contributor or non-owner", () => {
+    const html = render(
+      <PublicProjectDetailView
+        project={publicBackedProject}
+        exploreHref="/explore"
+        isOwner={false}
+        currentUserRole="contributor"
+      />,
+    );
+
+    expect(html).toContain("تقديم على المشروع");
+    expect(html).not.toContain("تعديل المشروع");
   });
 });
 

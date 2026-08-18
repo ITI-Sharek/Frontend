@@ -38,7 +38,7 @@ export const Route = createFileRoute(
       raw === "completed" ||
       raw === "cancelled" ||
       raw === "discarded";
-    return isValid ? { section: raw as OwnerSectionStatus } : {};
+    return isValid ? { section: raw } : {};
   },
   component: OwnerContributionRequestsPage,
 });

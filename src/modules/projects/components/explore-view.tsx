@@ -5,24 +5,23 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Sparkles,
-  X,
 } from "lucide-react";
 import { useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
 import { SearchField } from "@/shared/components/ui/search-field";
 import { ExploreCategoryTiles } from "./explore-category-tiles";
 import { cn } from "@/lib/utils";
 
-import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
 import {
   ExploreFilters,
-  getCategoryLabel,
-  getDifficultyLabel,
+  ExploreTopFilterBar,
   POPULAR_TECHNOLOGIES,
 } from "./explore-filters";
+import type { DynamicFilterOption } from "./explore-filters";
 import { ExploreProjectCard } from "./explore-project-card";
+import { useExploreProjectsQuery } from "../api/queries/use-explore-projects-query";
 import type { ExploreSearchParamsDto } from "../types/explore.types";
 
 interface ExploreViewProps {
@@ -30,59 +29,39 @@ interface ExploreViewProps {
   /** The route owns the URL (WF-03: all filters live in search params). */
   onParamsChange: (partial: Partial<ExploreSearchParamsDto>) => void;
   onReset: () => void;
+  categories?: DynamicFilterOption[];
+  technologies?: string[];
+  difficulties?: DynamicFilterOption[];
 }
 
 /**
- * WF-03 project discovery: keyword search, category tiles, filters (desktop sidebar /
- * mobile sheet), active-filter chips, result count + pagination, uniform
- * comparison cards, loading + filtered-empty states.
+ * WF-03 project discovery: keyword search, category tiles, top filtration toolbar,
+ * multi-grid view switcher (1, 2, 3 columns), uniform comparison cards,
+ * loading + filtered-empty states.
  */
 export function ExploreView({
   params,
   onParamsChange,
   onReset,
+  categories,
+  technologies,
+  difficulties,
 }: ExploreViewProps) {
   const { t } = useTranslation();
   const exploreQuery = useExploreProjectsQuery(params);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [searchDraft, setSearchDraft] = useState(params.q ?? "");
+  const [viewMode, setViewMode] = useState<"1" | "2" | "3">("3");
 
-  const activeChips: { key: string; label: string; remove: () => void }[] = [
-    ...(params.technologies ?? []).map((tech) => ({
-      key: `tech-${tech}`,
-      label: tech,
-      remove: () =>
-        onParamsChange({
-          technologies:
-            (params.technologies ?? []).filter((item) => item !== tech).length >
-            0
-              ? (params.technologies ?? []).filter((item) => item !== tech)
-              : undefined,
-        }),
-    })),
-    ...(params.category !== undefined
-      ? [
-          {
-            key: "category",
-            label: getCategoryLabel(t, params.category),
-            remove: () => onParamsChange({ category: undefined }),
-          },
-        ]
-      : []),
-    ...(params.difficulty !== undefined
-      ? [
-          {
-            key: "difficulty",
-            label: getDifficultyLabel(t, params.difficulty),
-            remove: () => onParamsChange({ difficulty: undefined }),
-          },
-        ]
-      : []),
-  ];
-
-  const filtersCount = activeChips.length + (params.q ? 1 : 0);
   const result = exploreQuery.data;
   const pagination = result?.pagination;
+  const totalResults = pagination?.total ?? result?.projects.length ?? 0;
+
+  const filtersCount =
+    (params.technologies?.length ?? 0) +
+    (params.category !== undefined ? 1 : 0) +
+    (params.difficulty !== undefined ? 1 : 0) +
+    (params.q ? 1 : 0);
 
   function toggleHeroTech(tech: string) {
     const current = params.technologies ?? [];
@@ -106,24 +85,24 @@ export function ExploreView({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 md:px-6 md:py-8">
+    <div className="mx-auto w-full max-w-[1360px] px-4 py-6 md:px-6 md:py-8">
       {/* ── Signature Brand Hero Banner ── */}
-      <header className="sk-hero px-6 py-8 md:px-10 md:py-10">
-        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-evidence-teal">
-          <Layers className="size-3.5" aria-hidden />
+      <header className="sk-hero px-6 py-8 md:px-12 md:py-12 rounded-3xl shadow-[var(--shadow-record)]">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-evidence-teal">
+          <Layers className="size-4" aria-hidden />
           <span>{t("explore.registryLabel")}</span>
         </div>
 
-        <h1 className="mt-2.5 max-w-2xl text-balance text-2xl font-extrabold leading-[1.15] tracking-tight text-hero-ink sm:text-3xl md:text-4xl">
+        <h1 className="mt-3 max-w-3xl text-balance text-3xl font-black leading-[1.12] tracking-tight text-hero-ink sm:text-4xl md:text-5xl">
           {t("explore.title")}
         </h1>
 
-        <p className="mt-3 max-w-2xl text-pretty text-[14.5px] leading-relaxed text-hero-ink-soft sm:text-[15px]">
+        <p className="mt-3.5 max-w-2xl text-pretty text-base font-medium leading-relaxed text-hero-ink-soft sm:text-lg">
           {t("explore.description")}
         </p>
 
         {/* Integrated Hero Search and Mobile Filter Trigger */}
-        <div className="mt-7 flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:items-center">
           <SearchField
             className="min-w-0 flex-1"
             value={searchDraft}
@@ -153,7 +132,7 @@ export function ExploreView({
             <SlidersHorizontal className="size-4" />
             <span>{t("explore.filtersButton")}</span>
             {filtersCount > 0 && (
-              <span className="tnum rounded-full bg-evidence-teal px-1.5 py-0.5 text-[10px] font-bold leading-none text-evidence-teal-foreground">
+              <span className="tnum rounded-full bg-evidence-teal px-2 py-0.5 text-xs font-bold leading-none text-evidence-teal-foreground">
                 {filtersCount}
               </span>
             )}
@@ -161,13 +140,13 @@ export function ExploreView({
         </div>
 
         {/* Hero Quick Technology Tags */}
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-          <span className="flex items-center gap-1 font-semibold text-hero-ink-soft">
-            <Sparkles className="size-3 text-evidence-teal" />
+        <div className="mt-5 flex flex-wrap items-center gap-2.5 text-sm">
+          <span className="flex items-center gap-1.5 font-bold text-hero-ink-soft">
+            <Sparkles className="size-3.5 text-evidence-teal" />
             <span>{t("tasks.quickPresets", "شائع:")}</span>
           </span>
-          <div className="flex flex-wrap gap-1.5">
-            {POPULAR_TECHNOLOGIES.slice(0, 7).map((tech) => {
+          <div className="flex flex-wrap gap-2">
+            {POPULAR_TECHNOLOGIES.slice(0, 8).map((tech) => {
               const isSelected = (params.technologies ?? []).some(
                 (item) => item.toLowerCase() === tech.toLowerCase(),
               );
@@ -177,10 +156,10 @@ export function ExploreView({
                   type="button"
                   onClick={() => toggleHeroTech(tech)}
                   className={cn(
-                    "rounded-full px-2.5 py-0.5 font-mono text-[11px] transition-all",
+                    "rounded-lg px-3 py-1 font-mono text-xs font-bold transition-all shadow-2xs",
                     isSelected
-                      ? "bg-evidence-teal font-bold text-evidence-teal-foreground shadow-sm"
-                      : "border border-white/20 bg-white/10 text-hero-ink hover:bg-white/20",
+                      ? "bg-evidence-teal text-evidence-teal-foreground shadow-sm scale-105"
+                      : "border border-white/20 bg-white/10 text-hero-ink hover:bg-white/25",
                   )}
                 >
                   <bdi>{tech}</bdi>
@@ -196,182 +175,138 @@ export function ExploreView({
         <ExploreCategoryTiles
           active={params.category}
           onSelect={(category) => onParamsChange({ category, page: undefined })}
+          categories={categories}
         />
       </div>
 
-      {/* ── Main Explorer Content Grid ── */}
-      <div className="mt-8 flex items-start gap-8">
-        {/* Sticky Desktop Filter Sidebar */}
-        <aside className="sticky top-24 hidden w-64 shrink-0 rounded-card border border-border bg-card p-5 shadow-[var(--shadow-record)] lg:block">
-          <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <SlidersHorizontal className="size-4 text-primary" />
-              <span>{t("explore.filtersTitle")}</span>
-            </h2>
-            {filtersCount > 0 && (
-              <button
-                type="button"
-                onClick={onReset}
-                className="text-xs font-semibold text-primary transition-opacity hover:opacity-80"
-              >
-                {t("explore.resetFilters")}
-              </button>
+      {/* ── Top Filtration Toolbar (Replacing Sidebar) ── */}
+      <div className="mt-8">
+        <ExploreTopFilterBar
+          params={params}
+          onChange={onParamsChange}
+          onReset={onReset}
+          categories={categories}
+          technologies={technologies}
+          difficulties={difficulties}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          totalResults={totalResults}
+        />
+      </div>
+
+      {/* ── Projects Grid Stream ── */}
+      <div className="mt-6">
+        {/* Loading Skeleton */}
+        {exploreQuery.isPending ? (
+          <div
+            className={cn(
+              "grid gap-5",
+              viewMode === "1" && "grid-cols-1",
+              viewMode === "2" && "grid-cols-1 md:grid-cols-2",
+              viewMode === "3" && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
             )}
-          </div>
-
-          <ExploreFilters
-            params={params}
-            onChange={onParamsChange}
-            onReset={onReset}
-          />
-        </aside>
-
-        {/* Results Stream */}
-        <div className="min-w-0 flex-1">
-          {/* Active Chips & Total Results Header */}
-          <div className="flex min-h-10 flex-wrap items-center gap-2 border-b border-border pb-4">
-            <p className="me-auto text-sm text-muted-foreground">
-              <Trans
-                i18nKey="explore.totalResults"
-                count={pagination?.total ?? 0}
-                components={{
-                  b: <span className="tnum font-bold text-foreground" />,
-                }}
-              />
-              {params.q !== undefined && (
-                <span className="text-muted-foreground">
-                  {" "}
-                  {t("explore.searchResultsFor", { query: params.q })}
-                </span>
-              )}
-            </p>
-
-            {activeChips.map((chip) => (
-              <button
-                key={chip.key}
-                type="button"
-                onClick={chip.remove}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs text-foreground transition-colors hover:border-destructive/40 hover:bg-destructive-soft hover:text-destructive"
+          >
+            {Array.from({ length: 6 }, (_, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-record)] space-y-4"
               >
-                <bdi>{chip.label}</bdi>
-                <X className="size-3 text-muted-foreground" />
-              </button>
-            ))}
-
-            {filtersCount > 0 && (
-              <button
-                type="button"
-                onClick={onReset}
-                className="flex items-center gap-1 text-xs font-semibold text-primary transition-opacity hover:opacity-80"
-              >
-                <RotateCcw className="size-3" />
-                <span>{t("explore.clearAllFilters")}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Loading Skeleton */}
-          {exploreQuery.isPending ? (
-            <div className="mt-6 grid gap-5 xl:grid-cols-2">
-              {Array.from({ length: 4 }, (_, index) => (
-                <div
-                  key={index}
-                  className="rounded-card border border-border bg-card p-6 shadow-[var(--shadow-record)]"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="skeleton h-4 w-24" />
-                    <div className="skeleton h-5 w-16 rounded-full" />
-                  </div>
-                  <div className="skeleton mt-4 h-6 w-3/4" />
-                  <div className="skeleton mt-2 h-4 w-full" />
-                  <div className="skeleton mt-1.5 h-4 w-2/3" />
-                  <div className="skeleton mt-5 h-2 w-full rounded-full" />
-                  <div className="mt-4 flex gap-2">
-                    <div className="skeleton h-6 w-16 rounded-md" />
-                    <div className="skeleton h-6 w-20 rounded-md" />
-                  </div>
-                  <div className="skeleton mt-6 h-10 w-full rounded-lg" />
+                <div className="flex items-center justify-between">
+                  <div className="skeleton h-4 w-24 rounded-full" />
+                  <div className="skeleton h-5 w-20 rounded-full" />
                 </div>
+                <div className="skeleton h-6 w-3/4 rounded-lg" />
+                <div className="skeleton h-4 w-full rounded-md" />
+                <div className="skeleton h-4 w-2/3 rounded-md" />
+                <div className="skeleton h-2 w-full rounded-full" />
+                <div className="flex gap-2">
+                  <div className="skeleton h-6 w-16 rounded-md" />
+                  <div className="skeleton h-6 w-20 rounded-md" />
+                </div>
+                <div className="skeleton h-10 w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
+        ) : result !== undefined && result.projects.length > 0 ? (
+          <>
+            {/* Project Card Grid */}
+            <div
+              className={cn(
+                "grid gap-5 transition-all",
+                viewMode === "1" && "grid-cols-1 gap-5",
+                viewMode === "2" && "grid-cols-1 md:grid-cols-2 gap-6",
+                viewMode === "3" && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5",
+                exploreQuery.isPlaceholderData && "opacity-60",
+              )}
+            >
+              {result.projects.map((project) => (
+                <ExploreProjectCard
+                  key={project.id}
+                  project={project}
+                  viewMode={viewMode}
+                />
               ))}
             </div>
-          ) : result !== undefined && result.projects.length > 0 ? (
-            <>
-              {/* Project Card Grid */}
-              <div
-                className={cn(
-                  "mt-6 grid gap-5 xl:grid-cols-2",
-                  exploreQuery.isPlaceholderData && "opacity-60",
-                )}
-              >
-                {result.projects.map((project) => (
-                  <ExploreProjectCard key={project.id} project={project} />
-                ))}
+
+            {/* Pagination Controls */}
+            {pagination !== undefined && pagination.totalPages > 1 && (
+              <div className="mt-10 flex items-center justify-center gap-3 border-t border-border pt-6">
+                <button
+                  type="button"
+                  disabled={pagination.page <= 1}
+                  onClick={() => onParamsChange({ page: pagination.page - 1 })}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground transition-all hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40 shadow-xs"
+                >
+                  <ChevronRight className="size-4" />
+                  <span>{t("explore.previousPage")}</span>
+                </button>
+
+                <span className="font-mono text-xs font-bold tracking-wider text-muted-foreground px-2">
+                  {t("explore.page", {
+                    current: pagination.page,
+                    total: pagination.totalPages,
+                  })}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => onParamsChange({ page: pagination.page + 1 })}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground transition-all hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40 shadow-xs"
+                >
+                  <span>{t("explore.nextPage")}</span>
+                  <ChevronLeft className="size-4" />
+                </button>
               </div>
-
-              {/* Pagination Controls */}
-              {pagination !== undefined && pagination.totalPages > 1 && (
-                <div className="mt-8 flex items-center justify-center gap-3 border-t border-border pt-6">
-                  <button
-                    type="button"
-                    disabled={pagination.page <= 1}
-                    onClick={() =>
-                      onParamsChange({ page: pagination.page - 1 })
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <ChevronRight className="size-4" />
-                    <span>{t("explore.previousPage")}</span>
-                  </button>
-
-                  <span className="font-mono text-xs tracking-wider text-muted-foreground">
-                    {t("explore.page", {
-                      current: pagination.page,
-                      total: pagination.totalPages,
-                    })}
-                  </span>
-
-                  <button
-                    type="button"
-                    disabled={pagination.page >= pagination.totalPages}
-                    onClick={() =>
-                      onParamsChange({ page: pagination.page + 1 })
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <span>{t("explore.nextPage")}</span>
-                    <ChevronLeft className="size-4" />
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            /* Filtered Empty State */
-            <div className="mt-6 flex flex-col items-center justify-center rounded-card border border-dashed border-border bg-card p-10 text-center shadow-[var(--shadow-record)] sm:p-14">
-              <img
-                src="/art/empty-projects.png"
-                alt=""
-                width={84}
-                height={84}
-                className="mb-4 size-20 opacity-80"
-              />
-              <h3 className="text-lg font-bold text-foreground">
-                {t("explore.noMatch")}
-              </h3>
-              <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
-                {t("explore.noMatchDescription")}
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-5"
-                onClick={onReset}
-              >
-                <RotateCcw className="size-3.5" />
-                <span>{t("explore.resetFiltersButton")}</span>
-              </Button>
-            </div>
-          )}
-        </div>
+            )}
+          </>
+        ) : (
+          /* Filtered Empty State */
+          <div className="mt-6 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-10 text-center shadow-[var(--shadow-record)] sm:p-16">
+            <img
+              src="/art/empty-projects.png"
+              alt=""
+              width={96}
+              height={96}
+              className="mb-4 size-24 opacity-80"
+            />
+            <h3 className="text-xl font-black text-foreground sm:text-2xl">
+              {t("explore.noMatch")}
+            </h3>
+            <p className="mt-2 max-w-md text-sm font-medium text-muted-foreground sm:text-base">
+              {t("explore.noMatchDescription")}
+            </p>
+            <Button
+              size="default"
+              variant="outline"
+              className="mt-6 gap-2 rounded-xl font-bold"
+              onClick={onReset}
+            >
+              <RotateCcw className="size-4" />
+              <span>{t("explore.resetFiltersButton")}</span>
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ── Mobile Filter Sheet ── */}
@@ -383,15 +318,15 @@ export function ExploreView({
             className="absolute inset-0 bg-foreground/40 backdrop-blur-xs transition-opacity"
             onClick={() => setSheetOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85%] overflow-y-auto rounded-t-2xl border-t border-border bg-background p-6 pb-8 shadow-2xl">
-            <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border" />
+          <div className="absolute inset-x-0 bottom-0 max-h-[85%] overflow-y-auto rounded-t-3xl border-t border-border bg-background p-6 pb-8 shadow-2xl">
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-border" />
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h2 className="text-lg font-bold text-foreground">
+              <h2 className="text-lg font-extrabold text-foreground">
                 {t("explore.filtersTitle")}
               </h2>
               <button
                 type="button"
-                className="text-sm font-semibold text-primary"
+                className="text-sm font-bold text-primary"
                 onClick={onReset}
               >
                 {t("explore.resetFilters")}
@@ -402,14 +337,17 @@ export function ExploreView({
                 params={params}
                 onChange={onParamsChange}
                 onReset={onReset}
+                categories={categories}
+                technologies={technologies}
+                difficulties={difficulties}
               />
             </div>
             <Button
-              className="mt-4 w-full font-bold"
+              className="mt-4 w-full rounded-xl font-extrabold text-base h-12"
               size="lg"
               onClick={() => setSheetOpen(false)}
             >
-              {t("explore.viewProjects", { count: pagination?.total ?? 0 })}
+              {t("explore.viewProjects", { count: totalResults })}
             </Button>
           </div>
         </div>

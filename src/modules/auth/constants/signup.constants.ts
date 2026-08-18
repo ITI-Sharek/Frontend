@@ -48,14 +48,3 @@ export function getAvailabilityOptions(t: TFunction): ChipOption[] {
     { value: "both", label: t("register.details.availability.both") },
   ];
 }
-
-export function getInterestOptions(t: TFunction): ChipOption[] {
-  return [
-  { value: "web", label: t("register.details.interestsOptions.web") },
-  { value: "mobile", label: t("register.details.interestsOptions.mobile") },
-  { value: "ai", label: t("register.details.interestsOptions.ai") },
-  { value: "design", label: "UI/UX" },
-  { value: "devops", label: "DevOps" },
-  { value: "docs", label: t("register.details.interestsOptions.docs") },
-  ];
-}

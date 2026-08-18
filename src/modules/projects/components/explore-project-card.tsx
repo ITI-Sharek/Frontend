@@ -66,8 +66,10 @@ function formatPublishedAgo(
  */
 export function ExploreProjectCard({
   project,
+  viewMode = "3",
 }: {
   project: DiscoveredProjectDto;
+  viewMode?: "1" | "2" | "3";
 }) {
   const { t } = useTranslation();
   const languages = getLanguageShares(project.languages);
@@ -81,17 +83,25 @@ export function ExploreProjectCard({
   const publishedAgo = formatPublishedAgo(t, project.publishedAt);
   const repoOwner = project.githubRepoUrl.split("/").slice(-2, -1)[0] ?? "";
 
+  const isListMode = viewMode === "1";
+
   return (
     <article
       data-card-hover
-      className="group flex flex-col justify-between rounded-card border border-border bg-card p-5 shadow-[var(--shadow-record)] transition-all duration-200 hover:border-border-strong sm:p-6"
+      className={cn(
+        "group flex justify-between rounded-2xl border border-border bg-card shadow-[var(--shadow-record)] transition-all duration-200 hover:border-border-strong hover:shadow-md",
+        isListMode
+          ? "flex-col gap-6 p-6 md:flex-row md:items-center"
+          : "flex-col p-5 sm:p-6",
+      )}
     >
-      <div>
+      {/* Main Content Area */}
+      <div className={cn("min-w-0 flex-1", isListMode && "space-y-3")}>
         {/* Top Badges: Category & Difficulty */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {project.category !== null ? (
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-subtle-foreground">
-              <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+            <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.1em] text-foreground/80">
+              <span className="size-2 rounded-full bg-primary" aria-hidden />
               {getCategoryLabel(t, project.category)}
             </span>
           ) : (
@@ -101,13 +111,13 @@ export function ExploreProjectCard({
           {project.difficulty !== null && (
             <span
               className={cn(
-                "shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold",
+                "shrink-0 rounded-full px-3 py-1 text-xs font-bold shadow-xs",
                 project.difficulty === "beginner" &&
-                  "border border-evidence-teal/30 bg-evidence-soft text-evidence-soft-foreground",
+                  "border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
                 project.difficulty === "intermediate" &&
-                  "border border-primary/20 bg-primary-soft text-primary-soft-foreground",
+                  "border border-primary/30 bg-primary/10 text-primary",
                 project.difficulty === "advanced" &&
-                  "border border-review-amber/30 bg-review-amber-soft text-review-amber",
+                  "border border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300",
               )}
             >
               {getDifficultyLabel(t, project.difficulty)}
@@ -116,14 +126,14 @@ export function ExploreProjectCard({
         </div>
 
         {/* Project Title */}
-        <h3 className="bidi mt-2.5 text-pretty text-lg font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
+        <h3 className="bidi mt-3 text-pretty text-xl font-black leading-tight text-foreground transition-colors group-hover:text-primary sm:text-2xl">
           <a href={`/projects/${project.slug}`} className="hover:underline">
             {project.title}
           </a>
         </h3>
 
         {/* Description */}
-        <p className="bidi mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+        <p className="bidi mt-2.5 text-pretty text-sm font-medium leading-relaxed text-muted-foreground/90 sm:text-[15px]">
           {project.description ?? t("explore.noDescription")}
         </p>
 
@@ -131,7 +141,7 @@ export function ExploreProjectCard({
         {languages.length > 0 && (
           <div className="mt-4">
             <div
-              className="flex h-1.5 gap-px overflow-hidden rounded-full bg-surface-muted"
+              className="flex h-2 gap-px overflow-hidden rounded-full bg-surface-muted"
               aria-hidden
             >
               {languages.map((lang) => (
@@ -154,20 +164,20 @@ export function ExploreProjectCard({
             </div>
             <ul
               dir="ltr"
-              className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1"
+              className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5"
             >
               {languages.map((lang) => (
                 <li
                   key={lang.name}
-                  className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
                 >
                   <span
                     aria-hidden
-                    className="size-2 shrink-0 rounded-full"
+                    className="size-2.5 shrink-0 rounded-full"
                     style={{ background: getLanguageColor(lang.name) }}
                   />
-                  <span className="font-medium text-foreground">{lang.name}</span>
-                  <span className="tnum font-mono text-[10.5px]">
+                  <span className="font-bold text-foreground">{lang.name}</span>
+                  <span className="tnum font-mono text-xs font-semibold">
                     {lang.percent}%
                   </span>
                 </li>
@@ -176,40 +186,48 @@ export function ExploreProjectCard({
           </div>
         )}
 
-        {/* Tech Stack Chips */}
+        {/* Tech Stack Chips (in non-list mode or bottom of left side) */}
         {project.technologies.length > 0 && (
-          <div className="mt-3.5 flex flex-wrap gap-1.5">
-            {project.technologies.slice(0, 6).map((tech) => (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.technologies.slice(0, isListMode ? 10 : 6).map((tech) => (
               <span
                 key={tech}
                 dir="ltr"
-                className="rounded-md border border-border bg-surface-fog px-2 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:border-primary/30"
+                className="rounded-lg border border-border/80 bg-surface-fog px-2.5 py-1 font-mono text-xs font-semibold text-foreground/80 transition-colors hover:border-primary/40"
               >
                 {tech}
               </span>
             ))}
-            {project.technologies.length > 6 && (
+            {project.technologies.length > (isListMode ? 10 : 6) && (
               <span
                 dir="ltr"
-                className="rounded-md border border-border bg-surface-fog px-1.5 py-0.5 font-mono text-[10.5px] text-subtle-foreground"
+                className="rounded-lg border border-border/80 bg-surface-fog px-2 py-1 font-mono text-xs font-bold text-muted-foreground"
               >
-                +{project.technologies.length - 6}
+                +{project.technologies.length - (isListMode ? 10 : 6)}
               </span>
             )}
           </div>
         )}
       </div>
 
-      <div>
+      {/* Right / Bottom Action Rail */}
+      <div
+        className={cn(
+          "flex flex-col justify-between",
+          isListMode
+            ? "shrink-0 gap-5 md:w-64 md:border-s md:border-border md:ps-6 rtl:md:border-s-0 rtl:md:border-e rtl:md:ps-0 rtl:md:pe-6"
+            : "mt-5 border-t border-border pt-4",
+        )}
+      >
         {/* Statistics & Provenance Footer */}
-        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3 text-xs text-subtle-foreground">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
           {stars !== null && (
             <span
-              className="inline-flex items-center gap-1 font-mono"
+              className="inline-flex items-center gap-1.5 font-mono text-sm"
               title={`${stars} stars`}
             >
-              <Star className="size-3.5 text-review-amber fill-review-amber/20" />
-              <bdi className="tnum font-semibold text-foreground/80">
+              <Star className="size-4 fill-review-amber text-review-amber" />
+              <bdi className="tnum font-bold text-foreground">
                 {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
               </bdi>
             </span>
@@ -217,11 +235,11 @@ export function ExploreProjectCard({
 
           {forks !== null && (
             <span
-              className="inline-flex items-center gap-1 font-mono"
+              className="inline-flex items-center gap-1.5 font-mono text-sm"
               title={`${forks} forks`}
             >
-              <GitFork className="size-3.5 text-muted-foreground" />
-              <bdi className="tnum font-semibold text-foreground/80">
+              <GitFork className="size-4 text-foreground/70" />
+              <bdi className="tnum font-bold text-foreground">
                 {forks >= 1000 ? `${(forks / 1000).toFixed(1)}k` : forks}
               </bdi>
             </span>
@@ -229,19 +247,17 @@ export function ExploreProjectCard({
 
           {openIssues !== null && (
             <span
-              className="inline-flex items-center gap-1 font-mono"
+              className="inline-flex items-center gap-1.5 font-mono text-sm"
               title={`${openIssues} open issues`}
             >
-              <CircleDot className="size-3.5 text-muted-foreground" />
-              <bdi className="tnum font-semibold text-foreground/80">
-                {openIssues}
-              </bdi>
+              <CircleDot className="size-4 text-foreground/70" />
+              <bdi className="tnum font-bold text-foreground">{openIssues}</bdi>
             </span>
           )}
 
           {publishedAgo !== null && (
-            <span className="inline-flex items-center gap-1 text-[11.5px]">
-              <Clock className="size-3 text-muted-foreground" />
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="size-3.5" />
               <span>{t("explore.publishedAgo", { time: publishedAgo })}</span>
             </span>
           )}
@@ -252,9 +268,9 @@ export function ExploreProjectCard({
               target="_blank"
               rel="noreferrer"
               dir="ltr"
-              className="ms-auto inline-flex items-center gap-1 font-mono text-[11.5px] text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1 font-mono text-xs font-bold text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ExternalLink className="size-3" />@{repoOwner}
+              <ExternalLink className="size-3.5" />@{repoOwner}
             </a>
           )}
         </div>
@@ -263,13 +279,12 @@ export function ExploreProjectCard({
         <div className="mt-4">
           <Button
             asChild
-            size="sm"
-            variant="outline"
-            className="w-full justify-between hover:border-primary hover:bg-primary-soft font-semibold"
+            size="lg"
+            className="w-full justify-between rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/90"
           >
             <a href={`/projects/${project.slug}`}>
               <span>{t("explore.openProject")}</span>
-              <DirectionalArrow className="transition-transform duration-200 ease-out group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+              <DirectionalArrow className="size-4 transition-transform duration-200 ease-out group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
             </a>
           </Button>
         </div>

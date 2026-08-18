@@ -14,12 +14,16 @@ interface PublicProjectTasksTabProps {
   tasks: TaskItemData[];
   onViewTask: (task: TaskItemData) => void;
   onApplyToTask: (task: TaskItemData) => void;
+  isOwner?: boolean;
+  currentUserRole?: "owner" | "contributor" | "admin";
 }
 
 export function PublicProjectTasksTab({
   tasks,
   onViewTask,
   onApplyToTask,
+  isOwner = false,
+  currentUserRole,
 }: PublicProjectTasksTabProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<string>("all");
@@ -137,15 +141,17 @@ export function PublicProjectTasksTab({
                   >
                     {t("project.detail.viewTask", "View Task")}
                   </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => onApplyToTask(task)}
-                    className="rounded-xl text-xs font-bold gap-1"
-                  >
-                    <Sparkles className="size-3.5" />
-                    {t("project.detail.applyToProject", "Apply")}
-                  </Button>
+                  {!isOwner && currentUserRole !== "owner" && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => onApplyToTask(task)}
+                      className="rounded-xl text-xs font-bold gap-1"
+                    >
+                      <Sparkles className="size-3.5" />
+                      {t("project.detail.applyToProject", "Apply")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </article>

@@ -68,6 +68,7 @@ export interface PublicProjectListItemDto {
   technologies: string[];
   category: ProjectCategory | null;
   difficulty: ProjectDifficulty | null;
+  heroImageUrl: string | null;
   publishedAt: string;
   owner: PublicProjectOwnerDto | null;
   source: PublicProjectSourceDto;

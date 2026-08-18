@@ -10,7 +10,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 
-import { useUpdateUsernameMutation, useUsernameAvailabilityQuery, type AuthUserDto } from "@/modules/auth";
+import { useUpdateUsernameMutation, useUsernameAvailabilityQuery  } from "@/modules/auth";
+import type {AuthUserDto} from "@/modules/auth";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";

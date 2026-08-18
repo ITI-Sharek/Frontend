@@ -16,6 +16,7 @@ import {
   UserRoundPen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
@@ -61,6 +62,13 @@ interface NavGroup {
 export interface PersonalInformationSettingsPageProps {
   user: AuthUserDto;
   profile?: ContributorProfileDto;
+  activeSectionId?: "profile" | "github" | "language" | "notifications" | "subscription";
+  /** Route-composed contributor-only profile fields, kept inside Settings. */
+  profileDetailsSlot?: ReactNode;
+  githubSlot?: ReactNode;
+  languageSlot?: ReactNode;
+  notificationsSlot?: ReactNode;
+  subscriptionSlot?: ReactNode;
   onNavigateToSection?: (
     section: "profile" | "github" | "language" | "notifications" | "subscription",
   ) => void;
@@ -69,6 +77,12 @@ export interface PersonalInformationSettingsPageProps {
 export function PersonalInformationSettingsPage({
   user,
   profile,
+  activeSectionId = "profile",
+  profileDetailsSlot,
+  githubSlot,
+  languageSlot,
+  notificationsSlot,
+  subscriptionSlot,
   onNavigateToSection,
 }: PersonalInformationSettingsPageProps) {
   const { t, i18n } = useTranslation();
@@ -158,15 +172,15 @@ export function PersonalInformationSettingsPage({
       id: "profile" as const,
       label: t("settings.personal.tabs.account"),
       icon: User,
-      active: true,
+      active: activeSectionId === "profile",
     },
-    ...(isContributor
+    ...(isContributor || user.role === "owner"
       ? [
           {
             id: "github" as const,
             label: t("settings.personal.tabs.github"),
             icon: Github,
-            active: false,
+            active: activeSectionId === "github",
           },
         ]
       : []),
@@ -174,19 +188,19 @@ export function PersonalInformationSettingsPage({
       id: "language" as const,
       label: t("settings.personal.tabs.language"),
       icon: Globe,
-      active: false,
+      active: activeSectionId === "language",
     },
     {
       id: "notifications" as const,
       label: t("settings.personal.tabs.notifications"),
       icon: Bell,
-      active: false,
+      active: activeSectionId === "notifications",
     },
     {
       id: "subscription" as const,
       label: t("settings.personal.tabs.subscription"),
       icon: CreditCard,
-      active: false,
+      active: activeSectionId === "subscription",
     },
   ];
 
@@ -238,11 +252,7 @@ export function PersonalInformationSettingsPage({
             <button
               key={tab.id}
               type="button"
-              onClick={() => {
-                if (tab.id !== "profile") {
-                  onNavigateToSection?.(tab.id);
-                }
-              }}
+              onClick={() => onNavigateToSection?.(tab.id)}
               className={cn(
                 "flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all shrink-0",
                 tab.active
@@ -257,89 +267,105 @@ export function PersonalInformationSettingsPage({
         })}
       </div>
 
-      {/* Main Settings Grid */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
-        {/* Navigation Sidebar */}
-        <aside className="w-full lg:col-span-4 xl:col-span-3.5">
-          <nav
-            aria-label={t("settings.personal.navLabel")}
-            className="flex flex-col gap-5 rounded-2xl border border-border/80 bg-card p-3.5 shadow-2xs"
-          >
-            {navGroups.map((group) => (
-              <div key={group.id} className="flex flex-col gap-1">
-                <p className="px-3 pb-1 text-2xs font-bold uppercase tracking-wider text-muted-foreground/80">
-                  {group.label}
-                </p>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = item.id === activeItem;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-current={isActive ? "page" : undefined}
-                      onClick={() => handleSelectItem(item.id)}
-                      className={cn(
-                        "group flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-start text-xs font-semibold transition-all",
-                        isActive
-                          ? "bg-primary/10 text-primary ring-1 ring-primary/20 font-bold dark:bg-primary/20 dark:text-primary-foreground"
-                          : "text-foreground hover:bg-muted/60",
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon
-                          className={cn(
-                            "size-4 shrink-0 transition-colors",
-                            isActive
-                              ? "text-primary dark:text-primary-foreground"
-                              : "text-muted-foreground group-hover:text-foreground",
-                          )}
-                          strokeWidth={2}
-                          aria-hidden="true"
-                        />
-                        <span className="truncate">{item.label}</span>
-                      </div>
+      {/* Main Settings Body */}
+      {activeSectionId === "profile" ? (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+          {/* Navigation Sidebar */}
+          <aside className="w-full lg:col-span-4 xl:col-span-3.5">
+            <nav
+              aria-label={t("settings.personal.navLabel")}
+              className="flex flex-col gap-5 rounded-2xl border border-border/80 bg-card p-3.5 shadow-2xs"
+            >
+              {navGroups.map((group) => (
+                <div key={group.id} className="flex flex-col gap-1">
+                  <p className="px-3 pb-1 text-2xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                    {group.label}
+                  </p>
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = item.id === activeItem;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        aria-current={isActive ? "page" : undefined}
+                        onClick={() => handleSelectItem(item.id)}
+                        className={cn(
+                          "group flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-start text-xs font-semibold transition-all",
+                          isActive
+                            ? "bg-primary/10 text-primary ring-1 ring-primary/20 font-bold dark:bg-primary/20 dark:text-primary-foreground"
+                            : "text-foreground hover:bg-muted/60",
+                        )}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon
+                            className={cn(
+                              "size-4 shrink-0 transition-colors",
+                              isActive
+                                ? "text-primary dark:text-primary-foreground"
+                                : "text-muted-foreground group-hover:text-foreground",
+                            )}
+                            strokeWidth={2}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">{item.label}</span>
+                        </div>
 
-                      {item.badge && (
-                        <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-2xs font-bold text-emerald-600 dark:text-emerald-400">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                        {item.badge && (
+                          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-2xs font-bold text-emerald-600 dark:text-emerald-400">
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </nav>
+          </aside>
+
+          {/* Active Content Card */}
+          <main className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-2xs sm:p-8 lg:col-span-8 xl:col-span-8.5">
+            {activeItem === "profile" && (
+              <div className="flex flex-col gap-8">
+                <PersonalProfileForm user={user} profile={profile} />
+                {profileDetailsSlot && (
+                  <section className="border-t border-border pt-8">
+                    {profileDetailsSlot}
+                  </section>
+                )}
               </div>
-            ))}
-          </nav>
-        </aside>
+            )}
 
-        {/* Active Content Card */}
-        <main className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-2xs sm:p-8 lg:col-span-8 xl:col-span-8.5">
-          {activeItem === "profile" && (
-            <PersonalProfileForm user={user} profile={profile} />
-          )}
+            {activeItem === "personal" && (
+              <PersonalDetailsForm user={user} profile={profile} />
+            )}
 
-          {activeItem === "personal" && (
-            <PersonalDetailsForm user={user} profile={profile} />
-          )}
+            {activeItem === "username" && <UsernameSettingsForm user={user} />}
 
-          {activeItem === "username" && <UsernameSettingsForm user={user} />}
+            {activeItem === "password" && <ChangePasswordForm user={user} />}
 
-          {activeItem === "password" && <ChangePasswordForm user={user} />}
+            {activeItem === "email" && <EmailSettingsForm user={user} />}
 
-          {activeItem === "email" && <EmailSettingsForm user={user} />}
+            {activeItem === "phone" && <PhoneSettingsForm user={user} />}
 
-          {activeItem === "phone" && <PhoneSettingsForm user={user} />}
+            {activeItem === "identity" && (
+              <IdentityVerificationPanel user={user} profile={profile} />
+            )}
 
-          {activeItem === "identity" && (
-            <IdentityVerificationPanel user={user} profile={profile} />
-          )}
-
-          {activeItem === "privacy" && (
-            <PrivacySettingsForm user={user} profile={profile} />
-          )}
+            {activeItem === "privacy" && (
+              <PrivacySettingsForm user={user} profile={profile} />
+            )}
+          </main>
+        </div>
+      ) : (
+        <main className="mt-6 min-w-0 rounded-2xl border border-border/80 bg-card p-6 shadow-2xs sm:p-8">
+          {activeSectionId === "github" && githubSlot}
+          {activeSectionId === "language" && languageSlot}
+          {activeSectionId === "notifications" && notificationsSlot}
+          {activeSectionId === "subscription" && subscriptionSlot}
         </main>
-      </div>
+      )}
     </div>
   );
 }

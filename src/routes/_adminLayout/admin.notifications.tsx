@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next";
 
 import {
   NotificationCenter,
-  NotificationPreferencesPanel,
-  type ReadStateFilter,
+  NotificationPreferencesPanel
+
 } from "@/modules/notifications";
+import type {ReadStateFilter} from "@/modules/notifications";
 import { Button } from "@/shared/components/ui/button";
 
 interface AdminNotificationsSearch {
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_adminLayout/admin/notifications")({
   ): AdminNotificationsSearch => {
     const raw = search.section ?? search.tab;
     const isValid = raw === "all" || raw === "unread" || raw === "read";
-    return isValid ? { section: raw as ReadStateFilter } : {};
+    return isValid ? { section: raw } : {};
   },
   component: AdminNotificationCenter,
 });
