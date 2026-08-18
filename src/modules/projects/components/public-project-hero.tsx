@@ -4,6 +4,7 @@ import {
   BookmarkCheck,
   ChevronRight,
   GitFork,
+  Pencil,
   Share2,
   Sparkles,
   Star,
@@ -12,6 +13,7 @@ import {
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { getCategoryLabel } from "./explore-filters";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
@@ -26,6 +28,8 @@ interface PublicProjectHeroProps {
   isSaved: boolean;
   isSavePending: boolean;
   proposalAction?: ReactNode;
+  isOwner?: boolean;
+  currentUserRole?: "owner" | "contributor" | "admin";
 }
 
 export function PublicProjectHero({
@@ -38,6 +42,8 @@ export function PublicProjectHero({
   isSaved,
   isSavePending,
   proposalAction,
+  isOwner = false,
+  currentUserRole,
 }: PublicProjectHeroProps) {
   const { t } = useTranslation();
 
@@ -107,23 +113,47 @@ export function PublicProjectHero({
             </Button>
           )}
 
-          <Button
-            type="button"
-            size="sm"
-            onClick={onApplyClick}
-            className="h-9 gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-[var(--shadow-primary)] transition-all hover:bg-primary-hover active:scale-95"
-          >
-            <Sparkles className="size-3.5" />
-            <span>{t("project.detail.applyToProject", "Apply to Project")}</span>
-          </Button>
+          {isOwner ? (
+            <Button
+              asChild
+              size="sm"
+              className="h-9 gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-[var(--shadow-primary)] transition-all hover:bg-primary-hover active:scale-95"
+            >
+              <a href={ROUTES.ownerProject(project.id)}>
+                <Pencil className="size-3.5" />
+                <span>{t("project.detail.editProject", "Edit Project")}</span>
+              </a>
+            </Button>
+          ) : currentUserRole !== "owner" ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={onApplyClick}
+              className="h-9 gap-1.5 rounded-full bg-primary px-4 text-xs font-bold text-primary-foreground shadow-[var(--shadow-primary)] transition-all hover:bg-primary-hover active:scale-95"
+            >
+              <Sparkles className="size-3.5" />
+              <span>{t("project.detail.applyToProject", "Apply to Project")}</span>
+            </Button>
+          ) : null}
         </div>
       </div>
 
       {/* ── Main Hero Card ── */}
       <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-record)] sm:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/25 via-slate-950 to-primary/5 text-4xl font-bold text-primary shadow-inner sm:aspect-[16/10] sm:w-[280px] lg:h-[180px] lg:w-[260px]" aria-hidden="true">
-            {project.title.slice(0, 1).toUpperCase()}
+          <div className="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/25 via-slate-950 to-primary/5 text-4xl font-bold text-primary shadow-inner sm:aspect-[16/10] sm:w-[280px] lg:h-[180px] lg:w-[260px]">
+            {project.heroImageUrl ? (
+              <img
+                src={project.heroImageUrl}
+                alt={t("project.detail.heroImageAlt", {
+                  title: project.title,
+                  defaultValue: "{{title}} hero image",
+                })}
+                className="size-full object-cover"
+              />
+            ) : (
+              <span aria-hidden="true">{project.title.slice(0, 1).toUpperCase()}</span>
+            )}
           </div>
 
           {/* Project Info Column */}

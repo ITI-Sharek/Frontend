@@ -37,6 +37,7 @@ describe("public projects service", () => {
           technologies: ["TypeScript"],
           category: "web",
           difficulty: "intermediate",
+          heroImageUrl: null,
           publishedAt: "2026-07-21T10:10:00.000Z",
           owner: null,
           source: {
@@ -84,6 +85,7 @@ describe("public projects service", () => {
       technologies: [],
       category: null,
       difficulty: null,
+      heroImageUrl: null,
       publishedAt: "2026-07-21T10:10:00.000Z",
       owner: null,
       source: {
@@ -179,6 +181,7 @@ describe("public projects service", () => {
       technologies: [],
       category: null,
       difficulty: null,
+      heroImageUrl: null,
       publishedAt: "2026-07-21T10:10:00.000Z",
       owner: null,
       source: { provider: "github", attributionStatus: "withheld" },

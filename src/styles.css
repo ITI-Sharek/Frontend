@@ -59,6 +59,7 @@
 }
 
 html {
+  font-size: 16.5px;
   scroll-behavior: smooth;
   color-scheme: light;
   -webkit-tap-highlight-color: color-mix(
@@ -66,6 +67,15 @@ html {
     var(--primary) 24%,
     transparent
   );
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 17px;
+  }
 }
 
 html.dark {
@@ -98,7 +108,8 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), sans-serif;
-  line-height: 1.5;
+  font-weight: 450;
+  line-height: 1.6;
 }
 
 button,

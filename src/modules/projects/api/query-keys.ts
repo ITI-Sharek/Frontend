@@ -8,6 +8,8 @@ const PUBLIC_ROOT = [...PROJECTS_ROOT, "public"] as const;
 
 export const projectsQueryKeys = {
   all: PROJECTS_ROOT,
+  categories: () => [...PROJECTS_ROOT, "categories"] as const,
+  difficulties: () => [...PROJECTS_ROOT, "difficulties"] as const,
   explore: (params: ExploreSearchParamsDto) =>
     [...PROJECTS_ROOT, "explore", params] as const,
   adminPublishedOwners: () =>

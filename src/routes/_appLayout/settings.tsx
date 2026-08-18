@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Github } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
@@ -15,13 +16,10 @@ import {
   disconnectGitHubAccount,
   startGitHubConnect,
 } from "@/modules/github";
-import {
-  PersonalInformationSettingsPage,
-  SettingsShell,
-} from "@/modules/settings";
+import { PersonalInformationSettingsPage } from "@/modules/settings";
 import { NotificationPreferencesPanel } from "@/modules/notifications";
 import { SubscriptionSettingsSection } from "@/modules/subscriptions";
-import type { SettingsSectionItem } from "@/modules/settings";
+import { Button } from "@/shared/components/ui/button";
 
 type SettingsSectionId =
   | "profile"
@@ -44,7 +42,7 @@ export const Route = createFileRoute("/_appLayout/settings")({
       section === "language" ||
       section === "subscription" ||
       section === "notifications";
-    return isValid ? { section: section as SettingsSectionId } : {};
+    return isValid ? { section } : {};
   },
   component: SettingsPage,
 });
@@ -60,57 +58,37 @@ function SettingsPage() {
   const username = currentUser?.username;
 
   const isContributor = role === "contributor";
+  const isOwner = role === "owner";
   const profileQuery = useContributorProfileQuery(
     isContributor ? username ?? "" : "",
   );
 
-  const sections: SettingsSectionItem[] = [
-    { id: "profile", label: t("settings.sections.profile") },
-    ...(isContributor ? [{ id: "github", label: "GitHub" }] : []),
-    { id: "language", label: t("settings.sections.language") },
-    { id: "notifications", label: t("settings.sections.notifications") },
-    { id: "subscription", label: t("settings.sections.subscription") },
-  ];
+  const activeSectionId = section ?? "profile";
 
-  const activeSectionId = section ?? sections[0].id;
-
-  function handleSelectSection(id: string) {
-    navigate({ search: { section: id as SettingsSectionId } });
-  }
-
-  if (activeSectionId === "profile" && currentUser) {
+  if (!currentUser) {
     return (
-      <PersonalInformationSettingsPage
-        user={currentUser}
-        profile={profileQuery.data}
-        onNavigateToSection={(nextSection) =>
-          navigate({ search: { section: nextSection } })
-        }
-      />
+      <div className="mx-auto w-full max-w-7xl px-3 py-12 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
+        {t("settings.loadingProfile", "Loading profile...")}
+      </div>
     );
   }
 
   return (
-    <SettingsShell
-      sections={sections}
+    <PersonalInformationSettingsPage
+      user={currentUser}
+      profile={profileQuery.data}
       activeSectionId={activeSectionId}
-      onSelectSection={handleSelectSection}
-    >
-      {activeSectionId === "profile" && isContributor && (
-        <>
-          {profileQuery.data ? (
-            <ContributorProfileSettingsSection profile={profileQuery.data} />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {t("settings.loadingProfile")}
-            </p>
-          )}
-        </>
-      )}
-
-      {activeSectionId === "github" && isContributor && (
-        <>
-          {profileQuery.data ? (
+      profileDetailsSlot={
+        isContributor && profileQuery.data ? (
+          <ContributorProfileSettingsSection
+            profile={profileQuery.data}
+            onSaved={() => void profileQuery.refetch()}
+          />
+        ) : null
+      }
+      githubSlot={
+        isContributor ? (
+          profileQuery.data ? (
             <ContributorGithubSettingsSection
               profile={profileQuery.data}
               onConnectGitHub={() =>
@@ -128,13 +106,32 @@ function SettingsPage() {
             <p className="text-sm text-muted-foreground">
               {t("settings.loadingProfile")}
             </p>
-          )}
-        </>
-      )}
-
-      {activeSectionId === "language" && <LanguageSettingsSection />}
-      {activeSectionId === "notifications" && <NotificationPreferencesPanel />}
-      {activeSectionId === "subscription" && <SubscriptionSettingsSection />}
-    </SettingsShell>
+          )
+        ) : isOwner ? (
+          <div className="flex items-start gap-4">
+            <Github className="mt-1 size-6 shrink-0 text-foreground" aria-hidden="true" />
+            <div className="space-y-2">
+              <h2 className="text-lg font-bold text-foreground">
+                {t("project.ownerGithub.title")}
+              </h2>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {t("project.ownerGithub.description")}
+              </p>
+              <Button className="mt-2" asChild>
+                <a href={ROUTES.githubSkillAnalysis}>
+                  {t("project.ownerGithub.manage")}
+                </a>
+              </Button>
+            </div>
+          </div>
+        ) : null
+      }
+      languageSlot={<LanguageSettingsSection />}
+      notificationsSlot={<NotificationPreferencesPanel />}
+      subscriptionSlot={<SubscriptionSettingsSection />}
+      onNavigateToSection={(nextSection) =>
+        navigate({ search: { section: nextSection } })
+      }
+    />
   );
 }

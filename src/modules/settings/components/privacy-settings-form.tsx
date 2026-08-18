@@ -10,7 +10,8 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useExportAccountDataMutation, useUpdatePrivacyMutation, type AuthUserDto } from "@/modules/auth";
+import { useExportAccountDataMutation, useUpdatePrivacyMutation  } from "@/modules/auth";
+import type {AuthUserDto} from "@/modules/auth";
 import type { ContributorProfileDto } from "@/modules/contributors";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";

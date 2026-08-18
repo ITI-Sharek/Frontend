@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import {
-  ContributionRequestDetailView,
-  type RequestWorkspaceTab,
+  ContributionRequestDetailView
+
 } from "@/modules/contribution-requests";
+import type {RequestWorkspaceTab} from "@/modules/contribution-requests";
 import { requireOwnerRoute } from "@/modules/auth";
 import {
   MaterialsPanel,
@@ -29,7 +30,7 @@ export const Route = createFileRoute(
       raw === "matches" ||
       raw === "delivery" ||
       raw === "materials";
-    return isValid ? { section: raw as RequestWorkspaceTab } : {};
+    return isValid ? { section: raw } : {};
   },
   component: ContributionRequestPage,
 });

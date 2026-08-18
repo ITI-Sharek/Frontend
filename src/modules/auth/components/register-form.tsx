@@ -40,10 +40,12 @@ export interface ContributorSignupDetails {
 
 export function RegisterForm({
   experienceLevelOptions,
+  contributorFieldOptions,
   isExperienceLevelsLoading = false,
   onContributorDetailsCollected,
 }: {
   experienceLevelOptions: ChipOption[];
+  contributorFieldOptions: ChipOption[];
   isExperienceLevelsLoading?: boolean;
   onContributorDetailsCollected?: (
     details: ContributorSignupDetails,
@@ -229,6 +231,7 @@ export function RegisterForm({
               data={formData}
               onFieldChange={setField}
               experienceLevelOptions={experienceLevelOptions}
+              contributorFieldOptions={contributorFieldOptions}
               isExperienceLevelsLoading={isExperienceLevelsLoading}
             />
           </Step>

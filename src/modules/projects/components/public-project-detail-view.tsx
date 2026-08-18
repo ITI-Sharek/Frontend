@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useCurrentUserQuery } from "@/modules/auth";
 import { useContributionRequestsQuery } from "@/modules/contribution-requests";
 import { usePublicProjectApplicantsQuery } from "../api/queries/use-public-project-applicants-query";
 import { usePublicProjectSavedStateQuery } from "../api/queries/use-public-project-saved-state-query";
@@ -36,6 +37,8 @@ export interface PublicProjectDetailViewProps {
   proposalAction?: ReactNode;
   materialsSlot?: ReactNode;
   canSave?: boolean;
+  isOwner?: boolean;
+  currentUserRole?: "owner" | "contributor" | "admin";
 }
 
 export function PublicProjectDetailView({
@@ -44,6 +47,8 @@ export function PublicProjectDetailView({
   proposalAction,
   materialsSlot,
   canSave = false,
+  isOwner: propIsOwner,
+  currentUserRole: propCurrentUserRole,
 }: PublicProjectDetailViewProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("overview");
@@ -85,6 +90,14 @@ export function PublicProjectDetailView({
     setApplyDialogOpen(true);
   };
 
+  const currentUserQuery = useCurrentUserQuery();
+  const currentUser = currentUserQuery.data;
+  const resolvedRole = propCurrentUserRole ?? currentUser?.role;
+  const isOwner =
+    propIsOwner ??
+    (resolvedRole === "owner" &&
+      (!project.owner?.username || currentUser?.username === project.owner.username));
+
   return (
     <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       {/* ── 1. Top Breadcrumb & Hero Header Section ── */}
@@ -101,6 +114,8 @@ export function PublicProjectDetailView({
         isSaved={savedStateQuery.data?.saved ?? false}
         isSavePending={setSaved.isPending || savedStateQuery.isPending}
         proposalAction={proposalAction}
+        isOwner={isOwner}
+        currentUserRole={resolvedRole}
       />
 
       {/* ── 2. Tabbed Content & Sidebars ── */}
@@ -177,6 +192,8 @@ export function PublicProjectDetailView({
                 tasks={tasks}
                 onViewTask={handleViewTask}
                 onApplyToTask={handleApplyToTask}
+                isOwner={isOwner}
+                currentUserRole={resolvedRole}
               />
             </TabsContent>
 

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_appLayout/notifications")({
   validateSearch: (search: Record<string, unknown>): NotificationsSearch => {
     const raw = search.section ?? search.tab;
     const isValid = raw === "all" || raw === "unread" || raw === "read";
-    return isValid ? { section: raw as ReadStateFilter } : {};
+    return isValid ? { section: raw } : {};
   },
   component: NotificationsPage,
 });

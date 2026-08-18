@@ -15,9 +15,10 @@ import { useTranslation } from "react-i18next";
 
 import type { AuthUserDto } from "@/modules/auth";
 import {
-  useUploadContributorAvatarMutation,
-  type ContributorProfileDto,
+  useUploadContributorAvatarMutation
+
 } from "@/modules/contributors";
+import type {ContributorProfileDto} from "@/modules/contributors";
 import { useUpdatePersonalDetailsMutation } from "@/modules/auth";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Avatar } from "@/shared/components/ui/avatar";
@@ -70,8 +71,7 @@ const DAYS = Array.from({ length: 31 }, (_, index) =>
 export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language.startsWith("ar");
-  // TODO: Read this from the authenticated user once identity status is exposed.
-  const isIdentityVerified = false;
+  const isIdentityVerified = user.identityVerificationStatus === "verified";
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);

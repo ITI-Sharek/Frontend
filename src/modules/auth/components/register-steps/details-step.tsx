@@ -7,10 +7,7 @@ import { TagInput } from "@/shared/components/forms/tag-input";
 import { ChipSelect } from "@/shared/components/forms/chip-select";
 import type { ChipOption } from "@/shared/components/forms/chip-select";
 
-import {
-  getInterestOptions,
-  getTeamSizeOptions,
-} from "../../constants/signup.constants";
+import { getTeamSizeOptions } from "../../constants/signup.constants";
 import type { SignupFormData } from "../../types/signup.types";
 import { AuthTextField } from "../auth-text-field";
 
@@ -21,6 +18,7 @@ interface DetailsStepProps {
     value: SignupFormData[TKey],
   ) => void;
   experienceLevelOptions: ChipOption[];
+  contributorFieldOptions: ChipOption[];
   isExperienceLevelsLoading: boolean;
 }
 
@@ -28,6 +26,7 @@ export function DetailsStep({
   data,
   onFieldChange,
   experienceLevelOptions,
+  contributorFieldOptions,
   isExperienceLevelsLoading,
 }: DetailsStepProps) {
   const { t } = useTranslation();
@@ -71,7 +70,7 @@ export function DetailsStep({
           ) : null}
           <ChipSelect
             label={t("register.details.interests")}
-            options={getInterestOptions(t)}
+            options={contributorFieldOptions}
             value={data.contributorInterests}
             onChange={(v) =>
               onFieldChange("contributorInterests", v as string[])

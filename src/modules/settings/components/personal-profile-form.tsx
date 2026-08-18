@@ -12,9 +12,10 @@ import { useTranslation } from "react-i18next";
 import type { AuthUserDto } from "@/modules/auth";
 import {
   useContributorFieldsQuery,
-  useUpdateProfileDetailsMutation,
-  type ContributorProfileDto,
+  useUpdateProfileDetailsMutation
+
 } from "@/modules/contributors";
+import type {ContributorProfileDto} from "@/modules/contributors";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";

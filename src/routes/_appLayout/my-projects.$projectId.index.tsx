@@ -22,6 +22,8 @@ import {
   useEditProjectMutation,
   useOwnerProjectQuery,
   usePublishProjectMutation,
+  useProjectCategoriesQuery,
+  useProjectDifficultiesQuery,
   useRefreshProjectSourceMutation,
 } from "@/modules/projects";
 import { OwnerProposalWorkspace } from "@/modules/contribution-proposals";
@@ -129,6 +131,8 @@ function OwnerProjectManagement({
   const archiveMutation = useArchiveProjectMutation();
   const contributionRequestsQuery =
     useOwnerProjectContributionRequestsQuery(projectId);
+  const categoriesQuery = useProjectCategoriesQuery();
+  const difficultiesQuery = useProjectDifficultiesQuery();
   const [restoringField, setRestoringField] =
     useState<ProjectManualOverrideField | null>(null);
 
@@ -144,7 +148,7 @@ function OwnerProjectManagement({
 
   return (
     <>
-      <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pt-6 md:px-6">
         <nav
           aria-label={t("project.owner.workspaceTabsAria")}
           className="flex gap-1 overflow-x-auto border-b border-border"
@@ -192,6 +196,8 @@ function OwnerProjectManagement({
       {activeTab === "overview" && (
         <ProjectOwnerDetailView
           project={project}
+          categories={categoriesQuery.data ?? []}
+          difficulties={difficultiesQuery.data ?? []}
           myProjectsHref="/my-projects"
           publicProjectHref={`/projects/${encodeURIComponent(project.slug)}`}
           onSaveEdit={(payload) => {
@@ -268,7 +274,7 @@ function OwnerProjectManagement({
           recoverySlot={showRecovery ? <RepositoryControlRecovery /> : null}
         />
       )}
-      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-6 md:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-6 md:px-6">
         {/* Composed at the route, not inside modules/projects: a module must
             never import another module. */}
         {activeTab === "materials" && (

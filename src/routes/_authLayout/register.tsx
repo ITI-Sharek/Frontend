@@ -7,6 +7,7 @@ import {
   ensureCurrentContributorProfile,
   listContributorFields,
   updateContributorProfileDetails,
+  useContributorFieldsQuery,
   useExperienceLevelsQuery,
 } from "@/modules/contributors";
 
@@ -38,6 +39,7 @@ async function persistContributorSignupDetails(
 function RegisterPage() {
   const { t } = useTranslation();
   const experienceLevelsQuery = useExperienceLevelsQuery();
+  const contributorFieldsQuery = useContributorFieldsQuery();
 
   return (
     <div className="flex w-full flex-col gap-3.5">
@@ -48,6 +50,9 @@ function RegisterPage() {
       <RegisterForm
         experienceLevelOptions={(experienceLevelsQuery.data ?? []).map(
           (level) => ({ value: level.id, label: level.labelAr }),
+        )}
+        contributorFieldOptions={(contributorFieldsQuery.data ?? []).map(
+          (field) => ({ value: field.key, label: field.labelAr }),
         )}
         isExperienceLevelsLoading={experienceLevelsQuery.isPending}
         onContributorDetailsCollected={persistContributorSignupDetails}

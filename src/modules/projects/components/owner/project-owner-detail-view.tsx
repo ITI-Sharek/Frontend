@@ -6,24 +6,19 @@ import {
   FileText,
   Loader2,
   Rocket,
+  Save,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { StatusChip } from "@/shared/components/data-display/status-chip";
 import { cn } from "@/lib/utils";
 
-import {
-  getCategoryLabel,
-  getDifficultyLabel,
-  PROJECT_CATEGORIES,
-  PROJECT_DIFFICULTIES,
-} from "../explore-filters";
 import { ProjectSourceStatusPanel } from "./project-source-status-panel";
 import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
 import type {
@@ -31,6 +26,10 @@ import type {
   ProjectManualOverrideField,
   ProjectOwnerViewDto,
 } from "../../types/project-draft.types";
+import type {
+  ProjectCategoryDto,
+  ProjectDifficultyDto,
+} from "../../services/project-categories.service";
 
 const STATUS_META = {
   draft: { tone: "neutral" as const, icon: FileText, labelKey: "project.myProjectsList.statusDraft" },
@@ -57,13 +56,15 @@ interface ProjectOwnerDetailViewProps {
   isArchiving: boolean;
   archiveError: string | null;
   recoverySlot?: ReactNode;
+  categories: ProjectCategoryDto[];
+  difficulties: ProjectDifficultyDto[];
 }
 
 /**
- * SK-112 owner project management surface: source status/refresh, owner-field
- * review/edit with per-field restore-from-source, and the explicit
- * publish/archive transitions. Keyed by revision at the call site so local
- * edit state re-syncs after every successful mutation.
+ * SK-112 owner project management surface: wide dashboard layout with
+ * 2-column responsive grid (editor + side panels), source status/refresh,
+ * owner-field review/edit with per-field restore-from-source, and explicit
+ * publish/archive transitions in a single unified view.
  */
 export function ProjectOwnerDetailView({
   project,
@@ -84,6 +85,8 @@ export function ProjectOwnerDetailView({
   isArchiving,
   archiveError,
   recoverySlot,
+  categories,
+  difficulties,
 }: ProjectOwnerDetailViewProps) {
   const { t } = useTranslation();
   const statusMeta = STATUS_META[project.status];
@@ -91,15 +94,20 @@ export function ProjectOwnerDetailView({
   const [confirmingArchive, setConfirmingArchive] = useState(false);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 md:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6">
+      {/* Top Header Card */}
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-border bg-card p-5">
         <div className="min-w-0">
-          <a href={myProjectsHref} className="text-sm text-muted-foreground">
-            {t("project.owner.myProjects")}
-          </a>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <a href={myProjectsHref} className="transition-colors hover:text-foreground">
+              {t("project.owner.myProjects")}
+            </a>
+            <span>/</span>
+            <span className="font-mono">{project.project.title || project.slug}</span>
+          </div>
           <h1
             dir="ltr"
-            className="mt-1 truncate text-end font-mono text-2xl font-bold tracking-[0.65px] text-foreground"
+            className="mt-1.5 truncate text-end font-mono text-2xl font-bold tracking-[0.65px] text-foreground"
           >
             {project.project.title || t("project.detail.noTitle")}
           </h1>
@@ -107,141 +115,161 @@ export function ProjectOwnerDetailView({
             {t("project.owner.revision", { revision: project.revision })}
           </p>
         </div>
-        <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
-          {t(statusMeta.labelKey)}
-        </StatusChip>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <StatusChip tone={statusMeta.tone} icon={statusMeta.icon}>
+            {t(statusMeta.labelKey)}
+          </StatusChip>
+          {project.status === "published" && (
+            <Button asChild size="sm" variant="outline">
+              <a href={publicProjectHref} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="size-4" />
+                {t("project.owner.viewPublicPage")}
+              </a>
+            </Button>
+          )}
+        </div>
       </div>
 
-      <ProjectSourceStatusPanel
-        attribution={project.source.attribution}
-        status={project.source.status}
-        onRefresh={onRefresh}
-        isRefreshing={isRefreshing}
-        refreshError={refreshError}
-        recoverySlot={recoverySlot}
-      />
+      {/* Main Wide 2-Column Grid */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Left / Main Column: Project Edit Form (8 cols) */}
+        <div className="lg:col-span-8">
+          <ProjectEditForm
+            key={project.revision}
+            project={project}
+            onSaveEdit={onSaveEdit}
+            isSavingEdit={isSavingEdit}
+            editError={editError}
+            onRestoreField={onRestoreField}
+            restoringField={restoringField}
+            categories={categories}
+            difficulties={difficulties}
+          />
+        </div>
 
-      <ProjectEditForm
-        key={project.revision}
-        project={project}
-        onSaveEdit={onSaveEdit}
-        isSavingEdit={isSavingEdit}
-        editError={editError}
-        onRestoreField={onRestoreField}
-        restoringField={restoringField}
-      />
+        {/* Right / Sidebar Column: Source Status & Actions (4 cols) */}
+        <div className="flex flex-col gap-5 lg:col-span-4">
+          <ProjectSourceStatusPanel
+            attribution={project.source.attribution}
+            status={project.source.status}
+            onRefresh={onRefresh}
+            isRefreshing={isRefreshing}
+            refreshError={refreshError}
+            recoverySlot={recoverySlot}
+          />
 
-      {project.status === "draft" && (
-        <Card>
-          <h2 className="text-sm font-bold text-foreground">{t("project.owner.publishTitle")}</h2>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            {t("project.owner.publishDescription")}
-          </p>
-          {publishError && (
-            <p role="alert" className="mt-3 text-xs text-destructive">
-              {publishError}
-            </p>
+          {project.status === "draft" && (
+            <Card className="border-primary/30 bg-primary/5">
+              <h2 className="text-sm font-bold text-foreground">{t("project.owner.publishTitle")}</h2>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {t("project.owner.publishDescription")}
+              </p>
+              {publishError && (
+                <p role="alert" className="mt-3 text-xs text-destructive">
+                  {publishError}
+                </p>
+              )}
+              {!confirmingPublish ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-4 w-full"
+                  onClick={() => setConfirmingPublish(true)}
+                >
+                  <Rocket className="size-4" />
+                  {t("project.owner.publishProject")}
+                </Button>
+              ) : (
+                <div className="mt-4 flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full"
+                    disabled={isPublishing}
+                    onClick={() => {
+                      onPublish();
+                    }}
+                  >
+                    {isPublishing && <Loader2 className="size-4 animate-spin" />}
+                    {t("project.owner.confirmPublish")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    disabled={isPublishing}
+                    onClick={() => setConfirmingPublish(false)}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              )}
+            </Card>
           )}
-          {!confirmingPublish ? (
-            <Button
-              type="button"
-              size="sm"
-              className="mt-3"
-              onClick={() => setConfirmingPublish(true)}
-            >
-              <Rocket className="size-4" />
-              {t("project.owner.publishProject")}
-            </Button>
-          ) : (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={isPublishing}
-                onClick={() => {
-                  onPublish();
-                }}
-              >
-                {isPublishing && <Loader2 className="size-4 animate-spin" />}
-                {t("project.owner.confirmPublish")}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isPublishing}
-                onClick={() => setConfirmingPublish(false)}
-              >
-                {t("common.cancel")}
-              </Button>
-            </div>
-          )}
-        </Card>
-      )}
 
-      {project.status === "published" && (
-        <Card>
-          <h2 className="text-sm font-bold text-foreground">{t("project.owner.archiveTitle")}</h2>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            {t("project.owner.archiveDescription")}
-          </p>
-          <Button asChild type="button" size="sm" className="mt-3">
-            <a href={publicProjectHref}>
-              <ExternalLink className="size-4" />
-              {t("project.owner.viewPublicPage")}
-            </a>
-          </Button>
-          {archiveError && (
-            <p role="alert" className="mt-3 text-xs text-destructive">
-              {archiveError}
-            </p>
+          {project.status === "published" && (
+            <Card>
+              <h2 className="text-sm font-bold text-foreground">{t("project.owner.archiveTitle")}</h2>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {t("project.owner.archiveDescription")}
+              </p>
+              {archiveError && (
+                <p role="alert" className="mt-3 text-xs text-destructive">
+                  {archiveError}
+                </p>
+              )}
+              {!confirmingArchive ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-4 w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => setConfirmingArchive(true)}
+                >
+                  <ArchiveRestore className="size-4" />
+                  {t("project.owner.archiveProject")}
+                </Button>
+              ) : (
+                <div className="mt-4 flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    className="w-full"
+                    disabled={isArchiving}
+                    onClick={() => {
+                      onArchive();
+                    }}
+                  >
+                    {isArchiving && <Loader2 className="size-4 animate-spin" />}
+                    {t("project.owner.confirmArchive")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    disabled={isArchiving}
+                    onClick={() => setConfirmingArchive(false)}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              )}
+            </Card>
           )}
-          {!confirmingArchive ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="mt-3"
-              onClick={() => setConfirmingArchive(true)}
-            >
-              <ArchiveRestore className="size-4" />
-              {t("project.owner.archiveProject")}
-            </Button>
-          ) : (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive"
-                disabled={isArchiving}
-                onClick={() => {
-                  onArchive();
-                }}
-              >
-                {isArchiving && <Loader2 className="size-4 animate-spin" />}
-                {t("project.owner.confirmArchive")}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={isArchiving}
-                onClick={() => setConfirmingArchive(false)}
-              >
-                {t("common.cancel")}
-              </Button>
-            </div>
-          )}
-        </Card>
-      )}
 
-      {project.status === "archived" && (
-        <Card className="border-border/60 bg-surface-fog">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            {t("project.owner.archivedNote")}
-          </p>
-        </Card>
-      )}
+          {project.status === "archived" && (
+            <Card className="border-border/60 bg-surface-fog">
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {t("project.owner.archivedNote")}
+              </p>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -253,6 +281,8 @@ function ProjectEditForm({
   editError,
   onRestoreField,
   restoringField,
+  categories,
+  difficulties,
 }: {
   project: ProjectOwnerViewDto;
   onSaveEdit: (payload: EditProjectPayload) => void;
@@ -260,8 +290,10 @@ function ProjectEditForm({
   editError: string | null;
   onRestoreField: (field: ProjectManualOverrideField) => void;
   restoringField: ProjectManualOverrideField | null;
+  categories: ProjectCategoryDto[];
+  difficulties: ProjectDifficultyDto[];
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const effective = project.project;
   const [title, setTitle] = useState(effective.title);
   const [description, setDescription] = useState(effective.description ?? "");
@@ -317,13 +349,34 @@ function ProjectEditForm({
   const pendingPayload = buildEditPayload();
 
   return (
-    <Card>
-      <h2 className="text-sm font-bold text-foreground">{t("project.owner.projectData")}</h2>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {t("project.owner.githubFieldNote")}
-      </p>
+    <Card className="h-full">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <h2 className="text-base font-bold text-foreground">{t("project.owner.projectData")}</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {t("project.owner.githubFieldNote")}
+          </p>
+        </div>
 
-      <div className="mt-4 flex flex-col gap-4">
+        <Button
+          type="button"
+          size="sm"
+          disabled={isSavingEdit || pendingPayload === null}
+          onClick={() => {
+            if (pendingPayload) onSaveEdit(pendingPayload);
+          }}
+        >
+          {isSavingEdit ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Save className="size-4" />
+          )}
+          {t("project.owner.saveEdits")}
+        </Button>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-4">
+        {/* Title */}
         <EditFieldLabel
           label={t("project.fields.title")}
           isManual={isManual("title")}
@@ -333,6 +386,7 @@ function ProjectEditForm({
           <Input dir="ltr" value={title} onChange={(event) => setTitle(event.target.value)} />
         </EditFieldLabel>
 
+        {/* Description */}
         <EditFieldLabel
           label={t("project.fields.description")}
           isManual={isManual("description")}
@@ -348,55 +402,61 @@ function ProjectEditForm({
           />
         </EditFieldLabel>
 
-        <EditFieldLabel
-          label={t("project.fields.tags")}
-          hint={t("project.fields.commaSeparated")}
-          isManual={isManual("tags")}
-          onRestore={() => onRestoreField("tags")}
-          isRestoring={restoringField === "tags"}
-        >
-          <Input dir="ltr" value={tags} onChange={(event) => setTags(event.target.value)} />
-        </EditFieldLabel>
+        {/* 2-Column Row for Tags & Technologies */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <EditFieldLabel
+            label={t("project.fields.tags")}
+            hint={t("project.fields.commaSeparated")}
+            isManual={isManual("tags")}
+            onRestore={() => onRestoreField("tags")}
+            isRestoring={restoringField === "tags"}
+          >
+            <Input dir="ltr" value={tags} onChange={(event) => setTags(event.target.value)} />
+          </EditFieldLabel>
 
-        <EditFieldLabel
-          label={t("project.fields.technologies")}
-          hint={t("project.fields.commaSeparated")}
-          isManual={isManual("technologies")}
-          onRestore={() => onRestoreField("technologies")}
-          isRestoring={restoringField === "technologies"}
-        >
-          <Input
-            dir="ltr"
-            value={technologies}
-            onChange={(event) => setTechnologies(event.target.value)}
-          />
-        </EditFieldLabel>
+          <EditFieldLabel
+            label={t("project.fields.technologies")}
+            hint={t("project.fields.commaSeparated")}
+            isManual={isManual("technologies")}
+            onRestore={() => onRestoreField("technologies")}
+            isRestoring={restoringField === "technologies"}
+          >
+            <Input
+              dir="ltr"
+              value={technologies}
+              onChange={(event) => setTechnologies(event.target.value)}
+            />
+          </EditFieldLabel>
+        </div>
 
-        <EditFieldLabel label={t("project.fields.category")} hint={t("project.fields.requiredBeforePublish")}>
-          <div className="flex flex-wrap gap-2">
-            {PROJECT_CATEGORIES.map((item) => (
-              <PillOption
-                key={item}
-                label={getCategoryLabel(t, item)}
-                selected={category === item}
-                onSelect={() => setCategory(item)}
-              />
-            ))}
-          </div>
-        </EditFieldLabel>
+        {/* 2-Column Row for Category & Difficulty */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <EditFieldLabel label={t("project.fields.category")} hint={t("project.fields.requiredBeforePublish")}>
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map((item) => (
+                <PillOption
+                  key={item.key}
+                  label={i18n.language.startsWith("ar") ? item.labelAr : item.labelEn}
+                  selected={category === item.key}
+                  onSelect={() => setCategory(item.key)}
+                />
+              ))}
+            </div>
+          </EditFieldLabel>
 
-        <EditFieldLabel label={t("project.fields.difficulty")} hint={t("project.fields.requiredBeforePublish")}>
-          <div className="flex flex-wrap gap-2">
-            {PROJECT_DIFFICULTIES.map((item) => (
-              <PillOption
-                key={item}
-                label={getDifficultyLabel(t, item)}
-                selected={difficulty === item}
-                onSelect={() => setDifficulty(item)}
-              />
-            ))}
-          </div>
-        </EditFieldLabel>
+          <EditFieldLabel label={t("project.fields.difficulty")} hint={t("project.fields.requiredBeforePublish")}>
+            <div className="flex flex-wrap gap-1.5">
+              {difficulties.map((item) => (
+                <PillOption
+                  key={item.key}
+                  label={i18n.language.startsWith("ar") ? item.labelAr : item.labelEn}
+                  selected={difficulty === item.key}
+                  onSelect={() => setDifficulty(item.key)}
+                />
+              ))}
+            </div>
+          </EditFieldLabel>
+        </div>
       </div>
 
       {editError && (
@@ -405,7 +465,16 @@ function ProjectEditForm({
         </p>
       )}
 
-      <div className="mt-5 border-t border-border pt-4">
+      <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+        <p className="text-xs text-muted-foreground">
+          {pendingPayload !== null ? (
+            <span className="font-medium text-primary">
+              {t("project.owner.unsavedChanges")}
+            </span>
+          ) : (
+            <span>{t("project.owner.allChangesSaved")}</span>
+          )}
+        </p>
         <Button
           type="button"
           size="sm"
@@ -414,7 +483,11 @@ function ProjectEditForm({
             if (pendingPayload) onSaveEdit(pendingPayload);
           }}
         >
-          {isSavingEdit && <Loader2 className="size-4 animate-spin" />}
+          {isSavingEdit ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Save className="size-4" />
+          )}
           {t("project.owner.saveEdits")}
         </Button>
       </div>
@@ -477,9 +550,9 @@ function PillOption({
       type="button"
       onClick={onSelect}
       className={cn(
-        "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+        "rounded-full border px-3 py-1 text-xs transition-colors",
         selected
-          ? "border-primary bg-primary/10 font-medium text-primary"
+          ? "border-primary bg-primary/10 font-semibold text-primary"
           : "border-border bg-background text-muted-foreground hover:text-foreground",
       )}
     >

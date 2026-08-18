@@ -6,36 +6,17 @@ import {
   ContributorDashboardView,
   useContributorDashboardQuery,
 } from "@/modules/dashboard";
-import type { DashboardLifecycleState } from "@/modules/dashboard";
 import { ContributorDeliveryLifecycleSection } from "@/modules/delivery-reviews";
-
-interface DashboardSearch {
-  state?: "onboarding" | "empty";
-}
-
-const SEARCH_STATE_MAP: Record<
-  NonNullable<DashboardSearch["state"]>,
-  DashboardLifecycleState
-> = {
-  onboarding: "onboarding",
-  empty: "verified-empty",
-};
 
 export const Route = createFileRoute("/_appLayout/dashboard")({
   beforeLoad: requireContributorRoute,
   head: () => ({ meta: [{ title: "Sharek" }] }),
-  validateSearch: (search: Record<string, unknown>): DashboardSearch => {
-    const state = search.state;
-    return state === "onboarding" || state === "empty" ? { state } : {};
-  },
   component: DashboardPage,
 });
 
 function DashboardPage() {
   const { t } = useTranslation();
-  const { state } = Route.useSearch();
-  const lifecycleState = state ? SEARCH_STATE_MAP[state] : "active";
-  const dashboardQuery = useContributorDashboardQuery(lifecycleState);
+  const dashboardQuery = useContributorDashboardQuery();
 
   if (dashboardQuery.data === undefined) {
     return (

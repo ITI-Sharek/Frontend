@@ -18,6 +18,7 @@ export {
   getOwnerProject,
   editOwnerProject,
   refreshProjectSource,
+  uploadProjectHeroImage,
   publishProject,
   archiveProject,
 } from "./services/project-drafts.service";
@@ -32,6 +33,8 @@ export {
 
 export { projectsQueryKeys } from "./api/query-keys";
 export { useExploreProjectsQuery } from "./api/queries/use-explore-projects-query";
+export { useProjectCategoriesQuery } from "./api/queries/use-project-categories-query";
+export { useProjectDifficultiesQuery } from "./api/queries/use-project-difficulties-query";
 export { useAdminPublishedProjectOwnersQuery } from "./api/queries/use-admin-published-project-owners-query";
 export { useMyProjectsQuery } from "./api/queries/use-my-projects-query";
 export { useOwnerProjectQuery } from "./api/queries/use-owner-project-query";
@@ -45,6 +48,7 @@ export { usePreviewGitHubRepositoryMutation } from "./api/mutations/use-preview-
 export { useCreateProjectDraftMutation } from "./api/mutations/use-create-project-draft-mutation";
 export { useEditProjectMutation } from "./api/mutations/use-edit-project-mutation";
 export { useRefreshProjectSourceMutation } from "./api/mutations/use-refresh-project-source-mutation";
+export { useUploadProjectHeroImageMutation } from "./api/mutations/use-upload-project-hero-image-mutation";
 export { usePublishProjectMutation } from "./api/mutations/use-publish-project-mutation";
 export { useArchiveProjectMutation } from "./api/mutations/use-archive-project-mutation";
 
@@ -92,11 +96,13 @@ export type {
   ProjectTransitionResultDto,
   PublishProjectPayload,
   RefreshProjectSourcePayload,
+  UploadProjectHeroImagePayload,
 } from "./types/project-draft.types";
 export type {
   CursorPageInfoDto,
   MyProjectStatus,
   MyProjectSummaryDto,
+  MyProjectsFilters,
   MyProjectsListParams,
   MyProjectsListResponseDto,
   OwnerQuotaDto,
@@ -119,3 +125,7 @@ export type {
   ProjectCategory,
   ProjectDifficulty,
 } from "./types/explore.types";
+export type {
+  ProjectCategoryDto,
+  ProjectDifficultyDto,
+} from "./services/project-categories.service";

@@ -150,7 +150,7 @@ export function ContributorProfileHeader({
             size="sm"
             className="h-9 rounded-lg border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-800 shadow-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
           >
-            <Link to={ROUTES.profileEdit}>
+            <Link to={ROUTES.settings}>
               <Pencil className="size-3.5 text-slate-500" />
               <span>{t("contributor.profile.editProfile")}</span>
             </Link>

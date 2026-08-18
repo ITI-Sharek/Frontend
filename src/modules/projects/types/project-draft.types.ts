@@ -82,9 +82,10 @@ export interface ProjectOwnerEffectiveFieldsDto {
   description: string | null;
   tags: string[];
   technologies: string[];
-  category: ProjectCategory | null;
-  difficulty: ProjectDifficulty | null;
-  manualOverrides: ProjectManualOverrideField[];
+    category: ProjectCategory | null;
+    difficulty: ProjectDifficulty | null;
+    heroImageUrl: string | null;
+    manualOverrides: ProjectManualOverrideField[];
 }
 
 export interface ProjectOwnerViewDto {
@@ -117,6 +118,11 @@ export interface EditProjectPayload {
 
 export interface RefreshProjectSourcePayload {
   expectedRevision: number;
+}
+
+export interface UploadProjectHeroImagePayload {
+  expectedRevision: number;
+  file: File;
 }
 
 export interface PublishProjectPayload {
@@ -152,6 +158,9 @@ export type ProjectApiErrorCode =
   | "PROJECT_STATE_TRANSITION_INVALID"
   | "PROJECT_IMPORT_ROUTE_RETIRED"
   | "PROJECT_PUBLICATION_INCOMPLETE"
+  | "PROJECT_HERO_IMAGE_REQUIRED"
+  | "PROJECT_HERO_IMAGE_INVALID"
+  | "PROJECT_HERO_IMAGE_NOT_FOUND"
   | "PROJECT_REPOSITORY_CONTROL_REQUIRED"
   | "PROJECT_SOURCE_AUTHORIZATION_REQUIRED"
   | "GITHUB_RATE_LIMITED"
