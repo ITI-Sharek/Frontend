@@ -49,6 +49,8 @@ export const ROUTES = {
   settings: "/settings",
   /** Where every upgrade call to action lands. */
   plan: "/plan",
+  /** Paymob returns here; the page verifies the attempt with Sharek's API. */
+  paymentResult: "/payments/result",
   /** Optional GitHub App skill-analysis workspace (backend callback target). */
   githubSkillAnalysis: "/profile/github",
   contributorProfile: (username: string) =>
