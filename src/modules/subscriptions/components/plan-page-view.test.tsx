@@ -11,10 +11,17 @@ import { PlanPageView } from "./plan-page-view";
 vi.mock("../api/queries/use-subscription-query", () => ({
   useSubscriptionStatusQuery: vi.fn(),
 }));
+vi.mock("../api/mutations/use-subscription-payment-mutations", () => ({
+  useCreateSubscriptionCheckoutMutation: vi.fn(),
+}));
 
 const { useSubscriptionStatusQuery } = await import(
   "../api/queries/use-subscription-query"
 );
+const { useCreateSubscriptionCheckoutMutation } = await import(
+  "../api/mutations/use-subscription-payment-mutations"
+);
+const checkoutMutate = vi.fn();
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true;
@@ -59,6 +66,17 @@ function mockStatus(value: SubscriptionPlanStatusDto) {
   } as never);
 }
 
+function mockCheckout(overrides: Record<string, unknown> = {}) {
+  checkoutMutate.mockReset();
+  vi.mocked(useCreateSubscriptionCheckoutMutation).mockReturnValue({
+    mutate: checkoutMutate,
+    isPending: false,
+    isError: false,
+    error: null,
+    ...overrides,
+  } as never);
+}
+
 describe("PlanPageView", () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -68,6 +86,7 @@ describe("PlanPageView", () => {
     document.body.append(container);
     root = createRoot(container);
     mockStatus(status());
+    mockCheckout();
   });
 
   afterEach(() => {
@@ -95,13 +114,41 @@ describe("PlanPageView", () => {
     expect(container.textContent).not.toContain("10 matched projects");
   });
 
-  it("offers no purchase control while checkout does not exist", async () => {
+  it("starts one idempotent hosted checkout for the caller's role", async () => {
     await act(async () => root.render(<PlanPageView />));
 
-    // No dead button, and no affordance that implies a charge is possible.
-    expect(container.querySelectorAll("button[disabled]")).toHaveLength(0);
-    expect(container.textContent).toContain("لم يُفتح بعد");
-    expect(container.querySelector("[role='note']")).not.toBeNull();
+    const button = container.querySelector<HTMLButtonElement>(
+      "[data-testid='start-gold-checkout']",
+    );
+
+    expect(button).not.toBeNull();
+    await act(async () => button?.click());
+
+    expect(checkoutMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        planType: "gold",
+        roleContext: "contributor",
+        idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
+      }),
+      expect.any(Object),
+    );
+    expect(container.textContent).toContain("المتابعة إلى Paymob");
+  });
+
+  it("sends owner role context without letting the browser choose a different role", async () => {
+    mockStatus(status({ roleContext: "owner" }));
+
+    await act(async () => root.render(<PlanPageView />));
+    await act(async () =>
+      container.querySelector<HTMLButtonElement>(
+        "[data-testid='start-gold-checkout']",
+      )?.click(),
+    );
+
+    expect(checkoutMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ roleContext: "owner" }),
+      expect.any(Object),
+    );
   });
 
   it("mentions no commission in either plan", async () => {
