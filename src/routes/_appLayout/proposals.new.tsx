@@ -108,7 +108,7 @@ function NewProposalPage() {
           <EligibilityBlockPanel
             blockingSkills={blockingSkills}
             eligibilityEvaluationId={null}
-            skillAnalysisHref={ROUTES.githubSkillAnalysis}
+            skillAnalysisHref={`${ROUTES.settings}?section=github`}
           />
         ) : null
       }

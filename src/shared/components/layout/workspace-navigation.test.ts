@@ -63,7 +63,7 @@ describe("workspace navigation", () => {
       navigation.find((item) => item.to === ROUTES.discussions),
     ).toBeUndefined();
     expect(
-      navigation.find((item) => item.to === ROUTES.githubSkillAnalysis),
+      navigation.find((item) => item.to === ROUTES.myProjects),
     ).toBeUndefined();
     expect(
       navigation.filter((item) => item.secondary).map((item) => item.to),

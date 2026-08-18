@@ -84,15 +84,11 @@ export function SiteHeader({
   const brandContent = (
     <>
       {resolvedBrand.logoSrc && (
-        <span className="relative flex size-10 items-center justify-center rounded-2xl bg-primary-soft transition-transform duration-300 ease-out group-hover/brand:scale-105">
-          <img
-            src={resolvedBrand.logoSrc}
-            alt=""
-            width={40}
-            height={40}
-            className="size-8 object-contain object-center"
-          />
-        </span>
+        <img
+          src={resolvedBrand.logoSrc}
+          alt=""
+          className="h-9 w-auto shrink-0 object-contain transition-transform duration-300 ease-out group-hover/brand:scale-105 sm:h-10"
+        />
       )}
       <span className="flex flex-col gap-px leading-none">
         <span className="text-[19px] font-extrabold tracking-tight text-primary">
@@ -121,23 +117,41 @@ export function SiteHeader({
           containerClassName,
         )}
       >
-        {resolvedBrand.to ? (
-          <Link
-            to={resolvedBrand.to}
-            dir="ltr"
-            className="group/brand flex shrink-0 items-center gap-2.5"
-          >
-            {brandContent}
-          </Link>
-        ) : (
-          <a
-            href={ROUTES.landing}
-            dir="ltr"
-            className="group/brand flex shrink-0 items-center gap-2.5"
-          >
-            {brandContent}
-          </a>
-        )}
+        <div className="flex shrink-0 items-center gap-3">
+          {resolvedBrand.to ? (
+            <Link
+              to={resolvedBrand.to}
+              dir="ltr"
+              className="group/brand flex shrink-0 items-center gap-2.5"
+            >
+              {brandContent}
+            </Link>
+          ) : (
+            <a
+              href={ROUTES.landing}
+              dir="ltr"
+              className="group/brand flex shrink-0 items-center gap-2.5"
+            >
+              {brandContent}
+            </a>
+          )}
+
+          <div className="flex items-center gap-1.5 border-s border-border/60 ps-3">
+            <button
+              type="button"
+              aria-label={t("theme.toggle")}
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              {mounted && resolvedTheme === "dark" ? (
+                <Sun className="size-4" aria-hidden="true" />
+              ) : (
+                <Moon className="size-4" aria-hidden="true" />
+              )}
+            </button>
+            <LanguageSwitcher compact />
+          </div>
+        </div>
 
         {navItems.length > 0 && (
           <nav
@@ -151,19 +165,6 @@ export function SiteHeader({
         )}
 
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
-          <LanguageSwitcher compact />
-          <button
-            type="button"
-            aria-label={t("theme.toggle")}
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary/35 hover:bg-surface-fog hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          >
-            {mounted && resolvedTheme === "dark" ? (
-              <Sun className="size-4" aria-hidden="true" />
-            ) : (
-              <Moon className="size-4" aria-hidden="true" />
-            )}
-          </button>
           {utilityActions}
           {user && onLogout ? (
             <ProfileMenu

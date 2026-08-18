@@ -114,7 +114,7 @@ function ImportProjectPage() {
         installationsQuery.isSuccess && installationLinkId === null
       }
       onConnectGitHub={() => {
-        void navigate({ to: ROUTES.githubSkillAnalysis });
+        void navigate({ to: ROUTES.settings, search: { section: "github" } });
       }}
     />
   );

@@ -10,7 +10,7 @@ import {
   User,
   UserCheck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { AuthUserDto } from "@/modules/auth";
@@ -21,6 +21,14 @@ import {
 import type {ContributorProfileDto} from "@/modules/contributors";
 import { useUpdatePersonalDetailsMutation } from "@/modules/auth";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
+import {
+  getCityOptions,
+  getCountryOptions,
+  getStateOptions,
+  normalizeCity,
+  normalizeCountry,
+  normalizeState,
+} from "@/shared/utils/location";
 import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -78,17 +86,57 @@ export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps)
   const avatarMutation = useUploadContributorAvatarMutation();
   const updateDetails = useUpdatePersonalDetailsMutation();
 
+  const initialCountry = normalizeCountry(user.country);
+  const initialState = normalizeState(initialCountry, user.region);
+  const initialCity = normalizeCity(initialCountry, initialState, user.city);
+
   const [values, setValues] = useState<PersonalDetailsValues>(() => ({
     firstName: user.firstName,
     lastName: user.lastName,
-    country: user.country ?? "egypt",
-    region: user.region ?? "cairo",
-    city: user.city ?? "cairo",
+    country: initialCountry,
+    region: initialState,
+    city: initialCity,
     gender: user.gender === "female" ? "female" : "male",
     day: user.dateOfBirth?.slice(8, 10) ?? "16",
     month: user.dateOfBirth?.slice(5, 7) ?? "10",
     year: user.dateOfBirth?.slice(0, 4) ?? "2001",
   }));
+
+  useEffect(() => {
+    const country = normalizeCountry(user.country);
+    const region = normalizeState(country, user.region);
+
+    setValues((current) => ({
+      ...current,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      country,
+      region,
+      city: normalizeCity(country, region, user.city),
+      gender: user.gender === "female" ? "female" : "male",
+      day: user.dateOfBirth?.slice(8, 10) ?? "16",
+      month: user.dateOfBirth?.slice(5, 7) ?? "10",
+      year: user.dateOfBirth?.slice(0, 4) ?? "2001",
+    }));
+  }, [
+    user.city,
+    user.country,
+    user.dateOfBirth,
+    user.firstName,
+    user.gender,
+    user.lastName,
+    user.region,
+  ]);
+
+  const countryOptions = useMemo(() => getCountryOptions(isArabic), [isArabic]);
+  const stateOptions = useMemo(
+    () => getStateOptions(values.country, isArabic),
+    [values.country, isArabic],
+  );
+  const cityOptions = useMemo(
+    () => getCityOptions(values.country, values.region, isArabic),
+    [values.country, values.region, isArabic],
+  );
 
   useEffect(
     () => () => {
@@ -103,6 +151,42 @@ export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps)
   ) {
     setSaved(false);
     setValues((current) => ({ ...current, [key]: value }));
+  }
+
+  function handleCountryChange(newCountry: string) {
+    setSaved(false);
+    const normalizedCountryCode = normalizeCountry(newCountry);
+    const availableStates = getStateOptions(normalizedCountryCode, isArabic);
+    const newRegion = availableStates[0]?.value ?? "";
+    const availableCities = getCityOptions(normalizedCountryCode, newRegion, isArabic);
+    const newCity = availableCities[0]?.value ?? "";
+
+    setValues((current) => ({
+      ...current,
+      country: normalizedCountryCode,
+      region: newRegion,
+      city: newCity,
+    }));
+  }
+
+  function handleRegionChange(newRegion: string) {
+    setSaved(false);
+    const availableCities = getCityOptions(values.country, newRegion, isArabic);
+    const newCity = availableCities[0]?.value ?? "";
+
+    setValues((current) => ({
+      ...current,
+      region: newRegion,
+      city: newCity,
+    }));
+  }
+
+  function handleCityChange(newCity: string) {
+    setSaved(false);
+    setValues((current) => ({
+      ...current,
+      city: newCity,
+    }));
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -277,18 +361,14 @@ export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps)
           <NativeSelect
             id="personal-country"
             value={values.country}
-            onChange={(event) => updateValue("country", event.target.value)}
+            onChange={(event) => handleCountryChange(event.target.value)}
             className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
           >
-            <NativeSelectOption value="egypt">🇪🇬 مصر (Egypt)</NativeSelectOption>
-            <NativeSelectOption value="saudi">🇸🇦 السعودية (Saudi Arabia)</NativeSelectOption>
-            <NativeSelectOption value="uae">🇦🇪 الإمارات (UAE)</NativeSelectOption>
-            <NativeSelectOption value="jordan">🇯🇴 الأردن (Jordan)</NativeSelectOption>
-            <NativeSelectOption value="morocco">🇲🇦 المغرب (Morocco)</NativeSelectOption>
-            <NativeSelectOption value="kuwait">🇰🇼 الكويت (Kuwait)</NativeSelectOption>
-            <NativeSelectOption value="qatar">🇶🇦 قطر (Qatar)</NativeSelectOption>
-            <NativeSelectOption value="algeria">🇩🇿 الجزائر (Algeria)</NativeSelectOption>
-            <NativeSelectOption value="tunisia">🇹🇳 تونس (Tunisia)</NativeSelectOption>
+            {countryOptions.map((country) => (
+              <NativeSelectOption key={country.value} value={country.value}>
+                {country.label}
+              </NativeSelectOption>
+            ))}
           </NativeSelect>
         </div>
 
@@ -301,22 +381,28 @@ export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps)
             <MapPin className="size-3.5 text-muted-foreground" />
             <span>{t("settings.personal.fields.region")} *</span>
           </Label>
-          <NativeSelect
-            id="personal-region"
-            value={values.region}
-            onChange={(event) => updateValue("region", event.target.value)}
-            className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
-          >
-            <NativeSelectOption value="cairo">القاهرة (Cairo)</NativeSelectOption>
-            <NativeSelectOption value="alexandria">الإسكندرية (Alexandria)</NativeSelectOption>
-            <NativeSelectOption value="giza">الجيزة (Giza)</NativeSelectOption>
-            <NativeSelectOption value="assiut">أسيوط (Assiut)</NativeSelectOption>
-            <NativeSelectOption value="mansoura">المنصورة (Mansoura)</NativeSelectOption>
-            <NativeSelectOption value="riyadh">الرياض (Riyadh)</NativeSelectOption>
-            <NativeSelectOption value="jeddah">جدة (Jeddah)</NativeSelectOption>
-            <NativeSelectOption value="dubai">دبي (Dubai)</NativeSelectOption>
-            <NativeSelectOption value="amman">عَمّان (Amman)</NativeSelectOption>
-          </NativeSelect>
+          {stateOptions.length > 0 ? (
+            <NativeSelect
+              id="personal-region"
+              value={values.region}
+              onChange={(event) => handleRegionChange(event.target.value)}
+              className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            >
+              {stateOptions.map((state) => (
+                <NativeSelectOption key={state.value} value={state.value}>
+                  {state.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          ) : (
+            <Input
+              id="personal-region"
+              value={values.region}
+              onChange={(event) => updateValue("region", event.target.value)}
+              placeholder={t("settings.personal.fields.region")}
+              className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          )}
         </div>
 
         {/* City */}
@@ -328,20 +414,33 @@ export function PersonalDetailsForm({ user, profile }: PersonalDetailsFormProps)
             <MapPin className="size-3.5 text-muted-foreground" />
             <span>{t("settings.personal.fields.city")}</span>
           </Label>
-          <NativeSelect
-            id="personal-city"
-            value={values.city}
-            onChange={(event) => updateValue("city", event.target.value)}
-            className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
-          >
-            <NativeSelectOption value="cairo">القاهرة</NativeSelectOption>
-            <NativeSelectOption value="nasr-city">مدينة نصر</NativeSelectOption>
-            <NativeSelectOption value="new-cairo">القاهرة الجديدة</NativeSelectOption>
-            <NativeSelectOption value="dokki">الدقي</NativeSelectOption>
-            <NativeSelectOption value="assiut">أسيوط</NativeSelectOption>
-            <NativeSelectOption value="dairut">ديروط</NativeSelectOption>
-            <NativeSelectOption value="manfalut">منفلوط</NativeSelectOption>
-          </NativeSelect>
+          {cityOptions.length > 0 ? (
+            <NativeSelect
+              id="personal-city"
+              value={values.city}
+              onChange={(event) => handleCityChange(event.target.value)}
+              className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            >
+              {values.city && !cityOptions.some((c) => c.value === values.city) && (
+                <NativeSelectOption value={values.city}>
+                  {values.city}
+                </NativeSelectOption>
+              )}
+              {cityOptions.map((city) => (
+                <NativeSelectOption key={city.value} value={city.value}>
+                  {city.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          ) : (
+            <Input
+              id="personal-city"
+              value={values.city}
+              onChange={(event) => handleCityChange(event.target.value)}
+              placeholder={t("settings.personal.fields.city")}
+              className="h-11 rounded-xl border-border bg-background px-3 text-sm font-medium transition-colors hover:border-border/80 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          )}
         </div>
       </div>
 

@@ -176,7 +176,7 @@ export function ContributorProfileHeader({
               {isOwner && (
                 <>
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to={ROUTES.githubSkillAnalysis}>
+                    <Link to={ROUTES.settings} search={{ section: "github" }}>
                       <Sparkles className="size-4 me-2 text-primary" />
                       <span>{t("navigation.skillAnalysis")}</span>
                     </Link>

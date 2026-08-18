@@ -10,6 +10,7 @@ export {
 export type { SuggestedRepository } from "./components/owner/import-project-stepper";
 export { ProjectOwnerDetailView } from "./components/owner/project-owner-detail-view";
 export { ProjectSourceStatusPanel } from "./components/owner/project-source-status-panel";
+export { OwnerGithubSettingsSection } from "./components/owner/owner-github-settings-section";
 
 export {
   previewGitHubRepository,

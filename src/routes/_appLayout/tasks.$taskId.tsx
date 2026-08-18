@@ -73,10 +73,11 @@ function ContributionRequestDetailsPage() {
             // there is none, so the narrative is unavailable and the named
             // skills stand alone — which is the part that matters anyway.
             eligibilityEvaluationId={null}
-            skillAnalysisHref={ROUTES.githubSkillAnalysis}
+            skillAnalysisHref={`${ROUTES.settings}?section=github`}
             onRecoveryNavigate={(skills) =>
               void navigate({
-                href: ROUTES.githubSkillAnalysis,
+                to: ROUTES.settings,
+                search: { section: "github" },
                 state: { blockingSkills: skills } as never,
               })
             }

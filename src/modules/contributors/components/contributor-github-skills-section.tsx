@@ -18,7 +18,7 @@ import type {
   ContributorProfileDto,
 } from "../types/contributor-profile.types";
 
-export const GITHUB_SKILL_ANALYSIS_PATH = "/profile/github";
+export const GITHUB_SKILL_ANALYSIS_PATH = "/settings";
 
 const INSTALLATION_STATUS_LABEL: Record<
   ContributorGithubInstallationDto["status"],
@@ -90,7 +90,7 @@ export function ContributorGithubSkillsSection({
           size="sm"
           variant={model.installations.length > 0 ? "outline" : "primary"}
         >
-          <Link to={GITHUB_SKILL_ANALYSIS_PATH}>
+          <Link to={GITHUB_SKILL_ANALYSIS_PATH} search={{ section: "github" }}>
             <Github className="size-4" />
             {model.installations.length > 0
               ? t("contributor.githubSkills.manage")
