@@ -52,6 +52,7 @@ function recommendation(
       { name: "NestJS", proficiency: "advanced", evidenceIds: ["skill-1"] },
     ],
     requiredSkillNames: ["NestJS"],
+    matchedRequiredSkillNames: ["NestJS"],
     matchedRequiredCount: 1,
     requiredSkillCount: 1,
     applicationsCloseAt: "2026-09-01T00:00:00.000Z",

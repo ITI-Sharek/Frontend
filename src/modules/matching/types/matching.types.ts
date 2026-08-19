@@ -27,6 +27,8 @@ export interface RecommendedTaskDto {
    * skills the request never asked for, so it cannot serve as the numerator.
    */
   requiredSkillNames: string[];
+  /** Required skill names, in the Request's display form, that were matched. */
+  matchedRequiredSkillNames: string[];
   matchedRequiredCount: number;
   requiredSkillCount: number;
   applicationsCloseAt: string;

@@ -192,7 +192,11 @@ export function MatchedTasksSection({
              */}
             <div className="mt-3.5 flex flex-wrap gap-1.5">
               {task.requiredSkills.map((skill) => {
-                const held = task.matchedSkills.includes(skill);
+                // The backend compares normalized identities, so use its
+                // server-authored Request-spelling projection here. Comparing
+                // approved and requested display strings directly would make
+                // valid matches such as NodeJS vs Node.js look unverified.
+                const held = task.matchedRequiredSkillNames.includes(skill);
                 return (
                   <span
                     key={skill}

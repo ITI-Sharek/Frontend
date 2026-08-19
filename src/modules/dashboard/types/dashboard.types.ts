@@ -21,6 +21,8 @@ export interface MatchedTaskDto {
   requiredSkills: string[];
   /** Which of the contributor's approved skills fit it. */
   matchedSkills: string[];
+  /** Required skill names, in the Request's display form, that were matched. */
+  matchedRequiredSkillNames: string[];
   /**
    * The gauge, as two counts of the required bar. These were the same number
    * until the backend carried a real denominator, which drew every match as a
