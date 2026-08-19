@@ -120,6 +120,7 @@ export function ContributorProfileView({
             <ContributorQuickActionsCard profile={profile} />
             <ContributorStatsCard profile={profile} />
             <ContributorBadgesCard
+              badges={profile.badges}
               onViewAll={() => handleTabChange("reviews")}
             />
           </div>
@@ -206,7 +207,7 @@ export function ContributorProfileView({
               <ContributorReputationStrip profile={profile} />
             </div>
             <div className="lg:col-span-5">
-              <ContributorBadgesCard />
+              <ContributorBadgesCard badges={profile.badges} />
             </div>
           </div>
         </TabsContent>

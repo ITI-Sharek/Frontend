@@ -36,6 +36,7 @@ function makeProfile(
       successRate: 0,
       topVerifiedSkills: [],
     },
+    badges: [],
     contributionHistory: [],
     completionPrompts: [],
     viewerRelationship: "owner",

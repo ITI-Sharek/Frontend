@@ -23,6 +23,12 @@ export interface ContributorHistoryItemDto {
   role: string | null;
 }
 
+export interface ContributorBadgeDto {
+  id: string;
+  badgeType: "first_contribution";
+  awardedAt: string;
+}
+
 export interface ContributorReputationSummaryDto {
   rating: number | null;
   reviewsCount: number;
@@ -93,6 +99,7 @@ export interface ContributorProfileDto {
   /** Owner-only; empty for other viewers. Zero, one, or many links. */
   githubInstallations: ContributorGithubInstallationDto[];
   reputationSummary: ContributorReputationSummaryDto;
+  badges: ContributorBadgeDto[];
   contributionHistory: ContributorHistoryItemDto[];
   completionPrompts: string[];
   viewerRelationship: ViewerRelationship;
@@ -100,6 +107,38 @@ export interface ContributorProfileDto {
   experienceLevel: ContributorExperienceLevelDto | null;
   fields: ContributorFieldDto[];
   declaredSkills: string[];
+  identityVerified?: boolean;
+}
+
+export interface ContributorDirectoryEntryDto {
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  roleLabel: string;
+  bio: string | null;
+  availability: string | null;
+  experienceLevel: ContributorExperienceLevelDto | null;
+  fields: ContributorFieldDto[];
+  declaredSkills: string[];
+  identityVerified?: boolean;
+}
+
+export interface ContributorDirectorySearchParamsDto {
+  q?: string;
+  page?: number;
+}
+
+export interface ContributorDirectoryPageDto {
+  contributors: ContributorDirectoryEntryDto[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  appliedFilters: {
+    search: string | null;
+  };
 }
 
 export class ContributorProfileError extends Error {

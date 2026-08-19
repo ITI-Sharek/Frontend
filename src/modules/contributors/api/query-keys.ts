@@ -1,5 +1,7 @@
 export const contributorProfileKeys = {
   all: ["contributors", "profiles"] as const,
+  directory: (params: { q?: string; page?: number }) =>
+    ["contributors", "directory", params] as const,
   detail: (username: string) =>
     [...contributorProfileKeys.all, "detail", username] as const,
   me: () => [...contributorProfileKeys.all, "me"] as const,

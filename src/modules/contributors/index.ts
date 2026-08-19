@@ -1,4 +1,5 @@
 export { ContributorProfileEmptyState } from "./components/contributor-profile-empty-state";
+export { ExploreContributorsView } from "./components/explore-contributors-view";
 export { ContributorProfileErrorView } from "./components/contributor-profile-error";
 export { ContributorProfileNotFound } from "./components/contributor-profile-not-found";
 export {
@@ -34,6 +35,7 @@ export {
 } from "./api/queries/use-admin-experience-levels-query";
 export { useGenerateSkillsMutation } from "./api/mutations/use-generate-skills-mutation";
 export { useContributorProfileQuery } from "./api/queries/use-contributor-profile-query";
+export { useContributorDirectoryQuery } from "./api/queries/use-contributor-directory-query";
 export { contributorProfileKeys } from "./api/query-keys";
 export {
   ensureCurrentContributorProfile,
@@ -56,6 +58,9 @@ export type {
 export { ContributorProfileError } from "./types/contributor-profile.types";
 export type {
   ContributorExperienceLevelDto,
+  ContributorDirectoryEntryDto,
+  ContributorDirectoryPageDto,
+  ContributorDirectorySearchParamsDto,
   ContributorFieldDto,
   ContributorGithubInstallationDto,
   ContributorGithubStatusDto,

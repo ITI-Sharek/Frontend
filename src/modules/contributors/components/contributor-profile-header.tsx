@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Github,
   MoreHorizontal,
   Pencil,
@@ -81,6 +82,17 @@ export function ContributorProfileHeader({
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-[26px]">
                 {displayName}
               </h1>
+              {profile.identityVerified && (
+                <span
+                  title={i18n.language.startsWith("ar") ? "الهوية موثقة رسمياً" : "Identity Verified"}
+                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                >
+                  <BadgeCheck className="size-4" />
+                  <span className="text-[11px] font-bold">
+                    {i18n.language.startsWith("ar") ? "موثّق" : "Verified"}
+                  </span>
+                </span>
+              )}
               <span className="sr-only">
                 {isOwner
                   ? t("contributor.profileView.ownLabel")

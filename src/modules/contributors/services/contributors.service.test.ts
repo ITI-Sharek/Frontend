@@ -4,9 +4,13 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 
 import {
   ensureCurrentContributorProfile,
+  getContributorDirectory,
   getContributorProfileByUsername,
 } from "./contributors.service";
-import type { ContributorProfileDto } from "../types/contributor-profile.types";
+import type {
+  ContributorDirectoryPageDto,
+  ContributorProfileDto,
+} from "../types/contributor-profile.types";
 
 vi.mock("@/lib/axios/axios-instance", () => ({
   axiosInstance: {
@@ -43,12 +47,31 @@ const profile: ContributorProfileDto = {
     successRate: 0,
     topVerifiedSkills: [],
   },
+  badges: [],
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",
   experienceLevel: null,
   fields: [],
   declaredSkills: [],
+};
+
+const directory: ContributorDirectoryPageDto = {
+  contributors: [
+    {
+      username: "sara",
+      displayName: "Sara Ahmed",
+      avatarUrl: "/contributors/profiles/sara/avatar?v=1",
+      roleLabel: "Contributor",
+      bio: "Builds useful tools.",
+      availability: "available",
+      experienceLevel: null,
+      fields: [],
+      declaredSkills: ["React"],
+    },
+  ],
+  pagination: { page: 1, limit: 24, total: 1, totalPages: 1 },
+  appliedFilters: { search: null },
 };
 
 function axiosError(status: number, message = "Mapped backend message") {
@@ -75,6 +98,17 @@ describe("contributors service", () => {
     expect(mockedAxios.get).toHaveBeenCalledWith(
       "/contributors/profiles/sara%20ahmed",
     );
+  });
+
+  it("loads and normalizes the authenticated contributor directory", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: directory });
+
+    await expect(getContributorDirectory({ q: "sara", page: 2 })).resolves.toMatchObject({
+      contributors: [{ avatarUrl: expect.stringContaining("/contributors/profiles/sara/avatar") }],
+    });
+    expect(mockedAxios.get).toHaveBeenCalledWith("/contributors/profiles", {
+      params: { q: "sara", page: 2, limit: 24 },
+    });
   });
 
   it("ensures the current contributor profile through the agreed endpoint", async () => {

@@ -1,22 +1,27 @@
 import { ArrowRight, Award } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-interface BadgeItem {
-  id: string;
-  title: string;
-  description: string;
-  badgeType: "gold" | "red" | "blue" | "green";
-}
+import type { ContributorBadgeDto } from "../types/contributor-profile.types";
+
+const BADGE_PRESENTATION: Record<
+  ContributorBadgeDto["badgeType"],
+  { shieldType: "gold" | "red" | "blue" | "green"; titleKey: string; descriptionKey: string }
+> = {
+  first_contribution: {
+    shieldType: "gold",
+    titleKey: "contributor.dynamic.badgeFirstContribution",
+    descriptionKey: "contributor.dynamic.badgeFirstContributionDescription",
+  },
+};
 
 export function ContributorBadgesCard({
+  badges = [],
   onViewAll,
 }: {
+  badges?: ContributorBadgeDto[];
   onViewAll?: () => void;
 }) {
   const { t } = useTranslation();
-  // The profile contract does not expose an achievement projection yet.
-  // Keep the designed slot honest instead of inferring awards in the client.
-  const badges: BadgeItem[] = [];
 
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -41,23 +46,26 @@ export function ContributorBadgesCard({
 
       {/* Badges list */}
       {badges.length > 0 ? <div className="mt-4 flex flex-col gap-3.5">
-        {badges.map((badge) => (
-          <div key={badge.id} className="flex items-center gap-3.5">
-            {/* Hexagonal / Shield icon */}
-            <div className="relative flex size-9 shrink-0 items-center justify-center">
-              <ShieldBadge type={badge.badgeType} />
-            </div>
+        {badges.map((badge) => {
+          const presentation = BADGE_PRESENTATION[badge.badgeType];
+          return (
+            <div key={badge.id} className="flex items-center gap-3.5">
+              {/* Hexagonal / Shield icon */}
+              <div className="relative flex size-9 shrink-0 items-center justify-center">
+                <ShieldBadge type={presentation.shieldType} />
+              </div>
 
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white">
-                {badge.title}
-              </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                {badge.description}
-              </p>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                  {t(presentation.titleKey)}
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {t(presentation.descriptionKey)}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div> : (
         <p className="mt-4 rounded-xl border border-dashed border-slate-200 p-4 text-xs leading-5 text-slate-500 dark:border-slate-700 dark:text-slate-400">
           {t("contributor.dynamic.noAchievements")}

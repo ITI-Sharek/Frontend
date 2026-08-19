@@ -5,6 +5,8 @@ import { axiosInstance } from "@/lib/axios/axios-instance";
 import i18n from "@/lib/i18n";
 
 import type {
+  ContributorDirectoryPageDto,
+  ContributorDirectorySearchParamsDto,
   ContributorGithubInstallationDto,
   ContributorProfileDto,
 } from "../types/contributor-profile.types";
@@ -66,11 +68,12 @@ type RawContributorProfileResponse = Omit<
   | "declaredSkills"
   | "githubInstallations"
   | "reputationSummary"
+  | "badges"
 > &
   Partial<
     Pick<
       ContributorProfileDto,
-      "experienceLevel" | "fields" | "declaredSkills"
+      "experienceLevel" | "fields" | "declaredSkills" | "badges"
     >
   > & {
     githubInstallations?: RawContributorProfileInstallation[];
@@ -94,6 +97,7 @@ function normalizeContributorProfile(
     experienceLevel: data.experienceLevel ?? null,
     fields: data.fields ?? [],
     declaredSkills: data.declaredSkills ?? [],
+    badges: data.badges ?? [],
     githubInstallations: (data.githubInstallations ?? []).map(
       (installation) => ({
         ...installation,
@@ -122,6 +126,29 @@ export async function getContributorProfileByUsername(
   } catch (error) {
     normalizeContributorProfileError(error);
   }
+}
+
+export async function getContributorDirectory(
+  params: ContributorDirectorySearchParamsDto,
+): Promise<ContributorDirectoryPageDto> {
+  const { data } = await axiosInstance.get<ContributorDirectoryPageDto>(
+    "/contributors/profiles",
+    {
+      params: {
+        q: params.q,
+        page: params.page,
+        limit: 24,
+      },
+    },
+  );
+
+  return {
+    ...data,
+    contributors: data.contributors.map((contributor) => ({
+      ...contributor,
+      avatarUrl: resolveAvatarUrl(contributor.avatarUrl),
+    })),
+  };
 }
 
 export async function ensureCurrentContributorProfile(): Promise<ContributorProfileDto> {

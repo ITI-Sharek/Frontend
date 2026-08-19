@@ -48,6 +48,7 @@ function makeProfile(
         { name: "React", verifiedContributionCount: 1 },
       ],
     },
+    badges: [],
     contributionHistory: [
       {
         id: "history-1",

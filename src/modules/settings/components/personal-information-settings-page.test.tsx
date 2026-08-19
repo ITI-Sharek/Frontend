@@ -58,6 +58,7 @@ const mockProfile: ContributorProfileDto = {
     successRate: 96,
     topVerifiedSkills: [],
   },
+  badges: [],
   contributionHistory: [],
   completionPrompts: [],
   viewerRelationship: "owner",

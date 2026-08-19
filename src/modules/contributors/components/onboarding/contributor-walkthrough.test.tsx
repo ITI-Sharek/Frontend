@@ -41,6 +41,7 @@ const profile: ContributorProfileDto = {
     successRate: 0,
     topVerifiedSkills: [],
   },
+  badges: [],
   contributionHistory: [],
   completionPrompts: ["generate_skills"],
   viewerRelationship: "owner",
