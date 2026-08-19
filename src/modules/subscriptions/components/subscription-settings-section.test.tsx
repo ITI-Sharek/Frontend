@@ -95,9 +95,9 @@ describe("SubscriptionSettingsSection", () => {
       expect(container.textContent).toContain("المجانية");
       expect(container.textContent).toContain("الطلبات المُرسلة اليوم");
       expect(container.textContent).toContain("0 من 1");
-      // Server-authored labels, rendered verbatim.
-      expect(container.textContent).toContain("1 Application per day");
-      expect(container.textContent).toContain("Matched projects");
+      // Localized benefits in active locale (Arabic).
+      expect(container.textContent).toContain("طلب تقديم واحد يوميًا");
+      expect(container.textContent).toContain("المشاريع المُطابقة");
     });
 
     it("renders a Gold contributor without an upgrade prompt", async () => {
@@ -130,7 +130,7 @@ describe("SubscriptionSettingsSection", () => {
 
       expect(container.textContent).toContain("الذهبية");
       expect(container.textContent).toContain("3 من 5");
-      expect(container.textContent).toContain("10 matched projects");
+      expect(container.textContent).toContain("10 مشاريع مُطابقة");
       // Nothing to upgrade to.
       expect(container.textContent).not.toContain("عرض الخطط");
     });
@@ -159,6 +159,7 @@ describe("SubscriptionSettingsSection", () => {
 
       expect(container.textContent).toContain("طلبات المساهمة المنشورة هذا الشهر");
       expect(container.textContent).toContain("2 من 5");
+      expect(container.textContent).toContain("5 طلبات مساهمة منشورة شهريًا");
       expect(container.textContent).not.toContain("الطلبات المُرسلة اليوم");
     });
 
@@ -186,6 +187,7 @@ describe("SubscriptionSettingsSection", () => {
       await act(async () => root.render(<SubscriptionSettingsSection />));
 
       expect(container.textContent).toContain("11 من 30");
+      expect(container.textContent).toContain("30 طلب مساهمة منشورًا شهريًا");
       expect(container.textContent).toContain("الذهبية");
     });
   });

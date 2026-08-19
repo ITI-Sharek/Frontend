@@ -106,12 +106,12 @@ describe("PlanPageView", () => {
   it("renders the caller's own server-authored benefits, not invented ones", async () => {
     await act(async () => root.render(<PlanPageView />));
 
-    expect(container.textContent).toContain("1 Application per day");
-    expect(container.textContent).toContain("Matched projects");
+    expect(container.textContent).toContain("طلب تقديم واحد يوميًا");
+    expect(container.textContent).toContain("المشاريع المُطابقة");
     // Gold's numbers are the server's to state once the caller holds the plan;
     // this page never reconstructs them from the plan name.
-    expect(container.textContent).not.toContain("5 Applications per day");
-    expect(container.textContent).not.toContain("10 matched projects");
+    expect(container.textContent).not.toContain("5 طلبات تقديم يوميًا");
+    expect(container.textContent).not.toContain("10 مشاريع مُطابقة");
   });
 
   it("starts one idempotent hosted checkout for the caller's role", async () => {

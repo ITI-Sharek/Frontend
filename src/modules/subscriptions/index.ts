@@ -20,6 +20,7 @@ export {
   readPendingPaymentId,
   savePendingPaymentId,
 } from "./services/payment-session.service";
+export { formatBenefitLabel } from "./utils/format-benefit-label";
 export type {
   CreateSubscriptionCheckoutPayload,
   PaymentAttemptStatus,

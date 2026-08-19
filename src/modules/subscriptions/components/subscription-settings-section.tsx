@@ -14,6 +14,7 @@ import type {
   SubscriptionPlanStatusDto,
   SubscriptionStatus,
 } from "../types/subscription.types";
+import { formatBenefitLabel } from "../utils/format-benefit-label";
 
 
 const PLAN_LABEL_KEYS: Record<SubscriptionPlan, string> = {
@@ -28,6 +29,7 @@ const STATUS_LABEL_KEYS: Record<SubscriptionStatus, string> = {
 };
 
 function Benefit({ benefit }: { benefit: SubscriptionBenefitDto }) {
+  const { t } = useTranslation();
   const included = benefit.state === "included";
   return (
     <li className="flex items-start gap-2 text-sm leading-6 text-foreground">
@@ -43,12 +45,7 @@ function Benefit({ benefit }: { benefit: SubscriptionBenefitDto }) {
         />
       )}
       <span className={included ? undefined : "text-muted-foreground"}>
-        {/*
-          Server-authored, including this sentence. The UI never turns a plan
-          name into a list of limits, so a limit that changes on the backend
-          changes here without a frontend release.
-        */}
-        {benefit.label}
+        {formatBenefitLabel(benefit, t)}
       </span>
     </li>
   );

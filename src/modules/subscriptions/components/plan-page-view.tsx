@@ -20,6 +20,7 @@ import type {
   SubscriptionBenefitDto,
   SubscriptionPlan,
 } from "../types/subscription.types";
+import { formatBenefitLabel } from "../utils/format-benefit-label";
 
 
 const PLAN_LABEL_KEYS: Record<SubscriptionPlan, string> = {
@@ -28,6 +29,7 @@ const PLAN_LABEL_KEYS: Record<SubscriptionPlan, string> = {
 };
 
 function BenefitRow({ benefit }: { benefit: SubscriptionBenefitDto }) {
+  const { t } = useTranslation();
   const included = benefit.state === "included";
   return (
     <li className="flex items-start gap-2.5 text-sm leading-6">
@@ -47,7 +49,7 @@ function BenefitRow({ benefit }: { benefit: SubscriptionBenefitDto }) {
             : "text-muted-foreground line-through decoration-border-strong"
         }
       >
-        {benefit.label}
+        {formatBenefitLabel(benefit, t)}
       </span>
     </li>
   );
