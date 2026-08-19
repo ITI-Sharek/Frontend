@@ -36,9 +36,12 @@ function HeroStat({ label, value }: { label: string; value: ReactNode }) {
 export function ContributorDashboardView({
   dashboard,
   deliveryLifecycleSlot,
+  matchedProjectsLockedSlot,
 }: {
   dashboard: ContributorDashboardDto;
   deliveryLifecycleSlot?: ReactNode;
+  /** Matching's upgrade prompt, composed in by the route. */
+  matchedProjectsLockedSlot?: ReactNode;
 }) {
   const { t } = useTranslation();
   const headerAction =
@@ -136,6 +139,18 @@ export function ContributorDashboardView({
               </Link>
             </Button>
           </section>
+          {/*
+           * The state that celebrates "N requests fully match you today" used
+           * to state the count and then never show the matches. A contributor
+           * who just paid for matched projects reaches this state before their
+           * first application, so it is exactly where the list has to appear.
+           */}
+          <MatchedTasksSection
+            tasks={dashboard.matchedTasks}
+            matchReason={dashboard.matchReason}
+            matching={dashboard.matching}
+            lockedSlot={matchedProjectsLockedSlot}
+          />
           <DashboardSummary
             growth={dashboard.growth}
             applications={dashboard.applications}
@@ -151,6 +166,8 @@ export function ContributorDashboardView({
           <MatchedTasksSection
             tasks={dashboard.matchedTasks}
             matchReason={dashboard.matchReason}
+            matching={dashboard.matching}
+            lockedSlot={matchedProjectsLockedSlot}
           />
           <DashboardSummary
             growth={dashboard.growth}

@@ -7,6 +7,7 @@ import {
   useContributorDashboardQuery,
 } from "@/modules/dashboard";
 import { ContributorDeliveryLifecycleSection } from "@/modules/delivery-reviews";
+import { MatchedProjectsLockedCard } from "@/modules/matching";
 
 export const Route = createFileRoute("/_appLayout/dashboard")({
   beforeLoad: requireContributorRoute,
@@ -30,6 +31,9 @@ function DashboardPage() {
     <ContributorDashboardView
       dashboard={dashboardQuery.data}
       deliveryLifecycleSlot={<ContributorDeliveryLifecycleSection />}
+      // Cross-module composition belongs in the route: dashboard renders the
+      // matched list, matching owns what a free contributor is offered instead.
+      matchedProjectsLockedSlot={<MatchedProjectsLockedCard />}
     />
   );
 }

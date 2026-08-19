@@ -1,5 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
@@ -7,7 +8,12 @@ import { cn } from "@/lib/utils";
 import { SectionHeading } from "@/shared/components/layout/page-layout";
 import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 
-import type { MatchedTaskDto } from "../types/dashboard.types";
+import { Card } from "@/shared/components/ui/card";
+
+import type {
+  DashboardMatchingDto,
+  MatchedTaskDto,
+} from "../types/dashboard.types";
 
 /**
  * The fit gauge.
@@ -70,11 +76,32 @@ function FitGauge({
 export function MatchedTasksSection({
   tasks,
   matchReason,
+  matching,
+  lockedSlot,
 }: {
   tasks: MatchedTaskDto[];
   matchReason: string;
+  matching: DashboardMatchingDto;
+  /**
+   * The upgrade prompt, supplied by the route. Matching owns that card and a
+   * module may not import another module, so it arrives as a slot the way the
+   * delivery-lifecycle section already does.
+   */
+  lockedSlot?: ReactNode;
 }) {
   const { t } = useTranslation();
+
+  // Matched projects are what the Gold plan sells a contributor, so a free
+  // contributor gets the offer rather than a heading over an empty grid. The
+  // backend answers them 200 with a reason, not 403, precisely so this can be
+  // an upgrade prompt instead of an error state.
+  if (matching.reason === "MATCHING_REQUIRES_SUBSCRIPTION" && lockedSlot) {
+    return (
+      <section id="matches" className="scroll-mt-28">
+        {lockedSlot}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -87,7 +114,13 @@ export function MatchedTasksSection({
         title={
           <span id="matched-heading">{t("dashboard.matches.title")}</span>
         }
-        description={t("dashboard.matches.reason", { reason: matchReason })}
+        description={
+          // An empty list has no first match to quote, and interpolating an
+          // empty string rendered a dangling "Why:" under the title.
+          matchReason
+            ? t("dashboard.matches.reason", { reason: matchReason })
+            : t("dashboard.matches.description")
+        }
         action={
           <Link
             to={ROUTES.tasks}
@@ -99,6 +132,21 @@ export function MatchedTasksSection({
         }
       />
 
+      {tasks.length === 0 ? (
+        <Card className="border-dashed shadow-none">
+          <p className="text-sm leading-6 text-muted-foreground">
+            {/*
+              A Gold contributor with nothing matched is not a failure and is
+              not a sales moment. "You have no approved skills yet" is
+              actionable where "nothing right now" is not, so the two causes
+              read differently.
+            */}
+            {matching.reason === "NO_APPROVED_SKILLS"
+              ? t("dashboard.matches.emptyNoSkills")
+              : t("dashboard.matches.empty")}
+          </p>
+        </Card>
+      ) : (
       <div className="grid gap-3.5 lg:grid-cols-3">
         {tasks.map((task, index) => (
           <Link
@@ -136,16 +184,33 @@ export function MatchedTasksSection({
               {task.projectName}
             </p>
 
+            {/*
+             * Every skill the request asks for, with the ones the contributor
+             * has verified marked. Listing only the matched ones made a partial
+             * fit indistinguishable from a complete one -- the same defect the
+             * gauge above had, one line lower.
+             */}
             <div className="mt-3.5 flex flex-wrap gap-1.5">
-              {task.requiredSkills.map((skill) => (
-                <span
-                  key={skill}
-                  dir="ltr"
-                  className="rounded-social border border-border bg-surface-fog px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground"
-                >
-                  {skill}
-                </span>
-              ))}
+              {task.requiredSkills.map((skill) => {
+                const held = task.matchedSkills.includes(skill);
+                return (
+                  <span
+                    key={skill}
+                    dir="ltr"
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-social border px-1.5 py-0.5 font-mono text-[11px]",
+                      held
+                        ? "border-evidence-teal/35 bg-evidence-soft text-evidence-soft-foreground"
+                        : "border-border bg-surface-fog text-muted-foreground",
+                    )}
+                  >
+                    {held ? (
+                      <BadgeCheck className="size-3 shrink-0" aria-hidden />
+                    ) : null}
+                    {skill}
+                  </span>
+                );
+              })}
             </div>
 
             <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-primary">
@@ -155,6 +220,7 @@ export function MatchedTasksSection({
           </Link>
         ))}
       </div>
+      )}
     </section>
   );
 }

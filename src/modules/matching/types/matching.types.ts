@@ -21,6 +21,14 @@ export interface RecommendedTaskDto {
   confidence: MatchingConfidence;
   justification: string;
   matchedSkills: MatchedSkillDto[];
+  /**
+   * The fit gauge's two numbers, and the skills they count. Server-authored
+   * counts of what the request *requires* -- `matchedSkills` includes preferred
+   * skills the request never asked for, so it cannot serve as the numerator.
+   */
+  requiredSkillNames: string[];
+  matchedRequiredCount: number;
+  requiredSkillCount: number;
   applicationsCloseAt: string;
   targetCompletionDate: string | null;
   difficulty: "beginner" | "intermediate" | "advanced" | null;
