@@ -23,6 +23,7 @@ describe("workspace navigation", () => {
     expect(navigation.map((item) => item.to)).toEqual([
       ROUTES.home,
       ROUTES.myProjects,
+      ROUTES.exploreContributors,
       ROUTES.discussions,
       ROUTES.notifications,
       ROUTES.settings,

@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   Bell,
   BriefcaseBusiness,
   ClipboardCheck,
@@ -81,6 +82,12 @@ export function getMemberNavigation({
         icon: BriefcaseBusiness,
         active: isActivePath(pathname, ROUTES.myProjects),
       },
+      {
+        label: t("navigation.exploreContributors"),
+        to: ROUTES.exploreContributors,
+        icon: Users,
+        active: isActivePath(pathname, ROUTES.exploreContributors),
+      },
       discussionsItem,
       {
         label: t("navigation.notifications"),
@@ -142,6 +149,12 @@ export function getAdminNavigation({
       icon: ClipboardCheck,
       active: isActivePath(pathname, ROUTES.adminSkillReviews),
       badge: pendingReviewsCount,
+    },
+    {
+      label: t("navigation.adminIdentityVerifications", "Identity Verifications"),
+      to: ROUTES.adminIdentityVerifications,
+      icon: BadgeCheck,
+      active: isActivePath(pathname, ROUTES.adminIdentityVerifications),
     },
     {
       label: t("navigation.adminProfileFields"),
