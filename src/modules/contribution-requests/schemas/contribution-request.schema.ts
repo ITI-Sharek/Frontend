@@ -7,6 +7,16 @@ const requirementSchema = z.object({
   text: z.string(),
 });
 
+const skillRequirementSchema = z.object({
+  id: z.string(),
+  skillName: z.string(),
+  requiredLevel: z.enum(["beginner", "intermediate", "advanced"]),
+  kind: z.enum(["required", "preferred"]),
+  source: z.enum(["ai_inferred", "owner_override"]).default("owner_override"),
+  confidence: z.enum(["low", "medium", "high"]).nullable().default(null),
+  position: z.number().int().nonnegative().default(0),
+});
+
 export const contributionRequestSchema = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -14,6 +24,10 @@ export const contributionRequestSchema = z.object({
   description: z.string(),
   requiredRequirements: z.array(requirementSchema),
   preferredRequirements: z.array(requirementSchema),
+  skillRequirements: z.array(skillRequirementSchema).default([]),
+  skillInferenceStatus: z
+    .enum(["not_started", "pending", "succeeded", "failed"])
+    .default("not_started"),
   technologyTags: z.array(z.string()),
   applicationsCloseTime: z.string().nullable(),
   targetCompletionDate: z.string().nullable(),

@@ -293,6 +293,18 @@ function makeRequest(
     difficulty: "intermediate",
     reward: null,
     rewardCurrency: null,
+    skillRequirements: [
+      {
+        id: "skill-1",
+        skillName: "React",
+        requiredLevel: "intermediate",
+        kind: "required",
+        source: "owner_override",
+        confidence: null,
+        position: 0,
+      },
+    ],
+    skillInferenceStatus: "not_started",
     status: "draft",
     publishedAt: null,
     createdAt: "2026-07-30T12:00:00.000Z",

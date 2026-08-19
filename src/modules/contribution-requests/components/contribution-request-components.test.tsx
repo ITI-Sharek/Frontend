@@ -62,6 +62,35 @@ describe("Contribution Request private draft UI", () => {
     expect(html).not.toContain("إلغاء الطلب");
   });
 
+  it("clearly separates work outcomes from skill eligibility", () => {
+    const html = renderToStaticMarkup(
+      <ContributionRequestForm
+        initialState={{
+          ...createEmptyContributionRequestForm(),
+          requiredRequirements: ["Build tested behavior"],
+          skillRequirements: [
+            {
+              skillName: "React",
+              requiredLevel: "intermediate",
+              kind: "required",
+            },
+          ],
+        }}
+        isSubmitting={false}
+        submitError={null}
+        submitLabel="حفظ المسودة"
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("متطلبات العمل");
+    expect(html).toContain("النتائج والقدرات");
+    expect(html).toContain("متطلبات المهارات للأهلية");
+    expect(html).toContain("اسم المهارة");
+    expect(html).toContain("المستوى المطلوب");
+    expect(html).toContain("النوع");
+  });
+
   it("explains that discard is terminal history preservation, not deletion", () => {
     const html = renderToStaticMarkup(
       <DiscardContributionRequestDialog

@@ -251,6 +251,8 @@ function responseDto(overrides: Record<string, unknown> = {}) {
     difficulty: "intermediate",
     reward: "150.00",
     rewardCurrency: "USD",
+    skillRequirements: [],
+    skillInferenceStatus: "not_started",
     status: "draft",
     // Always present on the wire -- null for an ordinary draft, an object for
     // one generated from an accepted Proposal -- so the schema requires it

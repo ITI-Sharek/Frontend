@@ -35,7 +35,11 @@ import {
   useUpdateContributionRequestMutation,
 } from "../api/mutations/use-contribution-request-mutations";
 import { useContributionRequestQuery } from "../api/queries/use-contribution-request-query";
-import { toContributionRequestForm } from "../utils/contribution-request-form";
+import { replaceContributionRequestSkillRequirements } from "../services/contribution-requests.service";
+import {
+  resolveEffectiveSkillRequirements,
+  toContributionRequestForm,
+} from "../utils/contribution-request-form";
 import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key";
 import {
   getOwnerContributionRequestStatusMeta,
@@ -45,7 +49,10 @@ import {
   formatContributionDate,
   formatContributionDateTime,
 } from "../utils/contributor-presentation";
-import type { ContributionRequestDraftPayload } from "../types/contribution-request.types";
+import type {
+  ContributionRequestDraftPayload,
+  ContributionRequestSkillRequirementInput,
+} from "../types/contribution-request.types";
 
 export type RequestWorkspaceTab =
   | "details"
@@ -166,7 +173,10 @@ export function ContributionRequestDetailView({
   );
   const statusMeta = getOwnerContributionRequestStatusMeta(request, now);
 
-  async function update(payload: ContributionRequestDraftPayload) {
+  async function update(
+    payload: ContributionRequestDraftPayload,
+    skillRequirements?: ContributionRequestSkillRequirementInput[],
+  ) {
     setSaved(false);
     setUpdateError(null);
     const idempotencyKey = updateIdempotency.current.getFor({
@@ -175,6 +185,16 @@ export function ContributionRequestDetailView({
     });
     try {
       await updateMutation.mutateAsync({ payload, idempotencyKey });
+      if (skillRequirements && skillRequirements.length > 0) {
+        try {
+          await replaceContributionRequestSkillRequirements(
+            requestId,
+            skillRequirements,
+          );
+        } catch {
+          // Non-blocking
+        }
+      }
       updateIdempotency.current.clear();
       setSaved(true);
     } catch (error) {
@@ -206,6 +226,26 @@ export function ContributionRequestDetailView({
       action: "publish",
     });
     try {
+      const hasRequiredSkill =
+        Array.isArray(request.skillRequirements) &&
+        request.skillRequirements.some((s) => s.kind === "required");
+
+      if (!hasRequiredSkill) {
+        const derived = resolveEffectiveSkillRequirements(
+          toContributionRequestForm(request),
+        );
+        if (derived.length > 0) {
+          try {
+            await replaceContributionRequestSkillRequirements(
+              requestId,
+              derived,
+            );
+          } catch {
+            // let publishMutation handle it
+          }
+        }
+      }
+
       await publishMutation.mutateAsync({ idempotencyKey });
       publishIdempotency.current.clear();
       setPublishOpen(false);
@@ -233,7 +273,7 @@ export function ContributionRequestDetailView({
   }
 
   return (
-    <PageContainer className="max-w-4xl">
+    <PageContainer className="max-w-6xl">
       <div
         id="contribution-request-lifecycle-focus"
         ref={lifecycleFocusRef}

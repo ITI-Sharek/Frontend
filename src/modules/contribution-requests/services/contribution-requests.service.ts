@@ -11,6 +11,7 @@ import type {
   ContributionRequestDto,
   ContributionRequestFeedFiltersDto,
   ContributionRequestFeedResponseDto,
+  ContributionRequestSkillRequirementDto,
   DiscardContributionRequestPayload,
   OwnerProjectContributionRequestsDto,
 } from "../types/contribution-request.types";
@@ -52,6 +53,30 @@ export async function updateContributionRequestDraft(
     { headers: idempotencyHeaders(idempotencyKey) },
   );
   return contributionRequestSchema.parse(data);
+}
+
+export async function replaceContributionRequestSkillRequirements(
+  requestId: string,
+  skillRequirements: Array<{
+    skillName: string;
+    requiredLevel: "beginner" | "intermediate" | "advanced";
+    kind: "required" | "preferred";
+  }>,
+): Promise<ContributionRequestSkillRequirementDto[]> {
+  const { data } = await axiosInstance.put(
+    `/contribution-requests/${encodeURIComponent(requestId)}/skill-requirements`,
+    { skillRequirements },
+  );
+  return data;
+}
+
+export async function getContributionRequestSkillRequirements(
+  requestId: string,
+): Promise<ContributionRequestSkillRequirementDto[]> {
+  const { data } = await axiosInstance.get(
+    `/contribution-requests/${encodeURIComponent(requestId)}/skill-requirements`,
+  );
+  return data;
 }
 
 export async function discardContributionRequestDraft(

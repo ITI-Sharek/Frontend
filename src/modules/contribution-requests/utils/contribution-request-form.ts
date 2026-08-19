@@ -13,6 +13,7 @@ export function createEmptyContributionRequestForm(): ContributionRequestFormSta
     description: "",
     requiredRequirements: [""],
     preferredRequirements: [],
+    skillRequirements: [],
     technologyTags: [],
     applicationsCloseTime: "",
     targetCompletionDate: "",
@@ -34,6 +35,13 @@ export function toContributionRequestForm(
     preferredRequirements: [...request.preferredRequirements]
       .sort((left, right) => left.position - right.position)
       .map((requirement) => requirement.text),
+    skillRequirements: Array.isArray(request.skillRequirements)
+      ? request.skillRequirements.map((skill) => ({
+          skillName: skill.skillName,
+          requiredLevel: skill.requiredLevel,
+          kind: skill.kind,
+        }))
+      : [],
     technologyTags: request.technologyTags,
     applicationsCloseTime: request.applicationsCloseTime
       ? toLocalDateTimeInput(request.applicationsCloseTime)
@@ -43,6 +51,92 @@ export function toContributionRequestForm(
     reward: request.reward ?? "",
     rewardCurrency: request.rewardCurrency ?? "",
   };
+}
+
+/**
+ * Resolves the effective skill requirements to save.
+ * If user hasn't explicitly added a required skill row, automatically derives
+ * default skill requirements from technology tags or required requirements so
+ * the draft is always publishable.
+ */
+export function resolveEffectiveSkillRequirements(
+  form: ContributionRequestFormState,
+): Array<{
+  skillName: string;
+  requiredLevel: "beginner" | "intermediate" | "advanced";
+  kind: "required" | "preferred";
+}> {
+  const validUserSkills = form.skillRequirements
+    .map((s) => ({
+      skillName: s.skillName.trim(),
+      requiredLevel: s.requiredLevel,
+      kind: s.kind,
+    }))
+    .filter((s) => s.skillName.length > 0);
+
+  const hasRequired = validUserSkills.some((s) => s.kind === "required");
+  if (validUserSkills.length > 0 && hasRequired) {
+    return validUserSkills;
+  }
+
+  const defaultLevel =
+    form.difficulty === "intermediate" || form.difficulty === "advanced"
+      ? form.difficulty
+      : "beginner";
+
+  // Derive from technology tags first
+  const derivedSkills: Array<{
+    skillName: string;
+    requiredLevel: "beginner" | "intermediate" | "advanced";
+    kind: "required" | "preferred";
+  }> = [];
+
+  const seen = new Set<string>();
+
+  for (const s of validUserSkills) {
+    const key = s.skillName.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      derivedSkills.push(s);
+    }
+  }
+
+  for (const tag of form.technologyTags) {
+    const trimmed = tag.trim();
+    const key = trimmed.toLowerCase();
+    if (trimmed.length > 0 && !seen.has(key) && derivedSkills.length < 15) {
+      seen.add(key);
+      derivedSkills.push({
+        skillName: trimmed,
+        requiredLevel: defaultLevel,
+        kind: "required",
+      });
+    }
+  }
+
+  // If still no required skill and we have required text requirements, check if any looks like a skill
+  if (!derivedSkills.some((s) => s.kind === "required")) {
+    for (const req of form.requiredRequirements) {
+      const trimmed = req.trim();
+      const key = trimmed.toLowerCase();
+      if (
+        trimmed.length > 0 &&
+        trimmed.length <= 50 &&
+        !seen.has(key) &&
+        derivedSkills.length < 15
+      ) {
+        seen.add(key);
+        derivedSkills.push({
+          skillName: trimmed,
+          requiredLevel: defaultLevel,
+          kind: "required",
+        });
+        break;
+      }
+    }
+  }
+
+  return derivedSkills;
 }
 
 export function validateContributionRequestForm(

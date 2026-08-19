@@ -88,6 +88,7 @@ function validForm(): ContributionRequestFormState {
     description: "Implement the private draft workflow safely.",
     requiredRequirements: ["Deliver tested endpoints"],
     preferredRequirements: ["Document the contract"],
+    skillRequirements: [],
     technologyTags: ["NestJS"],
     applicationsCloseTime: "2030-03-10T12:00",
     targetCompletionDate: "2030-03-20",

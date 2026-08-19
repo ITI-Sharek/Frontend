@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ArrowUp,
+  Award,
   Calendar,
   CheckCircle2,
   Coins,
@@ -28,6 +29,7 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 
 import {
+  resolveEffectiveSkillRequirements,
   toContributionRequestPayload,
   validateContributionRequestForm,
 } from "../utils/contribution-request-form";
@@ -35,6 +37,7 @@ import type {
   ContributionRequestDraftPayload,
   ContributionRequestFormErrors,
   ContributionRequestFormState,
+  ContributionRequestSkillRequirementInput,
 } from "../types/contribution-request.types";
 
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -58,6 +61,7 @@ export function ContributionRequestForm({
   submitError,
   submitLabel,
   cancelHref,
+  presentation = "page",
   onCancel,
   onSubmit,
 }: {
@@ -66,8 +70,12 @@ export function ContributionRequestForm({
   submitError: string | null;
   submitLabel: string;
   cancelHref?: string;
+  presentation?: "page" | "panel";
   onCancel?: () => void;
-  onSubmit: (payload: ContributionRequestDraftPayload) => Promise<void>;
+  onSubmit: (
+    payload: ContributionRequestDraftPayload,
+    skillRequirements: ContributionRequestSkillRequirementInput[],
+  ) => Promise<void>;
 }) {
   const { t, i18n } = useTranslation();
   const [form, setForm] = useState(initialState);
@@ -101,7 +109,8 @@ export function ContributionRequestForm({
       });
       return;
     }
-    await onSubmit(toContributionRequestPayload(submissionForm));
+    const effectiveSkills = resolveEffectiveSkillRequirements(submissionForm);
+    await onSubmit(toContributionRequestPayload(submissionForm), effectiveSkills);
   }
 
   function setField<TKey extends keyof ContributionRequestFormState>(
@@ -141,9 +150,12 @@ export function ContributionRequestForm({
       className="space-y-6"
       onSubmit={(event) => void handleSubmit(event)}
     >
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+      <div className={cn(
+        "grid grid-cols-1 gap-6",
+        presentation === "page" && "lg:grid-cols-12 lg:items-start",
+      )}>
         {/* ═════════ LEFT / PRIMARY COLUMN: Specs & Requirements (8 cols) ═════════ */}
-        <div className="flex flex-col gap-6 lg:col-span-7 xl:col-span-8">
+        <div className={cn("flex flex-col gap-6", presentation === "page" && "lg:col-span-7 xl:col-span-8")}>
           {/* 1. Overview & Specifications Card */}
           <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-2xs space-y-5">
             <div className="flex items-center gap-2.5 border-b border-border pb-4">
@@ -215,10 +227,10 @@ export function ContributionRequestForm({
                 </span>
                 <div>
                   <h3 className="text-base font-extrabold text-foreground">
-                    {t("contributionRequests.form.requiredRequirements")} & {t("contributionRequests.form.preferredRequirements")}
+                    {t("contributionRequests.form.requirementsSectionTitle")}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {t("contributionRequests.form.requiredDescription")}
+                    {t("contributionRequests.form.requirementsSectionHelp")}
                   </p>
                 </div>
               </div>
@@ -251,10 +263,38 @@ export function ContributionRequestForm({
               />
             </div>
           </div>
+
+          {/* 3. Machine-comparable Skill Levels (ADR 0015) */}
+          <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-2xs space-y-5">
+            <div className="flex items-center gap-2.5 border-b border-border pb-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Award className="size-4.5" />
+              </span>
+              <div>
+                <h3 className="text-base font-extrabold text-foreground">
+                  {t("contributionRequests.form.skillRequirements")}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t("contributionRequests.form.skillRequirementsHelp")}
+                </p>
+              </div>
+            </div>
+
+            <SkillRequirementsEditor
+              skills={form.skillRequirements}
+              defaultLevel={
+                form.difficulty === "intermediate" || form.difficulty === "advanced"
+                  ? form.difficulty
+                  : "beginner"
+              }
+              tags={form.technologyTags}
+              onChange={(skills) => setField("skillRequirements", skills)}
+            />
+          </div>
         </div>
 
         {/* ═════════ RIGHT / SIDEBAR COLUMN: Parameters, Timeline & Reward (4 cols) ═════════ */}
-        <div className="flex flex-col gap-6 lg:col-span-5 xl:col-span-4">
+        <div className={cn("flex flex-col gap-6", presentation === "page" && "lg:col-span-5 xl:col-span-4")}>
           {/* 3. Task Parameters & Difficulty */}
           <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs space-y-5">
             <div className="flex items-center gap-2.5 border-b border-border pb-3.5">
@@ -292,7 +332,6 @@ export function ContributionRequestForm({
                 ))}
               </NativeSelect>
             </FormField>
-
             {/* Technology Tags & Presets */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="technology-tag-input" className="text-xs font-bold text-foreground">
@@ -713,4 +752,155 @@ function FieldError({ id, message }: { id: string; message?: string }) {
       {message}
     </p>
   ) : null;
+}
+
+function SkillRequirementsEditor({
+  skills,
+  defaultLevel,
+  tags,
+  onChange,
+}: {
+  skills: ContributionRequestSkillRequirementInput[];
+  defaultLevel: "beginner" | "intermediate" | "advanced";
+  tags: string[];
+  onChange: (skills: ContributionRequestSkillRequirementInput[]) => void;
+}) {
+  const { t } = useTranslation();
+
+  function addSkill(skillName = "") {
+    if (skills.length >= 15) return;
+    onChange([
+      ...skills,
+      {
+        skillName,
+        requiredLevel: defaultLevel,
+        kind: "required",
+      },
+    ]);
+  }
+
+  function updateSkill(
+    index: number,
+    field: keyof ContributionRequestSkillRequirementInput,
+    value: string,
+  ) {
+    const next = [...skills];
+    next[index] = { ...next[index], [field]: value };
+    onChange(next);
+  }
+
+  function removeSkill(index: number) {
+    onChange(skills.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div className="space-y-3">
+      {skills.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/80 bg-surface-fog/30 p-4 text-center">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("contributionRequests.form.noSkillRequirements")}
+          </p>
+          {tags.length > 0 && (
+            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => addSkill(tag)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary transition-colors hover:bg-primary/20"
+                >
+                  <Plus className="size-3" aria-hidden="true" />
+                  <span>{tag}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          <div className="hidden grid-cols-[minmax(0,1fr)_7rem_7rem_2rem] items-center gap-2 px-2.5 text-[11px] font-bold text-muted-foreground sm:grid">
+            <span>{t("contributionRequests.form.skillName")}</span>
+            <span>{t("contributionRequests.form.skillLevel")}</span>
+            <span>{t("contributionRequests.form.skillKind")}</span>
+            <span aria-hidden="true" />
+          </div>
+          {skills.map((skill, index) => (
+            <div
+              key={index}
+              className="flex flex-wrap items-center gap-2 rounded-xl border border-border/80 bg-surface-fog/40 p-2.5 sm:flex-nowrap"
+            >
+              <Input
+                value={skill.skillName}
+                maxLength={50}
+                aria-label={t("contributionRequests.form.skillName")}
+                placeholder={t("contributionRequests.form.skillName")}
+                onChange={(e) => updateSkill(index, "skillName", e.target.value)}
+                className="h-9 min-w-36 flex-1 text-xs font-semibold"
+              />
+              <NativeSelect
+                value={skill.requiredLevel}
+                aria-label={t("contributionRequests.form.skillLevel")}
+                onChange={(e) =>
+                  updateSkill(
+                    index,
+                    "requiredLevel",
+                    e.target.value,
+                  )
+                }
+                className="h-9 w-28 text-xs font-medium"
+              >
+                <NativeSelectOption value="beginner">
+                  {t("contributionRequests.form.difficulties.beginner")}
+                </NativeSelectOption>
+                <NativeSelectOption value="intermediate">
+                  {t("contributionRequests.form.difficulties.intermediate")}
+                </NativeSelectOption>
+                <NativeSelectOption value="advanced">
+                  {t("contributionRequests.form.difficulties.advanced")}
+                </NativeSelectOption>
+              </NativeSelect>
+              <NativeSelect
+                value={skill.kind}
+                aria-label={t("contributionRequests.form.skillKind")}
+                onChange={(e) =>
+                  updateSkill(
+                    index,
+                    "kind",
+                    e.target.value,
+                  )
+                }
+                className="h-9 w-28 text-xs font-medium"
+              >
+                <NativeSelectOption value="required">
+                  {t("contributionRequests.form.mustHaveBadge")}
+                </NativeSelectOption>
+                <NativeSelectOption value="preferred">
+                  {t("contributionRequests.form.optionalBadge")}
+                </NativeSelectOption>
+              </NativeSelect>
+              <IconButton
+                label={t("contributionRequests.form.removeSkillRequirement")}
+                disabled={false}
+                onClick={() => removeSkill(index)}
+              >
+                <Trash2 className="size-3.5" />
+              </IconButton>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="mt-2 gap-1.5 rounded-lg text-xs font-bold"
+        disabled={skills.length >= 15}
+        onClick={() => addSkill("")}
+      >
+        <Plus className="size-3.5" aria-hidden="true" />
+        {t("contributionRequests.form.addSkillRequirement")}
+      </Button>
+    </div>
+  );
 }

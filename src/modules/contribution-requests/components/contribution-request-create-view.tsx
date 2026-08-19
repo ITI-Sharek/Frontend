@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/shared/components/layout/page-layout";
 
 import { ContributionRequestForm } from "./contribution-request-form";
+import { replaceContributionRequestSkillRequirements } from "../services/contribution-requests.service";
 import { getContributionRequestErrorMessage } from "../constants/contribution-request-copy";
 import { useCreateContributionRequestMutation } from "../api/mutations/use-contribution-request-mutations";
 import { createEmptyContributionRequestForm } from "../utils/contribution-request-form";
@@ -12,6 +13,7 @@ import { ContributionRequestIdempotencyKeyStore } from "../utils/idempotency-key
 import type {
   ContributionRequestDraftPayload,
   ContributionRequestDto,
+  ContributionRequestSkillRequirementInput,
 } from "../types/contribution-request.types";
 
 export function ContributionRequestCreateView({
@@ -34,7 +36,10 @@ export function ContributionRequestCreateView({
   const idempotency = useRef(new ContributionRequestIdempotencyKeyStore());
   const [error, setError] = useState<string | null>(null);
 
-  async function create(payload: ContributionRequestDraftPayload) {
+  async function create(
+    payload: ContributionRequestDraftPayload,
+    skillRequirements?: ContributionRequestSkillRequirementInput[],
+  ) {
     setError(null);
     const idempotencyKey = idempotency.current.getFor({ projectId, payload });
     try {
@@ -43,6 +48,16 @@ export function ContributionRequestCreateView({
         payload,
         idempotencyKey,
       });
+      if (skillRequirements && skillRequirements.length > 0) {
+        try {
+          await replaceContributionRequestSkillRequirements(
+            request.id,
+            skillRequirements,
+          );
+        } catch {
+          // Non-blocking fallback
+        }
+      }
       idempotency.current.clear();
       onCreated(request);
     } catch (requestError) {
@@ -81,6 +96,7 @@ export function ContributionRequestCreateView({
         submitError={error}
         submitLabel={t("contributionRequests.create.saveDraft")}
         cancelHref={cancelHref}
+        presentation={presentation}
         onCancel={onCancel}
         onSubmit={create}
       />

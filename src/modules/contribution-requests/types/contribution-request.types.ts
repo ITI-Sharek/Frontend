@@ -37,6 +37,27 @@ export interface ContributionRequestRequirementDto {
   text: string;
 }
 
+export type SkillProfileProficiencyLevel =
+  | "beginner"
+  | "intermediate"
+  | "advanced";
+
+export interface ContributionRequestSkillRequirementDto {
+  id: string;
+  skillName: string;
+  requiredLevel: SkillProfileProficiencyLevel;
+  kind: ContributionRequestRequirementKind;
+  source: "ai_inferred" | "owner_override";
+  confidence: "low" | "medium" | "high" | null;
+  position: number;
+}
+
+export interface ContributionRequestSkillRequirementInput {
+  skillName: string;
+  requiredLevel: SkillProfileProficiencyLevel;
+  kind: ContributionRequestRequirementKind;
+}
+
 export interface ContributionRequestDto {
   id: string;
   projectId: string;
@@ -44,6 +65,8 @@ export interface ContributionRequestDto {
   description: string;
   requiredRequirements: ContributionRequestRequirementDto[];
   preferredRequirements: ContributionRequestRequirementDto[];
+  skillRequirements: ContributionRequestSkillRequirementDto[];
+  skillInferenceStatus: "not_started" | "pending" | "succeeded" | "failed";
   technologyTags: string[];
   applicationsCloseTime: string | null;
   targetCompletionDate: string | null;
@@ -116,6 +139,7 @@ export interface ContributionRequestFormState {
   description: string;
   requiredRequirements: string[];
   preferredRequirements: string[];
+  skillRequirements: ContributionRequestSkillRequirementInput[];
   technologyTags: string[];
   applicationsCloseTime: string;
   targetCompletionDate: string;
@@ -129,6 +153,7 @@ export type ContributionRequestFormField =
   | "description"
   | "requiredRequirements"
   | "preferredRequirements"
+  | "skillRequirements"
   | "technologyTags"
   | "applicationsCloseTime"
   | "targetCompletionDate"
