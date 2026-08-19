@@ -58,17 +58,17 @@ function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content> &
   VariantProps<typeof sheetVariants>) {
   return (
-    <>
+    <SheetPrimitive.Portal>
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         aria-modal="true"
-        className={cn(sheetVariants({ side }), className)}
+        className={cn(sheetVariants({ side }), "flex-col", className)}
         {...props}
       >
         {children}
       </SheetPrimitive.Content>
-    </>
+    </SheetPrimitive.Portal>
   );
 }
 
