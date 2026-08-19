@@ -26,8 +26,12 @@ i18n
     supportedLngs: [...SUPPORTED_LANGUAGES],
 
     detection: {
-      // Persist to localStorage; read back on next load.
-      order: ["localStorage", "navigator"],
+      // Persist to localStorage; read back on next load. Do not use the
+      // browser/Node navigator as a fallback: TanStack Start evaluates this
+      // singleton during SSR, and Node 24 exposes navigator.language. That
+      // would make the server render English while the Arabic client
+      // preference is restored during hydration.
+      order: ["localStorage"],
       lookupLocalStorage: "sharek-lang",
       caches: ["localStorage"],
     },
