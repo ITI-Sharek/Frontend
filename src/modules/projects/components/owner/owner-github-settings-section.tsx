@@ -184,19 +184,21 @@ export function OwnerGithubSettingsSection({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            disabled={isConnecting}
-            onClick={() => startConnection()}
-          >
-            {isConnecting ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Github className="size-4" />
-            )}
-            <span>{t("project.ownerGithub.connect", "Connect GitHub")}</span>
-          </Button>
+          {installations.length === 0 && (
+            <Button
+              type="button"
+              size="sm"
+              disabled={isConnecting}
+              onClick={() => startConnection()}
+            >
+              {isConnecting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Github className="size-4" />
+              )}
+              <span>{t("project.ownerGithub.connect", "Connect GitHub")}</span>
+            </Button>
+          )}
           <Button asChild variant="outline" size="sm">
             <a href={ROUTES.newProject}>
               <ArrowRight className="size-4 rtl:rotate-180" />
