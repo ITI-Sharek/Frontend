@@ -90,17 +90,20 @@ function SettingsPage() {
           profileQuery.data ? (
             <ContributorGithubSettingsSection
               profile={profileQuery.data}
+              attemptId={attemptId}
+              callbackError={error}
+              onClearCallback={() =>
+                void navigate({
+                  search: { section: "github" },
+                  replace: true,
+                })
+              }
               onConnectGitHub={() =>
                 startGitHubConnect(`${ROUTES.settings}?section=github`)
               }
               onDisconnectGitHub={async () => {
                 await disconnectGitHubAccount();
                 await profileQuery.refetch();
-              }}
-              onOpenRepositories={() => {
-                void navigate({
-                  search: { section: "github" },
-                });
               }}
             />
           ) : (
