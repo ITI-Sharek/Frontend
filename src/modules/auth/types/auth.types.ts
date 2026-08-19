@@ -23,6 +23,8 @@ export interface AuthUserDto {
   showActivity?: boolean;
   allowIndexing?: boolean;
   identityVerificationStatus?: "unverified" | "pending" | "verified" | "rejected";
+  identityVerifiedAt?: string | null;
+  identityVerificationRejectedReason?: string | null;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
@@ -53,6 +55,25 @@ export interface RegisterPayload {
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ForgotPasswordResponseDto {
+  message: string;
+  resetExpiresAt: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponseDto {
+  message: string;
 }
 
 export interface UpdateCurrentUserPreferencesDto {

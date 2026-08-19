@@ -5,8 +5,12 @@ import type {
   AuthTokensDto,
   AuthUserDto,
   EmailVerificationRequiredDto,
+  ForgotPasswordPayload,
+  ForgotPasswordResponseDto,
   LoginPayload,
   RegisterPayload,
+  ResetPasswordPayload,
+  ResetPasswordResponseDto,
   UpdateCurrentUserPreferencesDto,
   UpdatePersonalDetailsDto,
   UpdatePrivacyDto,
@@ -24,13 +28,28 @@ export async function registerUser(
   return data;
 }
 
-export async function changePassword(input: { currentPassword: string; newPassword: string }) {
-  const { data } = await axiosInstance.patch<{ message: string }>("/auth/me/password", input);
+export async function forgotPassword(
+  payload: ForgotPasswordPayload,
+): Promise<ForgotPasswordResponseDto> {
+  const { data } = await axiosInstance.post<ForgotPasswordResponseDto>(
+    "/auth/forgot-password",
+    payload,
+  );
   return data;
 }
 
-export async function updateEmail(input: { email: string; password: string }): Promise<AuthUserDto> {
-  const { data } = await axiosInstance.patch<AuthUserDto>("/auth/me/email", input);
+export async function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<ResetPasswordResponseDto> {
+  const { data } = await axiosInstance.post<ResetPasswordResponseDto>(
+    "/auth/reset-password",
+    payload,
+  );
+  return data;
+}
+
+export async function changePassword(input: { currentPassword: string; newPassword: string }) {
+  const { data } = await axiosInstance.patch<{ message: string }>("/auth/me/password", input);
   return data;
 }
 
@@ -55,8 +74,17 @@ export async function updatePrivacy(input: UpdatePrivacyDto): Promise<AuthUserDt
 }
 
 export async function uploadIdentityDocument(file: File): Promise<AuthUserDto> {
-  const form = new FormData(); form.append("file", file);
-  const { data } = await axiosInstance.put<AuthUserDto>("/auth/me/identity-document", form);
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await axiosInstance.put<AuthUserDto>(
+    "/auth/me/identity-document",
+    form,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
   return data;
 }
 

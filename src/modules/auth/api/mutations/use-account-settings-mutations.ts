@@ -2,8 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { authKeys } from "../query-keys";
 import {
-  changePassword, exportAccountData, updateEmail, updatePersonalDetails,
-  updatePhone, updatePrivacy, updateUsername, uploadIdentityDocument,
+  changePassword,
+  exportAccountData,
+  forgotPassword,
+  resetPassword,
+  updatePersonalDetails,
+  updatePhone,
+  updatePrivacy,
+  updateUsername,
+  uploadIdentityDocument,
 } from "../../services/auth.service";
 
 function useCurrentUserMutation<TInput>(mutationFn: (input: TInput) => Promise<unknown>) {
@@ -15,8 +22,9 @@ function useCurrentUserMutation<TInput>(mutationFn: (input: TInput) => Promise<u
   }});
 }
 
+export const useForgotPasswordMutation = () => useMutation({ mutationFn: forgotPassword });
+export const useResetPasswordMutation = () => useMutation({ mutationFn: resetPassword });
 export const useChangePasswordMutation = () => useCurrentUserMutation(changePassword);
-export const useUpdateEmailMutation = () => useCurrentUserMutation(updateEmail);
 export const useUpdateUsernameMutation = () => useCurrentUserMutation(updateUsername);
 export const useUpdatePersonalDetailsMutation = () => useCurrentUserMutation(updatePersonalDetails);
 export const useUpdatePhoneMutation = () => useCurrentUserMutation(updatePhone);
