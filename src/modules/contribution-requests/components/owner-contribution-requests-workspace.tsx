@@ -99,7 +99,7 @@ export function OwnerContributionRequestsWorkspace({
   const now = new Date();
 
   return (
-    <PageContainer className="max-w-4xl">
+    <PageContainer className="max-w-5xl">
       <PageHeader
         title={t("contributionRequests.ownerWorkspace.title", { project: projectTitle })}
         description={t("contributionRequests.ownerWorkspace.description")}
@@ -166,7 +166,7 @@ export function OwnerContributionRequestsWorkspace({
           <TabsList
             variant="line"
             aria-label={t("contributionRequests.ownerWorkspace.statuses")}
-            className="flex gap-1 overflow-x-auto border-b border-border pb-px"
+            className="flex w-full flex-wrap justify-start gap-2 border-b border-border bg-transparent p-0"
           >
             {SECTION_ORDER.map(({ status, titleKey, alwaysShown }) => {
               const count = getSectionItems(status, byStatus, now).length;
@@ -175,7 +175,7 @@ export function OwnerContributionRequestsWorkspace({
                 <TabsTrigger
                   key={status}
                   value={status}
-                  className="min-h-11 shrink-0"
+                  className="min-h-11 px-3"
                 >
                   {t(`contributionRequests.ownerWorkspace.sections.${titleKey}`)}
                   <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
@@ -187,7 +187,7 @@ export function OwnerContributionRequestsWorkspace({
           </TabsList>
           <TabsContent
             value={activeStatus}
-            className="max-h-[calc(100dvh-19rem)] min-h-72 overflow-y-auto overscroll-contain pt-5 pe-1"
+            className="pt-6 outline-none"
           >
             <ContributionRequestSection
               title={
@@ -247,11 +247,11 @@ function ContributionRequestSection({
         </span>
       </h2>
       {items.length === 0 ? (
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-4 rounded-card border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
           {t("contributionRequests.ownerWorkspace.emptySection")}
         </p>
       ) : (
-        <ul className="mt-2 flex flex-col gap-2">
+        <ul className="mt-4 flex flex-col gap-3">
           {items.map((request) => (
             <li key={request.id}>
               <ContributionRequestRow

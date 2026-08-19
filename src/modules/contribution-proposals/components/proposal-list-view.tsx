@@ -132,7 +132,7 @@ export function ProposalListView({
       <TabsList
         variant="line"
         aria-label={t("proposalList.statusTabsAria")}
-        className="mb-4 flex gap-1 overflow-x-auto border-b border-border"
+        className="mb-4 flex w-full flex-wrap justify-start gap-2 border-b border-border bg-transparent p-0"
       >
         {statusTabs.map((tab) => {
           const count =
@@ -144,7 +144,7 @@ export function ProposalListView({
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="min-h-11 shrink-0"
+              className="min-h-11 px-3"
             >
               {tab.label}
               <span className="rounded-full bg-surface-fog px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
@@ -157,7 +157,7 @@ export function ProposalListView({
 
       <TabsContent
         value={activeStatus}
-        className="max-h-[calc(100dvh-18rem)] overflow-y-auto overscroll-contain pe-1"
+        className="pt-2 outline-none"
       >
         {visibleProposals.length === 0 ? (
           <p className="rounded-card border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
