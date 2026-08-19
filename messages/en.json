@@ -353,7 +353,10 @@
       "reason": "Why: {{reason}}",
       "viewAll": "View all requests",
       "fit": "{{matched}}/{{required}} fit",
-      "review": "Review details"
+      "review": "Review details",
+      "description": "Contribution requests your approved skills fit, closest matches first.",
+      "empty": "No matched requests right now. New requests are matched as owners publish them, and you can browse all open requests in the meantime.",
+      "emptyNoSkills": "You have no approved skills yet, so there is nothing to match against. Once a skill is approved your matched requests appear here."
     },
     "mock": {
       "attention": {
