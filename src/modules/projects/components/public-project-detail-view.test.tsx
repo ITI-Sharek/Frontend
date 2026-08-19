@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
+import { API_BASE_URL } from "@/config/env";
+
 import { PublicProjectDetailView } from "./public-project-detail-view";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
@@ -104,6 +106,19 @@ describe("PublicProjectDetailView", () => {
 
     expect(html).toContain("لا يوجد وصف لهذا المشروع بعد");
     expect(html).not.toContain("آخر جلب للبيانات");
+  });
+
+  it("loads a public hero image from the API origin", () => {
+    const heroImagePath =
+      "/public/projects/bengaluru-house-prices-7aa7dddf9ce144c3a02a7c56088a2fe4/hero-image";
+    const html = render(
+      <PublicProjectDetailView
+        project={{ ...publicBackedProject, heroImageUrl: heroImagePath }}
+        exploreHref="/explore"
+      />,
+    );
+
+    expect(html).toContain(`src="${API_BASE_URL}${heroImagePath}"`);
   });
 
   it("renders the route-composed proposal action without coupling project UI to proposals", () => {

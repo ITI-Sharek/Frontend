@@ -13,6 +13,7 @@ import {
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
+import { API_BASE_URL } from "@/config/env";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/shared/components/ui/button";
 import { getCategoryLabel } from "./explore-filters";
@@ -66,6 +67,7 @@ export function PublicProjectHero({
       ? project.source.statistics
       : null;
   const updatedAt = statistics?.latestCommitAt ?? statistics?.sourceUpdatedAt;
+  const heroImageUrl = resolveApiAssetUrl(project.heroImageUrl);
 
   return (
     <div className="space-y-4">
@@ -142,9 +144,9 @@ export function PublicProjectHero({
       <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-record)] sm:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
           <div className="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-br from-primary/25 via-slate-950 to-primary/5 text-4xl font-bold text-primary shadow-inner sm:aspect-[16/10] sm:w-[280px] lg:h-[180px] lg:w-[260px]">
-            {project.heroImageUrl ? (
+            {heroImageUrl ? (
               <img
-                src={project.heroImageUrl}
+                src={heroImageUrl}
                 alt={t("project.detail.heroImageAlt", {
                   title: project.title,
                   defaultValue: "{{title}} hero image",
@@ -255,4 +257,9 @@ export function PublicProjectHero({
       )}
     </div>
   );
+}
+
+function resolveApiAssetUrl(assetUrl: string | null): string | null {
+  if (!assetUrl || !assetUrl.startsWith("/")) return assetUrl;
+  return `${API_BASE_URL}${assetUrl}`;
 }
