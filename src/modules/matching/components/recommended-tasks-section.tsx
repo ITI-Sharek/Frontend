@@ -78,8 +78,12 @@ function RecommendationCard({
  * that do not exist — a locked state that pretends to have content behind it is
  * a dark pattern, and the honest version converts on the benefit rather than on
  * curiosity.
+ *
+ * Exported because the dashboard renders the matched list too, and the upgrade
+ * prompt has to be the same one in both places: a second copy would drift, and
+ * this one is the surface a free contributor actually reaches.
  */
-function LockedState() {
+export function MatchedProjectsLockedCard() {
   const { t } = useTranslation();
   return (
     <Card className="grid gap-3 border-dashed shadow-none">
@@ -142,7 +146,7 @@ export function RecommendedTasksSection() {
   // the route is legitimately theirs. Reading that as an error would put an
   // error state where an upgrade prompt belongs.
   if (reason === "MATCHING_REQUIRES_SUBSCRIPTION") {
-    return <LockedState />;
+    return <MatchedProjectsLockedCard />;
   }
 
   return (

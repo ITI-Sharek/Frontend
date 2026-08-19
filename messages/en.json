@@ -78,7 +78,7 @@
   },
   "auth": {
     "callback": { "retryAccountError": "Could not reopen the GitHub account picker. Try again.", "missingProviderData": "No sign-in data arrived from the account provider.", "sessionExpired": "The sign-in session through the account provider expired. Start again.", "githubEmailConflict": "A Sharek account uses this email, but the chosen GitHub account is not linked to it. Sign in to Sharek first and then link GitHub from Settings, or choose another GitHub account.", "githubAccountMismatch": "This Sharek account is linked to a different GitHub account. Choose that linked GitHub account, or sign in manually to change the link.", "githubAccountTaken": "The GitHub account you chose is linked to another Sharek account. Choose a different GitHub account to continue.", "socialAccountNotFound": "No Sharek account is linked to this provider. Create an account first.", "socialAccountAlreadyExists": "A Sharek account is already linked to this provider. Sign in instead.", "loginError": "Could not complete sign-in through the account provider.", "unknownProvider": "The sign-in provider is not recognized.", "chooseProviderAccount": "Choose a {{provider}} account", "title": "Complete sign in", "demoSubtext": "Demo account-selection simulation", "processingSubtext": "Processing the account-provider response", "chooseAnotherGithub": "Choose another GitHub account", "backToLogin": "Back to sign in", "completing": "Completing sign in…", "chooseAccount": "Choose the account you want to continue with", "demoDescription": "This is a local demo screen instead of the real {{provider}} window." },
-    "devLogin": { "title": "Quick sign-in (development only)", "contributor": "Contributor", "owner": "Project owner", "admin": "Admin", "serverUnavailable": "Could not reach the server on port 4000. Make sure the backend is running, then try again.", "loginError": "Could not sign in with the development account. Make sure the server seed is running." },
+    "devLogin": { "title": "Quick sign-in (development only)", "contributor": "Contributor", "goldContributor": "Gold contributor", "goldNoMatches": "Gold · no matches", "goldNoSkills": "Gold · no skills", "owner": "Project owner", "admin": "Admin", "serverUnavailable": "Could not reach the server on port 4000. Make sure the backend is running, then try again.", "loginError": "Could not sign in with the development account. Make sure the server seed is running." },
     "username": { "label": "Username", "invalidFormat": "Use 3 to 30 letters, numbers, hyphens, or underscores; do not start or end with a special character.", "reserved": "This username is reserved and cannot be used.", "taken": "This username is unavailable.", "checking": "Checking availability…", "checkFailed": "Could not check availability now; you can continue.", "available": "This username is available.", "try": "Try:" },
     "login": "Log in",
     "logout": "Log out",
@@ -353,7 +353,10 @@
       "reason": "Why: {{reason}}",
       "viewAll": "View all requests",
       "fit": "{{matched}}/{{required}} fit",
-      "review": "Review details"
+      "review": "Review details",
+      "description": "Contribution requests your approved skills fit, closest matches first.",
+      "empty": "No matched requests right now. New requests are matched as owners publish them, and you can browse all open requests in the meantime.",
+      "emptyNoSkills": "You have no approved skills yet, so there is nothing to match against. Once a skill is approved your matched requests appear here."
     },
     "mock": {
       "attention": {

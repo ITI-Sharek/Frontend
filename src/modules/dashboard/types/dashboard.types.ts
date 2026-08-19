@@ -17,9 +17,35 @@ export interface MatchedTaskDto {
   id: string;
   title: string;
   projectName: string;
+  /** What the request asks for. The gauge's denominator, named. */
   requiredSkills: string[];
+  /** Which of the contributor's approved skills fit it. */
+  matchedSkills: string[];
+  /** Required skill names, in the Request's display form, that were matched. */
+  matchedRequiredSkillNames: string[];
+  /**
+   * The gauge, as two counts of the required bar. These were the same number
+   * until the backend carried a real denominator, which drew every match as a
+   * complete one regardless of fit.
+   */
   matchedCount: number;
   requiredCount: number;
+}
+
+/**
+ * The plan behind the matched list, and why it is empty when it is.
+ *
+ * Matched projects are a Gold benefit, so an empty list has two very different
+ * causes: a free contributor (who should see what the plan buys) and a Gold
+ * contributor with nothing matching today (who should not be sold anything).
+ */
+export interface DashboardMatchingDto {
+  planType: "free" | "gold";
+  reason:
+    | "MATCHING_REQUIRES_SUBSCRIPTION"
+    | "NO_APPROVED_SKILLS"
+    | "NO_MATCHING_REQUESTS"
+    | null;
 }
 
 export interface GrowthSummaryDto {
@@ -62,6 +88,7 @@ export interface ContributorDashboardDto {
   /** State A: why these tasks matched (verified skills), shown next to the section title. */
   matchReason: string;
   matchedTasks: MatchedTaskDto[];
+  matching: DashboardMatchingDto;
   growth: GrowthSummaryDto;
   applications: ApplicationsSummaryDto;
   /** State B only. */

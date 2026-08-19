@@ -35,6 +35,58 @@ describe("ContributorDashboardView hierarchy", () => {
     expect(html).not.toContain("استكشف طلبات المساهمة");
   });
 
+  it("offers the plan to a free contributor instead of an empty matched grid", () => {
+    // The backend answers a free contributor 200 with a reason, not 403. The
+    // section used to render its heading over nothing, which is where the
+    // upgrade prompt belongs.
+    const html = renderToStaticMarkup(
+      <ContributorDashboardView
+        dashboard={{
+          ...makeDashboard(),
+          matching: {
+            planType: "free",
+            reason: "MATCHING_REQUIRES_SUBSCRIPTION",
+          },
+        }}
+        matchedProjectsLockedSlot={<section>الخطة الذهبية</section>}
+      />,
+    );
+
+    expect(html).toContain("الخطة الذهبية");
+    expect(html).not.toContain("فرص مناسبة لك");
+  });
+
+  it("draws a partial fit as partial rather than as a complete one", () => {
+    const html = renderToStaticMarkup(
+      <ContributorDashboardView dashboard={makeDashboard({ matched: true })} />,
+    );
+
+    // Two of three, not three of three: the counts are of the required bar,
+    // and the card names every required skill, not only the matched ones.
+    expect(html).toContain("توافق 2/3");
+    expect(html).toContain("Kubernetes");
+    const nodeChip = html
+      .split("</span>")
+      .find((fragment) => fragment.includes("Node.js"));
+    expect(nodeChip).toContain("border-evidence-teal/35");
+  });
+
+  it("lists the matches in the state that celebrates the count", () => {
+    // "N requests fully match you today" used to state a number and show no
+    // matches at all -- the state a contributor lands in before their first
+    // application, and the one they subscribed for.
+    const html = renderToStaticMarkup(
+      <ContributorDashboardView
+        dashboard={{
+          ...makeDashboard({ matched: true }),
+          state: "verified-empty",
+        }}
+      />,
+    );
+
+    expect(html).toContain("Build the ingestion worker");
+  });
+
   it("gives an onboarding contributor one direct setup action", () => {
     const html = renderToStaticMarkup(
       <ContributorDashboardView
@@ -48,7 +100,9 @@ describe("ContributorDashboardView hierarchy", () => {
   });
 });
 
-function makeDashboard(): ContributorDashboardDto {
+function makeDashboard(
+  options: { matched?: boolean } = {},
+): ContributorDashboardDto {
   return {
     state: "active",
     greetingName: "سارة",
@@ -64,7 +118,24 @@ function makeDashboard(): ContributorDashboardDto {
       },
     ],
     matchReason: "React",
-    matchedTasks: [],
+    matchedTasks: options.matched
+      ? [
+          {
+            id: "request-1",
+            title: "Build the ingestion worker",
+            projectName: "Share-k API",
+            requiredSkills: ["Node.js", "PostgreSQL", "Kubernetes"],
+            matchedSkills: ["NodeJS", "PostgreSQL"],
+            matchedRequiredSkillNames: ["Node.js", "PostgreSQL"],
+            matchedCount: 2,
+            requiredCount: 3,
+          },
+        ]
+      : [],
+    matching: {
+      planType: "gold",
+      reason: options.matched ? null : "NO_MATCHING_REQUESTS",
+    },
     growth: {
       ratingPrevious: null,
       ratingCurrent: null,
