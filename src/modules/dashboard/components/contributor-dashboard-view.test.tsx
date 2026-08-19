@@ -65,6 +65,10 @@ describe("ContributorDashboardView hierarchy", () => {
     // and the card names every required skill, not only the matched ones.
     expect(html).toContain("توافق 2/3");
     expect(html).toContain("Kubernetes");
+    const nodeChip = html
+      .split("</span>")
+      .find((fragment) => fragment.includes("Node.js"));
+    expect(nodeChip).toContain("border-evidence-teal/35");
   });
 
   it("lists the matches in the state that celebrates the count", () => {
@@ -120,8 +124,9 @@ function makeDashboard(
             id: "request-1",
             title: "Build the ingestion worker",
             projectName: "Share-k API",
-            requiredSkills: ["NestJS", "PostgreSQL", "Kubernetes"],
-            matchedSkills: ["NestJS", "PostgreSQL"],
+            requiredSkills: ["Node.js", "PostgreSQL", "Kubernetes"],
+            matchedSkills: ["NodeJS", "PostgreSQL"],
+            matchedRequiredSkillNames: ["Node.js", "PostgreSQL"],
             matchedCount: 2,
             requiredCount: 3,
           },
