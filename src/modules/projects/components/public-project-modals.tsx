@@ -1,10 +1,12 @@
 import {
+  AlertCircle,
   Check,
   Copy,
   ExternalLink,
   Github,
   Globe,
   Layers,
+  LogIn,
   Send,
   Sparkles,
   UserCheck,
@@ -12,6 +14,13 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { ROUTES } from "@/config/routes.config";
+import { useCurrentUserQuery } from "@/modules/auth";
+import {
+  getApplicationDailyLimitResetCopy,
+  getApplicationSubmissionErrorMessage,
+} from "@/modules/contribution-requests/constants/application-copy";
+import { useSubmitApplicationMutation } from "@/modules/contribution-requests";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -25,7 +34,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { useSubmitApplicationMutation } from "@/modules/contribution-requests";
+import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
@@ -55,25 +64,51 @@ export function ApplyProjectDialog({
   tasks,
   initialTask,
 }: ApplyProjectDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentUserQuery = useCurrentUserQuery();
+  const currentUser = currentUserQuery.data;
+  const isAuthenticated = Boolean(currentUser && currentUser.status === "active");
+  const isContributor = currentUser?.role === "contributor";
+
   const submitApplication = useSubmitApplicationMutation();
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [coverNote, setCoverNote] = useState("");
   const [deliveryDurationDays, setDeliveryDurationDays] = useState("14");
   const [submitted, setSubmitted] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedTaskId(initialTask?.id ?? (tasks.length > 0 ? tasks[0].id : ""));
   }, [initialTask, tasks]);
 
+  useEffect(() => {
+    if (open) {
+      submitApplication.reset();
+      setValidationError(null);
+    }
+  }, [open]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTaskId) return;
+
+    const trimmedCoverNote = coverNote.trim();
+    if (trimmedCoverNote.length < 10) {
+      setValidationError(
+        t(
+          "project.detail.approachMinLength",
+          "Please provide at least 10 characters explaining your contribution approach.",
+        ),
+      );
+      return;
+    }
+
+    setValidationError(null);
     submitApplication.mutate(
       {
         contributionRequestId: selectedTaskId,
         params: {
-          contributionApproach: coverNote,
+          contributionApproach: trimmedCoverNote,
           proposedDeliveryDurationDays: Number(deliveryDurationDays),
           idempotencyKey: crypto.randomUUID(),
         },
@@ -90,6 +125,21 @@ export function ApplyProjectDialog({
       },
     );
   };
+
+  const errorCode = getApiErrorCode(submitApplication.error);
+  const errorMessage = submitApplication.error
+    ? errorCode === "APPLICATION_BLOCKED_SKILL_GAP"
+      ? t(
+          "project.detail.skillGapBlocked",
+          "Your skill profile does not currently meet the required skills for this request.",
+        )
+      : getApplicationSubmissionErrorMessage(submitApplication.error)
+    : null;
+
+  const resetCopy =
+    errorCode === "APPLICATION_DAILY_LIMIT_REACHED"
+      ? getApplicationDailyLimitResetCopy(submitApplication.error, i18n.language)
+      : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,7 +161,57 @@ export function ApplyProjectDialog({
           </div>
         </DialogHeader>
 
-        {submitted ? (
+        {!currentUserQuery.isLoading && !isAuthenticated ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <LogIn className="size-7" />
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-foreground">
+              {t("project.detail.signInRequiredTitle", "Sign in required")}
+            </h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+              {t(
+                "project.detail.signInRequiredDesc",
+                "You must be signed in with an active contributor account to apply for this project.",
+              )}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild className="gap-2">
+                <a href={ROUTES.login}>
+                  <LogIn className="size-4" />
+                  {t("project.detail.signInToApply", "Sign in to apply")}
+                </a>
+              </Button>
+              <Button variant="outline" asChild>
+                <a href={ROUTES.register}>
+                  {t("auth.registerTab", "Register")}
+                </a>
+              </Button>
+            </div>
+          </div>
+        ) : !currentUserQuery.isLoading && !isContributor ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <div className="flex size-14 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
+              <AlertCircle className="size-7" />
+            </div>
+            <h3 className="mt-4 text-lg font-bold text-foreground">
+              {t("project.detail.contributorOnlyTitle", "Contributor account required")}
+            </h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+              {t(
+                "project.detail.contributorOnlyDesc",
+                "Applying for contribution requests is only available for active contributor accounts.",
+              )}
+            </p>
+            <DialogFooter className="mt-6">
+              <DialogClose asChild>
+                <Button variant="outline">
+                  {t("common.close", "Close")}
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </div>
+        ) : submitted ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
               <UserCheck className="size-7" />
@@ -139,7 +239,11 @@ export function ApplyProjectDialog({
               <select
                 id="apply-scope"
                 value={selectedTaskId}
-                onChange={(e) => setSelectedTaskId(e.target.value)}
+                onChange={(e) => {
+                  setSelectedTaskId(e.target.value);
+                  submitApplication.reset();
+                  setValidationError(null);
+                }}
                 className="w-full rounded-input border border-border bg-card px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {tasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
@@ -153,9 +257,14 @@ export function ApplyProjectDialog({
               <Textarea
                 id="cover-note"
                 required
+                minLength={10}
+                maxLength={5000}
                 rows={4}
                 value={coverNote}
-                onChange={(e) => setCoverNote(e.target.value)}
+                onChange={(e) => {
+                  setCoverNote(e.target.value);
+                  if (validationError) setValidationError(null);
+                }}
                 placeholder={t(
                   "project.detail.coverPlaceholder",
                   "Mention your experience with the required tech stack (Next.js, TypeScript, PostgreSQL) and similar projects you've built...",
@@ -180,10 +289,30 @@ export function ApplyProjectDialog({
                 </select>
             </div>
 
-            {submitApplication.isError && (
-              <p className="text-sm text-destructive">
-                {t("project.detail.applicationFailed", "Your application could not be submitted. Please sign in and try again.")}
-              </p>
+            {(validationError || submitApplication.isError) && (
+              <div className="rounded-input border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {validationError || errorMessage}
+                    </p>
+                    {resetCopy && (
+                      <p className="text-xs text-destructive/80">
+                        {resetCopy}
+                      </p>
+                    )}
+                    {errorCode === "APPLICATION_BLOCKED_SKILL_GAP" && (
+                      <p className="text-xs text-destructive/80">
+                        {t(
+                          "project.detail.skillGapHelp",
+                          "Review the required skills on this request or update your skill profile to proceed.",
+                        )}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
 
             <DialogFooter className="pt-3">
