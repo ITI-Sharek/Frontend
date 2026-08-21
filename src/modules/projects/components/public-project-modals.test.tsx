@@ -88,7 +88,7 @@ describe("ApplyProjectDialog", () => {
       isPending: false,
       isSuccess: false,
       isError: false,
-    } as ReturnType<typeof authModule.useCurrentUserQuery>);
+    } as unknown as ReturnType<typeof authModule.useCurrentUserQuery>);
 
     await act(async () => {
       root.render(

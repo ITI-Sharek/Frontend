@@ -109,6 +109,6 @@ describe("ContributorGithubSettingsSection", () => {
     renderComponent();
     const buttons = container.querySelectorAll("button");
     const buttonTexts = Array.from(buttons).map((b) => b.textContent);
-    expect(buttonTexts.some((text) => text?.includes("GitHub") || text?.includes("ربط"))).toBe(true);
+    expect(buttonTexts.some((text) => text.includes("GitHub") || text.includes("ربط"))).toBe(true);
   });
 });

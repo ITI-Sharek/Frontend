@@ -1,4 +1,5 @@
-import { Country, State, City, type ICountry, type IState, type ICity } from "country-state-city";
+import type { ICountry, IState, ICity } from "country-state-city";
+import { Country, State, City } from "country-state-city";
 
 export interface LocationOption {
   value: string;
@@ -8,13 +9,15 @@ export interface LocationOption {
   flag?: string;
 }
 
-const DISPLAY_NAMES_AR = typeof Intl !== "undefined" && Intl.DisplayNames
-  ? new Intl.DisplayNames(["ar"], { type: "region" })
-  : null;
+const DISPLAY_NAMES_AR =
+  typeof Intl !== "undefined"
+    ? new Intl.DisplayNames(["ar"], { type: "region" })
+    : null;
 
-const DISPLAY_NAMES_EN = typeof Intl !== "undefined" && Intl.DisplayNames
-  ? new Intl.DisplayNames(["en"], { type: "region" })
-  : null;
+const DISPLAY_NAMES_EN =
+  typeof Intl !== "undefined"
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
 
 /**
  * Top prioritized MENA / Arab countries to show at the top of the country picker.
@@ -70,7 +73,7 @@ const LEGACY_COUNTRY_MAP: Record<string, string> = {
   libya: "LY",
 };
 
-const ARABIC_STATE_NAMES: Record<string, Record<string, string>> = {
+const ARABIC_STATE_NAMES: Record<string, Record<string, string> | undefined> = {
   AE: {
     AZ: "أبو ظبي",
     AJ: "عجمان",

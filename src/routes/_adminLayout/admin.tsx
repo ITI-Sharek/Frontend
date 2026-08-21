@@ -1,15 +1,21 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
-import { AdminPublishedProjectOwnersPanel } from "@/modules/projects";
-import { AdminSkillReviewSummary } from "@/modules/skill-profiles";
-import { PageContainer, PageHeader } from "@/shared/components/layout/page-layout";
+import type { AdminDashboardTabId } from "@/modules/admin-dashboard";
+import { AdminDashboardView } from "@/modules/admin-dashboard";
+
+interface AdminDashboardSearch {
+  tab?: string;
+}
 
 export const Route = createFileRoute("/_adminLayout/admin")({
   head: () => ({
     meta: [{ title: "Sharek" }],
   }),
+  validateSearch: (search: Record<string, unknown>): AdminDashboardSearch => {
+    const raw = typeof search.tab === "string" ? search.tab : undefined;
+    return raw ? { tab: raw } : {};
+  },
   component: AdminRoute,
 });
 
@@ -18,21 +24,23 @@ function AdminRoute() {
     select: (state) => state.location.pathname.replace(/\/+$/, ""),
   });
 
-  return pathname === ROUTES.admin ? <AdminDashboard /> : <Outlet />;
+  return pathname === ROUTES.admin ? <AdminDashboardPage /> : <Outlet />;
 }
 
-function AdminDashboard() {
-  const { t } = useTranslation();
+function AdminDashboardPage() {
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
+
   return (
-    <PageContainer>
-      <PageHeader
-        title={t("admin.dashboard.title")}
-        description={t("admin.dashboard.description")}
-      />
-      <div className="mt-6 grid gap-6">
-        <AdminSkillReviewSummary />
-        <AdminPublishedProjectOwnersPanel />
-      </div>
-    </PageContainer>
+    <AdminDashboardView
+      initialTab={tab}
+      onTabChange={(newTab: AdminDashboardTabId) => {
+        void navigate({
+          search: newTab === "overview" ? {} : { tab: newTab },
+          replace: true,
+        });
+      }}
+    />
   );
 }
+
