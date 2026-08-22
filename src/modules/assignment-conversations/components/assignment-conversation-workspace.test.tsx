@@ -11,19 +11,25 @@ vi.mock("../api/queries/use-assignment-conversation-queries", () => ({
   useAssignmentConversationQuery: vi.fn(),
   useAssignmentConversationsQuery: vi.fn(),
   useAssignmentMessagesQuery: vi.fn(),
+  useChatAttachmentUploadConstraintsQuery: vi.fn(),
 }));
 vi.mock("../api/mutations/use-assignment-conversation-mutations", () => ({
   useSendAssignmentMessageMutation: vi.fn(),
+  useCreateAttachmentUploadMutation: vi.fn(),
+  useAttachmentDownloadUrlMutation: vi.fn(),
 }));
 
 const {
   useAssignmentConversationQuery,
   useAssignmentConversationsQuery,
   useAssignmentMessagesQuery,
+  useChatAttachmentUploadConstraintsQuery,
 } = await import("../api/queries/use-assignment-conversation-queries");
-const { useSendAssignmentMessageMutation } = await import(
-  "../api/mutations/use-assignment-conversation-mutations"
-);
+const {
+  useSendAssignmentMessageMutation,
+  useCreateAttachmentUploadMutation,
+  useAttachmentDownloadUrlMutation,
+} = await import("../api/mutations/use-assignment-conversation-mutations");
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
   .IS_REACT_ACT_ENVIRONMENT = true;
@@ -56,6 +62,19 @@ describe("AssignmentConversationWorkspace", () => {
       mutate: vi.fn(),
       isPending: false,
       isError: false,
+    } as never);
+    vi.mocked(useChatAttachmentUploadConstraintsQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as never);
+    vi.mocked(useCreateAttachmentUploadMutation).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as never);
+    vi.mocked(useAttachmentDownloadUrlMutation).mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
     } as never);
   });
 
@@ -119,6 +138,7 @@ describe("AssignmentConversationWorkspace", () => {
                 createdAt: "2026-08-10T10:02:00.000Z",
                 editedAt: null,
                 retractedAt: null,
+                attachments: [],
               },
               {
                 messageId: "message-1",
@@ -131,6 +151,7 @@ describe("AssignmentConversationWorkspace", () => {
                 createdAt: "2026-08-10T10:01:00.000Z",
                 editedAt: null,
                 retractedAt: null,
+                attachments: [],
               },
             ],
             nextCursor: null,

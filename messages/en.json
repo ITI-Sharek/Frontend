@@ -1091,6 +1091,126 @@
       "placeholder": "Write your message…",
       "sendAria": "Send message",
       "sendError": "Could not send the message."
+    },
+    "attachments": {
+      "addButton": "Attach files",
+      "countLabel": "{{count}}/{{max}} attached",
+      "uploadingProgress": "{{progress}}%",
+      "removeAria": "Remove {{filename}}",
+      "downloadAria": "Download {{filename}}",
+      "scanning": "Scanning…",
+      "blocked": "This file was blocked and can't be downloaded.",
+      "scanUnavailable": "Scan unavailable — upload again later",
+      "errors": {
+        "disabled": "Attachments are not available for this conversation.",
+        "limitExceeded": "You can attach up to {{maxCount}} files per message.",
+        "tooLarge": "This file is too large to attach.",
+        "tooLargeWithLimit": "This file is too large to attach. Maximum size is {{maxBytes}}.",
+        "typeUnsupported": "This file type is not supported.",
+        "contentMismatch": "This file's contents don't match its declared type.",
+        "fileRequired": "Choose a file to attach.",
+        "rateLimited": "Too many uploads. Wait a moment and try again.",
+        "scanPending": "This file is still being scanned.",
+        "blocked": "This file was blocked and can't be downloaded.",
+        "scanUnavailable": "Scan unavailable — upload again later",
+        "uploadNotFound": "This upload could not be found. Attach the file again.",
+        "network": "Check your connection and try again.",
+        "unknown": "Something went wrong with this attachment."
+      }
+    }
+  },
+  "assignmentCalls": {
+    "launch": {
+      "start": "Call",
+      "startAria": "Start a call with {{name}}"
+    },
+    "preview": {
+      "ariaLabel": "Call device preview",
+      "outgoingTitle": "Call {{name}}",
+      "incomingTitle": "Preview your devices before joining {{name}}",
+      "devicesOffByDefault": "Your camera and microphone are off. Turn them on to be seen or heard.",
+      "allowToSeeNames": "Allow access to see device names.",
+      "micOn": "Mic on",
+      "micOff": "Mic off",
+      "cameraOn": "Camera on",
+      "cameraOff": "Camera off",
+      "microphoneLabel": "Microphone",
+      "cameraLabel": "Camera",
+      "unknownDevice": "Unnamed device",
+      "startCall": "Start call",
+      "joinCall": "Join call",
+      "deviceErrors": {
+        "blocked": "Access was blocked in the browser. Allow it in your browser settings and try again.",
+        "not_found": "No matching device was found.",
+        "in_use": "This device is being used by another app.",
+        "unknown": "Could not access this device."
+      }
+    },
+    "incoming": {
+      "ariaLabel": "Incoming call",
+      "title": "{{name}} is calling",
+      "description": "Accept to preview your devices and join, or decline.",
+      "accept": "Accept",
+      "acceptAria": "Accept the call",
+      "decline": "Decline",
+      "declineAria": "Decline the call"
+    },
+    "controls": {
+      "muteAria": "Mute microphone",
+      "unmuteAria": "Unmute microphone",
+      "cameraOnAria": "Turn camera on",
+      "cameraOffAria": "Turn camera off",
+      "startScreenShareAria": "Share your screen",
+      "stopScreenShareAria": "Stop sharing your screen",
+      "hangUpAria": "End call"
+    },
+    "stage": {
+      "ariaLabel": "Call with {{name}}",
+      "reconnecting": "Reconnecting…",
+      "remoteVideoAria": "{{name}}'s video",
+      "localVideoAria": "Your video",
+      "degraded": {
+        "audio_only": "Audio only",
+        "listen_only": "Listen only"
+      }
+    },
+    "minimizedBar": {
+      "ariaLabel": "Ongoing call with {{name}}",
+      "return": "Return"
+    },
+    "status": {
+      "ringing": "Calling {{name}}…",
+      "connecting": "Connecting…",
+      "ended": {
+        "RINGING": "Call ended",
+        "ANSWERED": "Call ended",
+        "MISSED": "No answer",
+        "DECLINED": "Call declined",
+        "FAILED_BUSY": "Participant unavailable",
+        "FAILED_PROVIDER": "Call could not be connected",
+        "ENDED": "Call ended"
+      }
+    },
+    "unavailable": {
+      "insecureContext": "Calls need a secure (HTTPS) connection and aren't available here.",
+      "noWebrtc": "Calls aren't supported on this browser.",
+      "noMediaDevices": "This browser can't access a camera or microphone.",
+      "generic": "Calls aren't available on this device."
+    },
+    "errors": {
+      "disabled": "Calls are not available right now.",
+      "participantUnavailable": "This participant is unavailable right now.",
+      "ringExpired": "The call wasn't answered in time.",
+      "capacityExhausted": "Calling is temporarily at capacity. Try again later.",
+      "providerUnavailable": "The call service is temporarily unavailable.",
+      "notFound": "This call could not be found.",
+      "invalidState": "This action can't be completed for the call's current state.",
+      "signalRejected": "A call connection message was rejected.",
+      "signalRateLimited": "Too many connection attempts. Wait a moment and try again.",
+      "maxDurationReached": "This call reached its maximum duration and ended.",
+      "conversationReadOnly": "This conversation is read only and can't start a call.",
+      "network": "Check your connection and try again.",
+      "unknown": "Something went wrong with this call."
     }
   },
   "__application__": {},

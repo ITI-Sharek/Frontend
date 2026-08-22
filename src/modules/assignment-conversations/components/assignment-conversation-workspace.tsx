@@ -15,6 +15,7 @@ import {
   useAssignmentMessagesQuery,
 } from "../api/queries/use-assignment-conversation-queries";
 import { useSendAssignmentMessageMutation } from "../api/mutations/use-assignment-conversation-mutations";
+import type { AssignmentConversationDto } from "../types/assignment-conversation.types";
 import { AssignmentConversationList } from "./assignment-conversation-list";
 import { AssignmentMessageThread } from "./assignment-message-thread";
 
@@ -22,10 +23,17 @@ export function AssignmentConversationWorkspace({
   selectedConversationId,
   currentUserId,
   onSelectConversation,
+  renderCallAction,
 }: {
   selectedConversationId?: string;
   currentUserId?: string;
   onSelectConversation: (conversationId: string) => void;
+  /**
+   * Composed by the route -- lets it inject the call-launch affordance
+   * (owned by `modules/assignment-calls`) into the thread header without
+   * this module ever importing that module directly (CLAUDE.md).
+   */
+  renderCallAction?: (conversation: AssignmentConversationDto) => React.ReactNode;
 }) {
   const { t } = useTranslation();
   const [messageQuery, setMessageQuery] = useState("");
@@ -157,6 +165,7 @@ export function AssignmentConversationWorkspace({
           onMessageQueryChange={setMessageQuery}
           messagesQuery={messagesQuery}
           sendMutation={sendMutation}
+          headerAction={renderCallAction?.(activeConversation)}
         />
       </div>
     </PageContainer>

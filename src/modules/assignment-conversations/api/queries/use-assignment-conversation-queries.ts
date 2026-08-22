@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import {
   getAssignmentConversation,
+  getAttachmentUploadConstraints,
   listAssignmentConversations,
   listAssignmentMessages,
 } from "../../services/assignment-conversations.service";
@@ -39,5 +40,20 @@ export function useAssignmentMessagesQuery(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: conversationId.length > 0,
+  });
+}
+
+/**
+ * Limits are configuration, so they change only when an operator changes
+ * them. Refetching per mount would put a request in front of every composer
+ * for a value that is stable for the life of the session — mirrors
+ * `useMaterialUploadConstraintsQuery`.
+ */
+export function useChatAttachmentUploadConstraintsQuery() {
+  return useQuery({
+    queryKey: assignmentConversationKeys.attachmentUploadConstraints(),
+    queryFn: getAttachmentUploadConstraints,
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
   });
 }

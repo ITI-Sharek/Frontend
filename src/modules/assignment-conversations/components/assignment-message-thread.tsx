@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 
+import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 import { getApiErrorMessage } from "@/shared/utils/get-api-error-message";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -14,10 +15,14 @@ import { Textarea } from "@/shared/components/ui/textarea";
 
 import type { useSendAssignmentMessageMutation } from "../api/mutations/use-assignment-conversation-mutations";
 import type { useAssignmentMessagesQuery } from "../api/queries/use-assignment-conversation-queries";
+import { getChatAttachmentErrorMessage } from "../constants/attachment-copy";
 import type {
   AssignmentConversationDto,
   MessageDto,
 } from "../types/assignment-conversation.types";
+import { MessageAttachmentList } from "./message-attachment-list";
+import type { PendingChatAttachment } from "./message-attachment-picker";
+import { MessageAttachmentPicker } from "./message-attachment-picker";
 
 const MAX_MESSAGE_LENGTH = 4_000;
 
@@ -28,6 +33,7 @@ export function AssignmentMessageThread({
   onMessageQueryChange,
   messagesQuery,
   sendMutation,
+  headerAction,
 }: {
   conversation: AssignmentConversationDto;
   currentUserId?: string;
@@ -35,6 +41,13 @@ export function AssignmentMessageThread({
   onMessageQueryChange: (query: string) => void;
   messagesQuery: ReturnType<typeof useAssignmentMessagesQuery>;
   sendMutation: ReturnType<typeof useSendAssignmentMessageMutation>;
+  /**
+   * Composed by the route, not this module -- a module never imports
+   * another module directly (CLAUDE.md). The route renders the call-launch
+   * affordance (from `modules/assignment-calls`) and passes the resulting
+   * element down here so this module stays free of any import from it.
+   */
+  headerAction?: React.ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -43,9 +56,13 @@ export function AssignmentMessageThread({
       className="flex min-h-[32rem] min-w-0 flex-col"
       aria-label={t("assignmentConversations.thread.ariaLabel")}
     >
-      <ConversationHeader conversation={conversation} />
+      <ConversationHeader conversation={conversation} headerAction={headerAction} />
       <MessageSearch value={messageQuery} onChange={onMessageQueryChange} />
-      <MessageHistory query={messagesQuery} currentUserId={currentUserId} />
+      <MessageHistory
+        conversationId={conversation.conversationId}
+        query={messagesQuery}
+        currentUserId={currentUserId}
+      />
       <MessageComposer
         conversationId={conversation.conversationId}
         disabled={conversation.status !== "active"}
@@ -57,21 +74,26 @@ export function AssignmentMessageThread({
 
 function ConversationHeader({
   conversation,
+  headerAction,
 }: {
   conversation: AssignmentConversationDto;
+  headerAction?: React.ReactNode;
 }) {
   const { t } = useTranslation();
 
   return (
-    <header className="border-b border-border p-4">
-      <h2 className="text-base font-bold text-foreground">
-        {conversation.ownerName} ↔ {conversation.contributorName}
-      </h2>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {conversation.status === "active"
-          ? t("assignmentConversations.thread.activeDescription")
-          : t("assignmentConversations.thread.readOnlyDescription")}
-      </p>
+    <header className="flex items-start justify-between gap-3 border-b border-border p-4">
+      <div>
+        <h2 className="text-base font-bold text-foreground">
+          {conversation.ownerName} ↔ {conversation.contributorName}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {conversation.status === "active"
+            ? t("assignmentConversations.thread.activeDescription")
+            : t("assignmentConversations.thread.readOnlyDescription")}
+        </p>
+      </div>
+      {headerAction}
     </header>
   );
 }
@@ -108,9 +130,11 @@ function MessageSearch({
 }
 
 function MessageHistory({
+  conversationId,
   query,
   currentUserId,
 }: {
+  conversationId: string;
   query: ReturnType<typeof useAssignmentMessagesQuery>;
   currentUserId?: string;
 }) {
@@ -164,6 +188,7 @@ function MessageHistory({
           {messages.map((message) => (
             <MessageBubble
               key={message.messageId}
+              conversationId={conversationId}
               message={message}
               isOwn={
                 currentUserId !== undefined &&
@@ -177,7 +202,15 @@ function MessageHistory({
   );
 }
 
-function MessageBubble({ message, isOwn }: { message: MessageDto; isOwn: boolean }) {
+function MessageBubble({
+  conversationId,
+  message,
+  isOwn,
+}: {
+  conversationId: string;
+  message: MessageDto;
+  isOwn: boolean;
+}) {
   const { i18n, t } = useTranslation();
 
   return (
@@ -191,7 +224,13 @@ function MessageBubble({ message, isOwn }: { message: MessageDto; isOwn: boolean
       <p className="mb-1 text-xs font-semibold text-muted-foreground">
         {isOwn ? t("assignmentConversations.thread.you") : message.senderName}
       </p>
-      <p className="whitespace-pre-wrap break-words leading-6">{message.body}</p>
+      {message.body.length > 0 && (
+        <p className="whitespace-pre-wrap break-words leading-6">{message.body}</p>
+      )}
+      <MessageAttachmentList
+        conversationId={conversationId}
+        attachments={message.attachments}
+      />
       <time
         className="mt-2 block text-[11px] text-muted-foreground"
         dateTime={message.createdAt}
@@ -216,24 +255,60 @@ function MessageComposer({
 }) {
   const { t } = useTranslation();
   const [body, setBody] = useState("");
+  const [attachments, setAttachments] = useState<PendingChatAttachment[]>([]);
   const bodyLength = [...body].length;
+
+  const readyAttachmentIds = attachments
+    .filter((item) => item.status === "uploaded" && item.uploadId !== null)
+    .map((item) => item.uploadId as string);
+  const hasUploadingAttachment = attachments.some(
+    (item) => item.status === "uploading",
+  );
+  // Matches the server's own guard: `MESSAGE_BODY_REQUIRED` only fires when
+  // both the body is empty/whitespace AND there is no attachment reference.
+  const hasSendableContent = body.trim().length > 0 || readyAttachmentIds.length > 0;
+  const canSubmit =
+    !disabled && !mutation.isPending && !hasUploadingAttachment && hasSendableContent;
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmed = body.trim();
-    if (!trimmed || disabled || mutation.isPending) return;
+    if (!canSubmit) return;
     mutation.mutate(
       {
         conversationId,
         idempotencyKey: globalThis.crypto.randomUUID(),
-        body: trimmed,
+        body: body.trim(),
+        attachmentUploadIds:
+          readyAttachmentIds.length > 0 ? readyAttachmentIds : undefined,
       },
-      { onSuccess: () => setBody("") },
+      {
+        onSuccess: () => {
+          setBody("");
+          setAttachments([]);
+        },
+      },
+    );
+  }
+
+  function composerErrorMessage(): string {
+    const code = getApiErrorCode(mutation.error);
+    if (code?.startsWith("CHAT_ATTACHMENT")) {
+      return getChatAttachmentErrorMessage(t, mutation.error);
+    }
+    return getApiErrorMessage(
+      mutation.error,
+      t("assignmentConversations.composer.sendError"),
     );
   }
 
   return (
     <form onSubmit={submit} className="border-t border-border p-4">
+      <MessageAttachmentPicker
+        conversationId={conversationId}
+        disabled={disabled || mutation.isPending}
+        attachments={attachments}
+        onAttachmentsChange={setAttachments}
+      />
       <label className="sr-only" htmlFor="assignment-message-body">
         {t("assignmentConversations.composer.label")}
       </label>
@@ -257,7 +332,7 @@ function MessageComposer({
         <Button
           type="submit"
           size="icon"
-          disabled={disabled || mutation.isPending || body.trim().length === 0}
+          disabled={!canSubmit}
           aria-label={t("assignmentConversations.composer.sendAria")}
         >
           <Send className="size-4" aria-hidden="true" />
@@ -265,10 +340,7 @@ function MessageComposer({
       </div>
       {mutation.isError && (
         <p role="alert" className="mt-2 text-xs text-destructive">
-          {getApiErrorMessage(
-            mutation.error,
-            t("assignmentConversations.composer.sendError"),
-          )}
+          {composerErrorMessage()}
         </p>
       )}
       <p className="mt-2 text-end text-[11px] text-muted-foreground">

@@ -22,7 +22,7 @@ export function MessagesButton({ unreadCount }: { unreadCount: number }) {
     >
       <MessageCircle className="size-4.5" aria-hidden="true" />
       {unreadCount > 0 && (
-        <span className="absolute -end-1 -top-1 min-w-5 rounded-full bg-destructive px-1 text-center text-[10px] font-bold leading-5 text-destructive-foreground">
+        <span className="absolute -start-1 -top-1 min-w-5 rounded-full bg-review-amber px-1.5 py-0.5 font-mono text-[10px] leading-none text-white">
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>
       )}

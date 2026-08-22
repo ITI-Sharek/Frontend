@@ -27,6 +27,7 @@ function message(sequence: number): MessageDto {
     createdAt: `2026-08-09T12:0${sequence}:00.000Z`,
     editedAt: null,
     retractedAt: null,
+    attachments: [],
   };
 }
 

@@ -9,4 +9,6 @@ export const assignmentConversationKeys = {
     ["assignment-conversations", "messages", conversationId] as const,
   messages: (conversationId: string, query = "") =>
     ["assignment-conversations", "messages", conversationId, query] as const,
+  attachmentUploadConstraints: () =>
+    ["assignment-conversations", "attachment-upload-constraints"] as const,
 };

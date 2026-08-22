@@ -9,12 +9,14 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { ReactNode } from "react";
+import type { Socket } from "socket.io-client";
 
 import {
   createRealtimeSocket,
   disconnectRealtimeSocket,
 } from "@/lib/socket/socket-client";
 import { RecentEventIds } from "@/lib/socket/recent-event-ids";
+import { RealtimeSocketContext } from "@/lib/socket/realtime-socket-context";
 import { playNotificationSound } from "@/lib/notification-sound";
 import {
   applyNotificationEventToCache,
@@ -26,6 +28,7 @@ import {
 import type { NotificationConnectionStatus } from "@/modules/notifications";
 import { accessTokenStore } from "@/services/storage.service";
 import {
+  applyAttachmentScanEventToCache,
   applyConversationMessageEventToCache,
   clearAssignmentConversationQueries,
   reconcileAssignmentConversationQueries,
@@ -57,6 +60,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const recentEventIdsRef = useRef(new RecentEventIds());
   const [connectionStatus, setConnectionStatus] =
     useState<NotificationConnectionStatus>("idle");
+  // Exposed read-only via `RealtimeSocketContext` so other providers/modules
+  // can subscribe to further events on this same connection. Lifecycle
+  // ownership (creation, auth, the `REALTIME_UNAUTHORIZED` hard-stop) stays
+  // entirely in the effect below, unchanged -- this is purely a read handle.
+  const [socketState, setSocketState] = useState<Socket | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -97,6 +105,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       clearNotificationQueries(queryClient);
       clearAssignmentConversationQueries(queryClient);
       setConnectionStatus("idle");
+      setSocketState(null);
       return () => {
         window.removeEventListener("online", handleNetworkRecovery);
         document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -105,6 +114,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
     const socket = createRealtimeSocket(accessToken);
     setConnectionStatus("connecting");
+    setSocketState(socket);
 
     socket.on("connect", () => {
       void reconcile();
@@ -161,6 +171,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         void reconcile();
       }
     });
+    socket.on("attachment.scan_state_changed", (event: unknown) => {
+      const outcome = applyAttachmentScanEventToCache(
+        queryClient,
+        event,
+        recentEventIdsRef.current,
+      );
+      if (outcome === "reconcile" || outcome === "invalid") {
+        void reconcile();
+      }
+    });
     socket.connect();
 
     return () => {
@@ -175,10 +195,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     () => ({ connectionStatus }),
     [connectionStatus],
   );
+  const realtimeSocketValue = useMemo(
+    () => ({ socket: socketState, connectionStatus }),
+    [socketState, connectionStatus],
+  );
 
   return (
     <NotificationsContext.Provider value={value}>
-      {children}
+      <RealtimeSocketContext.Provider value={realtimeSocketValue}>
+        {children}
+      </RealtimeSocketContext.Provider>
     </NotificationsContext.Provider>
   );
 }

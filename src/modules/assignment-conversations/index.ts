@@ -11,7 +11,11 @@ export {
   clearAssignmentConversationQueries,
   reconcileAssignmentConversationQueries,
 } from "./utils/conversation-message-event-cache";
+export { applyAttachmentScanEventToCache } from "./utils/attachment-scan-event-cache";
 export type {
+  AssignmentConversationDto,
+  AttachmentScanState,
+  ChatAttachmentDto,
   CursorPage,
   MessageDto,
 } from "./types/assignment-conversation.types";

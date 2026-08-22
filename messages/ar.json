@@ -1103,6 +1103,126 @@
       "placeholder": "اكتب رسالتك…",
       "sendAria": "إرسال الرسالة",
       "sendError": "تعذّر إرسال الرسالة."
+    },
+    "attachments": {
+      "addButton": "إرفاق ملفات",
+      "countLabel": "{{count}}/{{max}} مرفق",
+      "uploadingProgress": "{{progress}}%",
+      "removeAria": "إزالة {{filename}}",
+      "downloadAria": "تنزيل {{filename}}",
+      "scanning": "جارٍ الفحص…",
+      "blocked": "تم حظر هذا الملف ولا يمكن تنزيله.",
+      "scanUnavailable": "الفحص غير متاح — أعد الرفع لاحقًا",
+      "errors": {
+        "disabled": "المرفقات غير متاحة في هذه المحادثة.",
+        "limitExceeded": "يمكنك إرفاق حتى {{maxCount}} ملفات في كل رسالة.",
+        "tooLarge": "هذا الملف كبير جدًا لإرفاقه.",
+        "tooLargeWithLimit": "هذا الملف كبير جدًا لإرفاقه. الحد الأقصى للحجم هو {{maxBytes}}.",
+        "typeUnsupported": "نوع هذا الملف غير مدعوم.",
+        "contentMismatch": "محتوى هذا الملف لا يطابق نوعه المُعلن.",
+        "fileRequired": "اختر ملفًا لإرفاقه.",
+        "rateLimited": "عمليات رفع كثيرة جدًا. انتظر لحظة ثم أعد المحاولة.",
+        "scanPending": "لا يزال هذا الملف قيد الفحص.",
+        "blocked": "تم حظر هذا الملف ولا يمكن تنزيله.",
+        "scanUnavailable": "الفحص غير متاح — أعد الرفع لاحقًا",
+        "uploadNotFound": "تعذّر العثور على هذا الرفع. أرفق الملف مرة أخرى.",
+        "network": "تحقق من الاتصال ثم أعد المحاولة.",
+        "unknown": "حدث خطأ ما في هذا المرفق."
+      }
+    }
+  },
+  "assignmentCalls": {
+    "launch": {
+      "start": "اتصال",
+      "startAria": "بدء مكالمة مع {{name}}"
+    },
+    "preview": {
+      "ariaLabel": "معاينة أجهزة المكالمة",
+      "outgoingTitle": "اتصال بـ {{name}}",
+      "incomingTitle": "عاين أجهزتك قبل الانضمام إلى {{name}}",
+      "devicesOffByDefault": "الكاميرا والميكروفون متوقفان. شغّلهما لتكون مرئيًا أو مسموعًا.",
+      "allowToSeeNames": "اسمح بالوصول لرؤية أسماء الأجهزة.",
+      "micOn": "الميكروفون مفعّل",
+      "micOff": "الميكروفون متوقف",
+      "cameraOn": "الكاميرا مفعّلة",
+      "cameraOff": "الكاميرا متوقفة",
+      "microphoneLabel": "الميكروفون",
+      "cameraLabel": "الكاميرا",
+      "unknownDevice": "جهاز غير معروف",
+      "startCall": "بدء المكالمة",
+      "joinCall": "الانضمام إلى المكالمة",
+      "deviceErrors": {
+        "blocked": "تم حظر الوصول في المتصفح. اسمح به من إعدادات المتصفح وأعد المحاولة.",
+        "not_found": "لم يتم العثور على جهاز مطابق.",
+        "in_use": "هذا الجهاز مستخدَم من تطبيق آخر.",
+        "unknown": "تعذّر الوصول إلى هذا الجهاز."
+      }
+    },
+    "incoming": {
+      "ariaLabel": "مكالمة واردة",
+      "title": "{{name}} يتصل",
+      "description": "اقبل لمعاينة أجهزتك والانضمام، أو ارفض.",
+      "accept": "قبول",
+      "acceptAria": "قبول المكالمة",
+      "decline": "رفض",
+      "declineAria": "رفض المكالمة"
+    },
+    "controls": {
+      "muteAria": "كتم الميكروفون",
+      "unmuteAria": "إلغاء كتم الميكروفون",
+      "cameraOnAria": "تشغيل الكاميرا",
+      "cameraOffAria": "إيقاف الكاميرا",
+      "startScreenShareAria": "مشاركة الشاشة",
+      "stopScreenShareAria": "إيقاف مشاركة الشاشة",
+      "hangUpAria": "إنهاء المكالمة"
+    },
+    "stage": {
+      "ariaLabel": "مكالمة مع {{name}}",
+      "reconnecting": "جارٍ إعادة الاتصال…",
+      "remoteVideoAria": "فيديو {{name}}",
+      "localVideoAria": "الفيديو الخاص بك",
+      "degraded": {
+        "audio_only": "صوت فقط",
+        "listen_only": "استماع فقط"
+      }
+    },
+    "minimizedBar": {
+      "ariaLabel": "مكالمة جارية مع {{name}}",
+      "return": "العودة"
+    },
+    "status": {
+      "ringing": "جارٍ الاتصال بـ {{name}}…",
+      "connecting": "جارٍ الاتصال…",
+      "ended": {
+        "RINGING": "انتهت المكالمة",
+        "ANSWERED": "انتهت المكالمة",
+        "MISSED": "لا يوجد رد",
+        "DECLINED": "تم رفض المكالمة",
+        "FAILED_BUSY": "هذا المشارك غير متاح حاليًا",
+        "FAILED_PROVIDER": "تعذّر الاتصال بالمكالمة",
+        "ENDED": "انتهت المكالمة"
+      }
+    },
+    "unavailable": {
+      "insecureContext": "تحتاج المكالمات إلى اتصال آمن (HTTPS) وهي غير متاحة هنا.",
+      "noWebrtc": "المكالمات غير مدعومة في هذا المتصفح.",
+      "noMediaDevices": "لا يمكن لهذا المتصفح الوصول إلى كاميرا أو ميكروفون.",
+      "generic": "المكالمات غير متاحة على هذا الجهاز."
+    },
+    "errors": {
+      "disabled": "المكالمات غير متاحة حاليًا.",
+      "participantUnavailable": "هذا المشارك غير متاح حاليًا.",
+      "ringExpired": "لم يتم الرد على المكالمة في الوقت المحدد.",
+      "capacityExhausted": "المكالمات في أقصى سعتها مؤقتًا. أعد المحاولة لاحقًا.",
+      "providerUnavailable": "خدمة المكالمات غير متاحة مؤقتًا.",
+      "notFound": "تعذّر العثور على هذه المكالمة.",
+      "invalidState": "لا يمكن إتمام هذا الإجراء لحالة المكالمة الحالية.",
+      "signalRejected": "تم رفض إحدى رسائل اتصال المكالمة.",
+      "signalRateLimited": "عدد كبير جدًا من محاولات الاتصال. انتظر لحظة وأعد المحاولة.",
+      "maxDurationReached": "بلغت هذه المكالمة مدتها القصوى وانتهت.",
+      "conversationReadOnly": "هذه المحادثة للقراءة فقط ولا يمكن بدء مكالمة منها.",
+      "network": "تحقق من الاتصال ثم أعد المحاولة.",
+      "unknown": "حدث خطأ ما في هذه المكالمة."
     }
   },
   "__application__": {},

@@ -118,7 +118,27 @@ const messageCreatedEvent = {
       createdAt: "2026-08-09T12:03:00.000Z",
       editedAt: null,
       retractedAt: null,
+      attachments: [],
     },
+  },
+};
+
+const attachmentId = "33333333-3333-4333-8333-333333333333";
+const attachmentScanStateChangedEvent = {
+  eventId: "99999999-9999-4999-8999-999999999999",
+  type: "attachment.scan_state_changed" as const,
+  version: 1 as const,
+  occurredAt: "2026-08-09T12:05:00.000Z",
+  aggregateId: attachmentId,
+  aggregateVersion: 1,
+  payload: {
+    attachmentId,
+    messageId: "66666666-6666-4666-8666-666666666666",
+    filename: "report.pdf",
+    byteSize: 2_048,
+    mimeType: "application/pdf",
+    caption: null,
+    scanState: "ready" as const,
   },
 };
 
@@ -261,6 +281,105 @@ describe("NotificationsProvider realtime bridge", () => {
         .getQueryData<InfiniteData<CursorPage<MessageDto>>>(key)
         ?.pages[0]?.items,
     ).toEqual([messageCreatedEvent.payload.message]);
+  });
+
+  function seedMessageWithAttachment(
+    key: ReturnType<typeof assignmentConversationKeys.messages>,
+    scanState: "scanning" | "ready",
+    eventVersion: number,
+  ) {
+    queryClient.setQueryData<InfiniteData<CursorPage<MessageDto>>>(key, {
+      pages: [
+        {
+          items: [
+            {
+              messageId: attachmentScanStateChangedEvent.payload.messageId,
+              conversationId,
+              sequence: 1,
+              senderId: "22222222-2222-4222-8222-222222222222",
+              senderName: "Contributor Name",
+              body: "Here is the file",
+              replyToMessageId: null,
+              createdAt: "2026-08-09T12:03:00.000Z",
+              editedAt: null,
+              retractedAt: null,
+              attachments: [
+                {
+                  attachmentId,
+                  filename: "report.pdf",
+                  byteSize: 2_048,
+                  mimeType: "application/pdf",
+                  caption: null,
+                  scanState,
+                  eventVersion,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        },
+      ],
+      pageParams: [undefined],
+    });
+  }
+
+  it("patches the matching attachment inside the matching cached message by id and version", async () => {
+    storageService.setAccessToken("token-a");
+    const key = assignmentConversationKeys.messages(conversationId);
+    seedMessageWithAttachment(key, "scanning", 0);
+    await render();
+    const socket = getSocket(sockets);
+
+    await act(async () =>
+      handler(
+        socket,
+        "attachment.scan_state_changed",
+      )(attachmentScanStateChangedEvent),
+    );
+
+    expect(
+      queryClient
+        .getQueryData<InfiniteData<CursorPage<MessageDto>>>(key)
+        ?.pages[0]?.items[0]?.attachments,
+    ).toEqual([
+      {
+        attachmentId,
+        filename: "report.pdf",
+        byteSize: 2_048,
+        mimeType: "application/pdf",
+        caption: null,
+        scanState: "ready",
+        eventVersion: 1,
+      },
+    ]);
+  });
+
+  it("treats a stale or duplicate scan event (aggregateVersion <= current eventVersion) as a no-op", async () => {
+    storageService.setAccessToken("token-a");
+    const key = assignmentConversationKeys.messages(conversationId);
+    seedMessageWithAttachment(key, "ready", 3);
+    await render();
+    const socket = getSocket(sockets);
+
+    await act(async () =>
+      handler(
+        socket,
+        "attachment.scan_state_changed",
+      )({
+        ...attachmentScanStateChangedEvent,
+        aggregateVersion: 2,
+        payload: {
+          ...attachmentScanStateChangedEvent.payload,
+          scanState: "blocked",
+        },
+      }),
+    );
+
+    const attachments = queryClient
+      .getQueryData<InfiniteData<CursorPage<MessageDto>>>(key)
+      ?.pages[0]?.items[0]?.attachments;
+    expect(attachments?.[0]?.scanState).toBe("ready");
+    expect(attachments?.[0]?.eventVersion).toBe(3);
   });
 
   it("uses unauthorized and delayed states without looping the same token", async () => {

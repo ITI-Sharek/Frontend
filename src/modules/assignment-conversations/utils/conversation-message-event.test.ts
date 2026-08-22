@@ -21,6 +21,7 @@ const event = {
       createdAt: "2026-08-09T12:03:00.000Z",
       editedAt: null,
       retractedAt: null,
+      attachments: [],
     },
   },
 };
