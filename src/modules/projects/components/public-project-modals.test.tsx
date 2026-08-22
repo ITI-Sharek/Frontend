@@ -6,11 +6,11 @@ import type { Root } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ApplyProjectDialog } from "./public-project-modals";
-import type { TaskItemData } from "./public-project-modals";
+import {
+  ApplyProjectDialog
+} from "./public-project-modals";
+import type {ApplicationSubmissionController, TaskItemData} from "./public-project-modals";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
-import * as authModule from "@/modules/auth";
-import * as contribModule from "@/modules/contribution-requests";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -61,6 +61,20 @@ const mockTasks: TaskItemData[] = [
   },
 ];
 
+function createSubmissionControllerMock() {
+  const mockSubmit = vi.fn();
+  const controller: ApplicationSubmissionController = {
+    submit: mockSubmit,
+    reset: vi.fn(),
+    isPending: false,
+    hasError: false,
+    errorCode: null,
+    submissionErrorMessage: null,
+    dailyLimitResetCopy: null,
+  };
+  return { controller, mockSubmit };
+}
+
 describe("ApplyProjectDialog", () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -82,13 +96,7 @@ describe("ApplyProjectDialog", () => {
   });
 
   it("shows sign in prompt when user is not authenticated", async () => {
-    vi.spyOn(authModule, "useCurrentUserQuery").mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isPending: false,
-      isSuccess: false,
-      isError: false,
-    } as unknown as ReturnType<typeof authModule.useCurrentUserQuery>);
+    const { controller } = createSubmissionControllerMock();
 
     await act(async () => {
       root.render(
@@ -98,6 +106,10 @@ describe("ApplyProjectDialog", () => {
             onOpenChange={vi.fn()}
             project={mockProject}
             tasks={mockTasks}
+            applicationSubmission={controller}
+            isAuthenticated={false}
+            isContributor={false}
+            isAuthLoading={false}
           />
         </QueryClientProvider>,
       );
@@ -108,20 +120,7 @@ describe("ApplyProjectDialog", () => {
   });
 
   it("shows contributor account required notice when user is an owner", async () => {
-    vi.spyOn(authModule, "useCurrentUserQuery").mockReturnValue({
-      data: {
-        id: "owner-1",
-        email: "owner@example.com",
-        first_name: "Owner",
-        last_name: "User",
-        role: "owner",
-        status: "active",
-      },
-      isLoading: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
-    } as unknown as ReturnType<typeof authModule.useCurrentUserQuery>);
+    const { controller } = createSubmissionControllerMock();
 
     await act(async () => {
       root.render(
@@ -131,6 +130,10 @@ describe("ApplyProjectDialog", () => {
             onOpenChange={vi.fn()}
             project={mockProject}
             tasks={mockTasks}
+            applicationSubmission={controller}
+            isAuthenticated={true}
+            isContributor={false}
+            isAuthLoading={false}
           />
         </QueryClientProvider>,
       );
@@ -140,30 +143,7 @@ describe("ApplyProjectDialog", () => {
   });
 
   it("renders the application form for active contributor and validates short approach", async () => {
-    vi.spyOn(authModule, "useCurrentUserQuery").mockReturnValue({
-      data: {
-        id: "contrib-1",
-        email: "contrib@example.com",
-        first_name: "Contributor",
-        last_name: "User",
-        role: "contributor",
-        status: "active",
-      },
-      isLoading: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
-    } as unknown as ReturnType<typeof authModule.useCurrentUserQuery>);
-
-    const mockMutate = vi.fn();
-    vi.spyOn(contribModule, "useSubmitApplicationMutation").mockReturnValue({
-      mutate: mockMutate,
-      reset: vi.fn(),
-      isPending: false,
-      isError: false,
-      isSuccess: false,
-      error: null,
-    } as unknown as ReturnType<typeof contribModule.useSubmitApplicationMutation>);
+    const { controller, mockSubmit } = createSubmissionControllerMock();
 
     await act(async () => {
       root.render(
@@ -173,6 +153,10 @@ describe("ApplyProjectDialog", () => {
             onOpenChange={vi.fn()}
             project={mockProject}
             tasks={mockTasks}
+            applicationSubmission={controller}
+            isAuthenticated={true}
+            isContributor={true}
+            isAuthLoading={false}
           />
         </QueryClientProvider>,
       );
@@ -187,7 +171,7 @@ describe("ApplyProjectDialog", () => {
       form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     });
 
-    expect(mockMutate).not.toHaveBeenCalled();
+    expect(mockSubmit).not.toHaveBeenCalled();
     expect(document.body.textContent).toContain("يجب كتابة 10 أحرف على الأقل");
   });
 });

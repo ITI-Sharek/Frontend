@@ -1,6 +1,10 @@
 export { ExploreView } from "./components/explore-view";
 export { ExploreProjectCard } from "./components/explore-project-card";
 export { PublicProjectDetailView } from "./components/public-project-detail-view";
+export type {
+  ApplicationSubmissionController,
+  ApplicationSubmissionPayload,
+} from "./components/public-project-modals";
 export { PublicProjectsListView } from "./components/public-projects-list-view";
 export { AdminPublishedProjectOwnersPanel } from "./components/admin-published-project-owners-panel";
 export { MyProjectsList } from "./components/owner/my-projects-list";

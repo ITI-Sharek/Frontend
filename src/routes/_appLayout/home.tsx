@@ -3,6 +3,7 @@ import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
 import { AuthenticatedHomeView } from "@/modules/home";
+import { useMyProjectsQuery } from "@/modules/projects";
 
 export const Route = createFileRoute("/_appLayout/home")({
   head: () => ({ meta: [{ title: "Sharek" }] }),
@@ -13,6 +14,7 @@ function HomePage() {
   const routeContext = Route.useRouteContext();
   const currentUserQuery = useCurrentUserQuery(routeContext.currentUser);
   const currentUser = routeContext.currentUser ?? currentUserQuery.data;
+  const projectsQuery = useMyProjectsQuery();
 
   if (!currentUser || currentUser.role === "admin") {
     return null;
@@ -31,6 +33,8 @@ function HomePage() {
         username: currentUser.username,
         role: "owner",
       }}
+      myProjects={projectsQuery.data}
+      isProjectsLoading={projectsQuery.isPending}
     />
   );
 }

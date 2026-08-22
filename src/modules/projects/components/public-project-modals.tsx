@@ -15,12 +15,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
-import { useCurrentUserQuery } from "@/modules/auth";
-import {
-  getApplicationDailyLimitResetCopy,
-  getApplicationSubmissionErrorMessage,
-} from "@/modules/contribution-requests/constants/application-copy";
-import { useSubmitApplicationMutation } from "@/modules/contribution-requests";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -34,7 +28,6 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
@@ -49,12 +42,42 @@ export interface TaskItemData {
   status: "open" | "in_progress" | "completed";
 }
 
+export interface ApplicationSubmissionPayload {
+  contributionRequestId: string;
+  params: {
+    contributionApproach: string;
+    proposedDeliveryDurationDays: number;
+    idempotencyKey: string;
+  };
+}
+
+/**
+ * Owned by the route (which composes the `contribution-requests` module) and
+ * passed down so this module never imports another module at runtime.
+ */
+export interface ApplicationSubmissionController {
+  submit: (
+    payload: ApplicationSubmissionPayload,
+    handlers?: { onSuccess?: () => void },
+  ) => void;
+  reset: () => void;
+  isPending: boolean;
+  hasError: boolean;
+  errorCode: string | null;
+  submissionErrorMessage: string | null;
+  dailyLimitResetCopy: string | null;
+}
+
 interface ApplyProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   project: PublicProjectDetailDto;
   tasks: TaskItemData[];
   initialTask?: TaskItemData | null;
+  applicationSubmission: ApplicationSubmissionController;
+  isAuthenticated: boolean;
+  isContributor: boolean;
+  isAuthLoading: boolean;
 }
 
 export function ApplyProjectDialog({
@@ -63,14 +86,12 @@ export function ApplyProjectDialog({
   project,
   tasks,
   initialTask,
+  applicationSubmission,
+  isAuthenticated,
+  isContributor,
+  isAuthLoading,
 }: ApplyProjectDialogProps) {
-  const { t, i18n } = useTranslation();
-  const currentUserQuery = useCurrentUserQuery();
-  const currentUser = currentUserQuery.data;
-  const isAuthenticated = Boolean(currentUser && currentUser.status === "active");
-  const isContributor = currentUser?.role === "contributor";
-
-  const submitApplication = useSubmitApplicationMutation();
+  const { t } = useTranslation();
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [coverNote, setCoverNote] = useState("");
   const [deliveryDurationDays, setDeliveryDurationDays] = useState("14");
@@ -83,7 +104,7 @@ export function ApplyProjectDialog({
 
   useEffect(() => {
     if (open) {
-      submitApplication.reset();
+      applicationSubmission.reset();
       setValidationError(null);
     }
   }, [open]);
@@ -104,7 +125,7 @@ export function ApplyProjectDialog({
     }
 
     setValidationError(null);
-    submitApplication.mutate(
+    applicationSubmission.submit(
       {
         contributionRequestId: selectedTaskId,
         params: {
@@ -126,19 +147,19 @@ export function ApplyProjectDialog({
     );
   };
 
-  const errorCode = getApiErrorCode(submitApplication.error);
-  const errorMessage = submitApplication.error
+  const errorCode = applicationSubmission.errorCode;
+  const errorMessage = applicationSubmission.hasError
     ? errorCode === "APPLICATION_BLOCKED_SKILL_GAP"
       ? t(
           "project.detail.skillGapBlocked",
           "Your skill profile does not currently meet the required skills for this request.",
         )
-      : getApplicationSubmissionErrorMessage(submitApplication.error)
+      : applicationSubmission.submissionErrorMessage
     : null;
 
   const resetCopy =
     errorCode === "APPLICATION_DAILY_LIMIT_REACHED"
-      ? getApplicationDailyLimitResetCopy(submitApplication.error, i18n.language)
+      ? applicationSubmission.dailyLimitResetCopy
       : null;
 
   return (
@@ -161,7 +182,7 @@ export function ApplyProjectDialog({
           </div>
         </DialogHeader>
 
-        {!currentUserQuery.isLoading && !isAuthenticated ? (
+        {!isAuthLoading && !isAuthenticated ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
               <LogIn className="size-7" />
@@ -189,7 +210,7 @@ export function ApplyProjectDialog({
               </Button>
             </div>
           </div>
-        ) : !currentUserQuery.isLoading && !isContributor ? (
+        ) : !isAuthLoading && !isContributor ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
               <AlertCircle className="size-7" />
@@ -241,7 +262,7 @@ export function ApplyProjectDialog({
                 value={selectedTaskId}
                 onChange={(e) => {
                   setSelectedTaskId(e.target.value);
-                  submitApplication.reset();
+                  applicationSubmission.reset();
                   setValidationError(null);
                 }}
                 className="w-full rounded-input border border-border bg-card px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -289,7 +310,7 @@ export function ApplyProjectDialog({
                 </select>
             </div>
 
-            {(validationError || submitApplication.isError) && (
+            {(validationError || applicationSubmission.hasError) && (
               <div className="rounded-input border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="mt-0.5 size-4 shrink-0" />
@@ -321,7 +342,7 @@ export function ApplyProjectDialog({
                   {t("common.cancel", "Cancel")}
                 </Button>
               </DialogClose>
-              <Button type="submit" className="gap-2" disabled={submitApplication.isPending}>
+              <Button type="submit" className="gap-2" disabled={applicationSubmission.isPending}>
                 <Send className="size-4" />
                 {t("project.detail.submitApplication", "Submit Application")}
               </Button>

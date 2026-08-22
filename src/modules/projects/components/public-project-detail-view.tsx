@@ -2,8 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useCurrentUserQuery } from "@/modules/auth";
-import { useContributionRequestsQuery } from "@/modules/contribution-requests";
+import type { ContributionRequestListItemDto } from "@/modules/contribution-requests";
 import { usePublicProjectApplicantsQuery } from "../api/queries/use-public-project-applicants-query";
 import { usePublicProjectSavedStateQuery } from "../api/queries/use-public-project-saved-state-query";
 import { useSetPublicProjectSavedMutation } from "../api/mutations/use-set-public-project-saved-mutation";
@@ -28,7 +27,10 @@ import {
   ShareProjectDialog,
   TaskDetailDialog,
 } from "./public-project-modals";
-import type { TaskItemData } from "./public-project-modals";
+import type {
+  ApplicationSubmissionController,
+  TaskItemData,
+} from "./public-project-modals";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
 export interface PublicProjectDetailViewProps {
@@ -39,6 +41,11 @@ export interface PublicProjectDetailViewProps {
   canSave?: boolean;
   isOwner?: boolean;
   currentUserRole?: "owner" | "contributor" | "admin";
+  projectRequests: ContributionRequestListItemDto[];
+  applicationSubmission: ApplicationSubmissionController;
+  isAuthenticated: boolean;
+  isContributor: boolean;
+  isAuthLoading: boolean;
 }
 
 export function PublicProjectDetailView({
@@ -49,6 +56,11 @@ export function PublicProjectDetailView({
   canSave = false,
   isOwner: propIsOwner,
   currentUserRole: propCurrentUserRole,
+  projectRequests,
+  applicationSubmission,
+  isAuthenticated,
+  isContributor,
+  isAuthLoading,
 }: PublicProjectDetailViewProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("overview");
@@ -58,12 +70,11 @@ export function PublicProjectDetailView({
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskItemData | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
-  const contributionRequestsQuery = useContributionRequestsQuery();
   const applicantsQuery = usePublicProjectApplicantsQuery(project.slug);
   const savedStateQuery = usePublicProjectSavedStateQuery(project.slug, canSave);
   const setSaved = useSetPublicProjectSavedMutation(project.slug);
   const applicants = applicantsQuery.data?.items ?? [];
-  const tasks: TaskItemData[] = (contributionRequestsQuery.data?.items ?? [])
+  const tasks: TaskItemData[] = projectRequests
     .filter((request) => request.projectId === project.id)
     .map((request) => ({
       id: request.id,
@@ -90,13 +101,8 @@ export function PublicProjectDetailView({
     setApplyDialogOpen(true);
   };
 
-  const currentUserQuery = useCurrentUserQuery();
-  const currentUser = currentUserQuery.data;
-  const resolvedRole = propCurrentUserRole ?? currentUser?.role;
-  const isOwner =
-    propIsOwner ??
-    (resolvedRole === "owner" &&
-      (!project.owner?.username || currentUser?.username === project.owner.username));
+  const resolvedRole = propCurrentUserRole;
+  const isOwner = propIsOwner ?? false;
 
   return (
     <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -233,6 +239,10 @@ export function PublicProjectDetailView({
         project={project}
         tasks={tasks}
         initialTask={selectedTask}
+        applicationSubmission={applicationSubmission}
+        isAuthenticated={isAuthenticated}
+        isContributor={isContributor}
+        isAuthLoading={isAuthLoading}
       />
 
       <TaskDetailDialog

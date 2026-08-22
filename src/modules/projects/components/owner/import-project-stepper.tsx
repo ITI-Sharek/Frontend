@@ -21,7 +21,7 @@ import {
   UploadCloud,
   Wrench,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/shared/components/ui/button";
@@ -41,68 +41,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { createIdempotencyKey } from "@/shared/utils/idempotency-key";
 import { cn } from "@/lib/utils";
 
-import { useCreateProjectDraftMutation } from "../../api/mutations/use-create-project-draft-mutation";
-import { usePreviewGitHubRepositoryMutation } from "../../api/mutations/use-preview-github-repository-mutation";
-import { usePublishProjectMutation } from "../../api/mutations/use-publish-project-mutation";
-import { useUploadProjectHeroImageMutation } from "../../api/mutations/use-upload-project-hero-image-mutation";
+import { useImportProjectStepper } from "../../hooks/use-import-project-stepper";
+import type { ImportProjectStepperController } from "../../hooks/use-import-project-stepper";
+import { getProjectApiErrorMessage } from "../../utils/project-error-presenter";
 import {
-  getProjectApiErrorMessage,
-  isPreviewStaleError,
-} from "../../utils/project-error-presenter";
-import { formatFieldList, parseFieldList } from "../../utils/project-field-list";
+  canGoNext,
+  canGoToStep,
+  hasQueuedMaterials,
+  isIdentityChecklistComplete,
+  isStepButtonDisabled,
+  nextStep,
+  previousStep,
+} from "../../utils/import-project-stepper.machine";
 import { getDifficultyLabel } from "../explore-filters";
+import type { ImportProjectStepperProps } from "../../schemas/import-project-stepper.schema";
 import type {
   ProjectCategory,
   ProjectDifficulty,
 } from "../../types/project.types";
-import type {
-  PreviewGitHubRepositoryResponseDto,
-  ProjectOwnerViewDto,
-} from "../../types/project-draft.types";
 
-export interface SuggestedRepository {
-  fullName: string;
-  description: string | null;
-  isPrivate: boolean;
-}
-
-export interface QueuedMaterial {
-  id: string;
-  file: File;
-  title: string;
-  visibility: "PUBLIC" | "RESTRICTED_PROJECT";
-}
-
-export interface DynamicCategoryItem {
-  id: ProjectCategory | string;
-  label: string;
-  icon?: typeof Globe;
-}
-
-export interface DynamicDifficultyItem {
-  id: ProjectDifficulty | string;
-  label: string;
-}
-
-export interface ImportProjectStepperProps {
-  onDraftCreated: (projectId: string) => void;
-  onProjectPublished?: (projectId: string, projectSlug: string) => void;
-  onUploadMaterials?: (
-    projectId: string,
-    materials: QueuedMaterial[],
-  ) => Promise<void>;
-  suggestedRepositories?: SuggestedRepository[];
-  suggestedRepositoriesLoading?: boolean;
-  suggestedRepositoriesError?: string | null;
-  needsGitHubConnection?: boolean;
-  onConnectGitHub?: () => void;
-  categories?: DynamicCategoryItem[];
-  technologies?: string[];
-  difficulties?: DynamicDifficultyItem[];
-}
+export type {
+  DynamicCategoryItem,
+  DynamicDifficultyItem,
+  ImportProjectStepperProps,
+  QueuedMaterial,
+  SuggestedRepository,
+} from "../../schemas/import-project-stepper.schema";
 
 const POPULAR_TECH_PRESETS = [
   "TypeScript",
@@ -159,10 +125,16 @@ function getCategoryIcon(key: string): typeof Globe {
   return Globe;
 }
 
-export function ImportProjectStepper({
-  onDraftCreated,
-  onProjectPublished,
-  onUploadMaterials,
+export function ImportProjectStepper(props: ImportProjectStepperProps) {
+  const stepper = useImportProjectStepper(props);
+  return <ImportProjectStepperView {...props} stepper={stepper} />;
+}
+
+interface ImportProjectStepperViewProps extends ImportProjectStepperProps {
+  stepper: ImportProjectStepperController;
+}
+
+function ImportProjectStepperView({
   suggestedRepositories = [],
   suggestedRepositoriesLoading = false,
   suggestedRepositoriesError = null,
@@ -171,10 +143,36 @@ export function ImportProjectStepper({
   categories,
   technologies: propTechnologies,
   difficulties,
-}: ImportProjectStepperProps) {
+  stepper,
+}: ImportProjectStepperViewProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const heroImageInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    state,
+    previewMutation,
+    selectedTechs,
+    filteredSuggestedRepos,
+    setReference,
+    setRepoSearch,
+    setTitle,
+    setDescription,
+    setCategory,
+    setDifficulty,
+    setNewTechInput,
+    toggleTechnology,
+    addCustomTechnology,
+    handlePreview,
+    handleAddFiles,
+    handleHeroImageChange,
+    handleRemoveMaterial,
+    handleUpdateMaterial,
+    goToStep,
+    executeSave,
+    handleCopyProjectLink,
+    handlePublishedModalOpenChange,
+  } = stepper;
 
   const categoryOptions = categories ?? [];
   const techPresets =
@@ -183,57 +181,6 @@ export function ImportProjectStepper({
       : POPULAR_TECH_PRESETS;
   const difficultyOptions = difficulties ?? [];
 
-  // Stepper state (1: Repo, 2: Details & Identity, 3: Materials, 4: Launch)
-  const [currentStep, setCurrentStep] = useState(1);
-
-  // Step 1: Repository Reference & Preview
-  const [reference, setReference] = useState("");
-  const [repoSearch, setRepoSearch] = useState("");
-  const [preview, setPreview] =
-    useState<PreviewGitHubRepositoryResponseDto | null>(null);
-  const [draftIdempotencyKey, setDraftIdempotencyKey] = useState<string | null>(
-    null,
-  );
-  const [createdDraft, setCreatedDraft] = useState<ProjectOwnerViewDto | null>(
-    null,
-  );
-
-  // Step 2: Project Metadata
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
-  const [technologies, setTechnologies] = useState("");
-  const [category, setCategory] = useState<ProjectCategory | null>(null);
-  const [difficulty, setDifficulty] =
-    useState<ProjectDifficulty | null>("intermediate");
-  const [newTechInput, setNewTechInput] = useState("");
-  const [heroImage, setHeroImage] = useState<File | null>(null);
-  const [uploadedHeroImage, setUploadedHeroImage] = useState<File | null>(null);
-  const [heroImagePreview, setHeroImagePreview] = useState<string | null>(null);
-
-  // Step 3: Materials
-  const [queuedMaterials, setQueuedMaterials] = useState<QueuedMaterial[]>([]);
-
-  // Step 4: Submission & Success Modal
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [publishedProject, setPublishedProject] = useState<{
-    id: string;
-    slug: string;
-  } | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
-
-  const previewMutation = usePreviewGitHubRepositoryMutation();
-  const createDraftMutation = useCreateProjectDraftMutation();
-  const publishMutation = usePublishProjectMutation();
-  const uploadHeroImageMutation = useUploadProjectHeroImageMutation();
-
-  useEffect(() => {
-    return () => {
-      if (heroImagePreview) URL.revokeObjectURL(heroImagePreview);
-    };
-  }, [heroImagePreview]);
-
   const stepLabels = [
     t("project.import.stepRepository", "Repository"),
     t("project.import.stepIdentity", "Identity"),
@@ -241,178 +188,6 @@ export function ImportProjectStepper({
     t("project.import.stepReview", "Launch"),
   ];
 
-  function handlePreview(referenceValue: string) {
-    const trimmed = referenceValue.trim();
-    if (trimmed === "") return;
-    setReference(trimmed);
-    setSubmitError(null);
-    previewMutation.mutate(
-      { repositoryReference: trimmed },
-      {
-        onSuccess: (result) => {
-          setPreview(result);
-          setTitle(result.ownerDefaults.title);
-          setDescription(result.ownerDefaults.description ?? "");
-          setTags(formatFieldList(result.ownerDefaults.tags));
-          setTechnologies(formatFieldList(result.ownerDefaults.technologies));
-          setCategory(null);
-          setDifficulty("intermediate");
-          setDraftIdempotencyKey(createIdempotencyKey());
-          setCreatedDraft(null);
-          setUploadedHeroImage(null);
-          setCurrentStep(2);
-        },
-      },
-    );
-  }
-
-  function handleAddFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    const newItems: QueuedMaterial[] = Array.from(files).map((file) => ({
-      id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      file,
-      title: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
-      visibility: "PUBLIC",
-    }));
-    setQueuedMaterials((prev) => [...prev, ...newItems]);
-  }
-
-  function handleHeroImageChange(files: FileList | null) {
-    const file = files?.[0];
-    if (!file) return;
-    if (
-      !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
-      file.size > 5_000_000
-    ) {
-      setSubmitError(
-        t(
-          "project.import.heroImageInvalid",
-          "Choose a PNG, JPEG, or WebP image no larger than 5 MB.",
-        ),
-      );
-      return;
-    }
-    setSubmitError(null);
-    setHeroImage(file);
-    setUploadedHeroImage(null);
-    setHeroImagePreview(URL.createObjectURL(file));
-  }
-
-  function handleRemoveMaterial(id: string) {
-    setQueuedMaterials((prev) => prev.filter((item) => item.id !== id));
-  }
-
-  function handleUpdateMaterial(
-    id: string,
-    updates: Partial<QueuedMaterial>,
-  ) {
-    setQueuedMaterials((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
-    );
-  }
-
-  function toggleTechnology(tech: string) {
-    const currentList = parseFieldList(technologies);
-    const exists = currentList.some(
-      (tItem) => tItem.toLowerCase() === tech.toLowerCase(),
-    );
-    const updated = exists
-      ? currentList.filter(
-          (tItem) => tItem.toLowerCase() !== tech.toLowerCase(),
-        )
-      : [...currentList, tech];
-    setTechnologies(formatFieldList(updated));
-  }
-
-  function addCustomTechnology() {
-    const trimmed = newTechInput.trim();
-    if (!trimmed) return;
-    const currentList = parseFieldList(technologies);
-    if (
-      !currentList.some((tItem) => tItem.toLowerCase() === trimmed.toLowerCase())
-    ) {
-      setTechnologies(formatFieldList([...currentList, trimmed]));
-    }
-    setNewTechInput("");
-  }
-
-  async function executeSave(shouldPublish: boolean) {
-    if (preview === null || draftIdempotencyKey === null) return;
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      let project = createdDraft;
-      if (!project) {
-        project = await createDraftMutation.mutateAsync({
-          idempotencyKey: draftIdempotencyKey,
-          source: {
-            provider: "github",
-            repositoryReference: reference,
-            previewFingerprint: preview.previewFingerprint,
-          },
-          project: {
-            title,
-            description: description.trim() === "" ? null : description,
-            tags: parseFieldList(tags),
-            technologies: parseFieldList(technologies),
-            category,
-            difficulty,
-          },
-        });
-        setCreatedDraft(project);
-      }
-
-      if (heroImage && uploadedHeroImage !== heroImage) {
-        project = await uploadHeroImageMutation.mutateAsync({
-          projectId: project.id,
-          expectedRevision: project.revision,
-          file: heroImage,
-          idempotencyKey: createIdempotencyKey(),
-        });
-        setCreatedDraft(project);
-        setUploadedHeroImage(heroImage);
-      }
-
-      if (queuedMaterials.length > 0 && onUploadMaterials) {
-        try {
-          await onUploadMaterials(project.id, queuedMaterials);
-        } catch (matErr) {
-          console.error("Material upload warning:", matErr);
-        }
-      }
-
-      if (shouldPublish) {
-        await publishMutation.mutateAsync({
-          projectId: project.id,
-          idempotencyKey: createIdempotencyKey(),
-          expectedRevision: project.revision,
-          confirm: true,
-        });
-
-        setPublishedProject({ id: project.id, slug: project.slug });
-        if (onProjectPublished) {
-          onProjectPublished(project.id, project.slug);
-        }
-      } else {
-        onDraftCreated(project.id);
-      }
-    } catch (err) {
-      if (isPreviewStaleError(err)) {
-        setPreview(null);
-        setCurrentStep(1);
-      }
-      setSubmitError(getProjectApiErrorMessage(t, err));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  const filteredSuggestedRepos = suggestedRepositories.filter((repo) =>
-    repo.fullName.toLowerCase().includes(repoSearch.toLowerCase()),
-  );
-
-  const selectedTechs = parseFieldList(technologies);
   const STEP_ICONS = [FolderGit2, Sparkles, FileText, Rocket];
 
   return (
@@ -444,19 +219,17 @@ export function ImportProjectStepper({
         <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border bg-surface-fog p-1">
           {stepLabels.map((label, idx) => {
             const stepNumber = idx + 1;
-            const isActive = currentStep === stepNumber;
-            const isComplete = currentStep > stepNumber;
+            const isActive = state.currentStep === stepNumber;
+            const isComplete = state.currentStep > stepNumber;
             const Icon = STEP_ICONS[idx] ?? Sparkles;
             return (
               <button
                 key={label}
                 type="button"
-                disabled={
-                  isSubmitting || (!isComplete && !preview && stepNumber > 1)
-                }
+                disabled={isStepButtonDisabled(state, stepNumber)}
                 onClick={() => {
-                  if (isComplete || preview || stepNumber <= currentStep) {
-                    setCurrentStep(stepNumber);
+                  if (canGoToStep(state, stepNumber)) {
+                    goToStep(stepNumber);
                   }
                 }}
                 className={cn(
@@ -486,7 +259,7 @@ export function ImportProjectStepper({
         {/* Left / Main Workspace Column (8 cols) */}
         <div className="lg:col-span-8">
           {/* STEP 1: Repository Sync */}
-          {currentStep === 1 && (
+          {state.currentStep === 1 && (
             <Card className="flex h-full flex-col justify-between p-6">
               <div className="space-y-5">
                 <div>
@@ -506,14 +279,14 @@ export function ImportProjectStepper({
                   className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    handlePreview(reference);
+                    handlePreview(state.reference);
                   }}
                 >
                   <div className="relative flex-1">
                     <InputGroup className="h-10 rounded-xl border-border bg-card shadow-xs focus-within:border-primary">
                       <InputGroupInput
                         dir="ltr"
-                        value={reference}
+                        value={state.reference}
                         onChange={(e) => setReference(e.target.value)}
                         placeholder="e.g. facebook/react or https://github.com/owner/repo"
                         className="h-full font-mono text-xs sm:text-sm tracking-wide"
@@ -525,7 +298,7 @@ export function ImportProjectStepper({
                   </div>
                   <Button
                     type="submit"
-                    disabled={previewMutation.isPending || reference.trim() === ""}
+                    disabled={previewMutation.isPending || state.reference.trim() === ""}
                     className="h-10 shrink-0 gap-2 rounded-xl font-bold"
                   >
                     {previewMutation.isPending ? (
@@ -559,7 +332,7 @@ export function ImportProjectStepper({
                         <div className="w-44">
                           <Input
                             placeholder={t("project.import.searchLinkedRepos", "Filter repos...")}
-                            value={repoSearch}
+                            value={state.repoSearch}
                             onChange={(e) => setRepoSearch(e.target.value)}
                             className="h-7 text-xs"
                           />
@@ -576,7 +349,7 @@ export function ImportProjectStepper({
                           onClick={() => handlePreview(repo.fullName)}
                           className={cn(
                             "group flex items-start gap-2.5 rounded-xl border border-border bg-surface-fog p-3 text-start transition-all hover:border-primary/50 hover:bg-card hover:shadow-xs",
-                            reference === repo.fullName &&
+                            state.reference === repo.fullName &&
                               "border-primary bg-primary/5 ring-1 ring-primary/30",
                           )}
                         >
@@ -653,7 +426,7 @@ export function ImportProjectStepper({
               </div>
 
               {/* Step 1 Footer (if repository already verified) */}
-              {preview && (
+              {state.preview && (
                 <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                     <Check className="size-4" />
@@ -662,7 +435,7 @@ export function ImportProjectStepper({
                   <Button
                     type="button"
                     size="sm"
-                    onClick={() => setCurrentStep(2)}
+                    onClick={() => goToStep(nextStep(state))}
                     className="gap-1.5 text-xs font-bold"
                   >
                     <span>{t("project.import.continue", "Continue to Details")}</span>
@@ -675,7 +448,7 @@ export function ImportProjectStepper({
           )}
 
           {/* STEP 2: Project Details & Identity */}
-          {currentStep === 2 && (
+          {state.currentStep === 2 && (
             <Card className="flex h-full flex-col justify-between p-6">
               <div className="space-y-5">
                 <div>
@@ -700,7 +473,7 @@ export function ImportProjectStepper({
                       </label>
                       <Input
                         dir="ltr"
-                        value={title}
+                        value={state.title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder={t("project.import.titlePlaceholder", "e.g. Sharek Platform")}
                         className="mt-1.5 text-xs sm:text-sm font-semibold"
@@ -713,7 +486,7 @@ export function ImportProjectStepper({
                       </label>
                       <Textarea
                         rows={3}
-                        value={description}
+                        value={state.description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder={t(
                           "project.import.descriptionPlaceholder",
@@ -741,9 +514,9 @@ export function ImportProjectStepper({
                         onChange={(event) => handleHeroImageChange(event.target.files)}
                       />
                       <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-surface-fog p-2.5">
-                        {heroImagePreview ? (
+                        {state.heroImagePreview ? (
                           <img
-                            src={heroImagePreview}
+                            src={state.heroImagePreview}
                             alt={t("project.import.heroImagePreview", "Selected project hero image")}
                             className="size-14 shrink-0 rounded-lg border border-border object-cover"
                           />
@@ -754,7 +527,7 @@ export function ImportProjectStepper({
                         )}
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-xs font-semibold text-foreground">
-                            {heroImage?.name ??
+                            {state.heroImage?.name ??
                               t(
                                 "project.import.heroImageEmpty",
                                 "Add a visual identity to your published project.",
@@ -768,7 +541,7 @@ export function ImportProjectStepper({
                             onClick={() => heroImageInputRef.current?.click()}
                           >
                             <UploadCloud className="size-3" />
-                            {heroImage
+                            {state.heroImage
                               ? t("project.import.changeHeroImage", t("common.change", "Change"))
                               : t("project.import.uploadHeroImage", t("common.uploadImage", "Upload image"))}
                           </Button>
@@ -786,7 +559,7 @@ export function ImportProjectStepper({
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         {categoryOptions.map((cat) => {
-                          const isSelected = category === cat.id;
+                          const isSelected = state.category === cat.id;
                           const Icon = cat.icon ?? getCategoryIcon(cat.id);
                           return (
                             <button
@@ -826,7 +599,7 @@ export function ImportProjectStepper({
                       </label>
                       <div className="grid grid-cols-3 gap-2">
                         {difficultyOptions.map((diff) => {
-                          const isSelected = difficulty === diff.id;
+                          const isSelected = state.difficulty === diff.id;
                           return (
                             <button
                               key={diff.id}
@@ -878,7 +651,7 @@ export function ImportProjectStepper({
                       <div className="flex items-center gap-2 pt-1">
                         <Input
                           dir="ltr"
-                          value={newTechInput}
+                          value={state.newTechInput}
                           onChange={(e) => setNewTechInput(e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -914,7 +687,7 @@ export function ImportProjectStepper({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={() => goToStep(previousStep(state))}
                   className="text-xs font-semibold"
                 >
                   <ChevronLeft className="size-3.5 rtl:hidden" />
@@ -924,8 +697,8 @@ export function ImportProjectStepper({
                 <Button
                   type="button"
                   size="sm"
-                  disabled={title.trim() === ""}
-                  onClick={() => setCurrentStep(3)}
+                  disabled={!canGoNext(state)}
+                  onClick={() => goToStep(nextStep(state))}
                   className="gap-1.5 text-xs font-bold"
                 >
                   <span>{t("project.import.continue", "Continue to Materials")}</span>
@@ -937,7 +710,7 @@ export function ImportProjectStepper({
           )}
 
           {/* STEP 3: Integrated Materials Upload */}
-          {currentStep === 3 && (
+          {state.currentStep === 3 && (
             <Card className="flex h-full flex-col justify-between p-6">
               <div className="space-y-5">
                 <div>
@@ -991,9 +764,9 @@ export function ImportProjectStepper({
 
                   {/* Queued Materials List */}
                   <div className="space-y-2.5">
-                    {queuedMaterials.length > 0 ? (
+                    {state.queuedMaterials.length > 0 ? (
                       <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
-                        {queuedMaterials.map((mat) => (
+                        {state.queuedMaterials.map((mat) => (
                           <div
                             key={mat.id}
                             className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 shadow-xs"
@@ -1053,7 +826,7 @@ export function ImportProjectStepper({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => goToStep(previousStep(state))}
                   className="text-xs font-semibold"
                 >
                   <ChevronLeft className="size-3.5 rtl:hidden" />
@@ -1063,7 +836,7 @@ export function ImportProjectStepper({
                 <Button
                   type="button"
                   size="sm"
-                  onClick={() => setCurrentStep(4)}
+                  onClick={() => goToStep(nextStep(state))}
                   className="gap-1.5 text-xs font-bold"
                 >
                   <span>{t("project.import.continue", "Continue to Launch")}</span>
@@ -1075,7 +848,7 @@ export function ImportProjectStepper({
           )}
 
           {/* STEP 4: Live Preview & One-Click Launch */}
-          {currentStep === 4 && (
+          {state.currentStep === 4 && (
             <Card className="flex h-full flex-col justify-between p-6">
               <div className="space-y-5">
                 <div>
@@ -1101,7 +874,7 @@ export function ImportProjectStepper({
                         {t("project.import.stepRepository", "Repository")}
                       </span>
                       <p dir="ltr" className="mt-1 truncate font-mono font-bold text-foreground">
-                        {preview?.source.fullName || reference}
+                        {state.preview?.source.fullName || state.reference}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border bg-card p-2.5">
@@ -1109,7 +882,7 @@ export function ImportProjectStepper({
                         {t("project.fields.category", "Category")}
                       </span>
                       <p className="mt-1 truncate font-bold text-primary">
-                        {categoryOptions.find((item) => item.id === category)?.label ?? "—"}
+                        {categoryOptions.find((item) => item.id === state.category)?.label ?? "—"}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border bg-card p-2.5">
@@ -1117,7 +890,7 @@ export function ImportProjectStepper({
                         {t("project.fields.difficulty", "Difficulty level")}
                       </span>
                       <p className="mt-1 truncate font-bold text-emerald-600 dark:text-emerald-400">
-                        {difficulty ? getDifficultyLabel(t, difficulty) : "—"}
+                        {state.difficulty ? getDifficultyLabel(t, state.difficulty) : "—"}
                       </p>
                     </div>
                     <div className="rounded-lg border border-border bg-card p-2.5">
@@ -1125,15 +898,15 @@ export function ImportProjectStepper({
                         {t("project.import.stepMaterials", "Materials")}
                       </span>
                       <p className="mt-1 font-bold text-foreground">
-                        {queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
+                        {state.queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {submitError && (
+                {state.submitError && (
                   <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
-                    {submitError}
+                    {state.submitError}
                   </div>
                 )}
               </div>
@@ -1144,8 +917,8 @@ export function ImportProjectStepper({
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={isSubmitting}
-                    onClick={() => setCurrentStep(3)}
+                    disabled={state.isSubmitting}
+                    onClick={() => goToStep(previousStep(state))}
                     className="text-xs font-semibold"
                   >
                     <ChevronLeft className="size-3.5 rtl:hidden" />
@@ -1157,11 +930,11 @@ export function ImportProjectStepper({
                     <Button
                       type="button"
                       variant="outline"
-                      disabled={isSubmitting}
+                      disabled={state.isSubmitting}
                       onClick={() => executeSave(false)}
                       className="text-xs font-semibold"
                     >
-                      {isSubmitting ? (
+                      {state.isSubmitting ? (
                         <Loader2 className="size-4 animate-spin" />
                       ) : (
                         t("project.import.saveDraft", "Save as Private Draft")
@@ -1170,11 +943,11 @@ export function ImportProjectStepper({
 
                     <Button
                       type="button"
-                      disabled={isSubmitting}
+                      disabled={state.isSubmitting}
                       onClick={() => executeSave(true)}
                       className="gap-2 bg-primary px-5 text-xs font-bold text-primary-foreground"
                     >
-                      {isSubmitting ? (
+                      {state.isSubmitting ? (
                         <>
                           <Loader2 className="size-4 animate-spin" />
                           <span>{t("project.import.publishing", "Publishing...")}</span>
@@ -1215,24 +988,24 @@ export function ImportProjectStepper({
             <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-xs">
               {/* Card Header: Avatar / Hero + Category & Difficulty Badges */}
               <div className="flex items-start justify-between gap-3">
-                {heroImagePreview ? (
+                {state.heroImagePreview ? (
                   <img
-                    src={heroImagePreview}
-                    alt={title || "Project Hero"}
+                    src={state.heroImagePreview}
+                    alt={state.title || "Project Hero"}
                     className="size-11 rounded-xl border border-border object-cover"
                   />
                 ) : (
                   <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-lg font-bold text-primary">
-                    {title ? title.slice(0, 1).toUpperCase() : "P"}
+                    {state.title ? state.title.slice(0, 1).toUpperCase() : "P"}
                   </div>
                 )}
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                    {categoryOptions.find((item) => item.id === category)?.label ?? "—"}
+                    {categoryOptions.find((item) => item.id === state.category)?.label ?? "—"}
                   </span>
                   <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                    {difficulty
-                      ? getDifficultyLabel(t, difficulty)
+                    {state.difficulty
+                      ? getDifficultyLabel(t, state.difficulty)
                       : t("project.difficulty.intermediate", "Intermediate")}
                   </span>
                 </div>
@@ -1241,10 +1014,10 @@ export function ImportProjectStepper({
               {/* Title & Description */}
               <div className="mt-3">
                 <h4 className="truncate text-sm font-bold text-foreground">
-                  {title || t("project.detail.noTitle", "Untitled Project")}
+                  {state.title || t("project.detail.noTitle", "Untitled Project")}
                 </h4>
                 <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                  {description ||
+                  {state.description ||
                     t("explore.noDescription", "No description for this project yet.")}
                 </p>
               </div>
@@ -1273,11 +1046,11 @@ export function ImportProjectStepper({
                 <div className="flex items-center gap-1">
                   <GitBranch className="size-3 text-primary" />
                   <span dir="ltr" className="truncate font-mono font-medium text-foreground max-w-[120px]">
-                    {preview?.source.fullName || reference || t("project.import.notConnected", "Not selected")}
+                    {state.preview?.source.fullName || state.reference || t("project.import.notConnected", "Not selected")}
                   </span>
                 </div>
                 <span>
-                  📁 {queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
+                  📁 {state.queuedMaterials.length} {t("project.import.stepMaterials", "Materials")}
                 </span>
               </div>
             </div>
@@ -1289,13 +1062,13 @@ export function ImportProjectStepper({
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
-                      preview ? "bg-emerald-500" : "bg-muted-foreground/40",
+                      state.preview ? "bg-emerald-500" : "bg-muted-foreground/40",
                     )}
                   />
                   {t("project.import.stepRepository", "Repository")}
                 </span>
                 <span className="font-mono text-[11px]">
-                  {preview ? "✓" : "—"}
+                  {state.preview ? "✓" : "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-muted-foreground">
@@ -1303,7 +1076,7 @@ export function ImportProjectStepper({
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
-                      title.trim() !== "" && category !== null
+                      isIdentityChecklistComplete(state)
                         ? "bg-emerald-500"
                         : "bg-muted-foreground/40",
                     )}
@@ -1311,7 +1084,7 @@ export function ImportProjectStepper({
                   {t("project.import.stepIdentity", "Identity")}
                 </span>
                 <span className="font-mono text-[11px]">
-                  {title.trim() !== "" && category !== null ? "✓" : "—"}
+                  {isIdentityChecklistComplete(state) ? "✓" : "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-muted-foreground">
@@ -1319,7 +1092,7 @@ export function ImportProjectStepper({
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
-                      queuedMaterials.length > 0
+                      hasQueuedMaterials(state)
                         ? "bg-emerald-500"
                         : "bg-muted-foreground/40",
                     )}
@@ -1327,8 +1100,8 @@ export function ImportProjectStepper({
                   {t("project.import.stepMaterials", "Materials")}
                 </span>
                 <span className="font-mono text-[11px]">
-                  {queuedMaterials.length > 0
-                    ? `✓ (${queuedMaterials.length})`
+                  {hasQueuedMaterials(state)
+                    ? `✓ (${state.queuedMaterials.length})`
                     : t("common.optional", "(optional)")}
                 </span>
               </div>
@@ -1339,12 +1112,8 @@ export function ImportProjectStepper({
 
       {/* ── Success Modal Dialog ── */}
       <Dialog
-        open={publishedProject !== null}
-        onOpenChange={(open) => {
-          if (!open && publishedProject) {
-            onDraftCreated(publishedProject.id);
-          }
-        }}
+        open={state.publishedProject !== null}
+        onOpenChange={handlePublishedModalOpenChange}
       >
         <DialogContent className="text-center sm:max-w-md">
           <DialogHeader className="flex flex-col items-center">
@@ -1363,38 +1132,32 @@ export function ImportProjectStepper({
           </DialogHeader>
 
           {/* Copy Link Row */}
-          {publishedProject && (
+          {state.publishedProject && (
             <div className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-surface-fog p-2.5">
               <span
                 dir="ltr"
                 className="flex-1 truncate text-start font-mono text-xs text-muted-foreground"
               >
-                {`${window.location.origin}/projects/${publishedProject.slug}`}
+                {`${window.location.origin}/projects/${state.publishedProject.slug}`}
               </span>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  void navigator.clipboard.writeText(
-                    `${window.location.origin}/projects/${publishedProject.slug}`,
-                  );
-                  setCopiedLink(true);
-                  setTimeout(() => setCopiedLink(false), 2000);
-                }}
+                onClick={handleCopyProjectLink}
                 className="h-8 shrink-0 gap-1.5 text-xs font-semibold"
               >
-                {copiedLink ? (
+                {state.copiedLink ? (
                   <Check className="size-3.5 text-emerald-500" />
                 ) : (
                   <Copy className="size-3.5" />
                 )}
                 <span>
                   {t(
-                    copiedLink
+                    state.copiedLink
                       ? "project.import.linkCopied"
                       : "project.import.copyLink",
-                    copiedLink ? "Copied!" : "Copy",
+                    state.copiedLink ? "Copied!" : "Copy",
                   )}
                 </span>
               </Button>
@@ -1402,11 +1165,11 @@ export function ImportProjectStepper({
           )}
 
           <DialogFooter className="mt-6 flex flex-col gap-2 sm:flex-col">
-            {publishedProject && (
+            {state.publishedProject && (
               <>
                 <Button asChild className="w-full gap-1.5 text-xs font-bold">
                   <a
-                    href={`/my-projects/${publishedProject.id}/contribution-requests/new`}
+                    href={`/my-projects/${state.publishedProject.id}/contribution-requests/new`}
                   >
                     <Plus className="size-4" />
                     <span>
@@ -1422,7 +1185,7 @@ export function ImportProjectStepper({
                   variant="outline"
                   className="w-full text-xs font-semibold"
                 >
-                  <a href={`/my-projects/${publishedProject.id}`}>
+                  <a href={`/my-projects/${state.publishedProject.id}`}>
                     <span>
                       {t(
                         "project.import.goToProject",

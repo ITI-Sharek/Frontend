@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { cn } from "@/lib/utils";
-import { useMyProjectsQuery } from "@/modules/projects";
+import type { MyProjectsListResponseDto } from "@/modules/projects";
 import { Button } from "@/shared/components/ui/button";
 import { useTextDirection } from "@/shared/hooks/use-text-direction";
 
@@ -48,8 +48,12 @@ const CATEGORY_CHIPS = [
 
 export function AuthenticatedHomeView({
   currentUser,
+  myProjects,
+  isProjectsLoading = false,
 }: {
   currentUser: AuthenticatedHomeUser;
+  myProjects?: MyProjectsListResponseDto;
+  isProjectsLoading?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const dir = useTextDirection();
@@ -58,9 +62,8 @@ export function AuthenticatedHomeView({
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
 
-  const projectsQuery = useMyProjectsQuery();
-  const projects = projectsQuery.data?.projects ?? [];
-  const quota = projectsQuery.data?.quota;
+  const projects = myProjects?.projects ?? [];
+  const quota = myProjects?.quota;
 
   const publishedProjectsCount = projects.filter(
     (p) => p.status === "published",
@@ -190,7 +193,7 @@ export function AuthenticatedHomeView({
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="font-mono text-2xl font-black text-foreground">
-              {projectsQuery.isPending ? "–" : publishedProjectsCount}
+              {isProjectsLoading ? "–" : publishedProjectsCount}
             </span>
             <ArrowIcon className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
           </div>
@@ -211,7 +214,7 @@ export function AuthenticatedHomeView({
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="font-mono text-2xl font-black text-foreground">
-              {projectsQuery.isPending ? "–" : draftProjectsCount}
+              {isProjectsLoading ? "–" : draftProjectsCount}
             </span>
             <ArrowIcon className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
           </div>
@@ -232,7 +235,7 @@ export function AuthenticatedHomeView({
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="font-mono text-2xl font-black text-foreground">
-              {projectsQuery.isPending ? "–" : totalOpenRequests}
+              {isProjectsLoading ? "–" : totalOpenRequests}
             </span>
             <ArrowIcon className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
           </div>
@@ -266,7 +269,7 @@ export function AuthenticatedHomeView({
           <div className="mt-3 flex items-baseline justify-between">
             <div className="flex items-center gap-1.5">
               <span className="font-mono text-2xl font-black text-foreground">
-                {projectsQuery.isPending ? "–" : totalPendingApps}
+                {isProjectsLoading ? "–" : totalPendingApps}
               </span>
               {totalPendingApps > 0 && (
                 <span className="inline-block size-2 rounded-full bg-amber-500 animate-pulse" />
@@ -350,7 +353,7 @@ export function AuthenticatedHomeView({
             </div>
 
             {/* Projects List or Empty State */}
-            {projectsQuery.isPending ? (
+            {isProjectsLoading ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 {[1, 2].map((i) => (
                   <div key={i} className="h-36 animate-pulse rounded-2xl bg-muted/40" />

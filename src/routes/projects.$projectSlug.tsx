@@ -3,12 +3,20 @@ import { useTranslation } from "react-i18next";
 
 import { ROUTES } from "@/config/routes.config";
 import { useCurrentUserQuery } from "@/modules/auth";
+import {
+  getApplicationDailyLimitResetCopy,
+  getApplicationSubmissionErrorMessage,
+  useContributionRequestsQuery,
+  useSubmitApplicationMutation,
+} from "@/modules/contribution-requests";
 import { MaterialsPanel, useProjectMaterialsQuery } from "@/modules/materials";
 import {
   PublicProjectDetailView,
   getProjectApiErrorMessage,
-  usePublicProjectBySlugQuery,
+  usePublicProjectBySlugQuery
 } from "@/modules/projects";
+import type {ApplicationSubmissionController} from "@/modules/projects";
+import { getApiErrorCode } from "@/shared/utils/get-api-error-code";
 
 import { PublicProjectsShell } from "./-public-projects-shell";
 
@@ -20,10 +28,12 @@ export const Route = createFileRoute("/projects/$projectSlug")({
 });
 
 function PublicProjectDetailsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { projectSlug } = Route.useParams();
   const projectQuery = usePublicProjectBySlugQuery(projectSlug);
   const currentUserQuery = useCurrentUserQuery();
+  const contributionRequestsQuery = useContributionRequestsQuery();
+  const submitApplication = useSubmitApplicationMutation();
   const canReadMaterials = currentUserQuery.data?.status === "active";
   const materialsQuery = useProjectMaterialsQuery(
     projectQuery.data?.id ?? "",
@@ -64,6 +74,26 @@ function PublicProjectDetailsPage() {
     (!projectQuery.data.owner?.username ||
       currentUser.username === projectQuery.data.owner.username);
 
+  const submissionErrorCode = getApiErrorCode(submitApplication.error);
+  const applicationSubmission: ApplicationSubmissionController = {
+    submit: (payload, handlers) =>
+      submitApplication.mutate(payload, {
+        onSuccess: handlers?.onSuccess ? () => handlers.onSuccess?.() : undefined,
+      }),
+    reset: () => submitApplication.reset(),
+    isPending: submitApplication.isPending,
+    hasError: submitApplication.error !== null,
+    errorCode: submissionErrorCode,
+    submissionErrorMessage: submitApplication.error
+      ? getApplicationSubmissionErrorMessage(submitApplication.error)
+      : null,
+    dailyLimitResetCopy:
+      submissionErrorCode === "APPLICATION_DAILY_LIMIT_REACHED" &&
+      submitApplication.error
+        ? getApplicationDailyLimitResetCopy(submitApplication.error, i18n.language)
+        : null,
+  };
+
   return (
     <PublicProjectsShell>
       <PublicProjectDetailView
@@ -71,6 +101,11 @@ function PublicProjectDetailsPage() {
         exploreHref={ROUTES.publicProjects}
         isOwner={isOwner}
         currentUserRole={currentUser?.role}
+        projectRequests={contributionRequestsQuery.data?.items ?? []}
+        applicationSubmission={applicationSubmission}
+        isAuthenticated={Boolean(currentUser && currentUser.status === "active")}
+        isContributor={currentUser?.role === "contributor"}
+        isAuthLoading={currentUserQuery.isLoading}
         proposalAction={
           currentUser?.role === "contributor" &&
           currentUser.status === "active" ? (

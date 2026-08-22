@@ -1,11 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import { API_BASE_URL } from "@/config/env";
 
 import { PublicProjectDetailView } from "./public-project-detail-view";
+import type { ApplicationSubmissionController } from "./public-project-modals";
 import type { PublicProjectDetailDto } from "../types/public-project.types";
 
 const publicBackedProject: PublicProjectDetailDto = {
@@ -43,11 +44,22 @@ const publicBackedProject: PublicProjectDetailDto = {
   },
 };
 
+const noopSubmission: ApplicationSubmissionController = {
+  submit: () => {},
+  reset: () => {},
+  isPending: false,
+  hasError: false,
+  errorCode: null,
+  submissionErrorMessage: null,
+  dailyLimitResetCopy: null,
+};
+
 describe("PublicProjectDetailView", () => {
   it("renders repository attribution and fetch time for a public-backed project", () => {
-    const html = render(
-      <PublicProjectDetailView project={publicBackedProject} exploreHref="/explore" />,
-    );
+    const html = renderView({
+      project: publicBackedProject,
+      exploreHref: "/explore",
+    });
 
     expect(html).toContain("sharek/example");
     expect(html).toContain("https://github.com/sharek/example");
@@ -60,9 +72,10 @@ describe("PublicProjectDetailView", () => {
       source: { provider: "github", attributionStatus: "withheld" },
     };
 
-    const html = render(
-      <PublicProjectDetailView project={withheld} exploreHref="/explore" />,
-    );
+    const html = renderView({
+      project: withheld,
+      exploreHref: "/explore",
+    });
 
     expect(html).toContain("تفاصيل مصدر هذا المشروع غير متاحة للعرض حالياً");
     expect(html).not.toContain("sharek/example");
@@ -100,9 +113,10 @@ describe("PublicProjectDetailView", () => {
       },
     };
 
-    const html = render(
-      <PublicProjectDetailView project={minimal} exploreHref="/explore" />,
-    );
+    const html = renderView({
+      project: minimal,
+      exploreHref: "/explore",
+    });
 
     expect(html).toContain("لا يوجد وصف لهذا المشروع بعد");
     expect(html).not.toContain("آخر جلب للبيانات");
@@ -111,50 +125,42 @@ describe("PublicProjectDetailView", () => {
   it("loads a public hero image from the API origin", () => {
     const heroImagePath =
       "/public/projects/bengaluru-house-prices-7aa7dddf9ce144c3a02a7c56088a2fe4/hero-image";
-    const html = render(
-      <PublicProjectDetailView
-        project={{ ...publicBackedProject, heroImageUrl: heroImagePath }}
-        exploreHref="/explore"
-      />,
-    );
+    const html = renderView({
+      project: { ...publicBackedProject, heroImageUrl: heroImagePath },
+      exploreHref: "/explore",
+    });
 
     expect(html).toContain(`src="${API_BASE_URL}${heroImagePath}"`);
   });
 
   it("renders the route-composed proposal action without coupling project UI to proposals", () => {
-    const html = render(
-      <PublicProjectDetailView
-        project={publicBackedProject}
-        exploreHref="/explore"
-        proposalAction={<a href="/proposals/new?projectId=project-1">إرسال مقترح مساهمة</a>}
-      />,
-    );
+    const html = renderView({
+      project: publicBackedProject,
+      exploreHref: "/explore",
+      proposalAction: <a href="/proposals/new?projectId=project-1">إرسال مقترح مساهمة</a>,
+    });
 
     expect(html).toContain("إرسال مقترح مساهمة");
     expect(html).toContain("/proposals/new?projectId=project-1");
   });
 
   it("renders route-composed Project Materials for an authenticated reader", () => {
-    const html = render(
-      <PublicProjectDetailView
-        project={publicBackedProject}
-        exploreHref="/explore"
-        materialsSlot={<p>كراسة المشروع متاحة للقراءة</p>}
-      />,
-    );
+    const html = renderView({
+      project: publicBackedProject,
+      exploreHref: "/explore",
+      materialsSlot: <p>كراسة المشروع متاحة للقراءة</p>,
+    });
 
     expect(html).toContain("كراسة المشروع متاحة للقراءة");
   });
 
   it("renders Edit Project and omits Apply button when viewed by project owner", () => {
-    const html = render(
-      <PublicProjectDetailView
-        project={publicBackedProject}
-        exploreHref="/explore"
-        isOwner={true}
-        currentUserRole="owner"
-      />,
-    );
+    const html = renderView({
+      project: publicBackedProject,
+      exploreHref: "/explore",
+      isOwner: true,
+      currentUserRole: "owner",
+    });
 
     expect(html).toContain("تعديل المشروع");
     expect(html).toContain("/my-projects/project-1");
@@ -162,19 +168,39 @@ describe("PublicProjectDetailView", () => {
   });
 
   it("renders Apply button when viewed by a contributor or non-owner", () => {
-    const html = render(
-      <PublicProjectDetailView
-        project={publicBackedProject}
-        exploreHref="/explore"
-        isOwner={false}
-        currentUserRole="contributor"
-      />,
-    );
+    const html = renderView({
+      project: publicBackedProject,
+      exploreHref: "/explore",
+      isOwner: false,
+      currentUserRole: "contributor",
+    });
 
     expect(html).toContain("تقديم على المشروع");
     expect(html).not.toContain("تعديل المشروع");
   });
 });
+
+function renderView(
+  props: Omit<
+    ComponentProps<typeof PublicProjectDetailView>,
+    | "projectRequests"
+    | "applicationSubmission"
+    | "isAuthenticated"
+    | "isContributor"
+    | "isAuthLoading"
+  >,
+) {
+  return render(
+    <PublicProjectDetailView
+      projectRequests={[]}
+      applicationSubmission={noopSubmission}
+      isAuthenticated={false}
+      isContributor={false}
+      isAuthLoading={false}
+      {...props}
+    />,
+  );
+}
 
 function render(view: ReactNode) {
   const queryClient = new QueryClient({
