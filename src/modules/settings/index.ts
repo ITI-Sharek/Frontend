@@ -9,4 +9,3 @@ export { IdentityVerificationPanel } from "./components/identity-verification-pa
 export { EmailSettingsForm } from "./components/email-settings-form";
 export { PhoneSettingsForm } from "./components/phone-settings-form";
 export { UsernameSettingsForm } from "./components/username-settings-form";
-export { SubscriptionSettingsSection } from "./components/subscription-settings-section";
