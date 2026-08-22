@@ -2,6 +2,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import type { AdminIdentityVerificationItemDto } from "@/modules/admin-identity";
+import { AdminIdentityVerificationsPanel } from "@/modules/admin-identity";
+import { AdminSkillReviewQueue, AdminSkillReviewSummary } from "@/modules/skill-profiles";
+import {
+  AdminContributorFieldsPanel,
+  AdminExperienceLevelsPanel,
+} from "@/modules/contributors";
+import { AdminPublishedProjectOwnersPanel } from "@/modules/projects";
 
 import { AdminDashboardHero } from "./admin-dashboard-hero";
 import { AdminQuickCreateDialog } from "./admin-quick-create-dialog";
@@ -223,6 +230,8 @@ describe("Admin Dashboard Redesign", () => {
         pendingVerifications={mockPendingVerifications}
         onSelectTab={vi.fn()}
         onOpenQuickCreate={vi.fn()}
+        skillReviewSummarySlot={<AdminSkillReviewSummary />}
+        ownersPanelSlot={<AdminPublishedProjectOwnersPanel />}
       />,
     );
 
@@ -235,7 +244,28 @@ describe("Admin Dashboard Redesign", () => {
 
   it("renders AdminDashboardView and mounts overview tab by default", () => {
     const html = renderToStaticMarkup(
-      <AdminDashboardView initialTab="overview" />,
+      <AdminDashboardView
+        initialTab="overview"
+        metrics={mockMetrics}
+        pendingVerifications={mockPendingVerifications}
+        isVerificationsLoading={false}
+        isSkillsLoading={false}
+        isTaxonomyLoading={false}
+        isLevelsLoading={false}
+        isOwnersLoading={false}
+        isRefreshing={false}
+        onRefresh={vi.fn()}
+        onOpenQuickCreate={vi.fn()}
+        skillReviewSummarySlot={<AdminSkillReviewSummary />}
+        ownersPanelSlot={<AdminPublishedProjectOwnersPanel />}
+        verificationsPanel={<AdminIdentityVerificationsPanel />}
+        skillsPanel={
+          <AdminSkillReviewQueue reviews={{ items: [], total: 0, page: 1, limit: 50, totalPages: 1 }} />
+        }
+        taxonomyPanel={<AdminContributorFieldsPanel />}
+        levelsPanel={<AdminExperienceLevelsPanel />}
+        ownersPanel={<AdminPublishedProjectOwnersPanel />}
+      />,
     );
 
     expect(html).toMatch(/Admin Command Center|مركز قيادة الإدارة/);

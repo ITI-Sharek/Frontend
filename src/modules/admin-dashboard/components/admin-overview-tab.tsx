@@ -8,13 +8,12 @@ import {
   Shield,
   Sparkles,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DirectionalArrow } from "@/shared/components/ui/directional-arrow";
 import { Avatar } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { AdminPublishedProjectOwnersPanel } from "@/modules/projects";
-import { AdminSkillReviewSummary } from "@/modules/skill-profiles";
 import type { AdminIdentityVerificationItemDto } from "@/modules/admin-identity";
 
 import type { DashboardMetrics } from "./admin-dashboard-hero";
@@ -25,6 +24,8 @@ interface AdminOverviewTabProps {
   onSelectTab: (tab: string) => void;
   onOpenQuickCreate: (tab?: "category" | "field" | "level") => void;
   isVerificationsLoading?: boolean;
+  skillReviewSummarySlot: ReactNode;
+  ownersPanelSlot: ReactNode;
 }
 
 export function AdminOverviewTab({
@@ -33,6 +34,8 @@ export function AdminOverviewTab({
   onSelectTab,
   onOpenQuickCreate,
   isVerificationsLoading,
+  skillReviewSummarySlot,
+  ownersPanelSlot,
 }: AdminOverviewTabProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language.startsWith("ar");
@@ -364,13 +367,13 @@ export function AdminOverviewTab({
 
         {/* Right Column: Skill Reviews Summary */}
         <div>
-          <AdminSkillReviewSummary />
+          {skillReviewSummarySlot}
         </div>
       </div>
 
       {/* Full-Width Section: Published Project Owners */}
       <div>
-        <AdminPublishedProjectOwnersPanel />
+        {ownersPanelSlot}
       </div>
     </div>
   );

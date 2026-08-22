@@ -7,37 +7,18 @@ import {
   RefreshCw,
   Shield,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-
-import {
-  useAdminIdentityVerificationsQuery,
-  AdminIdentityVerificationsPanel,
-} from "@/modules/admin-identity";
-import {
-  useAdminContributorFieldCategoriesQuery,
-  useAdminExperienceLevelsQuery,
-  AdminContributorFieldsPanel,
-  AdminExperienceLevelsPanel,
-} from "@/modules/contributors";
-import {
-  useAdminPublishedProjectOwnersQuery,
-  AdminPublishedProjectOwnersPanel,
-} from "@/modules/projects";
-import {
-  useAdminPendingSkillReviewsQuery,
-  formatWaitingAge,
-  groupPendingSkillReviews,
-  AdminSkillReviewQueue,
-} from "@/modules/skill-profiles";
 import { PageContainer } from "@/shared/components/layout/page-layout";
 import { Button } from "@/shared/components/ui/button";
+
+import type { AdminIdentityVerificationItemDto } from "@/modules/admin-identity";
 
 import type { DashboardMetrics } from "./admin-dashboard-hero";
 import { AdminDashboardHero } from "./admin-dashboard-hero";
 import { AdminOverviewTab } from "./admin-overview-tab";
 import type { QuickCreateTab } from "./admin-quick-create-dialog";
-import { AdminQuickCreateDialog } from "./admin-quick-create-dialog";
 
 export type AdminDashboardTabId =
   | "overview"
@@ -50,11 +31,45 @@ export type AdminDashboardTabId =
 interface AdminDashboardViewProps {
   initialTab?: string;
   onTabChange?: (tab: AdminDashboardTabId) => void;
+  metrics: DashboardMetrics;
+  pendingVerifications: AdminIdentityVerificationItemDto[];
+  isVerificationsLoading: boolean;
+  isSkillsLoading: boolean;
+  isTaxonomyLoading: boolean;
+  isLevelsLoading: boolean;
+  isOwnersLoading: boolean;
+  isRefreshing: boolean;
+  onRefresh: () => void;
+  onOpenQuickCreate: (tab?: QuickCreateTab) => void;
+  skillReviewSummarySlot: ReactNode;
+  ownersPanelSlot: ReactNode;
+  verificationsPanel: ReactNode;
+  skillsPanel: ReactNode;
+  taxonomyPanel: ReactNode;
+  levelsPanel: ReactNode;
+  ownersPanel: ReactNode;
 }
 
 export function AdminDashboardView({
   initialTab = "overview",
   onTabChange,
+  metrics,
+  pendingVerifications,
+  isVerificationsLoading,
+  isSkillsLoading,
+  isTaxonomyLoading,
+  isLevelsLoading,
+  isOwnersLoading,
+  isRefreshing,
+  onRefresh,
+  onOpenQuickCreate,
+  skillReviewSummarySlot,
+  ownersPanelSlot,
+  verificationsPanel,
+  skillsPanel,
+  taxonomyPanel,
+  levelsPanel,
+  ownersPanel,
 }: AdminDashboardViewProps) {
   const { t } = useTranslation();
 
@@ -73,82 +88,12 @@ export function AdminDashboardView({
       : "overview",
   );
 
-  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
-  const [quickCreateTab, setQuickCreateTab] = useState<QuickCreateTab>("category");
-
-  // Data Queries
-  const identityVerificationsQuery = useAdminIdentityVerificationsQuery({
-    status: "all",
-    limit: 50,
-  });
-  const pendingSkillReviewsQuery = useAdminPendingSkillReviewsQuery({
-    page: 1,
-    limit: 50,
-  });
-  const categoriesQuery = useAdminContributorFieldCategoriesQuery();
-  const experienceLevelsQuery = useAdminExperienceLevelsQuery();
-  const projectOwnersQuery = useAdminPublishedProjectOwnersQuery();
-
-  // Metrics computation
-  const metrics: DashboardMetrics = useMemo(() => {
-    const allVerifications = identityVerificationsQuery.data?.items ?? [];
-    const pendingVerifications = allVerifications.filter(
-      (v) => v.identityVerificationStatus === "pending",
-    ).length;
-    const verifiedIdentities = allVerifications.filter(
-      (v) => v.identityVerificationStatus === "verified",
-    ).length;
-
-    const skillGroups = groupPendingSkillReviews(
-      t,
-      pendingSkillReviewsQuery.data?.items ?? [],
-    );
-    const oldestPending = skillGroups[0]?.oldestCreatedAt;
-    const oldestSkillWait = oldestPending
-      ? formatWaitingAge(t, oldestPending)
-      : undefined;
-
-    const categories = categoriesQuery.data ?? [];
-    const totalFields = categories.reduce(
-      (acc, cat) => acc + cat.fields.length,
-      0,
-    );
-
-    return {
-      pendingVerifications,
-      verifiedIdentities,
-      pendingSkills: pendingSkillReviewsQuery.data?.total ?? 0,
-      oldestSkillWait,
-      totalCategories: categories.length,
-      totalFields,
-      totalLevels: experienceLevelsQuery.data?.length ?? 0,
-      publishedOwners: projectOwnersQuery.data?.length ?? 0,
-    };
-  }, [
-    identityVerificationsQuery.data,
-    pendingSkillReviewsQuery.data,
-    categoriesQuery.data,
-    experienceLevelsQuery.data,
-    projectOwnersQuery.data,
-    t,
-  ]);
-
-  const pendingVerificationItems = useMemo(() => {
-    const all = identityVerificationsQuery.data?.items ?? [];
-    return all.filter((i) => i.identityVerificationStatus === "pending");
-  }, [identityVerificationsQuery.data]);
-
   function handleSelectTab(tabId: string) {
     if (validTabs.includes(tabId as AdminDashboardTabId)) {
       const validId = tabId as AdminDashboardTabId;
       setActiveTab(validId);
       onTabChange?.(validId);
     }
-  }
-
-  function handleOpenQuickCreate(tab: QuickCreateTab = "category") {
-    setQuickCreateTab(tab);
-    setQuickCreateOpen(true);
   }
 
   const tabsConfig = [
@@ -199,12 +144,12 @@ export function AdminDashboardView({
         <AdminDashboardHero
           metrics={metrics}
           onSelectTab={handleSelectTab}
-          onOpenQuickCreate={() => handleOpenQuickCreate("category")}
-          isVerificationsLoading={identityVerificationsQuery.isLoading}
-          isSkillsLoading={pendingSkillReviewsQuery.isLoading}
-          isTaxonomyLoading={categoriesQuery.isLoading}
-          isLevelsLoading={experienceLevelsQuery.isLoading}
-          isOwnersLoading={projectOwnersQuery.isLoading}
+          onOpenQuickCreate={() => onOpenQuickCreate("category")}
+          isVerificationsLoading={isVerificationsLoading}
+          isSkillsLoading={isSkillsLoading}
+          isTaxonomyLoading={isTaxonomyLoading}
+          isLevelsLoading={isLevelsLoading}
+          isOwnersLoading={isOwnersLoading}
         />
 
         {/* Interactive Workspace Navigation Tabs */}
@@ -232,7 +177,7 @@ export function AdminDashboardView({
                     <span>{tab.label}</span>
                     {tab.badge !== undefined && (
                       <span
-                        className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                        className={`rounded-full px-1 py-0.2 text-[10px] font-bold ${
                           isActive
                             ? "bg-primary-foreground/20 text-primary-foreground"
                             : tab.badgeAccent
@@ -253,32 +198,12 @@ export function AdminDashboardView({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  void identityVerificationsQuery.refetch();
-                  void pendingSkillReviewsQuery.refetch();
-                  void categoriesQuery.refetch();
-                  void experienceLevelsQuery.refetch();
-                  void projectOwnersQuery.refetch();
-                }}
-                disabled={
-                  identityVerificationsQuery.isFetching ||
-                  pendingSkillReviewsQuery.isFetching ||
-                  categoriesQuery.isFetching ||
-                  experienceLevelsQuery.isFetching ||
-                  projectOwnersQuery.isFetching
-                }
+                onClick={onRefresh}
+                disabled={isRefreshing}
                 className="rounded-2xl text-xs gap-1.5 shadow-2xs"
               >
                 <RefreshCw
-                  className={`size-3.5 ${
-                    identityVerificationsQuery.isFetching ||
-                    pendingSkillReviewsQuery.isFetching ||
-                    categoriesQuery.isFetching ||
-                    experienceLevelsQuery.isFetching ||
-                    projectOwnersQuery.isFetching
-                      ? "animate-spin"
-                      : ""
-                  }`}
+                  className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
                 />
                 <span className="hidden sm:inline">{t("common.refresh", "Refresh")}</span>
               </Button>
@@ -291,73 +216,37 @@ export function AdminDashboardView({
           {activeTab === "overview" && (
             <AdminOverviewTab
               metrics={metrics}
-              pendingVerifications={pendingVerificationItems}
+              pendingVerifications={pendingVerifications}
               onSelectTab={handleSelectTab}
-              onOpenQuickCreate={handleOpenQuickCreate}
-              isVerificationsLoading={identityVerificationsQuery.isLoading}
+              onOpenQuickCreate={onOpenQuickCreate}
+              isVerificationsLoading={isVerificationsLoading}
+              skillReviewSummarySlot={skillReviewSummarySlot}
+              ownersPanelSlot={ownersPanelSlot}
             />
           )}
 
           {activeTab === "verifications" && (
             <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
-              <AdminIdentityVerificationsPanel />
+              {verificationsPanel}
             </div>
           )}
 
-          {activeTab === "skills" && (
-            <div>
-              {pendingSkillReviewsQuery.isPending ? (
-                <div className="rounded-3xl border border-border bg-card p-12 text-center text-xs text-muted-foreground">
-                  {t("admin.skillReviews.loading", "Loading review queue…")}
-                </div>
-              ) : pendingSkillReviewsQuery.isError ? (
-                <div className="rounded-3xl border border-border bg-card p-8 text-center">
-                  <p className="text-sm font-semibold text-foreground">
-                    {t("admin.skillReviews.loadError", "Could not load review queue")}
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void pendingSkillReviewsQuery.refetch()}
-                    className="mt-3 rounded-xl text-xs"
-                  >
-                    {t("admin.skillReviews.retry", "Retry")}
-                  </Button>
-                </div>
-              ) : (
-                <AdminSkillReviewQueue
-                  reviews={pendingSkillReviewsQuery.data}
-                />
-              )}
-            </div>
-          )}
+          {activeTab === "skills" && <div>{skillsPanel}</div>}
 
           {activeTab === "taxonomy" && (
             <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
-              <AdminContributorFieldsPanel />
+              {taxonomyPanel}
             </div>
           )}
 
           {activeTab === "levels" && (
             <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
-              <AdminExperienceLevelsPanel />
+              {levelsPanel}
             </div>
           )}
 
-          {activeTab === "owners" && (
-            <div>
-              <AdminPublishedProjectOwnersPanel />
-            </div>
-          )}
+          {activeTab === "owners" && <div>{ownersPanel}</div>}
         </div>
-
-        {/* Global Quick Create Modal */}
-        <AdminQuickCreateDialog
-          open={quickCreateOpen}
-          onOpenChange={setQuickCreateOpen}
-          initialTab={quickCreateTab}
-        />
       </div>
     </PageContainer>
   );
